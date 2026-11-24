@@ -55,7 +55,7 @@ def reader_buttons(page, current, order, names):
 def course_nav(groups, names, ko, current, sidebar):
     blocks = []
     for first, last, title, english, chapters in groups:
-        label = f'{first}–{last}회 · {title}' if ko else f'Sessions {first}–{last} · {english}'
+        label = f'{first}–{last}회 · {title}' if ko else english
         rows = []
         for n, weeks in chapters.items():
             if ko:
@@ -91,11 +91,7 @@ def update_pages(site, ko=False):
         more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'
         if ko:
             langlink = '../' + (chapter_link(ch) if ch else 'index.html')
-            langlabel = 'English edition'
-        else:
-            langlink = 'ko/' + (chapter_link(ch) if ch in groups[0][-1] else 'index.html')
-            langlabel = 'Korean edition · Sessions 1–7'
-        more += f'<a class="guide-link" href="{langlink}">{langlabel}</a>'
+            more += f'<a class="guide-link" href="{langlink}">English edition</a>'
         # Verso uses a heading div for some releases, so anchor on this book's first table.
         pattern = r'(<div class="split-toc book">(?:(?!<table>).)*?)<table>.*?</table>'
         s, k = re.subn(pattern, lambda m: m[1]+more+course_nav(groups,names,ko,ch,True),s,count=1,flags=re.S)

@@ -55,7 +55,7 @@ A language definition gives rise to several mathematical questions. Which execut
 
 The contents follow the seminar in seven units. Chapter and section numbers identify the same material in both editions. The Korean seminar guide lists the sections to read before each meeting, the passage for the presenter, and the problem the group will solve together. The worksheets at the end of the chapters provide additional practice. Each Lean panel checks the definitions or proof stated in that panel.
 
-[Judgment notation](chapter-01/index.html#ch01-s4) · [Korean edition · Sessions 1–7](ko/index.html) · [Reading schedule (Korean)](seminar/index.html) · [English book (PDF)](print/pl-study.pdf)
+[Judgment notation](chapter-01/index.html#ch01-s4) · [Reading schedule (Korean)](seminar/index.html) · [English book (PDF)](print/pl-study.pdf)
 
 {include 1 PLBook.Seminar}
 

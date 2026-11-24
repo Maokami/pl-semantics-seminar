@@ -191,7 +191,7 @@ def contents(chapters, groups, ko):
         heading = "차례" if ko else ("Contents" if i == 0 else "Contents, continued")
         sections = [f'<section class="print-front"><h1>{heading}</h1>']
         for first, last, korean, english, numbers in subset:
-            title = f"{first}–{last}회 · {korean}" if ko else f"Sessions {first}–{last} · {english}"
+            title = f"{first}–{last}회 · {korean}" if ko else english
             sections.append(f'<h3>{html.escape(title)}</h3><ol class="contents">')
             for n in numbers:
                 name, start = entries[n]
