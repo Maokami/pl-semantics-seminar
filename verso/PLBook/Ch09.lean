@@ -3,123 +3,122 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Correspondence of Command Semantics" =>
+#doc (Manual) "Finite Approximations of a Loop" =>
 %%%
-tag := "ch09"
-file := "chapter-09"
-%%%
-
-[Chapter PDF](print/chapter-09.pdf) · [Session 10](seminar/index.html#week-10)
-
-A denotational definition by functions, a denotational definition by relations, and the operational rules give three independent accounts of a terminating command. The intermediate store in sequential composition is where they meet. For a loop the bridge is the number of finite unfoldings needed by an execution.
-
-*Sources.* Glynn Winskel, _The Formal Semantics of Programming Languages_, chapter 5 on the denotational semantics of IMP. Read the relational clauses for composition and iteration. Compare Reynolds, _Theories of Programming Languages_, §2.2 on command meanings as functions. The joint proof is the sequence case of Theorem 9.2 in both directions. [Winskel.](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Independent definitions
-%%%
-tag := "ch09-s1"
+tag := "ch08"
+file := "chapter-08"
 %%%
 
-Let $`\Sigma` be the states, $`f_{c}:\Sigma\rightarrow\Sigma_{\bot}` the transformer of Chapters 7–8, and $`s \vdash c \Downarrow t` the terminating judgment of Chapter 2. Define $`D(c)` as a subset of $`\Sigma \times \Sigma` by recursion on the command’s syntax. A partial function defines a relation by its graph, but this definition of $`D` does not refer to $`f`.
+[Chapter PDF](print/chapter-08.pdf) · [Session 9](seminar/index.html#week-09)
 
-For skip use the diagonal, consisting of $`\left( {s,s} \right)` for every state. For assignment use every pair $`\left( {s,s\left\lbrack {x\mapsto\operatorname{eval}\left( {e,s} \right)} \right\rbrack} \right)`. For sequencing put $`\left( {s,t} \right) \in D\left( {c\ \text{;}\ d} \right)` if there exists $`u` with $`\left( {s,u} \right) \in D(c)` and $`\left( {u,t} \right) \in D(d)`. A conditional accepts a pair in the relation of the branch selected by the guard in $`s`.
+The equation “execute the body, then execute the loop again” admits spurious solutions. For an always-true loop whose body is skip, the equation merely requires that a proposed meaning equal itself. To choose the meaning determined by finite terminating executions, start with no known results and unfold the loop a finite number of times.
 
-For a loop with guard $`b` and body $`a`, define an operation $`G` on relations. The pair $`\left( {s,t} \right)` belongs to $`G(R)` precisely if one of these conditions holds:
+*Sources.* Reynolds, _Theories of Programming Languages_, §§2.3–2.4, especially the least fixed-point theorem. Fix the meaning of the body before varying the meaning of the recursive occurrence. The joint theorem identifies exactly which finite runs are visible at a particular unfolding depth. [Reynolds, chapter 2.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-1. The guard is false at $`s` and $`t = s`.
-2. The guard is true at $`s` and some $`u` satisfies $`\left( {s,u} \right) \in D(a)` and $`\left( {u,t} \right) \in R`.
-
-Set $`R_{0} = \varnothing`, $`R_{n + 1} = G\left( R_{n} \right)`, and $`D(W) = \bigcup_{n \geq 0}R_{n}`. The relations increase under inclusion because $`G` is monotone. A member of the union has a finite stage witness. In fact this union is a fixed point: a true-branch witness in $`G\left( {\bigcup_{n}R_{n}} \right)` uses one recursive pair from some stage $`n`, so the new pair occurs at stage $`n + 1`. Exit pairs occur at stage 1. Conversely each positive stage is included in the image of the union by monotonicity. Every fixed point contains all stages by induction, so it contains their union.
-
-*Testing an independently stated clause.* Suppose a conditional has guard `x = 0`, true branch `x := 1`, and false branch skip. For any input with `x = 0` the relation contains exactly the pair from that input to its update at `x`. For an input with `x = 1` it contains the diagonal pair. The relational clause restricts the *first* coordinate by the guard. If the true-branch clause instead tested the guard in the second coordinate, the genuine update from zero to one would fail the restriction. The execution rules determine the branch before the assignment, so this modified definition could not satisfy correspondence.
-
-There is a useful change of representation behind this test. A store predicate `P` determines the restricted diagonal `{(s,s) | P(s)}`. Compose it with the relation of the true branch, then take the union with the corresponding composition for the complementary predicate and the false branch. The result is precisely the conditional relation. Composing the restricted diagonal *after* a branch would test its output. Distinguishing the two compositions uses only the definition of a relational witness and gives a compact way to detect the mistaken coordinate before tackling loops.
-
-# The sequence case
+# The unfolding operation
 %%%
-tag := "ch09-s2"
+tag := "ch08-s1"
 %%%
 
-*Theorem 9.2.* For deterministic integer IMP with total pure expressions and tests, for all commands $`c` and ordinary states $`s,t`,
+Fix a guard $`b` with truth value $`B\left( {b,s} \right)` in each state and a body meaning $`g:\Sigma\rightarrow\Sigma_{\bot}`. The flat lifted outcomes and their pointwise function order are those of Chapter 8. For a proposed meaning $`h` of the recursive occurrence, define $`F(h)` by
 
-$$`f_{c}(s) = t\quad\Longleftrightarrow\quad\left( {s,t} \right) \in D(c)\quad\Longleftrightarrow\quad s \vdash c \Downarrow t.`
+$$`F(h)(s) = \left\{ \begin{matrix} {s\ } & {\text{if the guard is false at}\ s} \\ {\bot\ } & {\text{if the guard is true and}\ g(s) = \bot} \\ {h(u)\ } & {\text{if the guard is true and}\ g(s) = u \in \Sigma} \end{matrix} \right..`
 
-We prove the two equivalences simultaneously by structural induction on $`c`. At skip and assignment the three definitions identify the same single result. At a conditional they all use the same truth value to select a branch, so the branch hypothesis applies.
+An *iteration* counts one completed body execution. Testing the false guard at exit executes zero bodies. Let $`w_{0}(s) = \bot` at every input and put $`w_{n + 1} = F\left( w_{n} \right)` for natural $`n`. The first approximation $`w_{1}` can already discover an exit without executing a body. In the true case it consults $`w_{0}` on the successor state, so it cannot yet report a terminating state there.
 
-For a sequence $`a\ \text{;}\ b`, a state result of its transformer implies that $`f_{a}(s)` is an ordinary state $`u` and $`f_{b}(u) = t`. Indeed the strict extension would return bottom if the prefix did. The two induction hypotheses convert these equalities into membership in $`D(a)` and $`D(b)`. This witnesses relational composition. Conversely, a relational witness $`u` gives the same two function equations by induction. Substitution into the strict composition formula returns $`t`.
+*Monotonicity.* If $`h \sqsubseteq h'`, then $`F(h) \sqsubseteq F\left( h' \right)`. At an input taking either of the first two cases the results are identical. In the remaining case compare $`h(u)` and $`h'(u)`. Since $`w_{0}` is least, $`w_{0} \sqsubseteq w_{1}`. Monotonicity propagates the inequality to every adjacent pair.
 
-Starting from the relational witness, the same hypotheses provide execution trees for $`a` from $`s` to $`u` and for $`b` from $`u` to $`t`. Join them with the sequence rule. Conversely invert a sequence derivation and use its own intermediate state to build the two relational premises. Each direction constructs the witness that its target definition demands.
+*Body divergence and recursive divergence.* Take a body that returns its input whenever `y = 0` and diverges otherwise. Such a meaning is realizable with a loop that repeatedly executes skip while `y ≠ 0`. Use `x > 0` as the guard of the outer loop. On an input with `x = 0` and `y = 1`, every positive approximation returns the input. The guard bypasses the body. On an input with `x = 1` and `y = 1`, every positive approximation gives bottom because the body gives bottom. In this branch changing the proposed recursive meaning `h` can have no effect.
 
-The middle-state argument admits a small Lean statement independent of IMP syntax. Take arbitrary types of inputs, intermediate values, and outputs. Read `f s = some u` as membership in the graph of `f`. Relational composition introduces an existential witness on the right.
+There is a third case. At `x = 1` and `y = 0` the body returns the same state `s` and the guard stays true. Consequently `F(h)(s) = h(s)` for *every* proposal `h`. Starting the iteration at bottom again gives bottom at every stage, this time by induction rather than by inspecting the body alone. Both diverging inputs ultimately have the same denotation. The defining equation distinguishes their explanations: one never reaches a recursive call, the other repeatedly reaches one. A proof of monotonicity compares proposed recursive meanings only in this last branch.
+
+# Counting completed bodies
+%%%
+tag := "ch08-s2"
+%%%
+
+A loop terminates after exactly $`k` body executions in this model when there exist states $`s_{0},\ldots,s_{k}` starting at $`s_{0} = s`, with the guard true and $`g\left( s_{i} \right) = s_{i + 1}` at each $`i < k`, and the guard false at $`s_{k}`. These states determine the final result $`s_{k}`. If $`k = 0`, the starting state already satisfies the exit condition.
+
+*Theorem 9.1.* For any such run and any $`n`, the result $`w_{n}(s)` is bottom for $`n \leq k` and equals $`s_{k}` for $`n \geq k + 1`.
+
+*Proof.* Induct on $`k`, stating the claim for all allowed starting states and all $`n`. For $`k = 0`, $`w_{0}` gives bottom. Every positive stage tests the false guard and returns $`s = s_{0}`. For a run of length $`k + 1`, the initial guard is true and $`g(s) = u` begins a run of length $`k`. Stage zero returns bottom. At stage $`n + 1`, the equation gives $`w_{n + 1}(s) = w_{n}(u)`. The induction hypothesis applied at $`u` gives bottom for $`n \leq k` and the final state for $`n \geq k + 1`. Shifting the stage index back by one proves the claim for length $`k + 1`. $`\square`
+
+*Converse.* If $`w_{n}(s) = t` is a state, there is a finite run to $`t` with fewer than $`n` body executions. Induct on $`n`. The premise is impossible at zero. At the next stage a false guard gives an immediate exit. A true guard must yield an ordinary body result $`u` and a state result from the preceding approximation at $`u`. Prepend this body execution to the shorter run supplied by induction. This argument excludes a fabricated state result at any finite depth.
+
+*Example.* Let the body increment $`x` and the guard be $`x < 2`. At the state with $`x = 2`, stage 1 already returns that state. From $`x = 1`, stage 1 gives bottom and stage 2 returns the state with $`x = 2`. From $`x = 0`, the first state result is at stage 3. These are three distinct inputs to the *same* functions $`w_{n}`. Store coordinates other than $`x` are preserved.
+
+*Which computation does the counter measure?* Consider an outer loop with guard `x > 0` and body `(while y > 0 do y := y − 1); x := 0`. Let the input have `x = 1` and `y = 100`. The inner loop completes one hundred body executions. The assignment then changes `x` to zero, and the outer guard becomes false. The outer run has exactly one completed body. Its result first occurs in `w₂`. The entire inner computation is included in the already fixed meaning `g` of the outer body.
+
+Taking the inner loop in isolation gives a different calculation. At the same input its own first state result occurs at its stage 101. There is no contradiction between the two indices: each approximating sequence belongs to a specific occurrence of a loop, with its own fixed body meaning. Neither index measures machine time or counts all execution-rule applications. A single outer body can also fail to complete, in which case there is no successor state to which a smaller outer approximation can be applied. This example explains why the statement of Theorem 9.1 specifies a sequence of *completed* body executions and includes a final false test.
+
+A single natural-valued counter suffices to check the stage shift. The loop decrements a positive counter. Stage zero has no known outcome, a positive stage recognizes an exit at zero, and a positive counter consumes one stage to execute a body. In the successor case of the proof the smaller counter has precisely one fewer available unfolding.
 
 ```lean
-example {α β γ : Type} (f : α → Option β) (g : β → Option γ)
-    (s : α) (t : γ) :
-    (f s).bind g = some t ↔ ∃ u, f s = some u ∧ g u = some t := by
-  cases f s with
-  | none => simp [Option.bind]
-  | some u => simp [Option.bind]
+def countdownApprox : Nat → Nat → Option Nat
+  | 0, _ => none
+  | _ + 1, 0 => some 0
+  | stage + 1, counter + 1 => countdownApprox stage counter
+
+example (k : Nat) :
+    countdownApprox k k = none ∧ countdownApprox (k + 1) k = some 0 := by
+  induction k with
+  | zero => exact ⟨rfl, rfl⟩
+  | succ k ih => exact ih
 ```
 
-In the first case the existential demands an ordinary intermediate value from a computation that returned none. In the second case any proposed witness must equal the particular `u` in `f s = some u`, because the constructor `some` is injective. After this equality is used, the remaining premise is exactly the equation for the suffix. Both directions in the proof rely on this same witness calculation. The corresponding statement for two arbitrary relations still uses an existential, but a successful first relation can supply several possible intermediate states. The simplification to one particular value here comes from representing the first computation by a function.
-
-# The loop case
+# Least fixed point
 %%%
-tag := "ch09-s3"
+tag := "ch08-s3"
 %%%
 
-The structural induction hypothesis already gives the correspondence for the body $`a` on *all* inputs and outputs. It supplies no hypothesis for the loop itself. Use the approximants $`w_{n}` from Chapter 8 and the relations $`R_{n}` from §9.1 to carry out a second induction.
+For an increasing sequence $`h_{n}` define its supremum pointwise as in Chapter 8. Call $`F` continuous here if it preserves suprema of such sequences. Our $`F` is continuous: for fixed $`s`, the exit and diverging-body branches are constant in $`h_{n}`, and the ordinary true branch evaluates the sequence at one fixed $`u`. In all three cases, taking the pointwise supremum before or after applying $`F` gives the same outcome.
 
-*Finite-stage lemma.* $`w_{n}(s) = t` if and only if $`\left( {s,t} \right) \in R_{n}`. At zero both assertions are false for ordinary $`t`. At stage $`n + 1` the false guard requires $`s = t` on each side. A true guard on the functional side requires a normal $`u = f_{a}(s)` and $`w_{n}(u) = t`. The body correspondence supplies $`\left( {s,u} \right) \in D(a)` and the stage hypothesis gives $`\left( {u,t} \right) \in R_{n}`. Together these witness the true branch of $`G`. Both equivalences can be read backwards for the converse. Taking the union on one side and pointwise supremum on the other preserves the match because a state in the flat function result is reached at a finite stage.
+Set $`w` equal to the supremum of the $`w_{n}`. Continuity gives $`F(w) = \sup_{n}F\left( w_{n} \right) = \sup_{n}w_{n + 1} = w`. Dropping the first, least element leaves the same upper bounds. To prove leastness, take any fixed point $`p = F(p)`. By induction, $`w_{0} \sqsubseteq p` and $`w_{n} \sqsubseteq p` implies $`F\left( w_{n} \right) \sqsubseteq F(p) = p`. Thus $`p` bounds the chain, and $`w \sqsubseteq p`. This is the Kleene construction for this loop operator.
 
-To link relations to execution, start with a finite loop derivation. If its last rule is exit, put the pair in $`R_{1}`. Otherwise the body premise gives a relational pair by the structural hypothesis for $`a`. The recursive loop derivation is a strict subtree. Induction on that subtree gives membership in some $`R_{n}`, and the same middle state gives membership for the original pair in $`R_{n + 1}`. In the reverse direction induct on the stage witnessing membership. The exit branch gives the exit rule. The true branch gives a body derivation by body correspondence and a recursive loop derivation at the previous stage. Join them with the iteration rule. This completes Theorem 9.2. $`\square`
+*What leastness rules out.* Let `W` be `while x > 0 do skip`. For states where `x ≤ 0` its defining equation forces any fixed point `p` to return its input. For states with `x > 0` the equation reduces to `p(s) = p(s)`. At these inputs one may freely choose bottom or any state at all and still obtain a mathematical solution. In particular the everywhere-identity function is a fixed point. Assigning that meaning to the loop would allow an execution to return immediately at `x = 1`.
 
-*Using correspondence to transfer a law.* Write `W` for a loop and `U` for its one-step unfolding. Chapter 6 proved that $`s \vdash W \Downarrow t` and $`s \vdash U \Downarrow t` are equivalent for all ordinary `s,t`. Fix an input `s`. If `f_W(s)` returns an ordinary state `t`, the operational correspondence gives a run of `W` to `t`. Unfolding gives a run of `U` to exactly the same `t`. Applying correspondence backwards yields `f_U(s) = t`. If `f_W(s)` is bottom, a state result for `f_U(s)` would yield a run of `U` and hence of `W`, contradicting the choice of this case. These cases show equality of the two lifted outcomes at every input.
-
-The argument makes a distinction important for reasoning about divergence. There is no inference rule with a terminating conclusion of the form “the final store is bottom.” To use the correspondence theorem in the bottom case, we quantify over *ordinary* candidate outputs and rule them all out. This works because the lifted outcome set has exactly one other element. If one added two different exceptional outcomes, an ordinary-output correspondence alone would no longer determine which exception had occurred. A theorem for the enlarged language would need observations covering those outcomes as well.
+To identify the least solution, compute the stages as functions of the input. The first positive stage returns `s` on `x ≤ 0` and bottom on `x > 0`. Applying the operator again leaves this function unchanged. Its pointwise supremum is thus already attained at stage one. It lies below every fixed point since they agree on every forced exit and bottom lies below every outcome on the other inputs. Notice that the order compares complete results only at the same state. The proof never ranks stores according to how small their `x` value is. The order used to choose a denotation and an integer order used to prove termination serve different purposes.
 
 # Exercises
 %%%
-tag := "ch09-s4"
+tag := "ch08-s4"
 number := false
 %%%
 
-*9.1.* For a state $`s` on which a command has no terminating execution, characterize $`f_{c}(s)` and the possible pairs starting at $`s` in $`D(c)`.
+*9.1.* For a false guard and a body that would diverge on every input, compute $`w_{0},w_{1},w_{2}`.
 
-*9.2.* For a loop with exactly two completed body executions before exit, write the three relational witnesses from the end backwards, giving their first stage indices.
+*9.2.* For a true guard and a skip body, exhibit two different fixed points and identify the least one.
 
-*9.3.* A binary choice has two different possible final states from one input. Which step in identifying a relation with the graph of a partial state transformer becomes impossible?
+*9.3.* Explain why an ordinary state at the supremum must already occur at some finite stage in this model.
 
-*Further problem.* Let `id` be the diagonal relation on stores. Characterize commands whose relation `D(c)` is included in `id`. Use correspondence to prove what happens if such a command precedes an arbitrary suffix `d`. Give an example showing why inclusion alone does not justify deleting the prefix.
+*Further problem.* Let one integer variable `x` be decremented by two while `x > 0`. Derive an explicit positive stage at which each input returns and compute its final value. Does the increasing chain of transformers stabilize at a single finite stage on all integer inputs?
 
 # Reading for the Seminar
 %%%
-tag := "ch09-s5"
+tag := "ch08-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Put the three sequence clauses on the board and mark the type of each intermediate object.
+*Definitions · 10 minutes.* Write the three branches of the unfolding operation, including the exit case.
 
-*Joint proof · 30 minutes.* Starting from an ordinary function result, derive the relational witness and build the execution tree. Have a second participant run the argument backwards by inversion.
+*Joint proof · 30 minutes.* Fill a table of stages 0 to 3 at inputs with x equal to 0, 1 and 2. State and prove the general stage bound. Check the base case by drawing a run with zero bodies.
 
-*Proof review · 20 minutes.* For a loop, convert one finite derivation into a stage witness. Compare the stage induction with the structural induction on commands.
+*Proof review · 20 minutes.* Prove the converse by induction on the stage index. Identify the specific equality in the fixed-point proof that needs continuity.
 
-*Facilitator’s hint.* Name the body result before naming the loop result. The former comes from the smaller syntax tree and the latter from a smaller stage or derivation.
+*Facilitator’s hint.* Use separate indices for the number of bodies and the approximation stage. After one body the remaining run and the available stage both decrease.
 
-# Solutions and Further Reading
+# Solutions
 %%%
-tag := "ch09-s6"
+tag := "ch08-s6"
 number := false
 %%%
 
-*9.1.* The transformer returns bottom, since a state result would produce a derivation by the theorem. There is no pair $`\left( {s,t} \right)` in the relation for any $`t`.
+*9.1.* Stage zero is constantly bottom. Both positive stages return the original input state. No branch evaluates the body.
 
-*9.2.* With successive states $`s,u,t`, the exit at $`t` gives $`\left( {t,t} \right) \in R_{1}`. The second body and that exit give $`\left( {u,t} \right) \in R_{2}`. The first body and that witness give $`\left( {s,t} \right) \in R_{3}`. The stage-count result of Chapter 8 proves these indices are the first.
+*9.2.* Here $`F(h) = h`. Both the constantly bottom function and the identity on states are fixed points, and every function lies above the constantly bottom function.
 
-*9.3.* A partial function assigns at most one ordinary output to each input. Both pairs cannot belong to its graph. The relational composition argument itself still allows several witnesses and results.
+*9.3.* On each input the chain lies in a flat order. A chain consisting only of bottoms has supremum bottom. If the supremum is a state, some chain element is a state, and every later element equals it. This deduction uses flatness of the result space.
 
-Optional: _The Hitchhiker’s Guide to Logical Verification_, §§11.2–11.7, develops relational denotations in Lean. The powerset of pairs is a complete lattice under inclusion, so the Knaster–Tarski theorem gives a least fixed point for a monotone operator. Our finite-stage construction also uses the particular witness structure of $`G` to show its union is fixed. [Hitchhiker’s Guide.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
+*Further problem.* At an input with `x ≤ 0` the guard is initially false. The loop returns its input at stage one. For `x > 0`, write its value as either `2j` with `j ≥ 1` or `2j + 1` with `j ≥ 0`. In the even case, after `j` completed bodies the value is zero, and each preceding head is positive. Theorem 9.1 gives the first successful stage `j + 1`. In the odd case one reaches 1 after `j` bodies; one more produces −1 and exits. The first successful stage is `j + 2`. Every other store coordinate is preserved.
 
-*Further problem.* Inclusion in the diagonal means that every terminating execution leaves the initial store unchanged. By Theorem 9.2 the transformer therefore either gives bottom or returns its input at every store. Write `A` for the set of inputs at which it returns. Then `D(c)` contains exactly the diagonal pairs `(s,s)` with `s ∈ A`. The possible middle store in a terminating execution of `c; d` is forced to be `s`. The composition relation consists exactly of the pairs `(s,t)` of `D(d)` whose first coordinate belongs to `A`.
-
-For an example, choose `c` to repeat skip while `x > 0` and let `d` be skip. The prefix relation is diagonal on the stores where `x ≤ 0`. At an input with positive `x`, the prefix and hence the sequence have no terminating result, whereas deleting the prefix gives skip and returns the input. To justify removal for every suffix and every input, taking skip as the suffix shows that `D(c)` must equal the full diagonal.
+These formulas yield a finite stage for each input. Nevertheless, for each natural `n ≥ 1` choose `x = 2n`. The stage `n` output on that input is bottom whereas stage `n + 1` returns an ordinary store. Stages zero and one also differ at an initially false guard. Hence no two consecutive transformer stages coincide, even though the least fixed point is defined at every input.

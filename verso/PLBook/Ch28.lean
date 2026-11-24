@@ -28,7 +28,7 @@ At a function type a canonical value is a lambda. Obtaining this value and evalu
 
 A related distinction applies under the lambda. The closed abstraction `λu:Nat. fix (λx:Nat. x)` evaluates to itself as a function value. Once applied to zero it exposes the fixed point in the body and admits no numeral result. Consequently a finite derivation to a function does not by itself answer a question about a particular application. This is the operational reason Chapter 29 will specify the behavior of a function by relating its applications at related inputs. A requirement that it merely return a lambda would discard the information needed about the body.
 
-*Recursion and termination.* In Chapter 18 the pure simply typed calculus admitted a normalization theorem. Here `fix (λx:Nat. x)` has type Nat. Under PCF’s evaluation rule for fix, a derivation of a numeral for this term would require a strictly smaller derivation for the same term after unfolding and evaluating the identity application. No finite derivation exists. The semantic functional is the identity, whose iterates from bottom are all bottom. Type preservation, normalization and adequacy are thus three separate claims.
+*Recursion and termination.* In Chapter 19 the pure simply typed calculus admitted a normalization theorem. Here `fix (λx:Nat. x)` has type Nat. Under PCF’s evaluation rule for fix, a derivation of a numeral for this term would require a strictly smaller derivation for the same term after unfolding and evaluating the identity application. No finite derivation exists. The semantic functional is the identity, whose iterates from bottom are all bottom. Type preservation, normalization and adequacy are thus three separate claims.
 
 # An operational calculation
 %%%

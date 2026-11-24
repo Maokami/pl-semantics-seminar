@@ -13,7 +13,7 @@ file := "chapter-01"
 
 식 $`x + 4`에서 $`x`의 값이 $`3`이면 결과는 $`7`이고, $`x`의 값이 $`8`이면 결과는 $`12`이다. 두 계산에서 식의 구문 트리(syntax tree)는 같다. 각 변수 이름에 정수를 하나씩 대응시킨 것을 *상태*(state)라고 한다. 트리의 값을 구하는 한 방법은 잎에서 시작해 뿌리까지 계산하는 것이다. 다른 방법은 어떤 정수가 그 식의 값이라고 판단할 수 있는 규칙을 주는 것이다. 이 장에서는 그 규칙으로 정당화할 수 있는 값이 계산으로 얻는 값과 정확히 일치함을 증명한다.
 
-*읽을 자료.* 이 장에서는 §§1.1–1.2와 §§1.4–1.5를 함께 읽는다. Glynn Winskel의 _The Formal Semantics of Programming Languages_ 중 [§§2.1–2.2, 11–16쪽](https://web.cecs.pdx.edu/~apt/cs558/winskel2.1-5.pdf)에서 구문, 상태, 실행 규칙을 살펴보고, [§3.2 명제 3.3, 30쪽](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)에서 값의 유일성을 직접 증명하는 방법을 읽는다. §1.3은 개별 학습 범위이며, §1.6은 10장에서 대입 명령을 다룰 때 다시 읽는다.
+*읽을 자료.* 이 장에서는 §§1.1–1.2와 §§1.4–1.5를 함께 읽는다. Glynn Winskel의 _The Formal Semantics of Programming Languages_ 중 [§§2.1–2.2, 11–16쪽](https://web.cecs.pdx.edu/~apt/cs558/winskel2.1-5.pdf)에서 구문, 상태, 실행 규칙을 살펴보고, [§3.2 명제 3.3, 30쪽](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)에서 값의 유일성을 직접 증명하는 방법을 읽는다. §1.3은 개별 학습 범위이며, §1.6은 11장에서 대입 명령을 다룰 때 다시 읽는다.
 
 # 추상 구문과 상태
 %%%

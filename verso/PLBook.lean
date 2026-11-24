@@ -51,7 +51,7 @@ shortTitle := "Programming Languages"
 tag := "pl-study"
 %%%
 
-A language definition gives rise to several mathematical questions. Which executions does it admit? When can an expression be replaced by another? Which observations must survive compilation? The first twelve chapters answer these questions for imperative programs using evaluation rules, state transformers, and assertions. Chapters 13–24 turn to binding, evaluation strategies, and type systems. Chapters 25–30 interpret syntax and recursion in mathematical models. Chapters 31–42 study effects, concurrency, compilers, and static analysis.
+A language definition gives rise to several mathematical questions. Which executions does it admit? When can an expression be replaced by another? Which observations must survive compilation? Chapters 1–7 develop execution rules, structural induction, and initial algebras. Chapters 8–13 relate execution to state transformers and assertions. Chapters 14–20 study binding, function types, and their categorical interpretation. Chapters 21–26 develop type checking, inference, subtyping, and polymorphism. Chapters 27–30 use domains to interpret recursion in PCF. Chapters 31–42 study effects, concurrency, compilers, and static analysis.
 
 The contents follow the seminar in seven units. Chapter and section numbers identify the same material in both editions. The Korean seminar guide lists the sections to read before each meeting, the passage for the presenter, and the problem the group will solve together. The worksheets at the end of the chapters provide additional practice. Each Lean panel checks the definitions or proof stated in that panel.
 

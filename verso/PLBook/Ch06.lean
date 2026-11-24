@@ -3,128 +3,147 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Program Equivalence" =>
+#doc (Manual) "Equivalence of Terminating Evaluations" =>
 %%%
-tag := "ch06"
-file := "chapter-06"
-%%%
-
-[Chapter PDF](print/chapter-06.pdf) · [Session 7](seminar/index.html#week-07)
-
-A source transformation may change the number of command steps while preserving the final store of every terminating run. To make this claim precise we must choose the input states, the observations at the end of a run, and the executions that contribute observations. We use the deterministic integer IMP of Chapters 2–5.
-
-*Sources.* Nipkow and Klein, _Concrete Semantics_, §7.2.4 on command equivalence. Read the definition as a statement quantified over two stores. The joint theorem is the unfolding of a while command. For a Lean comparison, consult _The Hitchhiker’s Guide to Logical Verification_, chapter 9, exercise Q2.1. Our argument uses the guards and execution rules of Chapter 2. [Concrete Semantics, chapter 7.](https://concrete-semantics.org/concrete-semantics.pdf) [Hitchhiker’s Guide.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
-
-# Equivalence as equality of observations
-%%%
-tag := "ch06-s1"
+tag := "ch05"
+file := "chapter-05"
 %%%
 
-*Definition 6.1.* For a command $`c` and initial state $`s`, put $`R_{c}(s) = \left\{ t \in \Sigma\ \mid s \vdash c \Downarrow t \right\}`, where $`\Sigma` is the set of stores. Commands $`c` and $`d` are equivalent, written $`c \equiv d`, if $`R_{c}(s) = R_{d}(s)` for every $`s`. Equivalently, for every pair $`s,t`, $`s \vdash c \Downarrow t` holds exactly when $`s \vdash d \Downarrow t` does.
+[Chapter PDF](print/chapter-05.pdf) · [Session 6](seminar/index.html#week-06)
 
-Equality of sets gives reflexivity, symmetry and transitivity. The definition also makes sense for relations with several results. In the present language Chapter 3 ensures each result set is empty or a singleton. The observation is the whole final store. Intermediate changes and the number of steps are absent from $`R_{c}`.
+Chapter 2 represents a terminating execution by a tree. Chapter 5 represents it by a path ending at skip. For a sequence, the tree has one child per operand, whereas the path keeps the second operand in its residual command while the first executes. Matching the two pictures requires a lemma about executing a command inside a larger one.
 
-*Example 6.2.* For any state, `x := x + 0` returns that same state. Its value at $`x` is $`s(x) + 0 = s(x)`, and at any other name it agrees by definition of update. Hence it is equivalent to skip. One of the commands takes an assignment step in the small-step semantics and skip takes zero steps. Chapter 5 explains why this is consistent with equivalence.
+*Sources.* Tobias Nipkow and Gerwin Klein, _Concrete Semantics_, §7.3.1 on equivalence of big-step and small-step execution. Compare the sequence case with the Lean declarations `red_seq_steps` and `cexec_to_reds`. We use Chapter 5’s guard-selecting loop steps throughout. The joint proof is the sequence case in §6.2. [Concrete Semantics, chapter 7.](https://concrete-semantics.org/concrete-semantics.pdf) [Leroy, Imp.](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean)
 
-*Removing a dead assignment.* Let `x` and `y` be distinct. Consider the pair `x := 0; x := y + 1` and `x := y + 1`. To prove equivalence, choose an arbitrary input `s`. After the first assignment the store is `u = s[x ↦ 0]`. Since `u(y) = s(y)`, the last assignment writes exactly the value written by the shorter command. At `x` both results contain `s(y) + 1`. At each name distinct from `x` both equal the initial store. Extensional equality of stores and the execution rules give equality of the singleton result sets at every input.
-
-Two assumptions do separate work here. The second expression must give the same result after the first write. Replacing `y + 1` by `x + 1` violates that condition, as witnessed by an initial value `s(x) = 4`. The first assignment must also complete. If a language admitted an expression that could diverge, erasing an assignment whose expression diverges could turn an empty result set into a singleton even when the assigned variable is never read. The ordinary integer expressions of this chapter meet the termination condition. This explains which parts of the proof may be reused when the expression language changes.
-
-# Loop unfolding
+# Paths inside sequences
 %%%
-tag := "ch06-s2"
+tag := "ch05-s1"
 %%%
 
-Let $`W` stand for `while b do a` and $`U` for `if b then (a; W) else skip`, where the abbreviation $`W` denotes the original loop. All occurrences of $`b` have the same total, side-effect-free meaning $`B`.
+Recall $`s \vdash c \Downarrow t` for a finite execution derivation and $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {d,t} \right\rangle` for zero or more steps. A *sequence context* with suffix $`k` is the operation sending a residual $`a` to $`a\ \text{;}\ k`. The suffix stays fixed, including when $`a` changes.
 
-*Theorem 6.3.* $`W \equiv U`.
+*Lemma 6.1 (Lifting).* If $`\left\langle {a,s} \right\rangle\rightarrow^{n}\left\langle {b,t} \right\rangle`, then
 
-*Forward proof.* Fix two arbitrary states and a derivation of $`s \vdash W \Downarrow t`. If its last rule is the exit rule, then $`B\left( {b,s} \right)` is false and $`t = s`. Use skip and the false conditional rule to derive $`s \vdash U \Downarrow t`. If its last rule is iteration, the premises give $`B\left( {b,s} \right)` true, $`s \vdash a \Downarrow u`, and $`u \vdash W \Downarrow t` for some $`u`. Join the last two derivations by the sequence rule, then use the true conditional rule. The loop subtree from $`u` is already present in the hypothesis.
+$$`\left\langle {a\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {b\ \text{;}\ k,t} \right\rangle.`
 
-*Reverse proof.* Now start with a derivation of $`s \vdash U \Downarrow t`. Invert its conditional rule. The false branch provides $`s \vdash \operatorname{skip} \Downarrow t`, hence $`t = s` and the loop exit rule applies. The true branch provides $`s \vdash a\ \text{;}\ W \Downarrow t`. Invert sequence to obtain its middle state $`u` and a derivation for each side. Together with the true guard, these are the premises of the loop iteration rule. This proves the reverse implication for all states and hence the equivalence. $`\square`
+*Proof.* For each configuration along the path replace its command by the sequence with suffix $`k`. Each original edge becomes exactly one edge by the left-operand step rule. For $`n = 0` the transformed endpoints agree. The construction preserves every intermediate store. $`\square`
 
-This argument uses inversion followed by construction. It requires no hypothesis that the two commands terminate on every input. If no terminating derivation exists on one side, the implication from the other side rules out a terminating derivation there as well. The result is a statement about finite execution evidence.
+In particular, when $`b = \operatorname{skip}` the final configuration in the lifted path *still contains the suffix*. One further step goes from $`\left\langle {\operatorname{skip}\text{;}\ k,t} \right\rangle` to $`\left\langle {k,t} \right\rangle`. Forgetting this step gives path segments whose endpoints cannot be joined.
 
-*Finite unfolding as a proof technique.* Define `U₀ = W` and define `Uₙ₊₁` by replacing the recursive loop in one copy of the unfolded conditional by `Uₙ`. For example, `U₂` tests the guard, executes a body if necessary, tests the guard in the resulting store, and on a second true test executes the body followed by `W`. A false test at either site exits through skip. Each test must use its own input state. Hoisting both tests to the entry substitutes a different condition whenever the body changes a name read by the guard.
+The lifting lemma can be seen as a map on paths with a fixed hole in a program. For a particularly small trace take the assignment `x := 2` from store `s` to skip at `u = s[x ↦ 2]`. Fix the suffix `y := x`. Lifting produces one transition of the combined command whose target is `skip; y := x` in store `u`. At this point the proof still knows that `y` has its *old* value. No transition of the suffix was used in the lifted path. Only after the skip is removed does the next assignment read the already updated `x`.
 
-For a concrete calculation take the guard `x < y`, the body `x := y`, and an initial store with `x = 0` and `y = 2`. The first test is true. The second sees the intermediate store with `x = y = 2` and exits. More generally, if executing the body always makes a true guard false, inversion shows that each terminating run has at most one body execution. In that special case replacing the residual loop after the first body by skip preserves the result, provided the body is allowed to diverge on both sides. The extra fact needed for this stronger rewrite is a property of the body and guard together.
+The construction respects concatenation. If a prefix computation has been split into two paths at some residual `b` and store `v`, lifting the paths separately yields the same cut point `b; k` at `v`. Concatenate there to obtain the lifted full path. This observation permits a reader to group steps at any convenient intermediate computation without having to rediscover the behavior of the suffix for each group. It also explains a syntactic asymmetry: placing a hole to the right of an *unfinished* prefix generally cannot lift a right-hand step under these evaluation rules.
 
-# Replacement within a larger command
-%%%
-tag := "ch06-s3"
-%%%
-
-The unfolded loop often occurs inside another program. Equivalence supports replacement within a suffix because the surrounding sequence can see only the middle store left by its first operand.
-
-*Proposition 6.4.* If $`c \equiv d` then $`c\ \text{;}\ k \equiv d\ \text{;}\ k` for every $`k`.
-
-*Proof.* Invert $`s \vdash c\ \text{;}\ k \Downarrow t` to obtain $`s \vdash c \Downarrow u` and $`u \vdash k \Downarrow t`. By the hypothesis, $`s \vdash d \Downarrow u` has a derivation. Reuse the execution of $`k` from that same $`u`. The sequence rule gives $`s \vdash d\ \text{;}\ k \Downarrow t`. For the reverse implication interchange $`c` and $`d` using symmetry. $`\square`
-
-Suppose instead we observed only the final value of $`x`. From any initial state, `y := 1` and `y := 2` would agree at $`x` when $`x \neq y`. The suffix `x := y` would distinguish them. Reusing a suffix proof requires enough agreement at the join for the suffix’s later reads. Chapter 42 will make an explicit set of observed variables part of a transformation theorem.
-
-*Replacement inside a loop.* Suppose `a ≡ a′`, and write `W` and `W′` for the loops with the common guard `b` and these two bodies. A loop may run its body many times, so a single application of the premise to the entry state does not establish the required implication. Fix a derivation of $`s \vdash W \Downarrow t`. Induct on the number of iteration rules down its recursive loop branch. At zero the derivation ends with the exit rule. The unchanged guard is false, so the very same exit proves $`s \vdash W' \Downarrow t`.
-
-At a positive number, inversion exposes a state `u` with $`s \vdash a \Downarrow u` and a derivation of $`u \vdash W \Downarrow t` with one fewer iteration. Equivalence provides $`s \vdash a' \Downarrow u`. Because the result is the same entire store, the induction hypothesis applies to the residual loop starting at exactly `u`. The iteration rule reconstructs $`s \vdash W' \Downarrow t`. Exchanging the bodies proves the converse. This proof permits the number of small steps taken *inside* a body to change. What remains aligned from one iteration to the next is the store passed to the guard. The same reasoning supplies the loop case when proving that replacement is valid in every command context by induction on the surrounding syntax.
-
-For a suffix context, equivalence at *every* potential middle store can be used directly under an existential. This checked proof preserves the witness in both directions. It makes no determinacy assumption.
+To formalize lifting independently of a particular syntax, let `F` map configurations into a context and assume that `F` maps every edge to an edge. The following construction transports a whole path. Its index records the number of edges, which survives the induction unchanged.
 
 ```lean
-example {S : Type} (R R' K : S → S → Prop)
-    (eqv : ∀ s u, R s u ↔ R' s u) (s t : S) :
-    (∃ u, R s u ∧ K u t) ↔ (∃ u, R' s u ∧ K u t) := by
-  constructor
-  · rintro ⟨u, left, right⟩
-    exact ⟨u, (eqv s u).mp left, right⟩
-  · rintro ⟨u, left, right⟩
-    exact ⟨u, (eqv s u).mpr left, right⟩
+inductive CountedPath {C : Type} (step : C → C → Prop) : Nat → C → C → Prop
+  | stop (p) : CountedPath step 0 p p
+  | next {n p q r} : step p q → CountedPath step n q r →
+      CountedPath step (n+1) p r
+
+example {C : Type} {step : C → C → Prop} (F : C → C)
+    (liftEdge : ∀ a b, step a b → step (F a) (F b))
+    {n p q} (path : CountedPath step n p q) :
+    CountedPath step n (F p) (F q) := by
+  induction path with
+  | stop => exact .stop _
+  | next edge _ ih => exact .next (liftEdge _ _ edge) ih
 ```
 
-*Proposition 6.5 (Observing a store one variable at a time).* Fix a variable `out`. For any variable y, run c from s, append `out := y`, and observe only the final integer in `out`. Let $`O(c,s,y)` be the set of integers this experiment can return; it is empty if c has no terminating run. In deterministic IMP, two commands are equivalent in the sense of Definition 6.1 if and only if $`O(c,s,y)=O(d,s,y)` for every initial store s and every variable y.
+# From execution trees to paths
+%%%
+tag := "ch05-s2"
+%%%
 
-*Proof.* The assignment rule gives $`O(c,s,y)=\{t(y)\mid t\in R_c(s)\}`. Equal result sets therefore give equal observations. Conversely suppose all observations agree, and choose a terminating result t of c from s. The experiment y = out returns t(out), so d must terminate from s. Fix its result u. For every y the observation for c contains t(y). Determinacy of d makes its observation set the singleton $`\{u(y)\}`. Hence t(y) = u(y) for every y, and equality of stores as functions gives t = u. This proves one inclusion; interchange c and d for the other. The variable out need not be fresh: the assignment reads y before it writes out.
+*Theorem 6.2.* $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
 
-*Where determinacy enters.* Suppose commands could choose between two outcomes. One command sets (x,y) to either (0,0) or (1,1); another sets it to either (0,1) or (1,0). Take x and y distinct and leave other variables unchanged. Reading any single coordinate gives the same set for both commands. Yet only the first command admits an outcome with x = y. In the proof above, fixing one result u before varying the tested variable is the step that fails. This counterexample concerns the stated family of tests; a suffix that computes x + y distinguishes the commands.
+For the forward direction, induct on the given execution derivation. At skip take a zero-edge path. At assignment take one update step. At a conditional take the selected branch step and append the path given by the branch hypothesis.
+
+*Sequence case.* The last rule supplies a middle state $`u`. The induction hypotheses produce a path of some length $`m` for $`c` from $`s` to skip at $`u`, and a path of some length $`n` for $`d` from $`u` to skip at $`t`. Lift the first path by Lemma 6.1, discard the completed left operand, then follow the second path:
+
+$$`\begin{matrix} \left\langle {c\ \text{;}\ d,s} \right\rangle & {\rightarrow^{m}\left\langle {\operatorname{skip}\text{;}\ d,u} \right\rangle} \\ & {\rightarrow\left\langle {d,u} \right\rangle\rightarrow^{n}\left\langle {\operatorname{skip},t} \right\rangle.} \end{matrix}`
+
+Concatenation yields a path of length $`m + 1 + n`. If $`c` is already skip, $`m = 0` and the single administrative edge remains necessary.
+
+*Loop cases.* For a false guard take the exit edge to skip. For a true guard, write $`W` for the loop, $`a` for its body, and $`u` for the body’s result. The small-step loop rule first goes to $`\left\langle {a\ \text{;}\ W,s} \right\rangle`. Lift the body hypothesis to that context, discard skip at $`u`, then append the recursive loop hypothesis from $`u`. Induction is legitimate because both hypotheses concern child derivations. This proves the forward direction.
+
+The forward construction gives a cost recurrence in addition to an existence proof. Assign to a big-step derivation the length of the small-step path obtained by the construction. The length is zero for skip and one for assignment. For a conditional add one to the length of the selected branch. For a sequence add the lengths of the two child derivations and one administrative step. For an exiting loop charge one guard step. For an iterating loop charge a guard step, the body path, an administrative step, and the recursively constructed loop path. All these quantities are computed from *finite subderivations*, so the recurrence is well founded.
+
+For example use `while x < 1 do x := x + 1` at a state with `x = 0`. The body path costs one and the recursive exit path costs one. The full iteration therefore costs four. The residual commands in order are the loop, the body followed by the loop, skip followed by the loop, the loop at the updated state, and skip. The derivation labels contain fewer visible changes of residual syntax. The recurrence makes the connection precise for this choice of transition rules; changing the rule for loop unfolding requires revisiting its cost clause.
+
+# From paths to execution trees
+%%%
+tag := "ch05-s3"
+%%%
+
+Simply turning the path arrows around does not reconstruct which premises formed the last big-step rule. We first show how to extend a completed big-step execution backwards by *one* small step.
+
+*Lemma 6.3.* If $`\left\langle {c,s} \right\rangle\rightarrow\left\langle {d,u} \right\rangle` and $`u \vdash d \Downarrow t` then $`s \vdash c \Downarrow t`.
+
+*Proof.* Induct on the derivation of the step, allowing an arbitrary final state $`t`. For assignment the residual command is skip, so inversion gives $`t = u`. The assignment axiom supplies the result. When a completed left skip is discarded, prepend a skip derivation by the sequence rule. At a conditional use the known test and branch derivation. At a false loop exit use inversion on skip and the loop exit rule.
+
+At a true loop step the residual is body followed by loop. Invert its big-step sequence to recover the intermediate state, body derivation and loop derivation. Use exactly these as premises of the true loop big-step rule.
+
+Finally suppose the step was lifted from $`\left\langle {a,s} \right\rangle\rightarrow\left\langle {b,u} \right\rangle` inside a suffix $`k`. Invert the given execution of $`b\ \text{;}\ k` to get $`u \vdash b \Downarrow v` and $`v \vdash k \Downarrow t` for some $`v`. The induction hypothesis on the premise step gives $`s \vdash a \Downarrow v`. Join that execution to the suffix at $`v`. These cases exhaust the small-step rules. $`\square`
+
+To finish Theorem 6.2, start at the end of the finite path with the skip axiom $`t \vdash \operatorname{skip} \Downarrow t`. Apply Lemma 6.3 to the last edge, then the preceding edge, until no edge remains. Induction on the path length justifies the construction, including a path of length zero.
+
+Work backwards through the path just computed. At the last configuration the skip axiom proves execution to the final store. The previous step came from a loop with a false guard. Inverting the execution of skip identifies its starting and final stores, so the false loop rule proves the predecessor's execution. The preceding disposal of skip is reversed by building a sequence execution with the skip axiom as its left child. At this stage we have a big-step tree for `skip; W` in the updated state. Reversing the lifted assignment step must convert this into a tree for `(x := x + 1); W` in the old state.
+
+The two states just mentioned are precisely why Lemma 6.3 is about configurations and an arbitrary *common* final store. Inverting the existing sequence tree gives a particular middle store. In this example its left skip forces that middle store to be the updated one. Attach the assignment axiom ending there, preserve the right subtree, and rebuild the sequence. Finally use the initial true guard to reconstruct the iteration rule. Each backwards move constructs a new derivation with the same final target, and none requires an inverse to the state update performed by assignment.
+
+# What the endpoints record
+%%%
+tag := "ch05-s4"
+%%%
+
+The theorem identifies the possible *terminating final stores*. It does not identify the height of a derivation with the length of a path. For `skip; skip`, two skip axioms lie below the sequence rule, whereas a single small step discards the left skip. Nor does the theorem alone construct an infinite execution when there is no terminating one. Chapter 5 supplied an explicit infinite witness for a particular program.
+
+The endpoint theorem can transport facts that are stated solely in terms of endpoints. For example consider two small-step paths from the same initial configuration to skip, ending respectively in stores `u` and `v`. The backwards implication gives two derivations for the same command and initial store. Determinacy from Chapter 3 yields `u = v`. This is an alternative proof of uniqueness of *terminal results*. It does not by itself imply uniqueness of the first small step. An alternative transition system could split into two routes that later rejoin. Both routes could have the same terminal store while the initial configuration had two successors.
+
+To make an intermediate observation meaningful, specify what a path exposes. Suppose every assignment printed its assigned integer. The programs `skip` and `x := x` preserve the same store if one erases outputs. An observer recording the printed numbers could distinguish them. Recovering equality of such observations from two semantics would require a big-step judgment carrying the corresponding outputs and a proof of a strengthened correspondence theorem. Matching stores at skip remains enough for the present theorem because its conclusion asks only about termination and the resulting store.
 
 # Exercises
 %%%
-tag := "ch06-s4"
+tag := "ch05-s5"
 number := false
 %%%
 
-*6.1.* Use the sequence characterization from Chapter 2 to prove associativity up to equivalence of command sequencing. Name both middle states.
+*6.1.* Count the small steps for two assignments composed sequentially. Give the size of the corresponding big-step tree, counting rule applications.
 
-*6.2.* Refute the proposed equivalence of a while command and `if b then a else skip`. Give a terminating integer example and compute both final stores.
+*6.2.* In Lemma 6.3’s true loop case, write the three premises needed by the big-step rule, with their states.
 
-*6.3.* If one loop emits an output before diverging and another silently diverges, would the definition in §6.1 distinguish them, assuming it records only terminating stores? What additional observation would suffice?
+*6.3.* A proposed lifting lemma claims that $`\left\langle {a,s} \right\rangle\rightarrow^{n}\left\langle {\operatorname{skip},t} \right\rangle` implies $`\left\langle {a\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {k,t} \right\rangle`. Refute it at $`n = 0` and repair its statement.
 
-*Further problem.* Decide whether `if b then (c; k) else (d; k)` and `(if b then c else d); k` are equivalent for arbitrary commands in IMP. Then examine the proposed counterpart that moves a *prefix* in front of a test. Identify a sufficient condition on the prefix and guard, and exhibit a failure when it is dropped.
+*Further problem.* Replace the assignment transition by two transitions through a fresh residual command `pending(x,v)`. The first evaluates the expression in the current store and records its integer value `v`; the second writes `v` and goes to skip. For loop-free source commands, justify that this refinement preserves terminating final stores and calculate the change in path length.
 
 # Reading for the Seminar
 %%%
-tag := "ch06-s5"
+tag := "ch05-s6"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the two commands in Theorem 6.3 and quantify explicitly over the initial and final stores.
+*Definitions · 10 minutes.* Draw a sequence tree with middle state $`u`. Beside it put two finite paths with lengths $`m,n`.
 
-*Joint proof · 30 minutes.* Use Theorem 6.3 and Proposition 6.4 to replace a loop inside a sequence. Derive the observation formula of Proposition 6.5 from the assignment rule.
+*Joint proof · 30 minutes.* Build the context-lifting lemma for a path with two edges, then for every finite path. Ask a participant to connect the two paths of the sequence case and label the extra edge.
 
-*Proof review · 20 minutes.* Prove the reverse implication of Proposition 6.5. Mark where one final store is fixed for all variables; test that step on the two nondeterministic commands.
+*Proof review · 20 minutes.* Reconstruct the reverse direction for a lifted step. Check the case of a zero-length path and state what the theorem establishes about endpoints.
 
-*Facilitator’s hint.* Underline the recursive loop judgment already available as a premise. Ask where exactly that same judgment belongs in the target tree.
+*Facilitator’s hint.* Cover the suffix in one configuration, do the left step, and restore the suffix. Compare the last residual to the desired start of the second path.
 
 # Solutions
 %%%
-tag := "ch06-s6"
+tag := "ch05-s7"
 number := false
 %%%
 
-*6.1.* A run of the left association first executes $`c`, then $`d`, then $`k`, through states $`s,u,v,t`. Two inversions recover the three subderivations. Compose $`d` with $`k` at $`v`, then compose $`c` with that result at $`u`. The reverse direction regroups the same three derivations in the opposite order.
+*6.1.* Each assignment takes one edge. One more discards skip between them, giving three edges. The tree has two assignment axioms and one sequence inference. Here both counts are three, a coincidence that fails for `skip; skip`.
 
-*6.2.* Use guard $`x < 2`, body `x := x + 1`, and initial value zero. One conditional execution leaves $`x = 1`. Two loop iterations followed by an exit leave $`x = 2`. All other names agree.
+*6.2.* At $`s` the guard holds, the body runs from $`s` to $`v`, and the loop runs from $`v` to $`t`. The guard comes from the step. Both execution derivations and $`v` come from inversion of the residual sequence.
 
-*6.3.* Both result sets would be empty, so the proposed observation identifies them. Observing a finite prefix containing the first output separates them. The choice of observations must be revisited when the language gains output.
+*6.3.* Set $`a = \operatorname{skip}` and $`s = t`. A zero-edge path leaves $`\operatorname{skip}\text{;}\ k` syntactically unchanged. The valid conclusion reaches $`\operatorname{skip}\text{;}\ k` in $`n` edges or $`k` in $`n + 1` edges.
 
-*Further problem.* Fix an initial store. Both commands with the common suffix inspect the guard there. If it is true, a terminating execution on either side consists of a run of `c` to some middle store followed by a run of `k` from there. The same witnesses yield executions in either syntax tree. The false branch replaces `c` by `d` and gives the same argument.
+*Further problem.* An old assignment edge from `⟨x := e,s⟩` to skip with updated store is replaced by an edge to `⟨pending(x,eval(e,s)),s⟩` and another to the original endpoint. The new syntax is unavailable in source programs, and its only rule performs the pending update. Inside a sequence, lift the first edge and then the second through the same left-operand context. No rule permits an unrelated suffix to execute between them. Conditional selection and discarding skip retain their original edges.
 
-For the prefix version compare `if b then (k; c) else (k; d)` with `k; (if b then c else d)`. It suffices that every terminating execution of `k` from any `s` to `u` preserves the truth value of `b`. Both derivations then use that same prefix execution, select the same branch, and reuse its derivation. If the prefix diverges neither command yields a result. For a counterexample use `x = 0` as guard, `x := 1` as prefix, and branches assigning 1 or 2 to a distinct `y`. From `x = 0` the two programs end with different values of `y`.
+Proceed along a terminating old path replacing exactly these assignment edges, including the ones lifted through enclosing sequences. In the other direction, every reachable occurrence of a pending command in the active position arose from the preceding expression evaluation and is forced to perform its write next. Group each such pair into one old edge. This gives the same two endpoints and establishes preservation in both directions. If the original path has length `m` and executes `k` assignments, the refined path has length `m + k`. Count the assignments in the chosen branches; syntactically present assignments in untaken branches contribute zero.

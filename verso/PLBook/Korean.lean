@@ -1,10 +1,10 @@
 import PLBook.Ko.Ch01
 import PLBook.Ko.Ch02
 import PLBook.Ko.Ch03
-import PLBook.Ko.Ch25
 import PLBook.Ko.Ch04
 import PLBook.Ko.Ch05
 import PLBook.Ko.Ch06
+import PLBook.Ko.Ch07
 
 open Verso.Genre Manual
 
@@ -16,7 +16,7 @@ tag := "pl-study-ko"
 
 이 책은 실행 규칙과 구조적 귀납을 공부하는 1–7회 교재다. 산술식의 값을 계산하는 함수에서 출발해 실행을 유도하는 규칙을 세우고, 같은 명령의 두 가지 운영적 의미론이 종료 결과에 관해 일치함을 증명한다.
 
-4회에는 25장의 초기 대수를 읽는다. 장·절·정리 번호는 영문판과 같으며, 차례는 모임 순서를 따른다. 각 장에는 정의와 증명, Lean 예제, 연습문제와 풀이가 있다.
+4장에서는 산술식의 평가 함수를 초기 대수의 보편 성질로 설명한다. 장·절·정리 번호는 영문판과 같으며, 차례는 모임 순서를 따른다. 각 장에는 정의와 증명, Lean 예제, 연습문제와 풀이가 있다.
 
 [판단 표기](chapter-01/index.html#ch01-s4) · [한국어판 PDF](print/pl-study-ko.pdf) · [English edition](../index.html) · [42회 강의계획서](../seminar/index.html)
 
@@ -34,10 +34,10 @@ tag := "pl-study-ko"
 
 {include 1 PLBook.Ko.Ch03}
 
-{include 1 PLBook.Ko.Ch25}
-
 {include 1 PLBook.Ko.Ch04}
 
 {include 1 PLBook.Ko.Ch05}
 
 {include 1 PLBook.Ko.Ch06}
+
+{include 1 PLBook.Ko.Ch07}

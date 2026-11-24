@@ -1,5 +1,7 @@
 """Render the weekly reading assignments as a Verso chapter."""
+from functools import lru_cache
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -9,9 +11,18 @@ def study_groups():
     return json.loads((ROOT / "sessions.json").read_text())
 
 
+@lru_cache(maxsize=None)
+def chapter_slug(number):
+    """Use the permanent Verso file identifier for a numbered chapter."""
+    source = (ROOT / "PLBook" / f"Ch{number:02}.lean").read_text()
+    return re.search(r'^file := "(chapter-[0-9]+)"$', source, re.M)[1]
+
+
 def section_target(span):
     chapter, section = map(int, span.split("–")[0].split("."))
-    return f"chapter-{chapter:02}/index.html#ch{chapter:02}-s{section}"
+    slug = chapter_slug(chapter)
+    tag = slug.replace("chapter-", "ch")
+    return f"{slug}/index.html#{tag}-s{section}"
 
 
 def render_guide():

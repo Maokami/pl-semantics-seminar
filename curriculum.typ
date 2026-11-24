@@ -28,6 +28,8 @@ IMP는 대입·순차 합성·조건문·반복문을 갖춘 작은 명령형 �
 
 == 학습 순서
 
+21회에는 21장과 22장을 함께 읽고, 28–29회에는 29장의 논리 관계와 계산적 적절성을 두 모임에 걸쳐 공부한다.
+
 #let groups = json("verso/sessions.json")
 #for g in groups {
   let rows = g.sessions

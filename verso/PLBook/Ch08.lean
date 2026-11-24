@@ -3,122 +3,118 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Finite Approximations of a Loop" =>
+#doc (Manual) "State Transformers and the Information Order" =>
 %%%
-tag := "ch08"
-file := "chapter-08"
-%%%
-
-[Chapter PDF](print/chapter-08.pdf) · [Session 9](seminar/index.html#week-09)
-
-The equation “execute the body, then execute the loop again” admits spurious solutions. For an always-true loop whose body is skip, the equation merely requires that a proposed meaning equal itself. To choose the meaning determined by finite terminating executions, start with no known results and unfold the loop a finite number of times.
-
-*Sources.* Reynolds, _Theories of Programming Languages_, §§2.3–2.4, especially the least fixed-point theorem. Fix the meaning of the body before varying the meaning of the recursive occurrence. The joint theorem identifies exactly which finite runs are visible at a particular unfolding depth. [Reynolds, chapter 2.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# The unfolding operation
-%%%
-tag := "ch08-s1"
+tag := "ch07"
+file := "chapter-07"
 %%%
 
-Fix a guard $`b` with truth value $`B\left( {b,s} \right)` in each state and a body meaning $`g:\Sigma\rightarrow\Sigma_{\bot}`. The flat lifted outcomes and their pointwise function order are those of Chapter 7. For a proposed meaning $`h` of the recursive occurrence, define $`F(h)` by
+[Chapter PDF](print/chapter-07.pdf) · [Session 8](seminar/index.html#week-08)
 
-$$`F(h)(s) = \left\{ \begin{matrix} {s\ } & {\text{if the guard is false at}\ s} \\ {\bot\ } & {\text{if the guard is true and}\ g(s) = \bot} \\ {h(u)\ } & {\text{if the guard is true and}\ g(s) = u \in \Sigma} \end{matrix} \right..`
+An assignment determines a new integer state for every initial state. A command containing a loop can fail to return a state. Sequential composition must accept either possibility as the result of its first command. This distinction determines the type of a command meaning and the operation used to compose two meanings.
 
-An *iteration* counts one completed body execution. Testing the false guard at exit executes zero bodies. Let $`w_{0}(s) = \bot` at every input and put $`w_{n + 1} = F\left( w_{n} \right)` for natural $`n`. The first approximation $`w_{1}` can already discover an exit without executing a body. In the true case it consults $`w_{0}` on the successor state, so it cannot yet report a terminating state there.
+*Sources.* John C. Reynolds, _Theories of Programming Languages_, §§2.2–2.3. Read the denotation of sequencing and the ordering of approximations. We restrict attention to deterministic, error-free integer IMP with no observable intermediate output. The shared calculation derives sequencing in both possible cases for its first result. [Reynolds, chapter 2.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-*Monotonicity.* If $`h \sqsubseteq h'`, then $`F(h) \sqsubseteq F\left( h' \right)`. At an input taking either of the first two cases the results are identical. In the remaining case compare $`h(u)` and $`h'(u)`. Since $`w_{0}` is least, $`w_{0} \sqsubseteq w_{1}`. Monotonicity propagates the inequality to every adjacent pair.
-
-*Body divergence and recursive divergence.* Take a body that returns its input whenever `y = 0` and diverges otherwise. Such a meaning is realizable with a loop that repeatedly executes skip while `y ≠ 0`. Use `x > 0` as the guard of the outer loop. On an input with `x = 0` and `y = 1`, every positive approximation returns the input. The guard bypasses the body. On an input with `x = 1` and `y = 1`, every positive approximation gives bottom because the body gives bottom. In this branch changing the proposed recursive meaning `h` can have no effect.
-
-There is a third case. At `x = 1` and `y = 0` the body returns the same state `s` and the guard stays true. Consequently `F(h)(s) = h(s)` for *every* proposal `h`. Starting the iteration at bottom again gives bottom at every stage, this time by induction rather than by inspecting the body alone. Both diverging inputs ultimately have the same denotation. The defining equation distinguishes their explanations: one never reaches a recursive call, the other repeatedly reaches one. A proof of monotonicity compares proposed recursive meanings only in this last branch.
-
-# Counting completed bodies
+# Lifted outcomes
 %%%
-tag := "ch08-s2"
+tag := "ch07-s1"
 %%%
 
-A loop terminates after exactly $`k` body executions in this model when there exist states $`s_{0},\ldots,s_{k}` starting at $`s_{0} = s`, with the guard true and $`g\left( s_{i} \right) = s_{i + 1}` at each $`i < k`, and the guard false at $`s_{k}`. These states determine the final result $`s_{k}`. If $`k = 0`, the starting state already satisfies the exit condition.
+Let $`\Sigma` be the set of integer states. Form the disjoint union $`\Sigma_{\bot}` of a fresh element $`\bot` and a copy of $`\Sigma`. We write a state $`t` also for its copy. In a completed command meaning, $`\bot` denotes divergence. In a partial approximation it records that no final state is available at this stage. The same mathematical element is used in both roles, so an approximation returning $`\bot` is insufficient evidence that the program diverges.
 
-*Theorem 8.1.* For any such run and any $`n`, the result $`w_{n}(s)` is bottom for $`n \leq k` and equals $`s_{k}` for $`n \geq k + 1`.
+A command meaning is a total mathematical function $`f:\Sigma\rightarrow\Sigma_{\bot}`. It represents a partial state transformation, defined at $`s` exactly when $`f(s)` is a state. Define the *flat order* on outcomes by $`r \sqsubseteq q` if $`r = \bot` or $`r = q`. Distinct states are incomparable. Set $`f \sqsubseteq g` if $`f(s) \sqsubseteq g(s)` for every state $`s`. For example, a function specifying the final state only for inputs with $`x = 0` lies below one that agrees there and also specifies the results for $`x = 1`. Revising a previously specified final state would violate this ordering.
 
-*Proof.* Induct on $`k`, stating the claim for all allowed starting states and all $`n`. For $`k = 0`, $`w_{0}` gives bottom. Every positive stage tests the false guard and returns $`s = s_{0}`. For a run of length $`k + 1`, the initial guard is true and $`g(s) = u` begins a run of length $`k`. Stage zero returns bottom. At stage $`n + 1`, the equation gives $`w_{n + 1}(s) = w_{n}(u)`. The induction hypothesis applied at $`u` gives bottom for $`n \leq k` and the final state for $`n \geq k + 1`. Shifting the stage index back by one proves the claim for length $`k + 1`. $`\square`
+*Lemma 8.1.* An increasing sequence of outcomes either stays at bottom forever or reaches a state and stays there. Its least upper bound is respectively bottom or that state.
 
-*Converse.* If $`w_{n}(s) = t` is a state, there is a finite run to $`t` with fewer than $`n` body executions. Induct on $`n`. The premise is impossible at zero. At the next stage a false guard gives an immediate exit. A true guard must yield an ordinary body result $`u` and a state result from the preceding approximation at $`u`. Prepend this body execution to the shorter run supplied by induction. This argument excludes a fabricated state result at any finite depth.
+*Proof.* If the sequence reaches $`t \in \Sigma`, then every later outcome lies above $`t`. Flatness forces it to equal $`t`. All earlier elements lie below $`t`, and every upper bound must be above $`t`, so $`t` is the least upper bound. In the remaining case every element equals bottom, which itself bounds the sequence. $`\square`
 
-*Example.* Let the body increment $`x` and the guard be $`x < 2`. At the state with $`x = 2`, stage 1 already returns that state. From $`x = 1`, stage 1 gives bottom and stage 2 returns the state with $`x = 2`. From $`x = 0`, the first state result is at stage 3. These are three distinct inputs to the *same* functions $`w_{n}`. Store coordinates other than $`x` are preserved.
+*An increasing family without a final finite stage.* Fix a variable `x`. For each natural number `n` define a transformer `pₙ` that returns its input store when `|s(x)| < n` and gives bottom elsewhere. The absolute value is the ordinary absolute value on integers. At stage zero every input gives bottom. At stage one precisely the stores with `s(x) = 0` have a known result. Increasing the threshold preserves all these results and adds new ones, hence `pₙ ⊑ pₙ₊₁`.
 
-*Which computation does the counter measure?* Consider an outer loop with guard `x > 0` and body `(while y > 0 do y := y − 1); x := 0`. Let the input have `x = 1` and `y = 100`. The inner loop completes one hundred body executions. The assignment then changes `x` to zero, and the outer guard becomes false. The outer run has exactly one completed body. Its result first occurs in `w₂`. The entire inner computation is included in the already fixed meaning `g` of the outer body.
+For each *fixed* store `s` the outcome has stabilized by stage `|s(x)| + 1`. Its least upper bound is therefore `s`. Pointwise, the least upper bound of the transformers is the identity. No member of the sequence equals this identity on all stores. Given any proposed stage `n`, choose an input with `s(x) = n`. Its result is still bottom at that stage. Thus “every input has a sufficient stage” and “one stage suffices for every input” have different truth values. A denotation can specify outcomes everywhere even though every finite approximation leaves some input unspecified. The distinction will matter for loops that terminate on every input after an unbounded number of iterations.
 
-Taking the inner loop in isolation gives a different calculation. At the same input its own first state result occurs at its stage 101. There is no contradiction between the two indices: each approximating sequence belongs to a specific occurrence of a loop, with its own fixed body meaning. Neither index measures machine time or counts all execution-rule applications. A single outer body can also fail to complete, in which case there is no successor state to which a smaller outer approximation can be applied. This example explains why the statement of Theorem 8.1 specifies a sequence of *completed* body executions and includes a final false test.
+# Interpreting command constructors
+%%%
+tag := "ch07-s2"
+%%%
 
-A single natural-valued counter suffices to check the stage shift. The loop decrements a positive counter. Stage zero has no known outcome, a positive stage recognizes an exit at zero, and a positive counter consumes one stage to execute a body. In the successor case of the proof the smaller counter has precisely one fewer available unfolding.
+Write $`f_{c}` for the meaning assigned to command $`c`. The meaning of skip is the injection $`s\mapsto s`. For assignment use $`s\mapsto s\left\lbrack {x\mapsto\operatorname{eval}\left( {e,s} \right)} \right\rbrack`. A conditional chooses $`f_{c}(s)` or $`f_{d}(s)` according to the truth of its guard in $`s`. A *compositional* interpretation gives the meaning of a compound command by applying an operation to its immediate constituents’ meanings. Chapter 9 supplies the operation for a loop.
+
+For $`g:\Sigma\rightarrow\Sigma_{\bot}`, its *strict extension* $`g^{\dagger}:\Sigma_{\bot}\rightarrow\Sigma_{\bot}` is defined by $`g^{\dagger}(\bot) = \bot` and $`g^{\dagger}(u) = g(u)` for an ordinary state $`u`. The adjective “strict” means that the new function sends bottom to bottom. Define the meaning of a sequence by
+
+$$`f_{c\ \text{;}\ d}(s) = f_{d}^{\dagger}\left( f_{c}(s) \right).`
+
+Ordinary application $`f_{d}(f_{c}(s))` would have a type mismatch: the inner result lives in the lifted set, and the outer input expects an ordinary state.
+
+*Calculation.* Suppose the suffix assigns 7 to $`y`. If the prefix returns $`u`, then the sequence returns $`u\left\lbrack {y\mapsto 7} \right\rbrack`. If the prefix returns bottom, the whole sequence returns bottom. No input is supplied to the assignment in that case. If the prefix terminates and the suffix diverges on that particular result, strict extension returns the suffix’s bottom outcome as well.
+
+*Composing the graphs.* Associate to a transformer `f` the set of pairs `graph(f) = {(s,u) | f(s) returns u}`. Let `h` execute `f` followed by `g`. For ordinary states `s,t`, expand the two cases of strict extension. If `f(s)` is bottom, the pair `(s,t)` is absent from `graph(h)` for every `t`. If `f(s)` returns `u`, the pair occurs just when `g(u)` returns `t`. Combining the cases gives a single criterion: some ordinary `u` satisfies both `(s,u) ∈ graph(f)` and `(u,t) ∈ graph(g)`.
+
+This calculation also determines the set of inputs at which composition returns. Let `dom(f)` consist of the stores where `f` returns an ordinary result. The composite requires an input in `dom(f)` whose *image* belongs to `dom(g)`. For example, suppose the prefix always assigns zero to `x`, and the suffix returns its input only when `x = 0` and diverges otherwise. The sequence returns on every input, including those where running the suffix alone would diverge. Intersecting the two domains at the same input would therefore give the wrong answer. The intermediate store in the graph formula is essential even for a calculation concerned only with termination.
+
+# Laws of sequencing
+%%%
+tag := "ch07-s3"
+%%%
+
+*Proposition 8.2.* Sequencing is associative on these meanings. For meanings $`f,g,h` and every initial state $`s`, composing $`f` then $`g` then $`h` gives the same result under either grouping.
+
+*Proof.* If $`f(s) = \bot`, the first strict extension propagates bottom under both groupings. Otherwise write $`f(s) = u`. If $`g(u) = \bot`, both groupings return bottom again. If $`g(u) = v` is a state, both groupings return $`h(v)`, whether that is a state or bottom. The cases cover the disjoint lifted set. Equality at all $`s` proves equality of functions. $`\square`
+
+*Proposition 8.3.* If $`f \sqsubseteq f'` and $`g \sqsubseteq g'`, the composite with $`f,g` lies below the composite with $`f',g'`.
+
+*Proof.* Fix $`s`. A bottom result on the left is below any result on the right. A state result $`v` on the left requires a state $`u = f(s)` with $`g(u) = v`. The two function inequalities and flatness force $`f'(s) = u` and $`g'(u) = v`. Thus the right composite returns $`v` too. This property of preserving the order is called monotonicity. $`\square`
+
+The strict extension can be calculated with Lean's type `Option α`, whose constructors are `none` and `some a`. Interpret `none` as the fresh bottom and `some a` as an ordinary outcome. The operation `p.bind f` inspects `p`. It returns `none` when `p` is `none` and computes `f a` when `p = some a`. In the theorem below the types of intermediate results may differ. Specializing all three types to stores gives the associativity calculation for commands.
 
 ```lean
-def countdownApprox : Nat → Nat → Option Nat
-  | 0, _ => none
-  | _ + 1, 0 => some 0
-  | stage + 1, counter + 1 => countdownApprox stage counter
-
-example (k : Nat) :
-    countdownApprox k k = none ∧ countdownApprox (k + 1) k = some 0 := by
-  induction k with
-  | zero => exact ⟨rfl, rfl⟩
-  | succ k ih => exact ih
+example {α β γ : Type} (p : Option α)
+    (f : α → Option β) (g : β → Option γ) :
+    (p.bind f).bind g = p.bind (fun a => (f a).bind g) := by
+  cases p <;> rfl
 ```
 
-# Least fixed point
-%%%
-tag := "ch08-s3"
-%%%
-
-For an increasing sequence $`h_{n}` define its supremum pointwise as in Chapter 7. Call $`F` continuous here if it preserves suprema of such sequences. Our $`F` is continuous: for fixed $`s`, the exit and diverging-body branches are constant in $`h_{n}`, and the ordinary true branch evaluates the sequence at one fixed $`u`. In all three cases, taking the pointwise supremum before or after applying $`F` gives the same outcome.
-
-Set $`w` equal to the supremum of the $`w_{n}`. Continuity gives $`F(w) = \sup_{n}F\left( w_{n} \right) = \sup_{n}w_{n + 1} = w`. Dropping the first, least element leaves the same upper bounds. To prove leastness, take any fixed point $`p = F(p)`. By induction, $`w_{0} \sqsubseteq p` and $`w_{n} \sqsubseteq p` implies $`F\left( w_{n} \right) \sqsubseteq F(p) = p`. Thus $`p` bounds the chain, and $`w \sqsubseteq p`. This is the Kleene construction for this loop operator.
-
-*What leastness rules out.* Let `W` be `while x > 0 do skip`. For states where `x ≤ 0` its defining equation forces any fixed point `p` to return its input. For states with `x > 0` the equation reduces to `p(s) = p(s)`. At these inputs one may freely choose bottom or any state at all and still obtain a mathematical solution. In particular the everywhere-identity function is a fixed point. Assigning that meaning to the loop would allow an execution to return immediately at `x = 1`.
-
-To identify the least solution, compute the stages as functions of the input. The first positive stage returns `s` on `x ≤ 0` and bottom on `x > 0`. Applying the operator again leaves this function unchanged. Its pointwise supremum is thus already attained at stage one. It lies below every fixed point since they agree on every forced exit and bottom lies below every outcome on the other inputs. Notice that the order compares complete results only at the same state. The proof never ranks stores according to how small their `x` value is. The order used to choose a denotation and an integer order used to prove termination serve different purposes.
+Why is one case split sufficient here when the mathematical proof also inspected the second result? In the ordinary case both sides reduce to the *same expression*, `(f a).bind g`. Its value may still depend on an unknown argument and an unknown function. Reflexivity suffices because equality holds before either is evaluated. The types also reveal the role of grouping. On the right the partially applied suffix is a function expecting an ordinary `a`. The outside bind supplies that argument precisely when the first computation returns one.
 
 # Exercises
 %%%
-tag := "ch08-s4"
+tag := "ch07-s4"
 number := false
 %%%
 
-*8.1.* For a false guard and a body that would diverge on every input, compute $`w_{0},w_{1},w_{2}`.
+*8.1.* An analyst proposes ordering normal final states by their integer value at $`x`. Show why this would allow an approximation to change a known result.
 
-*8.2.* For a true guard and a skip body, exhibit two different fixed points and identify the least one.
+*8.2.* Prove that composing with skip before or after any meaning preserves it, including on a diverging input.
 
-*8.3.* Explain why an ordinary state at the supremum must already occur at some finite stage in this model.
+*8.3.* On the set of all transformer functions, find the least upper bound of an increasing sequence $`f_{0},f_{1},\ldots` and justify that it is least.
 
-*Further problem.* Let one integer variable `x` be decremented by two while `x > 0`. Derive an explicit positive stage at which each input returns and compute its final value. Does the increasing chain of transformers stabilize at a single finite stage on all integer inputs?
+*Further problem.* Let `T` be the set of all transformers from stores to lifted stores ordered pointwise. Given two transformers `f,g`, characterize exactly when they have a common upper bound. In that case construct their least upper bound. Compare the criterion with Lemma 8.1 for increasing sequences.
 
 # Reading for the Seminar
 %%%
-tag := "ch08-s5"
+tag := "ch07-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the three branches of the unfolding operation, including the exit case.
+*Definitions · 10 minutes.* Write the input and output types of each of two transformers. Introduce the state injection and the fresh outcome.
 
-*Joint proof · 30 minutes.* Fill a table of stages 0 to 3 at inputs with x equal to 0, 1 and 2. State and prove the general stage bound. Check the base case by drawing a run with zero bodies.
+*Joint proof · 30 minutes.* Let one group compute the suffix assignment after a terminating prefix and another after a diverging prefix. Use the two answers to define strict extension. Prove associativity with the same case split.
 
-*Proof review · 20 minutes.* Prove the converse by induction on the stage index. Identify the specific equality in the fixed-point proof that needs continuity.
+*Proof review · 20 minutes.* Replace the prefix by a more defined approximation. Use Proposition 8.3 to decide whether an already observed state result can change.
 
-*Facilitator’s hint.* Use separate indices for the number of bodies and the approximation stage. After one body the remaining run and the available stage both decrease.
+*Facilitator’s hint.* Fix one initial state, and split on the value of the inner function before attempting to apply the outer function.
 
 # Solutions
 %%%
-tag := "ch08-s6"
+tag := "ch07-s6"
 number := false
 %%%
 
-*8.1.* Stage zero is constantly bottom. Both positive stages return the original input state. No branch evaluates the body.
+*8.1.* A transformer already returning a state with $`x = 2` could be “improved” to one returning $`x = 3`. They disagree on a directly observable final value. Flatness treats both normal states as maximal.
 
-*8.2.* Here $`F(h) = h`. Both the constantly bottom function and the identity on states are fixed points, and every function lies above the constantly bottom function.
+*8.2.* Skip first returns $`s`, so strict extension of $`f` returns $`f(s)`. Skip last preserves an ordinary result $`u` and propagates a bottom result, yielding $`f(s)` in both cases.
 
-*8.3.* On each input the chain lies in a flat order. A chain consisting only of bottoms has supremum bottom. If the supremum is a state, some chain element is a state, and every later element equals it. This deduction uses flatness of the result space.
+*8.3.* Define $`g(s)` to be the least upper bound of the outcomes $`f_{n}(s)` given by Lemma 8.1. Every $`f_{n}` lies below $`g` pointwise. If $`h` bounds the whole sequence, $`h(s)` bounds those outcomes at each $`s`, so $`g(s) \sqsubseteq h(s)`. Hence $`g \sqsubseteq h`.
 
-*Further problem.* At an input with `x ≤ 0` the guard is initially false. The loop returns its input at stage one. For `x > 0`, write its value as either `2j` with `j ≥ 1` or `2j + 1` with `j ≥ 0`. In the even case, after `j` completed bodies the value is zero, and each preceding head is positive. Theorem 8.1 gives the first successful stage `j + 1`. In the odd case one reaches 1 after `j` bodies; one more produces −1 and exits. The first successful stage is `j + 2`. Every other store coordinate is preserved.
+*Further problem.* Agreement is required wherever both transformers return ordinary results. If `f(s)` and `g(s)` were distinct ordinary stores, any upper bound at that input would have to lie above both. In a flat order an ordinary store can only be bounded above by itself. Distinct stores therefore rule out a common upper bound.
 
-These formulas yield a finite stage for each input. Nevertheless, for each natural `n ≥ 1` choose `x = 2n`. The stage `n` output on that input is bottom whereas stage `n + 1` returns an ordinary store. Stages zero and one also differ at an initially false guard. Hence no two consecutive transformer stages coincide, even though the least fixed point is defined at every input.
+Conversely, assume agreement on that overlap. Define `h(s)` to be the result of `f(s)` when ordinary, and otherwise the result of `g(s)`. At an input where neither is defined it gives bottom. Checking these cases shows that both transformers lie below `h`. For leastness consider any common upper bound `k`. Where `h(s)` is ordinary, at least one of the two transformers already has that result and forces `k(s)` to equal it. Where `h(s)` is bottom the required inequality holds automatically. Thus `h ⊑ k`. In an increasing sequence agreement on overlaps is automatic. Arbitrary pairs of transformers need not have this compatibility.

@@ -3,119 +3,109 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Structural Subtyping" =>
+#doc (Manual) "Constraint Generation and Unification" =>
 %%%
-tag := "ch22"
-file := "chapter-22"
-%%%
-
-[Chapter PDF](print/chapter-22.pdf) · [Session 23](seminar/index.html#week-23)
-
-A function selecting the field `n` can use a record with both `n` and `flag`. The function’s body explains which part of its input must be present. The typing relation can express that requirement without naming a declared class for either record.
-
-*Sources.* Pierce, _Types and Programming Languages_, §11.8 on records, then §§15.1–15.3 on subsumption, subtyping and safety. Read the typing rule for projection before trying the subtyping example. For an algorithmic presentation see §16.1. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Records and projection
-%%%
-tag := "ch22-s1"
+tag := "ch20"
+file := "chapter-20"
 %%%
 
-A record type lists a finite collection of distinct labels with their field types. Here labels identify fields independently of list order. A record term gives a term for each listed label. If every field term has its specified type, the complete record has the corresponding record type. If $`r` has a record type containing $`l:A`, projection `r.l` has type $`A`. Records are immutable in this chapter. At runtime a record of values is a value, and projecting from it returns the value at the chosen label.
+[Chapter PDF](print/chapter-20.pdf) · [Session 21](seminar/index.html#week-21)
 
-A *subtyping judgment* $`S\mathrel{<:}T` authorizes use of a value of type $`S` wherever a value of type $`T` is expected. Read the colon following the inequality sign as part of the symbol. Subsumption extends typing with one rule: from $`\Gamma \vdash t:S` and $`S\mathrel{<:}T`, conclude $`\Gamma \vdash t:T`. This permits more than one type for a term. Subsumption is a typing step, with no new evaluation rule.
+Erase Nat from the parameter of last chapter’s identity. In `(λx. x) 0` the application still determines a type for $`x`. In `λx. x` alone, choosing Nat would discard equally valid choices. A type equation records what the surrounding term requires while allowing unresolved choices to remain variables.
 
-The label in a projection identifies a contract that must hold for every value of the receiver type. In context `r:{n:Nat, flag:Bool}`, projection can derive both `r.n : Nat` and `r.flag : Bool` directly. We may first subsume this very same variable to type `{n:Nat}` and then still derive the first projection. If a function parameter is declared only at that narrower type, its body can construct the first derivation but cannot recover a premise for the second. Some callers may pass a record which contains only `n`, so the missing premise reflects a real execution possibility.
+*Sources.* Pierce, _Types and Programming Languages_, §§22.3–22.5, pp. 321–330, on constraint-based typing, unification and principal types. We generate fresh variables directly for unannotated binders; §22.6 explains implicit annotations. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-This also distinguishes field order from field identity. The type describing `{flag=true, n=0}` offers the same two projections as the one for `{n=0, flag=true}`. The lookup premise refers to the label and its associated type, independently of the position where the field was printed. Distinctness of labels ensures this correspondence is functional. If a record literal could declare two different fields both named `n`, the typing and evaluation rules would need an additional convention about which occurrence a projection selects. Rejecting duplicate labels makes the stated rule unambiguous.
-
-# Structural rules
+# Equations from syntax
 %%%
-tag := "ch22-s2"
+tag := "ch20-s1"
 %%%
 
-Every type is a subtype of itself, and subtyping composes transitively. Distinct base types here have no subtyping relationship. For two record types $`S,T`, require that for *every* field $`l:A` of $`T`, the source $`S` contains the same label at some type $`B` with $`B\mathrel{<:}A`. When the common field types agree, a record may have additional fields (width). Refining the type of a common field gives depth subtyping. Selecting a field guaranteed by $`T` is then justified at $`S`, and a field value delivered with type $`B` may be used at $`A`.
+A provisional type is Nat, Bool, a type variable, or an arrow between provisional types. A substitution maps finitely many type variables to types and extends to types by preserving their constructors. A solution of a finite collection of equations is a substitution that makes each pair of sides identical. Fresh variables introduced at different syntax nodes are distinct and absent from the input.
 
-For arrow types the condition is
+Traverse the term in a context of provisional types. At a variable return its context entry with no new equations. At a literal return its base type. At $`\lambda x.b`, introduce a fresh $`\alpha`, type the body under $`x:\alpha`, and return $`\alpha\rightarrow B` with the body’s equations, where $`B` is its provisional type. At $`f\, a` collect both children’s equations, obtaining provisional types $`F` and $`A`. Introduce fresh $`\beta`, add $`F = A\rightarrow\beta`, and return $`\beta`.
 
-$$`\left( {A_{1}\rightarrow B_{1}} \right)\mathrel{<:}\left( {A_{2}\rightarrow B_{2}} \right)\quad\text{if}\quad A_{2}\mathrel{<:}A_{1}\quad\text{and}\quad B_{1}\mathrel{<:}B_{2}.`
+*Why the equation is sufficient.* Under a solution $`S` the two child derivations of an application have types $`S(F)` and $`S(A)` by induction. The new equation ensures $`S(F) = S(A)\rightarrow S(\beta)`, exactly the premise required for an application at $`S(\beta)`. Conversely an ordinary typing fixes a domain and a result at every application and a parameter type at every binder. Assigning those types to the corresponding fresh variables satisfies the generated equations, by induction on typing. This converse allows the returned type to represent all ordinary typings of a closed term.
 
-A client promises only an $`A_{2}`. We must therefore feed such a value to a function written to expect $`A_{1}`. Its result has type $`B_{1}`, which the client must be able to use at $`B_{2}`. The reversal for the domain is called *contravariance*.
+Generate constraints for `λf. λx. f (f x)` from the empty context. Assign the outer parameter the unknown `α` and the inner parameter `β`. The inner application looks up the very same binding for `f` that the outer application will later use. Introduce a fresh result `γ`; the inner equation is `α = β → γ`. The outer application receives this result as its argument. With a new result `δ`, its equation is `α = γ → δ`. The provisional type of the entire term is `α → (β → δ)`. Freshness applies to the result unknown at each application. Variable occurrences retrieve their parameter's existing unknown.
 
-For a higher-order example, let `N = {n:Nat}` and `R = {n:Nat, flag:Bool}`. An actual function of type `N→R` can be used by a client expecting a function of type `R→N`. The client will supply an `R`, which can be passed to the actual function by the width judgment `R <: N`. The actual result is an `R`, from which the client may select the promised `n` or pass it on as an `N`. In this example both subtyping premises happen to read `R <: N`. Their roles differ because the argument crosses from the client to the implementation, while the result crosses back.
+A solution must give the same image to the two copies of `α`. Decomposing the equality between their two required arrows yields `β = γ` and `γ = δ`. Thus each solution types the parameter as a function from some type back to itself; the entire term takes that function and returns another such function. If an implementation invented a new unknown at the second lookup of `f`, this derivation would lose the equation between the two arrows. It would incorrectly allow the single parameter to behave at unrelated types.
 
-The rule can be reconstructed from a typing derivation for a wrapper. Assume `f:N→R` and consider `λr:R. f r`. Inside the abstraction, subsume `r:R` to `N`, apply `f` to obtain `R`, and subsume the result to `N`. Discharging `r` gives the required type `R→N`. This wrapper exhibits the directions of both obligations with ordinary typing rules. The subtyping judgment itself permits using `f` at the new arrow type directly.
+# Solving finite type equations
+%%%
+tag := "ch20-s2"
+%%%
 
-For these immutable records, hiding a field can be represented explicitly by projection to a smaller record. The adapter first hides information in the client's argument before calling the supplied function, then hides information in the returned record. Its type checks both arrow directions. The equation for observing the field follows by reducing the definitions.
+Unification searches for a *most general unifier* $`U`: every solution $`S` is obtained by applying some further substitution after $`U` on the variables of the problem. Drop an equation between identical types. Decompose an equation between arrows into domain and codomain equations. An equation between unequal rigid constructors, such as Nat and Bool, fails. Orient a variable equation as $`\alpha = T`. If the sides differ and $`\alpha` occurs in $`T`, fail the *occurs check*. Otherwise record the binding and apply it throughout the remaining equations, composing later substitutions with this one.
+
+The elimination step preserves all solutions in factored form. Any solution must already send $`\alpha` to the image of $`T`, so it is unchanged, on this problem, by first applying the recorded binding. Conversely solving the updated equations and composing with that binding satisfies the original system. Arrow decomposition preserves solutions because finite arrow trees are equal exactly when their children are equal. Thus a successful run ending with no equations gives a most general unifier. Termination follows by ordering first the number of distinct unresolved variables, then the total size of pending equations. Elimination removes a variable, decomposition reduces size, and orientation can be performed as part of elimination.
+
+Take the equations `α = β → γ` and `β = Nat`. After eliminating the first equation, the remaining equation still lets us choose the image of `γ` freely. Eliminating the second gives an intermediate substitution mapping `β` to Nat. To report the final solution we must also apply this substitution to the *right side* of the earlier binding, obtaining `α ↦ Nat → γ`. The unifier leaves `γ` unchanged. A later choice such as `γ ↦ Bool` then gives a particular solution by composition. Writing the two bindings side by side without recursive application or composition would leave the reported image of `α` inconsistent with its own constraints.
+
+The linear order of elimination can change the displayed intermediate maps. Choosing `β = Nat` first already rewrites the first pending equation to `α = Nat → γ`. Both orders describe the same set of solutions. For an occurs-check failure the argument has a different shape: every finite tree has a strictly larger size when used as the domain of an arrow. The following Lean lemma makes that obstruction independent of the implementation of the unifier.
 
 ```lean
-namespace RecordVariance
-structure Narrow where
-  n : Nat
-structure Rich where
-  n : Nat
-  flag : Bool
-
-def forget (x : Rich) : Narrow := ⟨x.n⟩
-
-def adapt (f : Narrow → Rich) : Rich → Narrow :=
-  fun x => forget (f (forget x))
-
-example (f : Narrow → Rich) (x : Rich) :
-    (adapt f x).n = (f ⟨x.n⟩).n := rfl
-end RecordVariance
+namespace FiniteTypeOccurs
+inductive Tree where
+  | atom
+  | arr (a b : Tree)
+def nodes : Tree → Nat
+  | .atom => 1
+  | .arr a b => nodes a + nodes b + 1
+theorem noSelfDomain (a b : Tree) : a ≠ .arr a b := by
+  intro h
+  have impossible := congrArg nodes h
+  simp only [nodes] at impossible
+  omega
+end FiniteTypeOccurs
 ```
 
-# A complete application
+# Principal types
 %%%
-tag := "ch22-s3"
+tag := "ch20-s3"
 %%%
 
-Write $`N` for `{n:Nat}` and $`R` for `{n:Nat, flag:Bool}`. Let $`r` be `{n=0, flag=true}`. The literal axioms and record formation give $`r:R`. For the subtyping judgment $`R\mathrel{<:}N`, the target requests just `n`, which the source provides at Nat, and reflexivity gives the common field comparison. Subsumption gives $`r:N`.
+The identity alone returns $`\alpha\rightarrow\alpha` with no equation. Every monomorphic instance replaces both occurrences by the same type. This is its *principal type*, a valid type pattern of which every valid type is an instance. For the application to zero, the additional equation and provisional result are
 
-In context $`p:N`, lookup gives $`p:N` and projection gives `p.n` type Nat. Abstraction types `λp:N. p.n` at $`N\rightarrow\text{Nat}`. Application can now use the subsumed operand, yielding Nat in the empty context. Beta reduction gives `r.n` and projection returns zero. The extra field is present in the runtime record throughout.
+$$`\left( {\alpha\rightarrow\alpha} \right) = \left( {\text{Nat}\rightarrow\beta} \right),\quad\beta.`
 
-Reversing the record rule would let a client with only $`N` pass its record to code that reads `flag`. Applying that code to `{n=0}` would reach a missing projection. The same example rules out covariance in the domain of an arrow: a function that expects $`R` cannot in general be called with an $`N`.
+Decompose to $`\alpha = \text{Nat}` and $`\alpha = \beta`. Eliminate $`\alpha` and solve $`\beta = \text{Nat}`. Applying the resulting substitution to the provisional result gives Nat. No type annotation was required.
 
-The beta step in the displayed program reveals how subsumption changes a preservation proof. Before the step the source is an application at Nat. Its body projection was checked under `p:N`. For substitution we must therefore establish that the actual operand is typable at *exactly that parameter type*. The record literal's introduction yields `r:R`. The premise `R <: N` supplies a subsumption step to `r:N`. Now the substitution lemma can conclude that the substituted body `r.n` has type Nat. Separately, inspecting the literal's fields explains why the projection actually evaluates to zero. One use of the literal is through its interface in a typing derivation; the other is through its stored field in a reduction rule.
+For `λx. x x`, the same variable supplies the operator and operand, giving $`\alpha = \alpha\rightarrow\beta`. In any finite type tree the right side, after applying a proposed solution, contains the left side as a proper subtree. Its size is therefore strictly larger. This equation has no solution in our type grammar.
 
-There is another typing derivation for the same application. Subtype the operator from `N→Nat` to `R→Nat` and keep the operand at its introduced type `R`. The application rule again yields Nat. Thus examining an application derivation may encounter different intermediate domains even when the evaluated term is identical. A checker that tries to guess every possible subsumption step would spend work exploring choices like these. Pierce's algorithmic account in §16.1 begins by isolating judgments about subtyping itself.
+Principality contains two distinct claims. First the residual type pattern itself must type the original term. Second, every other typing must be obtainable by consistently instantiating its residual variables. For `λf. λx. f (f x)`, the generation trace gave the candidate `(β→β)→(β→β)`. To verify the first claim, look up `f:β→β` and `x:β`. One application types `f x` at `β`, so a second application types `f (f x)` at that same type. Discharge both variables to obtain the candidate.
+
+For the second claim, invert an arbitrary typing derivation of this term. Let the parameter types of the two lambdas be `F` and `B`. Invert the inner application to conclude `F = B→C` for some `C`. Invert the outer application to conclude `F = C→D` for some `D`. Equality of the two arrow trees gives `B=C=D`. Thus the entire derivation has type `(B→B)→(B→B)`, precisely the instance `β ↦ B`. This argument proves principality up to renaming the residual variable. The spelling chosen for an unresolved variable makes no difference to the family of resulting finite types.
 
 # Exercises
 %%%
-tag := "ch22-s4"
+tag := "ch20-s4"
 number := false
 %%%
 
-1. Show that $`\left( {N\rightarrow\text{Bool}} \right)\mathrel{<:}\left( {R\rightarrow\text{Bool}} \right)`. Explain what the client supplies.
-2. Add a nested record field `meta` to a source and a target type so that checking their relation requires both width and depth.
-3. Can we justify writable record fields by exactly the same depth rule? Use $`R\mathrel{<:}N` to give a bad write.
+1. Infer the principal type of `λf. λx. f x`. Which equation identifies the type of $`f`?
+2. Collect and solve the constraints for `0 true`. Compare this failure with self-application.
+3. Give two distinct solutions of the identity’s constraints and explain why inferring only the first would lose information.
 
-*Further problem.* Let `N={n:Nat}`, `R={n:Nat,flag:Bool}`, and consider the immutable object type `S={run:N→R, tag:Bool}`. Can a value at `S` be passed to a client expecting `T={run:R→N}`? Derive all premises. Can that same client read the tag through its parameter at `T`?
+*Further problem.* Infer the principal type of `λx. λf. f (f x)`. Then constrain the result by demanding type `Bool→(Bool→Nat)→Nat`. Locate the first unavoidable mismatch and explain why merely typing the inner call would miss it.
 
 # Reading for the Seminar
 %%%
-tag := "ch22-s5"
+tag := "ch20-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Derive the type of the projection under the narrow parameter assumption.
-
-*Joint proof · 30 minutes.* Type the two-field literal at its full type, then assemble the complete application. Mark the only subsumption required in this derivation.
-
-*Proof review · 20 minutes.* Attempt to reverse the type comparison. Give a projection that becomes stuck, then derive the correct function-domain direction.
-
-*Facilitator’s hint.* Begin a record comparison with the labels demanded by the target. Starting with every field of the source would reject valid width examples.
+*Session 21 · After Chapter 21.* Keep the annotated typing derivation on the board. Erase the annotation from `(λx:Nat. x) 0` and assign a fresh type variable to the binder and another to the application result. Write the resulting arrow equation and solve it. Compare the result with the checker’s answer. For the final 15 minutes remove the application to zero: which equation disappears, and which choices for the identity’s parameter type become possible?
 
 # Solutions
 %%%
-tag := "ch22-s6"
+tag := "ch20-s6"
 number := false
 %%%
 
-*1.* The source accepts any $`N`, and a client of the target promises an $`R`. Since $`R\mathrel{<:}N`, every promised argument is acceptable. The result is unchanged.
+*1.* Give $`x` type $`\alpha` and the inner application result $`\beta`. The equation for $`f` is $`F = \alpha\rightarrow\beta`. The resulting type is $`\left( {\alpha\rightarrow\beta} \right)\rightarrow\left( {\alpha\rightarrow\beta} \right)`, with the right arrow corresponding to the inner lambda.
 
-*2.* Compare `{meta:{n:Nat,flag:Bool}, tag:Bool}` to `{meta:{n:Nat}}`. Forgetting `tag` uses outer width. Comparing the shared `meta` types uses depth with an inner width comparison.
+*2.* The only application equation is $`\text{Nat} = \text{Bool}\rightarrow\beta`. Distinct outer constructors cannot unify. In self-application the obstruction is an occurrence of the unknown inside its proposed solution.
 
-*3.* If a writable slot containing $`R` could be viewed as a slot containing $`N`, a client could store `{n=0}` through the latter view. Another client using the original view could then read the missing `flag`. Read-only fields avoid this change of representation.
+*3.* Replacing $`\alpha` by Nat or by Bool gives the two corresponding identity arrows. Choosing Nat would exclude the Bool instance, whereas leaving $`\alpha` free admits both.
 
-*Further problem.* Record comparison begins with the labels of the *target*. Its only label is `run`, which exists in the source, and depth requires `N→R <: R→N`. The arrow-domain premise compares the expected input to the actual input, giving `R <: N`. The arrow-codomain premise compares actual output to expected output, also giving `R <: N`. Each of these is a record-width comparison: the required label `n` is present with equal type Nat. The extra source label `tag` is unconstrained. These derivations justify `S <: T` and then subsumption of a concrete value from `S` to `T`. In the client body, its parameter's lookup gives `T`, so projection of `run` yields `R→N`. Projection of `tag` would require a type guaranteeing that label. A value with only a suitable `run` can also inhabit `T`, so the public assumption cannot justify this second projection, regardless of the particular actual argument's fields.
+*Further problem.* Give `x` unknown type `α` and `f` unknown type `β`. Let `γ` be the result of `f x` and `δ` the result of the outer call. The inner application generates `β=α→γ`. The outer application uses the same context entry for `f` and generates `β=γ→δ`. Decomposing the arrow equality gives `α=γ` and `γ=δ`. Thus the principal type is `α→(α→α)→α`; conversely the two original applications type at every consistent choice of `α`. Comparing to the demanded arrow fixes `α=Bool` from the first domain and demands that the argument function return Nat. Its codomain must also equal `α`, forcing Bool to equal Nat. Equivalently, under the proposed inputs the inner call to `f` *is* well typed: applying a Boolean-to-natural function to a Boolean yields Nat. The outer call cannot feed that natural back into the Boolean domain of the one supplied function.

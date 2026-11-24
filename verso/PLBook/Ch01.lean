@@ -13,7 +13,7 @@ file := "chapter-01"
 
 The expression $`x + 4` has value $`7` when $`x` holds $`3`, and value $`12` when $`x` holds $`8`. The expression is the same tree in both calculations. A *state* assigns an integer to every variable name. One way to evaluate the tree is to compute its value from the leaves up. Another is to give rules for justifying a proposed value. We shall prove that a proposed value has such a justification exactly when the computation returns it.
 
-*Sources.* Read §§1.1–1.2 and §§1.4–1.5 here. In Glynn Winskel’s _The Formal Semantics of Programming Languages_, read [§§2.1–2.2, pp. 11–16](https://web.cecs.pdx.edu/~apt/cs558/winskel2.1-5.pdf) for the syntax, state and rules, then [§3.2, Proposition 3.3, p. 30](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf) for an independent proof of uniqueness. Section 1.3 is for individual study. Return to §1.6 for assignment in Chapter 10.
+*Sources.* Read §§1.1–1.2 and §§1.4–1.5 here. In Glynn Winskel’s _The Formal Semantics of Programming Languages_, read [§§2.1–2.2, pp. 11–16](https://web.cecs.pdx.edu/~apt/cs558/winskel2.1-5.pdf) for the syntax, state and rules, then [§3.2, Proposition 3.3, p. 30](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf) for an independent proof of uniqueness. Section 1.3 is for individual study. Return to §1.6 for assignment in Chapter 11.
 
 # Abstract Syntax and States
 %%%

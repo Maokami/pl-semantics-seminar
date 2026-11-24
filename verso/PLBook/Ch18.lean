@@ -3,121 +3,161 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Progress and Preservation for Functions" =>
+#doc (Manual) "Weakening and Typed Substitution" =>
 %%%
-tag := "ch18"
-file := "chapter-18"
-%%%
-
-[Chapter PDF](print/chapter-18.pdf) · [Session 19](seminar/index.html#week-19)
-
-The application of a function to a value disappears in a single beta step. Before that step its type follows from an application rule. Afterwards the result may be a variable, another application, or an abstraction. The substitution theorem lets us transport a typing derivation across this change of syntax.
-
-*Sources.* Pierce, _Types and Programming Languages_, §9.3, pp. 104–107. Use the substitution result of Chapter 17. The shared proof is preservation for beta reduction, followed by progress at application. [Pierce, properties of typing.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# The closed call-by-value calculus
-%%%
-tag := "ch18-s1"
+tag := "ch17"
+file := "chapter-17"
 %%%
 
-Use Chapter 17’s variables, annotated abstractions and applications. Include a base type Unit and a constant `unit` with that type. A value is the unit constant or an abstraction. A term is closed if it has no free variables. The expression $`\Gamma \vdash t:T` has the typing rules of Chapter 17. The empty context is written $`\varnothing`.
+[Chapter PDF](print/chapter-17.pdf) · [Session 18](seminar/index.html#week-18)
 
-The evaluation rules are weak and left-to-right as in Chapter 14. A step under the operator of an application always propagates. When the operator is a value a step of the argument propagates. Finally $`\left( {\lambda x:A.b} \right)\, v\rightarrow b\left\lbrack {v/x} \right\rbrack` for a value $`v`. An abstraction does not step under its binder. The typing rules inspect the body even though evaluation stops at an abstraction.
+To run a function we substitute an argument into its body. Typing knows the body under an assumption about the parameter. Once the parameter disappears, we need a typing derivation for the substituted body in the caller’s context. The only delicate step is passing beneath another binder.
 
-*Inversion for applications.* Any derivation typing $`f\, a` at $`T` ends with application, since every other rule has another outer constructor. Its premises therefore give some $`A` with $`f:A\rightarrow T` and $`a:A` in the same context. A derivation of $`\lambda x:A.b` at $`A\rightarrow T` in turn has a body premise at $`T` under $`x:A`. Function types are syntax trees, so equality of two arrow types gives equality of their domains and of their codomains.
+*Sources.* Pierce, _Types and Programming Languages_, §§9.1–9.3, pp. 99–107. Read the application and abstraction rules before the substitution lemma. We use finite maps of names and prove the version admitting an open substituting term. [Pierce, chapter 9.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-A typing derivation can inspect code that evaluation never reaches. Let the operator be `λf:Unit→Unit. unit`, and try supplying `λz:Unit. z unit`. Both expressions are values according to weak evaluation. The untyped beta rule could therefore return unit immediately. Typing the operand, however, first requires a derivation for `z unit` under `z:Unit`. Inversion of application demands an arrow type for `z`, whereas the only possible lookup returns Unit. The operand fails before any comparison of the two sides of the outer application. The typing derivation must account for the delayed body even when this particular caller discards it.
-
-Now replace the operand with `λz:Unit. z`. Its body has a one-leaf typing derivation, and abstraction yields precisely the domain required by the operator. The two applications have the same immediate dynamic result, but only the latter falls within the hypothesis of type safety. This shows the direction of the guarantee: a successful derivation rules out a reachable stuck term. One successful execution on concrete inputs is insufficient evidence for typability, because other paths through the syntax may still have impossible premises.
-
-# Preservation
+# Contexts and typing
 %%%
-tag := "ch18-s2"
+tag := "ch17-s1"
 %%%
 
-*Theorem 18.1.* If $`\Gamma \vdash t:T` and $`t\rightarrow t'`, then $`\Gamma \vdash t':T`. Induct on the step derivation, considering any typing of its source.
+In the simply typed lambda calculus, a type is a base type or a function type $`A\rightarrow B`. The latter associates to the right. A term is a variable, a typed abstraction $`\lambda x:A.b`, or an application $`f\, a`. We may include a constant of a specified base type. A typing context $`\Gamma` is a finite mapping from distinct names to types. Write $`\Gamma,x:A` for extension by a fresh name. Terms are considered up to consistent renaming of bound variables (Chapter 14).
 
-In an operator step invert the application typing to obtain $`f:A\rightarrow T` and $`a:A`. Apply the induction hypothesis at the *function* type to type the new operator. Reuse the old argument typing and rebuild application. In an operand step the operator retains its type and the induction hypothesis now applies at the *domain* type. Rebuilding yields the same result type.
+The judgment $`\Gamma \vdash t:A` assigns type $`A` to $`t` under those assumptions. A lookup $`\Gamma(x) = A` types a variable. If $`\Gamma,x:A \vdash b:B`, then $`\Gamma \vdash \left( {\lambda x:A.b} \right):A\rightarrow B`. If $`\Gamma \vdash f:A\rightarrow B` and $`\Gamma \vdash a:A`, then $`\Gamma \vdash f\, a:B`. A declared constant keeps its type under every context. A free variable of any typable term occurs in the context: induction on typing passes to the two children at application and removes the local parameter at abstraction.
 
-For beta, invert the source typing twice. The outer inversion supplies an argument type $`C`, an abstraction typing at $`C\rightarrow T`, and a typing for $`v:C`. The abstraction inversion identifies $`C = A` and types $`b:T` in $`\Gamma,x:A`, renaming $`x` fresh as needed. Substitute $`v` by Theorem 17.2 to obtain $`\Gamma \vdash b\left\lbrack {v/x} \right\rbrack:T`, exactly the target typing. The value restriction chooses when reduction is allowed. The substitution theorem itself also accepts well-typed arguments that are still computations.
+Consider the judgment for `λf:A→B. λx:A. f x`. Start at the two leaves of the typing tree. Both occur in the context containing `f:A→B` and `x:A`. One lookup justifies the occurrence of the function and the other justifies the occurrence of its argument. Application combines these judgments in their common context to give `f x : B`. Introducing the inner abstraction discharges the assumption about `x`, giving $`f:A\to B \vdash \lambda x:A.\, f\,x : A\to B`. Introducing the outer abstraction discharges the remaining assumption. The closed result has type `(A→B)→(A→B)`.
 
-For a beta step whose result is itself an abstraction, take `(λf:Unit→Unit. λy:Unit. f y) (λz:Unit. z)`. Its result type is `Unit→Unit`. Recover the particular premises needed for substitution. The left-hand abstraction was typed by first deriving $`f:\mathrm{Unit}\to\mathrm{Unit} \vdash \lambda y:\mathrm{Unit}.\,f\,y : \mathrm{Unit}\to\mathrm{Unit}`. The right-hand abstraction has a derivation in the empty context at `Unit→Unit`. In the substitution theorem of Chapter 17, set the distinguished variable to `f`, the parameter type to `Unit→Unit`, the source term to `λy:Unit. f y`, and the replacement to `λz:Unit. z`. Its conclusion types `λy:Unit. (λz:Unit. z) y` in the empty context at the original result type. Descending through the binder `y` uses the weakening established in that chapter.
+Read the same tree downwards from its conclusion. The inner lambda introduced the assumption about `x`, so that assumption is available at both lookup leaves, even though the leaf for `f` never uses it. Consequently a typing judgment does not assert that all names in its context occur in the term. It asserts that the context supplies a consistent type for every lookup the derivation actually performs. For instance, a judgment about the open subterm `f x` needs both assumptions. Removing either one destroys a leaf of this derivation. Adding a third, fresh binding preserves both leaves. This is the distinction the weakening lemma makes precise.
 
-The resulting expression is already a value in this weak semantics. Its body contains a redex which will become available when a caller supplies an argument. Preservation relates the types across the one step just taken, irrespective of whether the result is canonical or contains further redexes. A proof appealing to equality of the printed source and target syntax would fail even on this example, since substitution introduced an application beneath the result's lambda.
-
-# Progress
+# Weakening
 %%%
-tag := "ch18-s3"
+tag := "ch17-s2"
 %%%
 
-*Canonical forms for arrows.* A closed value typed at $`A\rightarrow B` is an abstraction. Inspect the two value forms. The constant has only type Unit; an abstraction is the sole remaining form.
+Say $`\Gamma \subseteq \Delta` if every name in $`\Gamma` has the same binding in $`\Delta`. *Lemma 18.1.* If $`\Gamma \vdash t:A` and $`\Gamma \subseteq \Delta`, then $`\Delta \vdash t:A`. Induct on the typing derivation, allowing any such $`\Delta`. A variable keeps its lookup. At a constant the rule works in any context. At an application use both induction hypotheses and reapply the application rule. At an abstraction rename its parameter to $`z` fresh for both contexts and the body’s other names. Then $`\Gamma,z:C \subseteq \Delta,z:C`. The induction hypothesis types the body under the larger extended context, and abstraction discharges $`z:C`.
 
-*Theorem 18.2.* If $`\varnothing \vdash t:T`, then $`t` is a value or $`t` takes a step. Induct on typing, restricted to closed inputs. Variables cannot be typed by lookup in the empty context. Unit and lambda are values. For an application $`f\, a`, first use progress on $`f`. An operator step lifts. Otherwise $`f` has arrow type by inversion and is a value, so canonical forms makes it an abstraction. Now use progress on $`a`. A step of $`a` lifts, and a value $`a` enables beta. The source is closed, so the subterms of an application are closed, as required. No induction hypothesis on the open body of an abstraction is used.
+The renaming convention used here can itself be justified by relabeling a derivation: consistently replace a binder and its bound variable lookups by the fresh name, copy each unaffected lookup, and reconstruct the same application and abstraction rules. Freshness prevents any formerly distinct lookup from changing its target.
 
-Together, the theorems exclude reaching a stuck term in finitely many steps from a well-typed closed term. Apply preservation along the prefix and progress at its end. Proving that every evaluation is finite would require an additional argument.
+In the abstraction case of weakening, choosing a fresh name sometimes requires changing the displayed derivation. For example, start from the empty-context typing of `λy:A. y` and weaken it into the context containing `y:B`, where `A` and `B` are distinct. The premise of the original abstraction rule types its body in the one-entry context `y:A`. If we attempt to add `y:A` directly to the target context, the new entry collides with `y:B`. A finite map cannot extend both contexts by this key while retaining their original bindings.
 
-Exactly where does the empty context enter the application proof? At the top application the operator and operand both inherit the typing context unchanged. When it is empty we can invoke closed progress on either typing premise. Inside an abstraction the premise has a new variable assumption, so it cannot receive the same hypothesis. Since the outer abstraction is already a value, that recursive result is unnecessary. Thus a formal induction proof can generalize the context and state that progress follows *if the context is empty*. This produces an impossible equality with the empty map when it encounters a supposed variable lookup.
+Choose `z` fresh and use the representative `λz:A. z` of the original abstraction. Its premise uses the context `z:A`. The new premise requires `y:B, z:A`, which genuinely extends `z:A`. Apply the induction hypothesis to the lookup of `z` and discharge `z:A` again. This leaves precisely `y:B` in the conclusion. There are two different uses of the variable convention in this argument. Renaming transports a derivation to an alpha-equivalent term. Inclusion transports the new body judgment to a larger map without changing its term. Keeping these steps distinct also explains why context inclusion compares the types as well as the presence of keys.
 
-To see what fails when the hypothesis is weakened to an arbitrary well-formed context, give `f` type `Unit→Unit` and consider `f unit`. Its typing derivation is complete, yet its operator cannot take a step and cannot be recognized as an abstraction. Filling the environment by a closed substitution assigning `λz:Unit. z` to `f` changes the question. The closed instance can now reduce to unit. Thus it would also be possible to formulate progress for closed *instances* of open typed terms. That formulation requires evidence associating each free name with a suitable closed term.
+# Substitution in context
+%%%
+tag := "ch17-s3"
+%%%
 
-We can factor the final safety argument away from the syntax. Fix a type and let the predicate `Typed` mean closed typing at that type. A finite execution is either empty or one step followed by a finite execution. The Lean proof carries typing across its first step before invoking induction on the remaining steps. Only at the endpoint does it use progress. Instantiating the two hypotheses with this chapter's theorems gives safety for this calculus.
+*Theorem 18.2.* If $`\Gamma,x:A \vdash t:B` and $`\Gamma \vdash u:A`, then $`\Gamma \vdash t\left\lbrack {u/x} \right\rbrack:B`. Here $`x` is fresh for $`\Gamma` and substitution avoids capture. We induct on the first typing derivation, with the context and substituting term universally quantified.
+
+At a variable $`y = x`, the result term is $`u` and the desired judgment is the second premise. For $`y \neq x` the original lookup already belongs to $`\Gamma`. Constants remain typed by their declarations. At application substitute independently in the two premises, retaining the original domain type, and reassemble the application.
+
+At an abstraction choose a representative $`\lambda z:C.b` with $`z` fresh for $`\Gamma,x,u` and the body’s other names. Inverting typing gives the body judgment in $`\Gamma,x:A,z:C`. Since contexts are maps with distinct keys we may present the same map as $`\Gamma,z:C,x:A`. Weakening types $`u:A` in $`\Gamma,z:C`. Instantiate the induction hypothesis with this extended context. It gives
+
+$$`\Gamma,z:C \vdash b\left\lbrack {u/x} \right\rbrack:D.`
+
+Abstraction now gives the required type $`C\rightarrow D` in $`\Gamma`. The precise need for weakening is visible here: the body derivation and the argument derivation must agree on what remains in scope after removing $`x`.
+
+Here is an instance in which the argument genuinely needs an outer assumption. Let `Γ` consist of `y:B` and `f:B→A`. Take the substituting expression to be `f y`. It has type `A` by two lookups and application. Under the extra assumption `x:A` the source body `λz:C. x` has type `C→A`. To substitute under its lambda, the induction hypothesis requests a derivation of $`\Gamma,z:C \vdash f\,y : A`. The derivation in hand concludes $`\Gamma \vdash f\,y : A`. Weakening transports both lookups to the larger map and preserves the application that joins them. Substitution in the variable body then yields $`\Gamma,z:C \vdash f\,y : A`. Discharging the binder produces $`\Gamma \vdash \lambda z:C.\,f\,y : C\to A`. A proof restricted to closed arguments could never use this example.
+
+The Lean development below encodes each variable occurrence by a path to its binder. A path carries its type: `here` selects the newest entry and `there` passes over one entry. A term of type `Term Γ a` therefore contains evidence of its context and type in its constructors. A renaming maps each path to a path with the same type. A simultaneous substitution maps each path to a term of the same type. In `liftSub`, the new binder maps to itself. Every older variable maps to an expression which must now be weakened under that binder. This is the precise argument supplied by the named weakening lemma in the paper proof. The last declaration specializes simultaneous substitution to a single parameter. Its return type states the typing judgment needed by beta preservation.
 
 ```lean
-namespace SafePrefixes
-inductive Runs {α : Type} (step : α → α → Prop) : α → α → Prop where
-  | refl (a) : Runs step a a
-  | cons {a b c} : step a b → Runs step b c → Runs step a c
+namespace BinderProof
 
-theorem endpoint {α : Type} {step : α → α → Prop}
-    {Typed Value : α → Prop}
-    (pres : ∀ {a b}, Typed a → step a b → Typed b)
-    (prog : ∀ {a}, Typed a → Value a ∨ ∃ b, step a b)
-    {a b} (path : Runs step a b) (start : Typed a) :
-    Value b ∨ ∃ c, step b c := by
-  induction path with
-  | refl => exact prog start
-  | cons first _ ih => exact ih (pres start first)
-end SafePrefixes
+inductive Ty where
+  | base
+  | arr (a b : Ty)
+
+inductive Var : List Ty → Ty → Type where
+  | here : Var (a :: Γ) a
+  | there : Var Γ a → Var (b :: Γ) a
+
+inductive Term : List Ty → Ty → Type where
+  | var : Var Γ a → Term Γ a
+  | lam : Term (a :: Γ) b → Term Γ (.arr a b)
+  | app : Term Γ (.arr a b) → Term Γ a → Term Γ b
+
+abbrev Ren (Γ Δ : List Ty) := ∀ {a}, Var Γ a → Var Δ a
+
+def liftRen (r : Ren Γ Δ) : Ren (b :: Γ) (b :: Δ)
+  | _, .here => .here
+  | _, .there x => .there (r x)
+
+def rename (r : Ren Γ Δ) : Term Γ a → Term Δ a
+  | .var x => .var (r x)
+  | .lam t => .lam (rename (liftRen r) t)
+  | .app f t => .app (rename r f) (rename r t)
+
+def weaken (t : Term Γ a) : Term (b :: Γ) a :=
+  rename (fun x => .there x) t
+
+abbrev Sub (Γ Δ : List Ty) := ∀ {a}, Var Γ a → Term Δ a
+
+def liftSub (s : Sub Γ Δ) : Sub (b :: Γ) (b :: Δ)
+  | _, .here => .var .here
+  | _, .there x => weaken (s x)
+
+def subst (s : Sub Γ Δ) : Term Γ a → Term Δ a
+  | .var x => s x
+  | .lam t => .lam (subst (liftSub s) t)
+  | .app f t => .app (subst s f) (subst s t)
+
+def replaceTop (u : Term Γ a) : Sub (a :: Γ) Γ
+  | _, .here => u
+  | _, .there x => .var x
+
+def betaBody (t : Term (a :: Γ) b) (u : Term Γ a) : Term Γ b :=
+  subst (replaceTop u) t
+
+end BinderProof
 ```
 
-*Safety and normalization.* In the pure simply typed language without general recursion, every closed well-typed term evaluates to a value. This normalization result requires an additional proof (Pierce §12.1). Progress supplies a next step for a nonvalue, and preservation lets the next state take another step; neither bounds the number of steps. In Chapter 28 we will add a typed fixed-point operator and see precisely which conclusion fails.
+# An open argument
+%%%
+tag := "ch17-s4"
+%%%
+
+Choose distinct $`x,y,z`, and set $`\Gamma` to the single binding $`y:A`. In `λy:A. x`, use alpha-renaming to separate the local binder from the free name of the argument $`u = y`. The resulting abstraction is `λz:A. y`. Its body lookup uses $`y:A` from $`\Gamma`, even after $`z:A` has been introduced. Both this term and the incorrectly captured `λy:A. y` can receive type $`A\rightarrow A`; type equality alone cannot detect a change of binding.
+
+To distinguish two terms which both have type `A→A`, supply a context that can observe which binding they read. Instantiate the base type with Bool and supply the external value true for `y`. Apply the function to false. After capture-avoiding substitution the closed application is `(λz:Bool. true) false`. Its body does not depend on the argument, so beta reduction returns true. After the accidental capture the closed application is `(λy:Bool. y) false`, which returns false. The observation takes place in the Boolean fragment from Chapter 17. All the applications and intermediate terms have types, including the ones constructed from the incorrect substitution.
+
+The lemma proved in this chapter constrains the result type of a specifically defined syntactic operation. It cannot serve as that operation's sole specification. For the two function bodies above, Chapter 14 supplies a second test: before closing the surrounding context, the first abstraction still has the free variable `y`, whereas the second has no free variables. The free-variable calculation detects the lost dependency before running a single step. The Boolean application subsequently shows that this syntactic difference can affect a closed program's observable result.
 
 # Exercises
 %%%
-tag := "ch18-s4"
+tag := "ch17-s5"
 number := false
 %%%
 
-1. Assign a type to `(λf:Unit→Unit. f unit) (λz:Unit. z)` and derive both reductions. State the result type after each step.
-2. Give an open well-typed application that is not a value and cannot step. Identify the precise use of closedness it evades.
-3. If a new constant `bad` of type $`A\rightarrow B` were declared a value with no application rule, which line of progress would fail?
+1. Type $`\left( {f\, x} \right)\left\lbrack {u/x} \right\rbrack` from $`f:A\rightarrow B` in $`\Gamma` and $`\Gamma \vdash u:A`. Indicate which premise uses the substitution hypothesis.
+2. Change the local binder type to $`C` in §18.4, choosing $`C` distinct from $`A`. What goes wrong with the type of the captured result?
+3. Why could the proof of weakening fail if context extension were allowed to overwrite an existing name?
 
-*Further problem.* Extend the language with a closed constant `loop:Unit`. Keep the original values and add `loop → loop`. Check preservation and progress, then give a closed, well-typed application whose unique evaluation runs forever under the left-to-right call-by-value rules.
+*Further problem.* Prepare the beta case of Chapter 19 with an open value. Let `Γ = f:A→B`, let `V = λy:A. f y`, and consider `(λg:A→B. λf:A. g f) V`. Derive its type, take the call-by-value beta step, and instantiate Theorem 18.2 under the remaining binder. What would literal replacement do?
 
 # Reading for the Seminar
 %%%
-tag := "ch18-s5"
+tag := "ch17-s6"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Copy the operational beta rule and the two relevant typing rules. Keep the rule conclusions visible.
+*Definitions · 10 minutes.* Write down the domains of both maps in the substitution theorem.
 
-*Joint proof · 30 minutes.* Start from the typing of a beta redex at an unknown result type. Recover two premises, identify its domain, and instantiate Theorem 17.2 explicitly.
+*Joint proof · 30 minutes.* Derive the abstraction case from its body premise. Ask the group to name the context in which the argument must be typed immediately before induction.
 
-*Proof review · 20 minutes.* Prove progress for an application, then add the constant in Exercise 3 and show exactly where a new case is required.
+*Proof review · 20 minutes.* Compute Exercise 2 with and without renaming. Mark the typing rule whose lookup changes.
 
-*Facilitator’s hint.* Ask which theorem provides a typing for the *substituted body*. Inversion only types the original body under an extra assumption.
+*Facilitator’s hint.* Circle the binder that will still be in scope after substitution. Weakening adds exactly its assumption to the argument derivation.
 
 # Solutions
 %%%
-tag := "ch18-s6"
+tag := "ch17-s7"
 number := false
 %%%
 
-*1.* The argument has type Unit to Unit, and the operator takes such a function and returns Unit. The first step gives `(λz:Unit. z) unit`, the second gives `unit`. Each whole term has type Unit.
+*1.* The left variable remains $`f` by ordinary lookup. The right variable $`x` is replaced by $`u` and uses the given derivation at $`A`. Application yields $`B`.
 
-*2.* In a context containing $`f:\text{Unit}\rightarrow\text{Unit}` the term `f unit` has type Unit. Its free operator is neither a value nor reducible. Closed progress would have excluded the operator variable case.
+*2.* Capture-avoiding substitution produces `λz:C. y` of type $`C\rightarrow A`. Textual capture produces `λy:C. y` of type $`C\rightarrow C`. Its body can no longer use the old $`y:A` lookup.
 
-*3.* The canonical forms lemma for arrows is now false. Applying `bad` to a closed value of its domain gives a well-typed stuck term whenever such a value exists.
+*3.* Overwriting $`x:A` by $`x:B` with distinct types destroys a previous typing of the term $`x`. The inclusion premise in Lemma 18.1 specifically preserves the types of existing names.
 
-*Further problem.* The constant's only typing assigns Unit, and the target of its new rule is the very same term, so its typing derivation can be reused. The two application congruence cases still rebuild the typing from their induction hypotheses. The beta case still follows from substitution; adding the constant gives substitution one more immediate case since it contains no variables. For progress the new typing case supplies the displayed self-step. The constant is a nonvalue, so canonical forms for closed values of arrow type is unchanged. Take `(λu:Unit. unit) loop`. The body constant has type Unit in the extended context, hence the operator has type `Unit→Unit`; the operand has type Unit and application yields Unit. The sole eligible step evaluates the operand, leaving the same application. Induction on the length of any finite execution shows the program is still that nonvalue application at its end. Thus all of these preservation and progress checks are compatible with divergence.
+*Further problem.* Choose `w` fresh and represent the inner function as `λw:A. g w`. Under `Γ,g:A→B,w:A`, application types `g w:B`. Discharging `w` gives `A→B`, and discharging `g` gives `(A→B)→(A→B)`. Separately, lookup of `f` in `Γ,y:A` and application to `y` give $`\Gamma \vdash V : A\to B`. The source application has type `A→B`. Its operand is an abstraction, so call-by-value beta yields `λw:A. (λy:A. f y) w`. Theorem 18.2 removes `g:A→B` using the two preceding typings. In its abstraction case the new base context is `Γ,w:A`. Weakening gives $`\Gamma,w:A \vdash V : A\to B`; lookup types `w:A`, so application gives `V w:B`. Abstracting `w` recovers the source result type. Literal replacement under the original spelling would bind the argument's free `f` to a local of type `A`. Taking `A` as a base type makes the resulting application of that local to `y` untypable. The open source rules out invoking closed progress here, but preservation and Theorem 18.2 both permit this context.

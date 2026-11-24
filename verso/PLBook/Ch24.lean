@@ -3,127 +3,119 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Existential Types and Abstract Data Types" =>
+#doc (Manual) "Structural Subtyping" =>
 %%%
-tag := "ch24"
-file := "chapter-24"
-%%%
-
-[Chapter PDF](print/chapter-24.pdf) · [Session 25](seminar/index.html#week-25)
-
-A counter implementation provides an initial counter, a way to advance it, and a way to read it. The client needs the type of each operation and the guarantee that the three operations agree on one counter representation. The concrete representation can remain private.
-
-*Sources.* Pierce, _Types and Programming Languages_, §§24.1–24.2, pp. 363–376. Follow the representation type from packaging to unpacking. For comparison read Reynolds, _Theories of Programming Languages_, §18.2 on existential types. The record notation below is the immutable notation of Chapter 22. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Packaging a representation
-%%%
-tag := "ch24-s1"
+tag := "ch22"
+file := "chapter-22"
 %%%
 
-Write $`\exists X.T` for the type of packages that consist of a well-formed witness type $`A` and an implementation value of type $`T\left\lbrack {A/X} \right\rbrack`. Introduce it by `pack [A, v] as ∃X.T`. The type annotation specifies which occurrences in the public interface are abstract. Many packages with different choices of $`A` may have exactly this public type.
+[Chapter PDF](print/chapter-22.pdf) · [Session 23](seminar/index.html#week-23)
 
-Let $`T(X)` denote the record `{init:X, next:X→X, read:X→Nat}` and $`C = \exists X.T(X)`. Represent counters by Nat, take the initial value zero, `next = λn:Nat. succ n`, and `read = λn:Nat. n`. Each field has the type obtained by replacing $`X` with Nat. Record formation therefore gives $`T\left( \text{Nat} \right)` and packaging at $`C` hides the chosen witness. The witness is chosen by the implementer; in Chapter 23 a caller of a universal value chose the argument type.
+A function selecting the field `n` can use a record with both `n` and `flag`. The function’s body explains which part of its input must be present. The typing relation can express that requirement without naming a declared class for either record.
 
-There is genuine information in the ascription after `as`. Consider the concrete payload `(2,5)` with witness Nat. The types `∃X.X×Nat` and `∃X.Nat×X` are both valid ascriptions: replacing `X` by Nat in either body gives the payload type `Nat×Nat`. Yet a client of the first interface can return the second projection as a natural, observing five; a client of the second can return the first projection as a natural, observing two. In the first case the other projection has the fresh abstract type introduced by unpacking. No operation in that interface converts its result to Nat. A third ascription, `∃X.X×X`, reveals that both components have the same type while withholding the concrete identity of that type.
+*Sources.* Pierce, _Types and Programming Languages_, §11.8 on records, then §§15.1–15.3 on subsumption, subtyping and safety. Read the typing rule for projection before trying the subtyping example. For an algorithmic presentation see §16.1. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-The counter signature exploits exactly this ability to disclose selected equalities. The result type of initialization, the argument and result of advancement, and the argument of reading all mention one bound name. The client may therefore pass a value produced by any operation returning that name to either operation accepting it. If instead the three fields were packaged using separate existential quantifiers, opening the packages would provide independent names. Even well-typed implementations that secretly chose Nat three times could no longer support this chain by the public field types alone.
-
-# Opening a package
+# Records and projection
 %%%
-tag := "ch24-s2"
+tag := "ch22-s1"
 %%%
 
-The term `unpack [Y,p] = q in b` first evaluates $`q` to a package. In its body it introduces a fresh abstract type name $`Y` and a term name $`p:T(Y)`. If $`q:C` and $`b:B` can be typed under these additional assumptions, the whole expression has type $`B` in the original context. The type $`B` must be well formed outside the scope of $`Y`. A type containing a free occurrence of $`Y` cannot escape this opening.
+A record type lists a finite collection of distinct labels with their field types. Here labels identify fields independently of list order. A record term gives a term for each listed label. If every field term has its specified type, the complete record has the corresponding record type. If $`r` has a record type containing $`l:A`, projection `r.l` has type $`A`. Records are immutable in this chapter. At runtime a record of values is a value, and projecting from it returns the value at the chosen label.
 
-Consider `unpack [Y,p] = counter in p.read (p.next p.init)`. Projection gives `p.init` type $`Y` and `p.next` type $`Y\rightarrow Y`. Application gives another $`Y`. Projecting `p.read` and applying it yields Nat, which is well formed in the outer context. Operationally opening `pack [A,v]` substitutes $`A` for the type binder and $`v` for the module name in the body, avoiding capture. For the representation above the body calls successor on zero, then reads the resulting 1.
+A *subtyping judgment* $`S\mathrel{<:}T` authorizes use of a value of type $`S` wherever a value of type $`T` is expected. Read the colon following the inequality sign as part of the symbol. Subsumption extends typing with one rule: from $`\Gamma \vdash t:S` and $`S\mathrel{<:}T`, conclude $`\Gamma \vdash t:T`. This permits more than one type for a term. Subsumption is a typing step, with no new evaluation rule.
 
-Two separate openings introduce different abstract type names. Even if two packages happen to contain the same representation, the typing rules alone cannot supply an equality between the fresh names. A client must keep the operations and counter values from each opening together.
+The label in a projection identifies a contract that must hold for every value of the receiver type. In context `r:{n:Nat, flag:Bool}`, projection can derive both `r.n : Nat` and `r.flag : Bool` directly. We may first subsume this very same variable to type `{n:Nat}` and then still derive the first projection. If a function parameter is declared only at that narrower type, its body can construct the first derivation but cannot recover a premise for the second. Some callers may pass a record which contains only `n`, so the missing premise reflects a real execution possibility.
 
-A client can retain an operation after leaving the scope of the opening. Consider `unpack [Y,p] = counter in λu:Unit. p.read (p.next p.init)`, where Unit has the single value `unit`. In the body of the lambda, `p.next p.init` has type `Y` and applying `p.read` produces Nat. Introducing the unused Unit argument gives `Unit→Nat`. This result type is well formed outside the opening. Later application of the returned closure to `unit` may use the captured implementation, which shares its private representation with its captured operations. The caller receives only the resulting natural.
+This also distinguishes field order from field identity. The type describing `{flag=true, n=0}` offers the same two projections as the one for `{n=0, flag=true}`. The lookup premise refers to the label and its associated type, independently of the position where the field was printed. Distinctness of labels ensures this correspondence is functional. If a record literal could declare two different fields both named `n`, the typing and evaluation rules would need an additional convention about which occurrence a projection selects. Rejecting duplicate labels makes the stated rule unambiguous.
 
-Changing the body to `λu:Unit. p.next p.init` changes the inferred arrow to `Unit→Y`. A free occurrence of the representation name in the codomain violates the same scope check as returning the counter directly. An interface can expose an advanced counter by packaging it again. Inside the opening, form the record with `init = p.next p.init`, `next = p.next`, and `read = p.read`. It has type `T(Y)`. Pack it using witness `Y` and ascription `C`; the result type is the closed existential type `C`. A subsequent client obtains a fresh type name on opening this new package and can read its advanced initial value.
-
-# A second implementation
+# Structural rules
 %%%
-tag := "ch24-s3"
+tag := "ch22-s2"
 %%%
 
-Use pairs of naturals for the witness. Store a current count in the first component and the number of advances in the second. Use $`\left( {0,0} \right)` for `init`, increment both components in `next`, and project the first in `read`. Writing $`A = \text{Nat} \times \text{Nat}`, the constructor, updater and reader again supply all fields of $`T(A)`. The same client therefore typechecks once at $`C` and computes the integer 1 using either package.
+Every type is a subtype of itself, and subtyping composes transitively. Distinct base types here have no subtyping relationship. For two record types $`S,T`, require that for *every* field $`l:A` of $`T`, the source $`S` contains the same label at some type $`B` with $`B\mathrel{<:}A`. When the common field types agree, a record may have additional fields (width). Refining the type of a common field gives depth subtyping. Selecting a field guaranteed by $`T` is then justified at $`S`, and a field value delivered with type $`B` may be used at $`A`.
 
-Typing a common interface alone does not assert that implementations compute equal observations. To explain this example, relate a natural $`n` and a pair $`\left( {a,b} \right)` when $`n = a`. The initial values are related, related inputs stay related after `next`, and reading related inputs gives the same natural. By induction on the number of advances, any client consisting of initialization, finitely many advances and a single read obtains the same observation from these implementations. A full representation-independence theorem for arbitrary higher-order clients requires a corresponding relation for all client types.
+For arrow types the condition is
 
-We can extend the induction to clients that inspect an observation before deciding whether to advance again. Let a client be a finite tree with three constructors: read the current value, advance and continue with a subtree, or inspect whether the current observation is zero and choose between two subtrees. The result of each client is a natural. For any two implementations, assume a relation on their states, a proof that advancing preserves the relation, and a proof that related states yield equal readings. Structural induction on the client tree now proves equal results from every pair of related states. In the branch case the two guards read equal naturals, hence choose corresponding subtrees. The induction hypothesis applies there to the original related states. The advance case instead needs the hypothesis at a *new* pair of states. This is why the theorem quantifies over all related starting states at each subtree.
+$$`\left( {A_{1}\rightarrow B_{1}} \right)\mathrel{<:}\left( {A_{2}\rightarrow B_{2}} \right)\quad\text{if}\quad A_{2}\mathrel{<:}A_{1}\quad\text{and}\quad B_{1}\mathrel{<:}B_{2}.`
 
-The code states this argument for arbitrary operations. For our two packages use the relation saying that the left state equals the first component of the right state. Applying the theorem at zero and the initial pair then proves equality of observations for every client described by the three constructors.
+A client promises only an $`A_{2}`. We must therefore feed such a value to a function written to expect $`A_{1}`. Its result has type $`B_{1}`, which the client must be able to use at $`B_{2}`. The reversal for the domain is called *contravariance*.
+
+For a higher-order example, let `N = {n:Nat}` and `R = {n:Nat, flag:Bool}`. An actual function of type `N→R` can be used by a client expecting a function of type `R→N`. The client will supply an `R`, which can be passed to the actual function by the width judgment `R <: N`. The actual result is an `R`, from which the client may select the promised `n` or pass it on as an `N`. In this example both subtyping premises happen to read `R <: N`. Their roles differ because the argument crosses from the client to the implementation, while the result crosses back.
+
+The rule can be reconstructed from a typing derivation for a wrapper. Assume `f:N→R` and consider `λr:R. f r`. Inside the abstraction, subsume `r:R` to `N`, apply `f` to obtain `R`, and subsume the result to `N`. Discharging `r` gives the required type `R→N`. This wrapper exhibits the directions of both obligations with ordinary typing rules. The subtyping judgment itself permits using `f` at the new arrow type directly.
+
+For these immutable records, hiding a field can be represented explicitly by projection to a smaller record. The adapter first hides information in the client's argument before calling the supplied function, then hides information in the returned record. Its type checks both arrow directions. The equation for observing the field follows by reducing the definitions.
 
 ```lean
-namespace CounterClients
-inductive Client where
-  | read
-  | next (rest : Client)
-  | branchZero (yes no : Client)
+namespace RecordVariance
+structure Narrow where
+  n : Nat
+structure Rich where
+  n : Nat
+  flag : Bool
 
-def observe {S : Type} (step : S → S) (readout : S → Nat) :
-    Client → S → Nat
-  | .read, s => readout s
-  | .next k, s => observe step readout k (step s)
-  | .branchZero yes no, s =>
-    if readout s = 0 then observe step readout yes s
-    else observe step readout no s
+def forget (x : Rich) : Narrow := ⟨x.n⟩
 
-theorem simulation {S T : Type} (ss : S → S) (ts : T → T)
-    (sr : S → Nat) (tr : T → Nat) (R : S → T → Prop)
-    (stepEq : ∀ s t, R s t → R (ss s) (ts t))
-    (readEq : ∀ s t, R s t → sr s = tr t)
-    (k : Client) (s : S) (t : T) (h : R s t) :
-    observe ss sr k s = observe ts tr k t := by
-  induction k generalizing s t with
-  | read => exact readEq s t h
-  | next k ih => exact ih _ _ (stepEq s t h)
-  | branchZero yes no ihYes ihNo =>
-    simp only [observe, readEq s t h]
-    split
-    · exact ihYes _ _ h
-    · exact ihNo _ _ h
-end CounterClients
+def adapt (f : Narrow → Rich) : Rich → Narrow :=
+  fun x => forget (f (forget x))
+
+example (f : Narrow → Rich) (x : Rich) :
+    (adapt f x).n = (f ⟨x.n⟩).n := rfl
+end RecordVariance
 ```
+
+# A complete application
+%%%
+tag := "ch22-s3"
+%%%
+
+Write $`N` for `{n:Nat}` and $`R` for `{n:Nat, flag:Bool}`. Let $`r` be `{n=0, flag=true}`. The literal axioms and record formation give $`r:R`. For the subtyping judgment $`R\mathrel{<:}N`, the target requests just `n`, which the source provides at Nat, and reflexivity gives the common field comparison. Subsumption gives $`r:N`.
+
+In context $`p:N`, lookup gives $`p:N` and projection gives `p.n` type Nat. Abstraction types `λp:N. p.n` at $`N\rightarrow\text{Nat}`. Application can now use the subsumed operand, yielding Nat in the empty context. Beta reduction gives `r.n` and projection returns zero. The extra field is present in the runtime record throughout.
+
+Reversing the record rule would let a client with only $`N` pass its record to code that reads `flag`. Applying that code to `{n=0}` would reach a missing projection. The same example rules out covariance in the domain of an arrow: a function that expects $`R` cannot in general be called with an $`N`.
+
+The beta step in the displayed program reveals how subsumption changes a preservation proof. Before the step the source is an application at Nat. Its body projection was checked under `p:N`. For substitution we must therefore establish that the actual operand is typable at *exactly that parameter type*. The record literal's introduction yields `r:R`. The premise `R <: N` supplies a subsumption step to `r:N`. Now the substitution lemma can conclude that the substituted body `r.n` has type Nat. Separately, inspecting the literal's fields explains why the projection actually evaluates to zero. One use of the literal is through its interface in a typing derivation; the other is through its stored field in a reduction rule.
+
+There is another typing derivation for the same application. Subtype the operator from `N→Nat` to `R→Nat` and keep the operand at its introduced type `R`. The application rule again yields Nat. Thus examining an application derivation may encounter different intermediate domains even when the evaluated term is identical. A checker that tries to guess every possible subsumption step would spend work exploring choices like these. Pierce's algorithmic account in §16.1 begins by isolating judgments about subtyping itself.
 
 # Exercises
 %%%
-tag := "ch24-s4"
+tag := "ch22-s4"
 number := false
 %%%
 
-1. Is `unpack [Y,p] = counter in p.init` typable with result Nat? What if the body returns `p.read p.init`?
-2. Construct an implementation at $`C` that always returns zero from `read`. Give a client distinguishing it from the first implementation.
-3. Explain why using the first package’s `next` on the second package’s `init` fails when checked only from the public interfaces.
+1. Show that $`\left( {N\rightarrow\text{Bool}} \right)\mathrel{<:}\left( {R\rightarrow\text{Bool}} \right)`. Explain what the client supplies.
+2. Add a nested record field `meta` to a source and a target type so that checking their relation requires both width and depth.
+3. Can we justify writable record fields by exactly the same depth rule? Use $`R\mathrel{<:}N` to give a bad write.
 
-*Further problem.* Package the counter with witness Nat but represent the logical initial count by one, use successor for advancement, and use predecessor for reading. Prove agreement with the original counter for all finite clients of §24.3, including clients that branch on a reading. Is equality of machine states an invariant?
+*Further problem.* Let `N={n:Nat}`, `R={n:Nat,flag:Bool}`, and consider the immutable object type `S={run:N→R, tag:Bool}`. Can a value at `S` be passed to a client expecting `T={run:R→N}`? Derive all premises. Can that same client read the tag through its parameter at `T`?
 
 # Reading for the Seminar
 %%%
-tag := "ch24-s5"
+tag := "ch22-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the three field types with an abstract representation, then instantiate them with Nat.
+*Definitions · 10 minutes.* Derive the type of the projection under the narrow parameter assumption.
 
-*Joint proof · 30 minutes.* Derive the client judgment under a fresh type name and check that its result type survives leaving the scope. Repeat with the pair implementation and compare the execution.
+*Joint proof · 30 minutes.* Type the two-field literal at its full type, then assemble the complete application. Mark the only subsumption required in this derivation.
 
-*Proof review · 20 minutes.* Prove the relation in §24.3 for one advance and one read. Explain what the common interface guarantees even for the implementation in Exercise 2.
+*Proof review · 20 minutes.* Attempt to reverse the type comparison. Give a projection that becomes stuck, then derive the correct function-domain direction.
 
-*Facilitator’s hint.* Keep the witness chosen inside the package on one part of the board and the fresh type variable available to the client on another.
+*Facilitator’s hint.* Begin a record comparison with the labels demanded by the target. Starting with every field of the source would reject valid width examples.
 
 # Solutions
 %%%
-tag := "ch24-s6"
+tag := "ch22-s6"
 number := false
 %%%
 
-*1.* The first body yields $`Y`. Identifying it with Nat would require an equality hidden by the package, and returning it directly would allow $`Y` to escape. Reading it first yields Nat, which passes the scope check.
+*1.* The source accepts any $`N`, and a client of the target promises an $`R`. Since $`R\mathrel{<:}N`, every promised argument is acceptable. The result is unchanged.
 
-*2.* Keep the natural witness and successor, but define `read = λn:Nat. 0`. The client of §24.2 observes zero there and one with the original package. Both satisfy the three field types.
+*2.* Compare `{meta:{n:Nat,flag:Bool}, tag:Bool}` to `{meta:{n:Nat}}`. Forgetting `tag` uses outer width. Comparing the shared `meta` types uses depth with an inner width comparison.
 
-*3.* The first operation expects $`Y_{1}` and the second package supplies $`Y_{2}`. The application rule requires equal types. The two open scopes supply no equation between the distinct names.
+*3.* If a writable slot containing $`R` could be viewed as a slot containing $`N`, a client could store `{n=0}` through the latter view. Another client using the original view could then read the missing `flag`. Read-only fields avoid this change of representation.
 
-*Further problem.* Choose the relation `R(n,m)` meaning `m=n+1`, where `n` is the original state and `m` the offset state. Initialization establishes `R(0,1)`. If `m=n+1`, then `m+1=(n+1)+1`, which proves the relation for the two successor states. For every related pair, reading the left state yields `n` and reading the right yields `pred(n+1)=n`. These are exactly the two premises of the client-tree induction. At a read leaf the result follows from reading agreement. At an advance node apply the child hypothesis at the successor pair. At a zero test both readings are equal, so the evaluation of each implementation chooses the same child and the original pair still satisfies its hypothesis. Applying the conclusion to the initial pair proves the claim for every such finite client. Equality of the stored naturals is already false at initialization. Abstract observational agreement can therefore hold even for two witnesses that happen to be the same concrete type.
+*Further problem.* Record comparison begins with the labels of the *target*. Its only label is `run`, which exists in the source, and depth requires `N→R <: R→N`. The arrow-domain premise compares the expected input to the actual input, giving `R <: N`. The arrow-codomain premise compares actual output to expected output, also giving `R <: N`. Each of these is a record-width comparison: the required label `n` is present with equal type Nat. The extra source label `tag` is unconstrained. These derivations justify `S <: T` and then subsumption of a concrete value from `S` to `T`. In the client body, its parameter's lookup gives `T`, so projection of `run` yields `R→N`. Projection of `tag` would require a type guaranteeing that label. A value with only a suitable `run` can also inhabit `T`, so the public assumption cannot justify this second projection, regardless of the particular actual argument's fields.

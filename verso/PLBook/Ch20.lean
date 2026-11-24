@@ -3,109 +3,106 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Constraint Generation and Unification" =>
+#doc (Manual) "Products, Exponentials and Typed Terms" =>
 %%%
-tag := "ch20"
-file := "chapter-20"
-%%%
-
-[Chapter PDF](print/chapter-20.pdf) · [Session 21](seminar/index.html#week-21)
-
-Erase Nat from the parameter of last chapter’s identity. In `(λx. x) 0` the application still determines a type for $`x`. In `λx. x` alone, choosing Nat would discard equally valid choices. A type equation records what the surrounding term requires while allowing unresolved choices to remain variables.
-
-*Sources.* Pierce, _Types and Programming Languages_, §§22.3–22.5, pp. 321–330, on constraint-based typing, unification and principal types. We generate fresh variables directly for unannotated binders; §22.6 explains implicit annotations. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Equations from syntax
-%%%
-tag := "ch20-s1"
+tag := "ch26"
+file := "chapter-26"
 %%%
 
-A provisional type is Nat, Bool, a type variable, or an arrow between provisional types. A substitution maps finitely many type variables to types and extends to types by preserving their constructors. A solution of a finite collection of equations is a substitution that makes each pair of sides identical. Fresh variables introduced at different syntax nodes are distinct and absent from the input.
+[Chapter PDF](print/chapter-26.pdf) · [Session 20](seminar/index.html#week-20)
 
-Traverse the term in a context of provisional types. At a variable return its context entry with no new equations. At a literal return its base type. At $`\lambda x.b`, introduce a fresh $`\alpha`, type the body under $`x:\alpha`, and return $`\alpha\rightarrow B` with the body’s equations, where $`B` is its provisional type. At $`f\, a` collect both children’s equations, obtaining provisional types $`F` and $`A`. Introduce fresh $`\beta`, add $`F = A\rightarrow\beta`, and return $`\beta`.
+In a typing derivation for $`f\, a`, both $`f` and $`a` may depend on the same variables. Pairing their meanings keeps that shared input intact. Evaluation can then consume the resulting function–argument pair. These two operations provide the interpretation of application.
 
-*Why the equation is sufficient.* Under a solution $`S` the two child derivations of an application have types $`S(F)` and $`S(A)` by induction. The new equation ensures $`S(F) = S(A)\rightarrow S(\beta)`, exactly the premise required for an application at $`S(\beta)`. Conversely an ordinary typing fixes a domain and a result at every application and a parameter type at every binder. Assigning those types to the corresponding fresh variables satisfies the generated equations, by induction on typing. This converse allows the returned type to represent all ordinary typings of a closed term.
+*Sources.* The definitions of pairing, evaluation and currying are given below. For a fuller treatment see Roy Crole, _Categories for Types_, chapter 2 on products and exponentials and chapter 4 on functional type theory. Follow the domains of the arrows in the exponential universal property. The term syntax is the simply typed calculus of Chapter 18. [Crole, publisher’s edition.](https://www.cambridge.org/core/books/categories-for-types/258841251C62FED1DACD20884E59E61C)
 
-Generate constraints for `λf. λx. f (f x)` from the empty context. Assign the outer parameter the unknown `α` and the inner parameter `β`. The inner application looks up the very same binding for `f` that the outer application will later use. Introduce a fresh result `γ`; the inner equation is `α = β → γ`. The outer application receives this result as its argument. With a new result `δ`, its equation is `α = γ → δ`. The provisional type of the entire term is `α → (β → δ)`. Freshness applies to the result unknown at each application. Variable occurrences retrieve their parameter's existing unknown.
-
-A solution must give the same image to the two copies of `α`. Decomposing the equality between their two required arrows yields `β = γ` and `γ = δ`. Thus each solution types the parameter as a function from some type back to itself; the entire term takes that function and returns another such function. If an implementation invented a new unknown at the second lookup of `f`, this derivation would lose the equation between the two arrows. It would incorrectly allow the single parameter to behave at unrelated types.
-
-# Solving finite type equations
+# Contexts and products
 %%%
-tag := "ch20-s2"
+tag := "ch26-s1"
 %%%
 
-Unification searches for a *most general unifier* $`U`: every solution $`S` is obtained by applying some further substitution after $`U` on the variables of the problem. Drop an equation between identical types. Decompose an equation between arrows into domain and codomain equations. An equation between unequal rigid constructors, such as Nat and Bool, fails. Orient a variable equation as $`\alpha = T`. If the sides differ and $`\alpha` occurs in $`T`, fail the *occurs check*. Otherwise record the binding and apply it throughout the remaining equations, composing later substitutions with this one.
+A category has objects, composable arrows and identity arrows. Composition is associative and has those identities as units. Write $`g \circ f` for applying $`f` first. A terminal object $`1` receives exactly one arrow from each object. A binary product $`A \times B` has projections $`\pi_{1},\pi_{2}` to its two factors. For arrows $`u:G\rightarrow A` and $`v:G\rightarrow B` there is a unique pairing $`\left\langle {u,v} \right\rangle:G\rightarrow A \times B` whose projections are $`u` and $`v`.
 
-The elimination step preserves all solutions in factored form. Any solution must already send $`\alpha` to the image of $`T`, so it is unchanged, on this problem, by first applying the recorded binding. Conversely solving the updated equations and composing with that binding satisfies the original system. Arrow decomposition preserves solutions because finite arrow trees are equal exactly when their children are equal. Thus a successful run ending with no equations gives a most general unifier. Termination follows by ordering first the number of distinct unresolved variables, then the total size of pending equations. Elimination removes a variable, decomposition reduces size, and orientation can be performed as part of elimination.
+Assign an object to each base type. Interpret the empty context by $`1`. Extending a context with a variable of type $`A` changes its object from $`G` to $`G \times A`. A judgment in that context with result type $`B` denotes an arrow from the context object to the object for $`B`. The new variable denotes the second projection; earlier variables are recovered through the first. Weakening an existing meaning $`u:G\rightarrow B` gives $`u \circ \pi_{1}:G \times A\rightarrow B`.
 
-Take the equations `α = β → γ` and `β = Nat`. After eliminating the first equation, the remaining equation still lets us choose the image of `γ` freely. Eliminating the second gives an intermediate substitution mapping `β` to Nat. To report the final solution we must also apply this substitution to the *right side* of the earlier binding, obtaining `α ↦ Nat → γ`. The unifier leaves `γ` unchanged. A later choice such as `γ ↦ Bool` then gives a particular solution by composition. Writing the two bindings side by side without recursive application or composition would leave the reported image of `α` inconsistent with its own constraints.
+Take a context with two declarations, `x:A, y:B`. With the product convention above, its object is `(1 × A) × B`. A point in the category of sets has the form `((⋆,a),b)`. The meaning of `y` is the outer second projection. To recover `x`, use the outer first projection to obtain `(⋆,a)` and then the inner second projection to obtain `a`. Both variables therefore have arrows with the *same* domain, even though they were declared at different steps of context construction. A derivation can pair these two arrows to exchange the order in which it presents their values.
 
-The linear order of elimination can change the displayed intermediate maps. Choosing `β = Nat` first already rewrites the first pending equation to `α = Nat → γ`. Both orders describe the same set of solutions. For an occurs-check failure the argument has a different shape: every finite tree has a strictly larger size when used as the domain of an arrow. The following Lean lemma makes that obstruction independent of the implementation of the unifier.
+Suppose a substitution into this context supplies a term of type A and a term of type B, both in some context with object `D`. Call their meanings `u : D → A` and `v : D → B`. The assembled substitution is the arrow `⟨⟨!,u⟩,v⟩`, where `! : D → 1` is the unique arrow to the terminal object. Composing with either variable recovers its assigned meaning by the projection equations. This construction makes simultaneous substitution meaningful without choosing any order for evaluating the two assigned terms. The categorical description here concerns the pure typed language.
+
+# Exponentials and application
+%%%
+tag := "ch26-s2"
+%%%
+
+An exponential $`B^{A}` has an evaluation arrow $`\mathrm{ev}:B^{A} \times A\rightarrow B`. For every $`h:G \times A\rightarrow B` there is a unique arrow $`\Lambda(h):G\rightarrow B^{A}` satisfying
+
+$$`\mathrm{ev} \circ \left\langle {\Lambda(h) \circ \pi_{1},\pi_{2}} \right\rangle = h.`
+
+The arrow $`\Lambda(h)` is the curry of $`h`; in sets, $`\mathrm{ev}(f,a)=f(a)`. Its inverse sends $`k:G\rightarrow B^{A}` to the map on $`G \times A` that pairs $`k \circ \pi_{1}` with $`\pi_{2}` and evaluates. A category with a terminal object, binary products and all these exponentials is *cartesian closed*.
+
+Interpret the type $`A\rightarrow B` by $`B^{A}`. For a body with meaning $`h:G \times A\rightarrow B`, interpret its abstraction by $`\Lambda(h)`. For an operator meaning $`f:G\rightarrow B^{A}` and argument meaning $`a:G\rightarrow A`, the application meaning is
+
+$$`G\overset{\langle{f,a}\rangle}{\rightarrow}B^{A} \times A\overset{\mathrm{ev}}{\rightarrow}B.`
+
+For example, in the category of sets a point $`g` is a simultaneous assignment of values to the context. Pairing produces $`\left( {f(g),a(g)} \right)` and evaluation returns $`f(g)\left( {a(g)} \right)`. The input assignment is used twice by the pairing.
+
+In sets, choose `A` to contain exactly two Booleans and `B` to contain the two numbers zero and one. There are four functions from `A` to `B`, because the two Boolean inputs each require a choice of one output. Take a context that stores one such function `f` and one Boolean `x`. The meaning of the term `f x` must inspect both components. For the assignment consisting of the function that sends true to one and false to zero and the argument false, it gives zero. Keeping the function component fixed and changing only the argument to true gives one. Keeping true fixed and changing the function to the constant-zero function changes the answer back to zero.
+
+This dependence on two components yields a useful uniqueness check on the interpretation. Pairing the two variable projections gives the identity on their product, up to the harmless initial terminal factor in context notation. Indeed both composites with the projections match those of the identity, so the uniqueness clause for products forces equality. In this particular context the application term therefore denotes the evaluation arrow itself under that identification. Applying an arbitrary function-producing term to an arbitrary argument-producing term is the same construction after changing the input assignment by the arrow that pairs their meanings.
+
+# The beta equation
+%%%
+tag := "ch26-s3"
+%%%
+
+Apply an abstraction with body $`h` to an argument $`a` in the original context. Its meaning is $`\mathrm{ev} \circ \left\langle {\Lambda(h),a} \right\rangle`. The semantic substitution of $`a` for the new variable has meaning $`h \circ \left\langle {\text{id}_{G},a} \right\rangle`. Both arrows have source $`G` and target $`B`. To prove equality, take the exponential equation of §20.2 and precompose both sides with $`s = \left\langle {\text{id}_{G},a} \right\rangle:G\rightarrow G \times A`. Pairing commutes with precomposition by uniqueness of the arrow with its specified projections. The product laws give $`\pi_{1} \circ s = \text{id}_{G}` and $`\pi_{2} \circ s = a`. Thus the left side becomes $`\mathrm{ev} \circ \left\langle {\Lambda(h),a} \right\rangle` and the right side becomes $`h \circ s`, as claimed. For a syntactic body the general substitution law identifies this latter composite with the interpretation of the substituted term; it follows by induction on typing.
+
+The same calculation works when an occurrence of a variable is duplicated in the body. Let `G` be the set of integers, let the parameter and result types both denote the integers, and choose the body `(g,x) ↦ x + x + g`. Apply its abstraction to the argument `g ↦ g + 1`. At `g = 3`, forming the extended assignment yields `(3,4)`, and passing that assignment to the body gives eleven. Evaluating the function associated with three and applying it to four gives the same result. Both occurrences of the local variable read the same component of the extended assignment. An occurrence of the old variable still reads three.
+
+The equation can be checked for arbitrary sets and arbitrary assignments without simplifying this arithmetic. The pair on the right below represents the simultaneous retention of the old context and the addition of the argument value. Unfolding the lambda on the left produces the right side by the computation rule for functions in Lean. This verifies the equation in the set-like interpretation by types and functions. The proof above using universal properties supplies the result for other cartesian closed categories.
 
 ```lean
-namespace FiniteTypeOccurs
-inductive Tree where
-  | atom
-  | arr (a b : Tree)
-def nodes : Tree → Nat
-  | .atom => 1
-  | .arr a b => nodes a + nodes b + 1
-theorem noSelfDomain (a b : Tree) : a ≠ .arr a b := by
-  intro h
-  have impossible := congrArg nodes h
-  simp only [nodes] at impossible
-  omega
-end FiniteTypeOccurs
+example {G A B : Type} (h : G × A → B) (a : G → A) (g : G) :
+    (fun x ↦ h (g, x)) (a g) = h ((fun r ↦ (r, a r)) g) := rfl
 ```
-
-# Principal types
-%%%
-tag := "ch20-s3"
-%%%
-
-The identity alone returns $`\alpha\rightarrow\alpha` with no equation. Every monomorphic instance replaces both occurrences by the same type. This is its *principal type*, a valid type pattern of which every valid type is an instance. For the application to zero, the additional equation and provisional result are
-
-$$`\left( {\alpha\rightarrow\alpha} \right) = \left( {\text{Nat}\rightarrow\beta} \right),\quad\beta.`
-
-Decompose to $`\alpha = \text{Nat}` and $`\alpha = \beta`. Eliminate $`\alpha` and solve $`\beta = \text{Nat}`. Applying the resulting substitution to the provisional result gives Nat. No type annotation was required.
-
-For `λx. x x`, the same variable supplies the operator and operand, giving $`\alpha = \alpha\rightarrow\beta`. In any finite type tree the right side, after applying a proposed solution, contains the left side as a proper subtree. Its size is therefore strictly larger. This equation has no solution in our type grammar.
-
-Principality contains two distinct claims. First the residual type pattern itself must type the original term. Second, every other typing must be obtainable by consistently instantiating its residual variables. For `λf. λx. f (f x)`, the generation trace gave the candidate `(β→β)→(β→β)`. To verify the first claim, look up `f:β→β` and `x:β`. One application types `f x` at `β`, so a second application types `f (f x)` at that same type. Discharge both variables to obtain the candidate.
-
-For the second claim, invert an arbitrary typing derivation of this term. Let the parameter types of the two lambdas be `F` and `B`. Invert the inner application to conclude `F = B→C` for some `C`. Invert the outer application to conclude `F = C→D` for some `D`. Equality of the two arrow trees gives `B=C=D`. Thus the entire derivation has type `(B→B)→(B→B)`, precisely the instance `β ↦ B`. This argument proves principality up to renaming the residual variable. The spelling chosen for an unresolved variable makes no difference to the family of resulting finite types.
 
 # Exercises
 %%%
-tag := "ch20-s4"
+tag := "ch26-s4"
 number := false
 %%%
 
-1. Infer the principal type of `λf. λx. f x`. Which equation identifies the type of $`f`?
-2. Collect and solve the constraints for `0 true`. Compare this failure with self-application.
-3. Give two distinct solutions of the identity’s constraints and explain why inferring only the first would lose information.
+1. Interpret the identity abstraction $`\lambda x:A.x` in the empty context. Give the body arrow before currying.
+2. In sets take $`G = A = B = {\mathbb{Z}}`, $`h\left( {g,x} \right) = g + x`, and $`a(g) = 2g`. Compute the meaning of the beta equation at $`g = 3`.
+3. Explain why $`f \circ a` is in general ill typed for the arrows used in §20.2.
 
-*Further problem.* Infer the principal type of `λx. λf. f (f x)`. Then constrain the result by demanding type `Bool→(Bool→Nat)→Nat`. Locate the first unavoidable mismatch and explain why merely typing the inner call would miss it.
+*Further problem.* Substitution under an abstraction. Let `h : G × A → B` interpret a body and let `u : D → G` change its surrounding assignment. Prove `curry(h) ∘ u = curry(h ∘ (u × id_A))` without using elements of a set. Construct `u × id_A` explicitly from the product projections. Track each arrow's source and target before invoking exponential uniqueness.
 
 # Reading for the Seminar
 %%%
-tag := "ch20-s5"
+tag := "ch26-s5"
 number := false
 %%%
 
-*Session 21 · After Chapter 19.* Keep the annotated typing derivation on the board. Erase the annotation from `(λx:Nat. x) 0` and assign a fresh type variable to the binder and another to the application result. Write the resulting arrow equation and solve it. Compare the result with the checker’s answer. For the final 15 minutes remove the application to zero: which equation disappears, and which choices for the identity’s parameter type become possible?
+*Definitions · 10 minutes.* Recall the beta step in Chapter 19. State its preservation conclusion as a typing judgment. At the end compare it with the equality of arrows obtained here. Write the sources and targets of both projections for $`G \times A`. Interpret the newest variable and a weakened old one.
+
+*Joint proof · 30 minutes.* Construct the application arrow using pairing. Then derive the beta equation using the exponential equation and the two projection identities.
+
+*Proof review · 20 minutes.* Evaluate both sides in sets for Exercise 2 and reconstruct the categorical proof without referring to elements.
+
+*Facilitator’s hint.* Verify each side has source $`G` before simplifying. The exponential equation itself starts at $`G \times A`, which is why the proof precomposes it.
 
 # Solutions
 %%%
-tag := "ch20-s6"
+tag := "ch26-s6"
 number := false
 %%%
 
-*1.* Give $`x` type $`\alpha` and the inner application result $`\beta`. The equation for $`f` is $`F = \alpha\rightarrow\beta`. The resulting type is $`\left( {\alpha\rightarrow\beta} \right)\rightarrow\left( {\alpha\rightarrow\beta} \right)`, with the right arrow corresponding to the inner lambda.
+*1.* The body is $`\pi_{2}:1 \times A\rightarrow A`. Its curry has type $`1\rightarrow A^{A}` and selects the identity function in sets.
 
-*2.* The only application equation is $`\text{Nat} = \text{Bool}\rightarrow\beta`. Distinct outer constructors cannot unify. In self-application the obstruction is an occurrence of the unknown inside its proposed solution.
+*2.* The curried function at 3 sends $`x` to $`3 + x`. Its argument is 6, giving 9. On the substitution side the pairing first supplies $`\left( {3,6} \right)` and $`h` returns 9.
 
-*3.* Replacing $`\alpha` by Nat or by Bool gives the two corresponding identity arrows. Choosing Nat would exclude the Bool instance, whereas leaving $`\alpha` free admits both.
+*3.* The codomain of $`a` is $`A`, whereas the domain of $`f` is $`G`. Even if these objects happen to agree, that composite would land in $`B^{A}`. Evaluation of the paired arrows is what gives an arrow to $`B`.
 
-*Further problem.* Give `x` unknown type `α` and `f` unknown type `β`. Let `γ` be the result of `f x` and `δ` the result of the outer call. The inner application generates `β=α→γ`. The outer application uses the same context entry for `f` and generates `β=γ→δ`. Decomposing the arrow equality gives `α=γ` and `γ=δ`. Thus the principal type is `α→(α→α)→α`; conversely the two original applications type at every consistent choice of `α`. Comparing to the demanded arrow fixes `α=Bool` from the first domain and demands that the argument function return Nat. Its codomain must also equal `α`, forcing Bool to equal Nat. Equivalently, under the proposed inputs the inner call to `f` *is* well typed: applying a Boolean-to-natural function to a Boolean yields Nat. The outer call cannot feed that natural back into the Boolean domain of the one supplied function.
+*Further problem.* Write `π₁` and `π₂` for the projections from `D × A`. Form `w = ⟨u ∘ π₁, π₂⟩ : D × A → G × A`. It changes the outer assignment while keeping the new bound variable. The right side of the proposed equation is the unique arrow `D → Bᴬ` whose application in context `D × A` recovers `h ∘ w`. It remains to check the left side against that specification.
+
+Its application is `ev ∘ ⟨curry(h) ∘ u ∘ π₁, π₂⟩`. By the two projection equations for `w` and uniqueness of pairing, the paired arrow factors as `⟨curry(h) ∘ π₁′, π₂′⟩ ∘ w`, where primes denote the projections from `G × A`. Composing with `ev` and using the defining equation for `curry(h)` reduces this to `h ∘ w`. Exponential uniqueness now proves equality of the two arrows out of `D`. The unmodified second projection in `w` explains why the substituted outer assignment leaves the newly introduced variable available to the body.

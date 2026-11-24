@@ -3,116 +3,126 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Total Correctness and Termination" =>
+#doc (Manual) "Loop Invariants" =>
 %%%
-tag := "ch12"
-file := "chapter-12"
-%%%
-
-[Chapter PDF](print/chapter-12.pdf) · [Session 13](seminar/index.html#week-13)
-
-A loop that leaves its state unchanged preserves every assertion. When its guard stays true, the preservation proof tells us nothing about when control reaches the statement following the loop. A termination proof must account for both the work of a single iteration and the number of remaining iterations.
-
-*Sources.* _The Hitchhiker’s Guide to Logical Verification_ (2026), §10.8, starting p. 151. Compare the quantification over final states with partial correctness in Chapter 11. In the while rule locate the quantity measured before the body and compared after it. Our example uses two counters and an integer-valued store. [Guide, 2026 edition.](https://raw.githubusercontent.com/lean-forward/logical_verification_2026/460f6be0846eefc3d9441e4e48d75753fcfe1709/hitchhikers_guide_2026_desktop.pdf) [Lean companion.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
-
-# The total triple
-%%%
-tag := "ch12-s1"
+tag := "ch11"
+file := "chapter-11"
 %%%
 
-In deterministic IMP the total-correctness judgment $`\models_{\mathrm{tot}} \{P\}\,c\,\{Q\}` means that for every state $`s` satisfying $`P` there exists a final state $`t` such that $`s \vdash c \Downarrow t` and $`Q(t)`. By determinacy that final state is unique. Equivalently we can give two proofs, one of partial correctness and one that every permitted initial state admits a terminating derivation. This equivalence uses the deterministic semantics of Chapter 3.
+[Chapter PDF](print/chapter-11.pdf) · [Session 12](seminar/index.html#week-12)
 
-A *variant* is a measure of the state that strictly decreases after each completed iteration that started with a true guard. Here its values lie in the natural numbers, including zero. Strict decrease there admits induction: to prove a property at $`k` we may assume it at every $`j < k`. Mere decrease among unbounded signed integers would allow the infinite chain $`0, - 1, - 2,\ldots`.
+After the first two iterations of a summation loop the accumulator contains three. After the third it contains six. To verify summation for every input we need an equation that remains true when one more summand is added. We also need enough information about the index to recover the requested sum when the guard becomes false.
 
-*How the quantifiers change a proof.* Let a command with input `n` repeatedly decrement a positive `x` initialized to `n` and stop when `x ≤ 0`. Suppose `n ≥ 0`. A partial correctness proof may fix an arbitrary terminating derivation and show its final `x` is zero: nonnegativity is preserved, and the exit guard gives the opposite inequality. For total correctness one must *produce* a derivation for each allowed value of `n`. Induction on that value supplies it. Zero gives the exit rule; a positive input supplies one body execution followed by the derivation for the smaller counter. A theorem about the final values of derivations alone supplies no induction parameter and no execution witness.
+*Sources.* _The Hitchhiker’s Guide to Logical Verification_ (2026), §§10.5–10.7, pp. 147–151. Follow the invariant in the addition program, then locate the obligations produced by the verification condition generator. We derive those obligations for summation over an interval. Reynolds, _Theories of Programming Languages_, §3.4 gives the while rule. [Guide, 2026 edition.](https://raw.githubusercontent.com/lean-forward/logical_verification_2026/460f6be0846eefc3d9441e4e48d75753fcfe1709/hitchhikers_guide_2026_desktop.pdf) [Lean companion.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-Determinacy matters when moving between formulations. Imagine a new binary choice command that may either assign zero to `x` or assign one. From every input there exists a terminating run with final `x = 0`. The other branch violates the corresponding partial triple. If the second branch instead diverged, the same existence statement would leave that behavior invisible. In deterministic IMP there is no competing execution to consider. For a nondeterministic extension the intended guarantee should specify which choices must terminate and which of their final states must satisfy the postcondition.
-
-# The while rule
+# Partial correctness
 %%%
-tag := "ch12-s2"
+tag := "ch11-s1"
 %%%
 
-Let $`I` be an invariant, $`b` a guard, $`c` the body, and $`v` a function into the natural numbers on states satisfying $`I`. For every $`k` assume the following *total* body triple. From any state satisfying $`I`, $`b`, and $`v = k`, the body terminates in a state satisfying $`I` and $`v < k`. The symbol $`k` denotes a mathematical parameter fixed before execution.
+Let $`s \vdash c \Downarrow t` mean that command $`c` terminates from $`s` in $`t`. An assertion is a predicate on states. A partial-correctness triple with precondition $`P` and postcondition $`Q` means that for all $`s,t`, if $`P(s)` and $`s \vdash c \Downarrow t` hold, then $`Q(t)` holds. An assertion $`I` is an invariant for a loop with guard $`b` and body $`c` if every terminating execution of the body from a state satisfying $`I` and $`b` ends in a state satisfying $`I`. An invariant is asserted at loop heads, including the final test.
 
-*Theorem 12.1.* From every $`I`-state the loop terminates in a state satisfying $`I` with a false guard.
+Given a precondition $`P` at entry and a desired postcondition $`Q`, the following three obligations suffice. As in Chapter 2, $`B(b,s)` holds when guard $`b` evaluates to true in state $`s`.
 
-*Proof.* Use strong induction on $`k` with the assertion quantified over *every* $`I`-state whose measure is $`k`. Fix such a state $`s`. A false guard gives an immediate exit derivation with final state $`s`. If the guard is true, the total body triple produces an actual intermediate state $`u` and a body derivation. Its measure is some $`j < k`, so the induction hypothesis gives a terminating loop derivation from $`u`, ending with the required exit assertion. The iteration rule combines the two derivations. When $`k = 0` the true-guard case is impossible under the body premise: it would produce a natural number below zero. This completes the induction.
+1. *Entry.* For every $`s`, $`P(s)` implies $`I(s)`.
+2. *Preservation.* For every $`s,t`, if $`I(s)`, $`B(b,s)` and $`s \vdash c \Downarrow t`, then $`I(t)`.
+3. *Exit.* For every $`s`, $`I(s)` and $`\neg B(b,s)` imply $`Q(s)`.
 
-*Why the old measure is a parameter.* Write the body obligation with `k = v(s)` fixed by the caller. What must be proved is `v(u) < k` for the actual final state `u`. Recomputing both occurrences of the variant after execution would ask for `v(u) < v(u)`. Introducing a fresh mathematical variable is enough to retain the old value; it costs no storage in the executing command. The induction statement should likewise quantify over all states of a given measure. Two states with the same measure may differ in every other coordinate, so a claim specialized to the original initial state often cannot be applied at the successor.
+*Soundness.* Induct on a terminating loop derivation starting with $`I`. If the last rule exits, the final state equals the initial state, so use the exit obligation. If it iterates, the true guard and body derivation establish $`I` at the intermediate state by preservation. Apply the induction hypothesis to the smaller loop derivation starting there. Entry permits the argument to begin at any $`P`-state.
 
-The natural-number proof is an instance of induction on a *well-founded relation*, a relation that supports induction from all strictly smaller elements. A common choice for nested phases is lexicographic order on pairs of naturals: `(i′,j′)` is smaller than `(i,j)` when `i′ < i` or when `i′ = i` and `j′ < j`. Its induction principle follows from strong induction on the first coordinate and, with that coordinate fixed, strong induction on the second. It permits the second coordinate to increase when the first strictly decreases. The body must still terminate and provide an actual smaller pair.
+*Reachable states and inductive assertions.* Fix a set of initial stores and define `H` to be the set of all stores reached at the loop head after finitely many completed iterations from those entries. Include the stores reached before the first guard test. Then `H` satisfies entry and preservation by its definition. For preservation, append one terminating execution of the body to the finite history that witnesses reachability of the given head. This also proves minimality: for any assertion satisfying entry and preservation, induction on the length of a history puts each store in `H` inside that assertion. Restrict the entry set to the stores immediately after any initialization code.
 
-# Two counters
+The exact set `H` is rarely easy to describe with arithmetic formulas. An invariant used in a proof can therefore include stores unreachable from the intended entries. Preservation and exit must both hold on those extra stores as well. For instance with entry `x = 0` and body `x := x + 2` under guard `x < 9`, all reachable head values are even. The predicate `x ≤ 10` includes the unreachable value 9 and still satisfies preservation. However, it cannot on its own establish the exact exit value 10, since at 9 the guard is already false. Adding evenness makes the exit conclusion follow.
+
+# Summation
 %%%
-tag := "ch12-s3"
+tag := "ch11-s2"
 %%%
 
-Assume distinct variables $`p,q` start with nonnegative integer values. Decrement means addition of $`- 1`. The disjunction in the guard means that at least one counter is positive.
+Use distinct integer variables $`i,a,n`. The input $`n` stays fixed throughout. In the code, the right side of an assignment reads the current state.
 
 ```
-while p > 0 or q > 0 do
-  if p > 0 then p := p - 1 else q := q - 1
+i := 0; a := 0;
+while i < n do (i := i + 1; a := a + i)
 ```
 
-Take $`I` to assert $`p \geq 0` and $`q \geq 0`, and take $`v = p + q` on these states. Test the premise of Theorem 12.1 with old sum $`k`. In the first branch $`p \geq 1`, the assignment terminates, the updated $`p` is nonnegative, and the new sum is $`k - 1`. In the second branch $`p = 0` by the invariant and the failed test. The outer guard therefore implies $`q \geq 1`. The other assignment also terminates, preserves both bounds, and gives the same strict decrease. From $`\left( {1,2} \right)` the successive loop heads are $`\left( {0,2} \right),\left( {0,1} \right),\left( {0,0} \right)` after the initial head. At the final failed guard, both counters are zero. The theorem and the exit implication establish total correctness.
+For $`n \geq 0` we claim that any final state satisfies $`2a = n\left( {n + 1} \right)`. Multiplication in this assertion is ordinary integer multiplication in the specification. The program uses only additions and a comparison. The invariant at the head is
 
-A variant equal to $`p` alone would prove strict decrease in the first branch. In the second it could stay zero throughout several successful iterations. A state predicate that describes those iterations correctly may still be an unsuitable measure of their remaining work.
+$$`I\quad \equiv \quad 0 \leq i \leq n\quad \land \quad 2a = i\left( {i + 1} \right).`
 
-*When the sum stops decreasing.* Consider a modified first branch that performs `p := p − 1; q := q + 1` and leaves the second branch unchanged. Starting from `(2,0)`, the successive heads are `(1,1)`, `(0,2)`, `(0,1)`, and `(0,0)`. Summing the two coordinates no longer witnesses progress during the first two iterations. However, the lexicographic pair `(p,q)` decreases in both branches. It has natural-valued coordinates by the invariant, and fits the induction argument of the preceding section.
+At entry the two initialization assignments give $`i = a = 0`, and $`0 \leq n` supplies the upper bound. For preservation, let $`j` and $`A` be the old values of $`i` and $`a`. The guard gives $`j < n`. Because these are integers, $`j + 1 \leq n`. The first assignment writes $`j + 1`. The second reads this *new* index and writes $`A + j + 1`. The required equation follows:
 
-For this particular transfer there is also a scalar variant. Seek a weighted sum `A·p + B·q` with positive integer coefficients. The change in the first branch is `−A + B`, which is negative whenever `A > B`. The change in the second branch is `−B`. The smallest positive choice is `A = 2` and `B = 1`. The resulting measure is nonnegative and decreases by exactly one in either branch. It therefore gives the exact iteration count from every input. The coefficients have an interpretation in terms of remaining work: each initial unit of `p` must first be moved into `q` and then removed, while each initial unit of `q` only has to be removed.
+$$`2\left( {A + j + 1} \right) = j\left( {j + 1} \right) + 2\left( {j + 1} \right) = \left( {j + 1} \right)\left( {j + 2} \right).`
 
-For the weighted variant, the following are the two branch obligations on mathematical integers. Each establishes that its new measure remains nonnegative and is strictly below the same saved entry measure. Consequently all comparisons take place in the nonnegative part of the integers, ordered like the naturals.
+At exit, $`i \geq n` from the false guard combines with $`i \leq n` from the invariant to give $`i = n`. Substitution yields the postcondition.
+
+*Deriving the accumulator equation.* At a head with index `j`, let `S(j)` be the sum of the integers from 1 through `j`, with `S(0) = 0`. The two assignments implement the recurrence `S(j + 1) = S(j) + j + 1`. This suggests the direct invariant `a = S(i)`. To use the closed arithmetic invariant in the text, prove once by induction that `2S(j) = j(j + 1)` for every natural `j`. The step expands twice the recurrence and factors out `j + 1`. The invariant's bound `i ≥ 0` makes the identity applicable even though the program stores integers.
+
+The doubled equation avoids introducing integer division into the proof. Stating `a = i(i + 1)/2` would require a convention for division and, depending on that convention, a proof that the product is divisible by two. The doubled version needs just addition, multiplication, and equality in the assertion language. The recurrence also predicts which proof would survive changing the summand. If the body accumulated `2i` after incrementing, the recurrence would be `T(j + 1) = T(j) + 2(j + 1)` and the corresponding equation would be `a = i(i + 1)`. The index bounds and the exit argument would be identical.
+
+The preservation calculation has two independent conclusions. The updated index stays within bounds by discreteness of integers; the accumulator equation follows by substituting the old invariant and expanding the two products. Lean's `omega` handles the linear inequalities, while `grind` can normalize the polynomial identity.
 
 ```lean
-example (p q : Int) (hp : 0 < p) (hq : 0 ≤ q) :
-    0 ≤ 2 * (p - 1) + (q + 1) ∧ 2 * (p - 1) + (q + 1) < 2 * p + q := by
-  omega
-
-example (p q : Int) (hp : p = 0) (hq : 0 < q) :
-    0 ≤ 2 * p + (q - 1) ∧ 2 * p + (q - 1) < 2 * p + q := by
-  omega
+example (i a n : Int) (lo : 0 ≤ i) (guard : i < n)
+    (eqn : 2 * a = i * (i + 1)) :
+    (0 ≤ i + 1 ∧ i + 1 ≤ n) ∧
+      2 * (a + (i + 1)) = (i + 1) * (i + 2) := by
+  constructor
+  · omega
+  · grind
 ```
+
+# Deriving the body obligation backwards
+%%%
+tag := "ch11-s3"
+%%%
+
+For any postcondition $`R`, the assertion required before $`x ≔ e` is $`R` evaluated in the updated state (Chapter 11). Apply this rule to the two assignments in reverse order. Immediately before $`a ≔ a + i` we need $`0 \leq i \leq n` and $`2\left( {a + i} \right) = i\left( {i + 1} \right)`. Before $`i ≔ i + 1` this becomes $`0 \leq i + 1 \leq n` and $`2\left( {a + i + 1} \right) = \left( {i + 1} \right)\left( {i + 2} \right)`. The old invariant and guard entail precisely these conditions. A verification condition generator computes these formulas once supplied with a loop invariant. Choosing the invariant still requires knowledge of the program.
+
+*Recording the assertion inside the body.* Introduce the name `J` for the assertion immediately after the index increment. One can write `J` as `1 ≤ i ≤ n ∧ 2a = (i − 1)i`. To establish it, let the old index be `j`. The true guard and bounds give `1 ≤ j + 1 ≤ n`. Substituting `j + 1` for `i` in the equation of `J` gives `2a = j(j + 1)`, precisely the old loop invariant. To use `J` at the second assignment, add `2i` to each side. The result is `2(a + i) = (i − 1)i + 2i = i(i + 1)`, the loop-head equation for the updated accumulator.
+
+This written intermediate assertion can locate an error at a specific statement. Suppose an implementation increments the index and then executes `a := a + i + 1`. It still establishes `J` after the increment. Pulling the invariant through the second assignment now requires `2(a + i + 1) = i(i + 1)`. Already at the first iteration with `n = 1`, the intermediate values are `i = 1` and `a = 0`. The left side is four and the right side two. The failing implication gives an actual reachable counterexample to preservation for the modified program.
+
+*Soundness and relative completeness.* Soundness takes a proof in the Hoare calculus and establishes semantic validity. Relative completeness starts with a valid triple. For deterministic IMP, if the assertion language can express the required intermediate predicates and true implications between assertions are available in the rule of consequence, the calculus can derive the triple. For a sequence, an intermediate assertion describes exactly the states from which the suffix satisfies the postcondition on termination. The ability to express that assertion matters even when the sequence rule itself is simple. Neither direction asserts that a particular program terminates; Chapter 13 adds that obligation. See Winskel §§7.2–7.4.
 
 # Exercises
 %%%
-tag := "ch12-s4"
+tag := "ch11-s4"
 number := false
 %%%
 
-1. Replace strict decrease in Theorem 12.1 by nonincrease. Give an invariant and a loop that satisfy the weakened premise but run forever.
-2. Replace the *total* body premise by its partial counterpart while retaining strict decrease. Exhibit a counterexample.
-3. In the two-counter loop, show that starting with sum $`k` yields exactly $`k` body executions. Identify the extra equality used beyond Theorem 12.1.
+1. Remove $`i \leq n` from the invariant. Exhibit a state satisfying the weakened invariant and the exit guard that violates the postcondition.
+2. Reverse the assignments in the body. Start with $`n = 2` and derive the accumulator equation that the modified body preserves.
+3. Explain why the proof of §12.1 contains no induction hypothesis for a nonterminating execution.
 
-*Further problem.* On a store with nonnegative integers `x,y`, repeat the following while both are positive: if `x ≥ y` subtract `y` from `x`, otherwise subtract `x` from `y`. Find a natural-valued variant and prove total correctness for the postcondition that at least one coordinate is zero. Does this measure give the exact iteration count?
+*Further problem.* Suppose the summation loop accumulates odd numbers by executing `a := a + i + i + 1; i := i + 1` from an initialization `a = i = 0` while `i < n`. For nonnegative integer `n`, find an invariant establishing final `a = n²`. Give the intermediate assertion between assignments and identify which values are read.
 
 # Reading for the Seminar
 %%%
-tag := "ch12-s5"
+tag := "ch11-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Trace the two-counter loop and record the value of the variant at each head.
+*Definitions · 10 minutes.* Execute the first two iterations with $`n = 3`. Put the old and new index in separate columns.
 
-*Joint proof · 30 minutes.* Write the induction assertion with its quantifiers. For the true guard put the body derivation and recursive loop derivation on the board. Justify where each comes from.
+*Joint proof · 30 minutes.* Write entry, preservation and exit without their proofs. Have one participant obtain the body obligation backwards and another establish it from the old values.
 
-*Proof review · 20 minutes.* Test the theorem after weakening each of its two termination premises as in Exercises 1 and 2.
+*Proof review · 20 minutes.* Try the weakened invariant of Exercise 1. Decide whether its failure refutes the program or just the proposed proof.
 
-*Facilitator’s hint.* A partial triple can be valid for a body with no final state. Ask where the proof obtains its intermediate state.
+*Facilitator’s hint.* At exit, ask for the two separate inequalities needed to infer equality. Only one comes from the guard.
 
 # Solutions
 %%%
-tag := "ch12-s6"
+tag := "ch11-s6"
 number := false
 %%%
 
-*1.* Use a constantly true guard, body skip, invariant true, and variant constantly zero. Every execution of the body ends with the same measure. The loop never reaches an exit.
+*1.* Take $`n = 1,i = 2,a = 3`. The guard is false and $`2a = 6 = i\left( {i + 1} \right)`, whereas $`n\left( {n + 1} \right) = 2`. This state need not be reachable. An entailment between assertions must hold at every state satisfying its hypotheses.
 
-*2.* Use a constantly true outer guard and, as body, another loop with constantly true guard and body skip. Choose variant zero and invariant true. No body execution terminates, so every partial obligation about its final state holds vacuously. The outer loop has no terminating derivation.
+*2.* The accumulator becomes $`0` and then $`1`. Since the old index is now the summand, the new equation is $`2a = i\left( {i - 1} \right)`. At index $`j + 1` the left side becomes $`j\left( {j - 1} \right) + 2j = j\left( {j + 1} \right)`, as required.
 
-*3.* At zero the guard is false. At each positive sum, nonnegativity ensures the guard is true and one body execution takes the sum to exactly $`k - 1`. Induction on $`k` gives exactly $`1 + \left( {k - 1} \right)` executions in the positive case. A general variant could decrease by more than one.
+*3.* Partial correctness quantifies over finite terminating derivations. If there is none at an input, that input contributes no final-state obligation. Chapter 13 adds the missing existence argument.
 
-*Further problem.* Preserve nonnegativity of both coordinates and use their sum as a natural-valued variant. In the first branch the guard gives `y > 0` and the branch test gives `x ≥ y`. The new value `x − y` is therefore nonnegative, and the sum strictly decreases by the positive quantity `y`. In the second branch `y > x` and `x > 0`. The new value `y − x` is nonnegative and the sum decreases by `x`. Both bodies are single total assignments. These facts give the total body premise at an arbitrary fixed old sum.
+*Further problem.* At the head take `0 ≤ i ≤ n ∧ a = i²`. Initialization establishes this for every `n ≥ 0`. Let `j` be the old index. With a true guard, discreteness gives `j + 1 ≤ n`. The accumulator assignment reads the old `a = j²` and the old `i = j` twice, so the new accumulator is `j² + 2j + 1 = (j + 1)²`. The index still equals `j` at this point. A sufficient intermediate assertion is therefore `0 ≤ i < n ∧ a = (i + 1)²`.
 
-By Theorem 12.1 the loop reaches a head at which the guard is false and the invariant still holds. Since both coordinates are nonnegative, one must now be zero, which is exactly the postcondition. The sum does not give an exact iteration count. From `(3,3)` a single step reaches `(0,3)`, although the initial measure was six. A natural measure that drops by at least one bounds the number of iterations from above; its precise decrement and its value at exit determine whether one can strengthen this bound to an equality.
+The index assignment now writes `j + 1` without changing the accumulator. The intermediate assertion yields both the new bound and equality with the square of the new index. This proves preservation of the loop-head assertion. At exit the unchanged upper bound and the failed test force `i = n`, hence `a = n²`. This is a partial correctness argument. Its algebraic step also explains the choice of summand: increasing the index by one increases its square by exactly the old index doubled plus one.

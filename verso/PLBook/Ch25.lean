@@ -3,129 +3,114 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Initial Algebras and Structural Recursion" =>
+#doc (Manual) "Universal Types and System F" =>
 %%%
-tag := "ch25"
-file := "chapter-25"
-%%%
-
-[Chapter PDF](print/chapter-25.pdf) · [Session 4](seminar/index.html#week-04)
-
-The evaluator in Chapter 1 specifies a result at each leaf and combines two results at an addition. Counting nodes uses the same recursion with different operations. We can characterize the expression datatype by what it allows us to do for *every* choice of such operations.
-
-*Sources.* Reynolds, _Theories of Programming Languages_, §§1.1–1.2, pp. 1–11, on abstract syntax and its compositional interpretation. We formulate the initial-algebra argument explicitly for the integer arithmetic fragment and recover the evaluator as an instance. [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Algebras for a signature
-%%%
-tag := "ch25-s1"
+tag := "ch23"
+file := "chapter-23"
 %%%
 
-Fix the integers and a set $`V` of variables. An algebra for the expression signature consists of a carrier set $`A`, maps $`l_{A}:{\mathbb{Z}}\rightarrow A` and $`v_{A}:V\rightarrow A`, and a binary operation $`p_{A}:A \times A\rightarrow A`. No associativity, commutativity or identity equations are assumed. For example, an algebra on natural numbers can give each leaf size one and set $`p_{A}({i,j}) = 1 + i + j`.
+[Chapter PDF](print/chapter-23.pdf) · [Session 24](seminar/index.html#week-24)
 
-Between algebras $`A,B`, a *homomorphism* is a function $`h:A\rightarrow B` satisfying three equations for all inputs:
+In the let system of Chapter 23 the type chosen at a use of the identity was inferred. System F lets a programmer bind a type variable in a term and supply its argument explicitly. This gives us an expression whose own type says that its caller may choose any type.
 
-$$`h\left( l_{A}(n) \right) = l_{B}(n),\quad h\left( v_{A}(x) \right) = v_{B}(x),`
+*Sources.* Pierce, _Types and Programming Languages_, §§23.3–23.5, pp. 341–353. Follow the rules for type abstraction and application and calculate one substitution at each level. [Pierce, universal types.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-$$`h\left( p_{A}({a,b}) \right) = p_{B}({h{(a)},h{(b)}}).`
-
-Identity functions satisfy these equations and composites of two homomorphisms satisfy them by substitution. Thus the algebras and their homomorphisms form a category. An object is *initial* if for every object in the category there is exactly one morphism from it to that object.
-
-A common alternative notation collects the input shapes into $`F(X) = {\mathbb{Z}} + V + \left( {X \times X} \right)`, where $`+` is tagged disjoint union. Each algebra is one map $`F(A)\rightarrow A`. Its three branches are exactly the operations listed above. The tags distinguish an integer literal from a variable even if the underlying sets happen to overlap.
-
-To see how much information the signature leaves open, take the carrier to be finite words over the two symbols L and V. Send every literal to the one-letter word L, every variable to V, and an addition to the concatenation of its two child words in their given order. The trees `add(var(x),lit(7))` and `add(lit(7),var(x))` then receive the words VL and LV. For the integer interpretation the values of these trees agree in every state, by commutativity of addition. Both interpretations satisfy the same signature. It is the choice of operations on a carrier that makes an algebra sensitive to leaf order.
-
-The length of a word gives a homomorphism to another algebra. On natural numbers, let both leaf operations return one and let the binary operation be ordinary addition. Check the binary law at arbitrary words `u` and `v`. The length of their concatenation counts each position of `u` followed by each position of `v`, giving the sum of the two lengths. The two leaf laws hold because each letter has length one. Consequently, interpreting a tree as a word and taking its length counts leaves, even though the intermediate interpretation records their order. This is an instance in which preserving all three operations has a visible computational consequence.
-
-# Existence and uniqueness
+# Two levels of binding
 %%%
-tag := "ch25-s2"
+tag := "ch23-s1"
 %%%
 
-Let $`E` be the set of finite trees with constructors lit, var and add. Take these three constructors as the operations of an algebra with carrier $`E`. *Theorem 25.1.* This algebra is initial.
+Add type variables $`X` and universal types $`\forall X.T` to base types and arrows. A type context $`\Delta` records which type variables are in scope. A type is well formed when all of its free variables belong to $`\Delta`. In $`\forall X.T` the binder removes the occurrences of $`X` in its scope from the free set. Term contexts contain names assigned well-formed types.
 
-Fix any algebra $`A`. Define $`h` by recursion on finite trees. At a literal return $`l_{A}(n)`, at a variable return $`v_{A}(x)`, and at an addition return $`p_{A}({h{(e_{1})},h{(e_{2})}})`. Each recursive call has smaller tree height, so a result is defined for every tree. The homomorphism equations now hold by the three defining clauses. This proves existence.
+Add the term forms $`\Lambda X.t` and $`t\lbrack A\rbrack`. The first is a *type abstraction*: it binds $`X` in type annotations and type arguments inside $`t`. The second applies a polymorphic term to a type. Ordinary $`\lambda x:A.t` still binds a term variable, and $`f\, u` still supplies a term argument. We choose all binders fresh when needed and use capture-avoiding substitution at both levels.
 
-For uniqueness take any homomorphism $`g:E\rightarrow A`. Prove $`g(e) = h(e)` by structural induction on $`e`. At a literal both sides equal $`l_{A}(n)`; at a variable both equal $`v_{A}(x)`. At an addition the homomorphism law gives $`g\left( {\text{add}\left( {e_{1},e_{2}} \right)} \right) = p_{A}({g{(e_{1})},g{(e_{2})}})`. Replace both child results by the induction hypotheses and use the defining clause for $`h`. Equality at every input gives equality of functions. The unique map $`h` is called the *fold* into $`A`.
+If $`t:T` is derivable in type context $`\Delta,X` and term context $`\Gamma`, we may derive $`\Lambda X.t:\forall X.T` under $`\Delta,\Gamma`, provided $`X` is fresh for $`\Delta` and for the types in $`\Gamma`. Conversely, if $`t:\forall X.T` and $`A` is well formed in $`\Delta`, then $`t\lbrack A\rbrack:T\left\lbrack {A/X} \right\rbrack`. An explicit type argument can itself be universal. This feature is called *impredicative instantiation*.
 
-Consider the tree `add(add(var(x),lit(1)),lit(2))`. To show that two candidate folds agree at this tree, one must know that they agree at `add(var(x),lit(1))` as well as at `lit(2)`. Agreement just at all leaves would leave the interpretation of the inner addition unspecified. Conversely, agreement on the two immediate children is sufficient however large those children are. The binary homomorphism equation takes those two equalities as input and produces the equality at the parent.
+Consider the closed term `twice = ΛX. λf:X→X. λx:X. f (f x)`. At the innermost occurrence of `x`, the type context contains the single name `X` and the term context contains `f:X→X, x:X`. Lookup gives the operand type `X`; applying the function found by lookup at `f` yields another term of type `X`. This is exactly the domain needed for the outer application. Abstracting first over `x` yields an arrow `X→X`. Abstracting over `f` yields `(X→X)→(X→X)`. Only now is the term context empty, so type abstraction yields `∀X.(X→X)→(X→X)`.
 
-One can record the induction as an ordinary Lean theorem. The target operations are parameters so the proof below applies, for example, to the word and length interpretations above. The final case exposes precisely the two hypotheses needed to rewrite the arguments of `plus`.
+Read the same derivation as instructions for a caller. The intermediate expression `twice[Bool]` has type `(Bool→Bool)→(Bool→Bool)`. Giving it Boolean negation leaves an ordinary Boolean endofunction, that is, a function from Bool to itself. Applying that result to true calculates two negations and returns true. Removing the type application from the explicitly typed source leaves no arrow available to the first ordinary application. Conversely, writing `twice[true]` fails before the arrow premises matter: the expression inside brackets must form a type in the caller's type context. These failures locate the two separate formation checks in a single example.
+
+# The identity
+%%%
+tag := "ch23-s2"
+%%%
+
+Let $`i = \Lambda X.\left( {\lambda x:X.x} \right)`. Under type assumption $`X` and term assumption $`x:X`, lookup types the body at $`X`. Discharging $`x` gives an arrow $`X\rightarrow X` under type assumption $`X`. The term context is now empty, so discharging $`X` gives the closed typing
+
+$$`i:\forall X.\left( {X\rightarrow X} \right).`
+
+Instantiating with Nat replaces *both* occurrences of $`X` in the result type. Thus $`i\left\lbrack \text{Nat} \right\rbrack` has type $`\text{Nat}\rightarrow\text{Nat}`, and $`i\left\lbrack \text{Nat} \right\rbrack\, 0` has type Nat.
+
+Operationally, type application of a type abstraction substitutes the type argument in its body. Ordinary beta reduction of an abstraction applied to a value substitutes that term value in its body. Treat type and term abstractions as values. In a left-to-right value evaluation the first step of the example is
+
+$$`i\left\lbrack \text{Nat} \right\rbrack\, 0\rightarrow\left( {\lambda x:\text{Nat}.x} \right)\, 0.`
+
+The second step returns zero. The first replacement changes a parameter annotation; the second replaces an occurrence of a variable used in a computation.
+
+A polymorphic value can itself be the argument of an ordinary function. With the product types of Chapter 23, write `U = ∀X.X→X` and consider `use = λk:U. (k[Nat] 0, k[Bool] true)`. There is just one assumption for the parameter, namely `k:U`. At the first occurrence the universal elimination rule yields `k[Nat]:Nat→Nat`. At the second occurrence it yields `k[Bool]:Bool→Bool`. Arrow elimination in each component and then product formation give `use : U → (Nat × Bool)`. Notice the position of the universal quantifier inside the domain of an arrow. An ordinary lambda parameter in the let-polymorphic calculus of Chapter 23 receives a monotype, which would have to account for both uses without these two independent instantiations.
+
+For the particular call `use i`, ordinary beta reduction first supplies the entire polymorphic identity for both occurrences of `k`. The left component then reduces to zero and the right component to true. There is no type argument to `use` itself: its parameter has a polymorphic type, while its own outermost type constructor is an arrow. The following Lean example checks the same two instantiations at one universe and computes the result of this particular call.
 
 ```lean
-inductive FoldTree where
-  | lit : Int → FoldTree
-  | var : Nat → FoldTree
-  | add : FoldTree → FoldTree → FoldTree
+namespace ExplicitPoly
+def useBoth (k : (α : Type) → α → α) : Nat × Bool :=
+  (k Nat 0, k Bool true)
 
-def FoldTree.foldInto {A : Type} (lit : Int → A) (var : Nat → A)
-    (plus : A → A → A) : FoldTree → A
-  | .lit n => lit n
-  | .var x => var x
-  | .add a b => plus (a.foldInto lit var plus) (b.foldInto lit var plus)
-
-theorem foldInto_unique {A : Type} (lit : Int → A) (var : Nat → A)
-    (plus : A → A → A) (g : FoldTree → A)
-    (hl : ∀ n, g (.lit n) = lit n) (hv : ∀ x, g (.var x) = var x)
-    (ha : ∀ a b, g (.add a b) = plus (g a) (g b)) :
-    ∀ t, g t = t.foldInto lit var plus := by
-  intro t
-  induction t with
-  | lit n => exact hl n
-  | var x => exact hv x
-  | add a b iha ihb => simp only [FoldTree.foldInto, ha, iha, ihb]
+example : useBoth (fun _ x => x) = (0, true) := rfl
+end ExplicitPoly
 ```
 
-# Evaluation as a fold
+# Freshness and capture
 %%%
-tag := "ch25-s3"
+tag := "ch23-s3"
 %%%
 
-Choose carrier $`A = \left( {\Sigma\rightarrow{\mathbb{Z}}} \right)` for the state set $`\Sigma = \left( {V\rightarrow{\mathbb{Z}}} \right)`. A literal produces the constant function at its integer. A variable produces the function taking $`s` to $`s(x)`. For two functions $`f,g`, their combination takes $`s` to $`f(s) + g(s)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a state with $`s(x) = 3` gives $`3 + 4 = 7`. The equations of Chapter 1 say exactly that its evaluator, with state supplied last, is a homomorphism to this algebra. The uniqueness just proved identifies the two functions on *all* trees and states.
+Suppose an outer term variable has type $`X`. Arbitrarily generalizing that type variable while keeping the term variable in the context would permit the same supplied value to be treated as any independently chosen type. The freshness condition in the abstraction rule prevents this. It corresponds to the exclusion of context variables at let-generalization in Chapter 23.
 
-The tree `add(lit(1),lit(2))` and `lit(3)` receive the same evaluation function. Their sizes are three and one in the size algebra. Imposing integer arithmetic identities on trees themselves would remove the possibility of interpreting them freely in the size algebra.
+As an example of type-level capture, consider $`T = \forall Y.\left( {X\rightarrow Y} \right)` and substitute free $`Y` for $`X`. Rename the binder to fresh $`Z` first. The result is $`\forall Z.\left( {Y\rightarrow Z} \right)`; its domain still refers to the surrounding $`Y`. The literal replacement $`\forall Y.\left( {Y\rightarrow Y} \right)` changes the domain into a bound variable and therefore describes a different type.
 
-Fix a state `s` temporarily. It determines a second algebra with carrier the integers. Interpret a literal by its integer, a variable `x` by `s(x)`, and a pair by its sum. There are now two routes from an expression to an integer. One can interpret the whole tree in the function algebra and apply the resulting function to `s`. Alternatively, one can fold directly into this integer algebra using the fixed assignment. To compare them, consider the map sending any function `q` to `q(s)`. It preserves literal and variable interpretations by evaluation. For addition it preserves the operation because the pointwise sum evaluated at `s` is precisely `q(s) + r(s)`. The composite along the first route is therefore a homomorphism into the fixed-state algebra. Initiality identifies it with the second route.
+Substitution through a term can require the same renaming in several places. Work under the type assumption `X` and take `s = ΛY. λg:X→Y. λv:X. g v`. Its type is `∀Y.(X→Y)→X→Y`, with arrows associating to the right. We want to use a free type name `Y` from a different context as the argument replacing `X`. First change the bound name of the type abstraction to fresh `Z`. Its bound occurrences in the annotation of `g` and in the result type change together. Substitution now produces `ΛZ. λg:Y→Z. λv:Y. g v`, of type `∀Z.(Y→Z)→Y→Z` in the context containing the free `Y`.
 
-This argument also explains when a variable can be interpreted by a fixed integer. Such a choice is legitimate if the interpretation is meant for one specified state. Suppose instead that the required result is the meaning of the variable at every state. Two states assigning respectively two and five to the same name demand distinct results. A single integer cannot answer both queries. A function can retain this dependence while still letting addition operate on the meanings of immediate subexpressions.
+The caller can choose Bool for the outer free type and subsequently Nat for the locally bound argument. The resulting term then accepts a function from Bool to Nat and a Boolean input. A literal replacement that captures the free name would instead accept a function from Nat to Nat and a natural input when the local argument is Nat. Checking the two instantiations therefore gives a concrete way to detect the changed dependency. In the correct substitution, the set of free type names of the resulting type is exactly the singleton containing the caller's name.
+
+*From let to explicit type application.* In Chapter 23 the two occurrences of a let-bound identity can be instantiated independently. Write its System F value as `ΛA. λx:A. x`. Bind this value to the name `id`. The uses that inferred Nat and Bool now read `id [Nat] 0` and `id [Bool] true`. Substituting Nat for A in the first function leaves the second use free to choose Bool. In Chapter 23 generalization was restricted by the types in the surrounding context; the System F typing rule for type abstraction likewise requires its bound type variable to be fresh for that context.
 
 # Exercises
 %%%
-tag := "ch25-s4"
+tag := "ch23-s4"
 number := false
 %%%
 
-1. Give the operations for a fold that returns the set of variable names occurring in a tree.
-2. Suppose $`u:A\rightarrow B` is a homomorphism. Prove that composing the fold into $`A` with $`u` gives the fold into $`B`.
-3. If the expression set were enlarged by a cyclic object $`q = \text{add}\left( {q,q} \right)`, show that the size algebra could admit no homomorphism from that enlarged object.
+1. Let $`U = \forall X.\left( {X\rightarrow X} \right)`. Type $`i\lbrack U\rbrack\, i` and compute its result under the given rules.
+2. Type the constant function `ΛX. ΛY. λx:X. λy:Y. x`. Show the type remaining after supplying only Nat for its first argument.
+3. Explain why an ordinary function application rule cannot by itself type $`i\left\lbrack \text{Bool} \right\rbrack`.
 
-*Further problem.* Simultaneous folds. Let `A` and `B` be any two algebras for the expression signature. Give operations on `A × B` so that folding once produces, at each tree, both of the original folds. Prove the result from initiality. Why does the same argument fail if the product's addition swaps its left and right children in its second coordinate?
+*Further problem.* In System F derive the type of `applyAt = ΛA. λk:(∀X.X→X). λa:A. k[A] a`. Compare `applyAt[Nat] i 0` and `applyAt i [Nat] 0`, understanding the second expression as first applying `applyAt` to term argument `i`.
 
 # Reading for the Seminar
 %%%
-tag := "ch25-s5"
+tag := "ch23-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Begin with the expression tree for x + 4 in Chapter 1. Assign each leaf its value in a fixed state, then assign each leaf size one. Evaluate the same tree in the size algebra and in the function algebra. Write the types of the three operations in each.
+*Definitions · 10 minutes.* Mark the type and term binders in the identity and identify the scope of each.
 
-*Joint proof · 30 minutes.* Prove existence by constructing a fold into an unspecified algebra. Erase its recursion equations as assumptions about a competitor and derive the competitor’s equality by induction.
+*Joint proof · 30 minutes.* Derive its universal type and calculate the two distinct substitutions in the application to zero. Require the group to write the type after each step.
 
-*Proof review · 20 minutes.* At the addition node compare any candidate homomorphism with the fold. Use the two child equalities to justify the root equality. Exercise 2 on fusion extends this calculation.
+*Proof review · 20 minutes.* Try the polymorphic type argument of Exercise 1 and the capture example of §25.3.
 
-*Facilitator’s hint.* For uniqueness, leave the receiving algebra arbitrary. Fix a competing homomorphism and apply its own law before invoking a child induction hypothesis.
+*Facilitator’s hint.* Look at the binder removed by a step. A capital lambda discharges a type parameter, so look inside term annotations when performing that substitution.
 
 # Solutions
 %%%
-tag := "ch25-s6"
+tag := "ch23-s6"
 number := false
 %%%
 
-*1.* Use subsets of $`V` as carrier. A literal gives the empty set, a variable its singleton, and addition the union of the two child sets.
+*1.* The type application has type $`U\rightarrow U`. Its operand has type $`U`, so the whole term has type $`U`. First reduce the type application to $`\lambda x:U.x`, then apply it to $`i` to obtain $`i`.
 
-*2.* A composite of homomorphisms is a homomorphism, hence the composite in question is one from the initial algebra to $`B`. Uniqueness identifies it with the fold into $`B`.
+*2.* Nested introduction yields $`\forall X.\forall Y.\left( {X\rightarrow\left( {Y\rightarrow X} \right)} \right)`. The first instantiation gives $`\forall Y.\left( {\text{Nat}\rightarrow\left( {Y\rightarrow\text{Nat}} \right)} \right)`. Choosing the second type and supplying the two term arguments are still pending.
 
-*3.* Its image $`k` would be a natural number satisfying $`k = 1 + 2k`, impossible since the right side is larger. The theorem used the strictly smaller heights of children of finite trees.
+*3.* That rule requires a term with an arrow type and a term argument. Here the premise is universal typing and the argument is the well-formed type Bool.
 
-*Further problem.* Interpret a literal as `(lA(n), lB(n))` and a variable as `(vA(x), vB(x))`. On two pairs `(a,b)` and `(a′,b′)` define addition to give `(pA(a,a′), pB(b,b′))`. Projection onto either coordinate now preserves all three operations: the projection of a literal or variable is its interpretation in that component, and projection of a combined pair gives the combination of the projections in the same order. Compose each projection with the fold into the product. Each composite is a homomorphism from the expression algebra, so by uniqueness it is the corresponding component fold. Equality in a Cartesian product is componentwise, proving the claimed result for every expression.
-
-Swapping the two arguments only in the second coordinate would ask the second projection to preserve addition by the equation `pB(b′,b) = pB(b,b′)`. The signature imposes no such law. Choose `B` to be strings, interpret a literal by its decimal representation, and use concatenation. At the sum of literals one and two the usual fold returns `"12"`, whereas the swapped component returns `"21"`.
+*Further problem.* Under the type assumption `A`, lookup assigns `k` the universal type and `a` the type `A`. Since `A` is well formed there, universal elimination gives `k[A]:A→A`. Term application gives `k[A] a:A`. Discharging `a`, then `k`, then the type parameter gives `∀A.(∀X.X→X)→A→A`; the outer type abstraction now has an empty term context. In the first expression, the type application yields `(∀X.X→X)→Nat→Nat`, the term application to `i` yields `Nat→Nat`, and the final term application yields Nat. Reducing the outer type redex changes the annotation on `a` and the type argument of `k` to Nat. Substitution of `i` and zero leaves `i[Nat] 0`, which returns zero. In the second expression the very first term application would require the outermost type of `applyAt` to be an arrow. It is a universal type, and the ordinary application rule cannot supply the missing type elimination.

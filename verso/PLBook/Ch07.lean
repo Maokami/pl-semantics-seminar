@@ -3,118 +3,128 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "State Transformers and the Information Order" =>
+#doc (Manual) "Program Equivalence" =>
 %%%
-tag := "ch07"
-file := "chapter-07"
-%%%
-
-[Chapter PDF](print/chapter-07.pdf) · [Session 8](seminar/index.html#week-08)
-
-An assignment determines a new integer state for every initial state. A command containing a loop can fail to return a state. Sequential composition must accept either possibility as the result of its first command. This distinction determines the type of a command meaning and the operation used to compose two meanings.
-
-*Sources.* John C. Reynolds, _Theories of Programming Languages_, §§2.2–2.3. Read the denotation of sequencing and the ordering of approximations. We restrict attention to deterministic, error-free integer IMP with no observable intermediate output. The shared calculation derives sequencing in both possible cases for its first result. [Reynolds, chapter 2.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Lifted outcomes
-%%%
-tag := "ch07-s1"
+tag := "ch06"
+file := "chapter-06"
 %%%
 
-Let $`\Sigma` be the set of integer states. Form the disjoint union $`\Sigma_{\bot}` of a fresh element $`\bot` and a copy of $`\Sigma`. We write a state $`t` also for its copy. In a completed command meaning, $`\bot` denotes divergence. In a partial approximation it records that no final state is available at this stage. The same mathematical element is used in both roles, so an approximation returning $`\bot` is insufficient evidence that the program diverges.
+[Chapter PDF](print/chapter-06.pdf) · [Session 7](seminar/index.html#week-07)
 
-A command meaning is a total mathematical function $`f:\Sigma\rightarrow\Sigma_{\bot}`. It represents a partial state transformation, defined at $`s` exactly when $`f(s)` is a state. Define the *flat order* on outcomes by $`r \sqsubseteq q` if $`r = \bot` or $`r = q`. Distinct states are incomparable. Set $`f \sqsubseteq g` if $`f(s) \sqsubseteq g(s)` for every state $`s`. For example, a function specifying the final state only for inputs with $`x = 0` lies below one that agrees there and also specifies the results for $`x = 1`. Revising a previously specified final state would violate this ordering.
+A source transformation may change the number of command steps while preserving the final store of every terminating run. To make this claim precise we must choose the input states, the observations at the end of a run, and the executions that contribute observations. We use the deterministic integer IMP of Chapters 2–3 and 5–6.
 
-*Lemma 7.1.* An increasing sequence of outcomes either stays at bottom forever or reaches a state and stays there. Its least upper bound is respectively bottom or that state.
+*Sources.* Nipkow and Klein, _Concrete Semantics_, §7.2.4 on command equivalence. Read the definition as a statement quantified over two stores. The joint theorem is the unfolding of a while command. For a Lean comparison, consult _The Hitchhiker’s Guide to Logical Verification_, chapter 9, exercise Q2.1. Our argument uses the guards and execution rules of Chapter 2. [Concrete Semantics, chapter 7.](https://concrete-semantics.org/concrete-semantics.pdf) [Hitchhiker’s Guide.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
 
-*Proof.* If the sequence reaches $`t \in \Sigma`, then every later outcome lies above $`t`. Flatness forces it to equal $`t`. All earlier elements lie below $`t`, and every upper bound must be above $`t`, so $`t` is the least upper bound. In the remaining case every element equals bottom, which itself bounds the sequence. $`\square`
-
-*An increasing family without a final finite stage.* Fix a variable `x`. For each natural number `n` define a transformer `pₙ` that returns its input store when `|s(x)| < n` and gives bottom elsewhere. The absolute value is the ordinary absolute value on integers. At stage zero every input gives bottom. At stage one precisely the stores with `s(x) = 0` have a known result. Increasing the threshold preserves all these results and adds new ones, hence `pₙ ⊑ pₙ₊₁`.
-
-For each *fixed* store `s` the outcome has stabilized by stage `|s(x)| + 1`. Its least upper bound is therefore `s`. Pointwise, the least upper bound of the transformers is the identity. No member of the sequence equals this identity on all stores. Given any proposed stage `n`, choose an input with `s(x) = n`. Its result is still bottom at that stage. Thus “every input has a sufficient stage” and “one stage suffices for every input” have different truth values. A denotation can specify outcomes everywhere even though every finite approximation leaves some input unspecified. The distinction will matter for loops that terminate on every input after an unbounded number of iterations.
-
-# Interpreting command constructors
+# Equivalence as equality of observations
 %%%
-tag := "ch07-s2"
+tag := "ch06-s1"
 %%%
 
-Write $`f_{c}` for the meaning assigned to command $`c`. The meaning of skip is the injection $`s\mapsto s`. For assignment use $`s\mapsto s\left\lbrack {x\mapsto\operatorname{eval}\left( {e,s} \right)} \right\rbrack`. A conditional chooses $`f_{c}(s)` or $`f_{d}(s)` according to the truth of its guard in $`s`. A *compositional* interpretation gives the meaning of a compound command by applying an operation to its immediate constituents’ meanings. Chapter 8 supplies the operation for a loop.
+*Definition 7.1.* For a command $`c` and initial state $`s`, put $`R_{c}(s) = \left\{ t \in \Sigma\ \mid s \vdash c \Downarrow t \right\}`, where $`\Sigma` is the set of stores. Commands $`c` and $`d` are equivalent, written $`c \equiv d`, if $`R_{c}(s) = R_{d}(s)` for every $`s`. Equivalently, for every pair $`s,t`, $`s \vdash c \Downarrow t` holds exactly when $`s \vdash d \Downarrow t` does.
 
-For $`g:\Sigma\rightarrow\Sigma_{\bot}`, its *strict extension* $`g^{\dagger}:\Sigma_{\bot}\rightarrow\Sigma_{\bot}` is defined by $`g^{\dagger}(\bot) = \bot` and $`g^{\dagger}(u) = g(u)` for an ordinary state $`u`. The adjective “strict” means that the new function sends bottom to bottom. Define the meaning of a sequence by
+Equality of sets gives reflexivity, symmetry and transitivity. The definition also makes sense for relations with several results. In the present language Chapter 3 ensures each result set is empty or a singleton. The observation is the whole final store. Intermediate changes and the number of steps are absent from $`R_{c}`.
 
-$$`f_{c\ \text{;}\ d}(s) = f_{d}^{\dagger}\left( f_{c}(s) \right).`
+*Example 7.2.* For any state, `x := x + 0` returns that same state. Its value at $`x` is $`s(x) + 0 = s(x)`, and at any other name it agrees by definition of update. Hence it is equivalent to skip. One of the commands takes an assignment step in the small-step semantics and skip takes zero steps. Chapter 6 explains why this is consistent with equivalence.
 
-Ordinary application $`f_{d}(f_{c}(s))` would have a type mismatch: the inner result lives in the lifted set, and the outer input expects an ordinary state.
+*Removing a dead assignment.* Let `x` and `y` be distinct. Consider the pair `x := 0; x := y + 1` and `x := y + 1`. To prove equivalence, choose an arbitrary input `s`. After the first assignment the store is `u = s[x ↦ 0]`. Since `u(y) = s(y)`, the last assignment writes exactly the value written by the shorter command. At `x` both results contain `s(y) + 1`. At each name distinct from `x` both equal the initial store. Extensional equality of stores and the execution rules give equality of the singleton result sets at every input.
 
-*Calculation.* Suppose the suffix assigns 7 to $`y`. If the prefix returns $`u`, then the sequence returns $`u\left\lbrack {y\mapsto 7} \right\rbrack`. If the prefix returns bottom, the whole sequence returns bottom. No input is supplied to the assignment in that case. If the prefix terminates and the suffix diverges on that particular result, strict extension returns the suffix’s bottom outcome as well.
+Two assumptions do separate work here. The second expression must give the same result after the first write. Replacing `y + 1` by `x + 1` violates that condition, as witnessed by an initial value `s(x) = 4`. The first assignment must also complete. If a language admitted an expression that could diverge, erasing an assignment whose expression diverges could turn an empty result set into a singleton even when the assigned variable is never read. The ordinary integer expressions of this chapter meet the termination condition. This explains which parts of the proof may be reused when the expression language changes.
 
-*Composing the graphs.* Associate to a transformer `f` the set of pairs `graph(f) = {(s,u) | f(s) returns u}`. Let `h` execute `f` followed by `g`. For ordinary states `s,t`, expand the two cases of strict extension. If `f(s)` is bottom, the pair `(s,t)` is absent from `graph(h)` for every `t`. If `f(s)` returns `u`, the pair occurs just when `g(u)` returns `t`. Combining the cases gives a single criterion: some ordinary `u` satisfies both `(s,u) ∈ graph(f)` and `(u,t) ∈ graph(g)`.
-
-This calculation also determines the set of inputs at which composition returns. Let `dom(f)` consist of the stores where `f` returns an ordinary result. The composite requires an input in `dom(f)` whose *image* belongs to `dom(g)`. For example, suppose the prefix always assigns zero to `x`, and the suffix returns its input only when `x = 0` and diverges otherwise. The sequence returns on every input, including those where running the suffix alone would diverge. Intersecting the two domains at the same input would therefore give the wrong answer. The intermediate store in the graph formula is essential even for a calculation concerned only with termination.
-
-# Laws of sequencing
+# Loop unfolding
 %%%
-tag := "ch07-s3"
+tag := "ch06-s2"
 %%%
 
-*Proposition 7.2.* Sequencing is associative on these meanings. For meanings $`f,g,h` and every initial state $`s`, composing $`f` then $`g` then $`h` gives the same result under either grouping.
+Let $`W` stand for `while b do a` and $`U` for `if b then (a; W) else skip`, where the abbreviation $`W` denotes the original loop. All occurrences of $`b` have the same total, side-effect-free meaning $`B`.
 
-*Proof.* If $`f(s) = \bot`, the first strict extension propagates bottom under both groupings. Otherwise write $`f(s) = u`. If $`g(u) = \bot`, both groupings return bottom again. If $`g(u) = v` is a state, both groupings return $`h(v)`, whether that is a state or bottom. The cases cover the disjoint lifted set. Equality at all $`s` proves equality of functions. $`\square`
+*Theorem 7.3.* $`W \equiv U`.
 
-*Proposition 7.3.* If $`f \sqsubseteq f'` and $`g \sqsubseteq g'`, the composite with $`f,g` lies below the composite with $`f',g'`.
+*Forward proof.* Fix two arbitrary states and a derivation of $`s \vdash W \Downarrow t`. If its last rule is the exit rule, then $`B\left( {b,s} \right)` is false and $`t = s`. Use skip and the false conditional rule to derive $`s \vdash U \Downarrow t`. If its last rule is iteration, the premises give $`B\left( {b,s} \right)` true, $`s \vdash a \Downarrow u`, and $`u \vdash W \Downarrow t` for some $`u`. Join the last two derivations by the sequence rule, then use the true conditional rule. The loop subtree from $`u` is already present in the hypothesis.
 
-*Proof.* Fix $`s`. A bottom result on the left is below any result on the right. A state result $`v` on the left requires a state $`u = f(s)` with $`g(u) = v`. The two function inequalities and flatness force $`f'(s) = u` and $`g'(u) = v`. Thus the right composite returns $`v` too. This property of preserving the order is called monotonicity. $`\square`
+*Reverse proof.* Now start with a derivation of $`s \vdash U \Downarrow t`. Invert its conditional rule. The false branch provides $`s \vdash \operatorname{skip} \Downarrow t`, hence $`t = s` and the loop exit rule applies. The true branch provides $`s \vdash a\ \text{;}\ W \Downarrow t`. Invert sequence to obtain its middle state $`u` and a derivation for each side. Together with the true guard, these are the premises of the loop iteration rule. This proves the reverse implication for all states and hence the equivalence. $`\square`
 
-The strict extension can be calculated with Lean's type `Option α`, whose constructors are `none` and `some a`. Interpret `none` as the fresh bottom and `some a` as an ordinary outcome. The operation `p.bind f` inspects `p`. It returns `none` when `p` is `none` and computes `f a` when `p = some a`. In the theorem below the types of intermediate results may differ. Specializing all three types to stores gives the associativity calculation for commands.
+This argument uses inversion followed by construction. It requires no hypothesis that the two commands terminate on every input. If no terminating derivation exists on one side, the implication from the other side rules out a terminating derivation there as well. The result is a statement about finite execution evidence.
+
+*Finite unfolding as a proof technique.* Define `U₀ = W` and define `Uₙ₊₁` by replacing the recursive loop in one copy of the unfolded conditional by `Uₙ`. For example, `U₂` tests the guard, executes a body if necessary, tests the guard in the resulting store, and on a second true test executes the body followed by `W`. A false test at either site exits through skip. Each test must use its own input state. Hoisting both tests to the entry substitutes a different condition whenever the body changes a name read by the guard.
+
+For a concrete calculation take the guard `x < y`, the body `x := y`, and an initial store with `x = 0` and `y = 2`. The first test is true. The second sees the intermediate store with `x = y = 2` and exits. More generally, if executing the body always makes a true guard false, inversion shows that each terminating run has at most one body execution. In that special case replacing the residual loop after the first body by skip preserves the result, provided the body is allowed to diverge on both sides. The extra fact needed for this stronger rewrite is a property of the body and guard together.
+
+# Replacement within a larger command
+%%%
+tag := "ch06-s3"
+%%%
+
+The unfolded loop often occurs inside another program. Equivalence supports replacement within a suffix because the surrounding sequence can see only the middle store left by its first operand.
+
+*Proposition 7.4.* If $`c \equiv d` then $`c\ \text{;}\ k \equiv d\ \text{;}\ k` for every $`k`.
+
+*Proof.* Invert $`s \vdash c\ \text{;}\ k \Downarrow t` to obtain $`s \vdash c \Downarrow u` and $`u \vdash k \Downarrow t`. By the hypothesis, $`s \vdash d \Downarrow u` has a derivation. Reuse the execution of $`k` from that same $`u`. The sequence rule gives $`s \vdash d\ \text{;}\ k \Downarrow t`. For the reverse implication interchange $`c` and $`d` using symmetry. $`\square`
+
+Suppose instead we observed only the final value of $`x`. From any initial state, `y := 1` and `y := 2` would agree at $`x` when $`x \neq y`. The suffix `x := y` would distinguish them. Reusing a suffix proof requires enough agreement at the join for the suffix’s later reads. Chapter 42 will make an explicit set of observed variables part of a transformation theorem.
+
+*Replacement inside a loop.* Suppose `a ≡ a′`, and write `W` and `W′` for the loops with the common guard `b` and these two bodies. A loop may run its body many times, so a single application of the premise to the entry state does not establish the required implication. Fix a derivation of $`s \vdash W \Downarrow t`. Induct on the number of iteration rules down its recursive loop branch. At zero the derivation ends with the exit rule. The unchanged guard is false, so the very same exit proves $`s \vdash W' \Downarrow t`.
+
+At a positive number, inversion exposes a state `u` with $`s \vdash a \Downarrow u` and a derivation of $`u \vdash W \Downarrow t` with one fewer iteration. Equivalence provides $`s \vdash a' \Downarrow u`. Because the result is the same entire store, the induction hypothesis applies to the residual loop starting at exactly `u`. The iteration rule reconstructs $`s \vdash W' \Downarrow t`. Exchanging the bodies proves the converse. This proof permits the number of small steps taken *inside* a body to change. What remains aligned from one iteration to the next is the store passed to the guard. The same reasoning supplies the loop case when proving that replacement is valid in every command context by induction on the surrounding syntax.
+
+For a suffix context, equivalence at *every* potential middle store can be used directly under an existential. This checked proof preserves the witness in both directions. It makes no determinacy assumption.
 
 ```lean
-example {α β γ : Type} (p : Option α)
-    (f : α → Option β) (g : β → Option γ) :
-    (p.bind f).bind g = p.bind (fun a => (f a).bind g) := by
-  cases p <;> rfl
+example {S : Type} (R R' K : S → S → Prop)
+    (eqv : ∀ s u, R s u ↔ R' s u) (s t : S) :
+    (∃ u, R s u ∧ K u t) ↔ (∃ u, R' s u ∧ K u t) := by
+  constructor
+  · rintro ⟨u, left, right⟩
+    exact ⟨u, (eqv s u).mp left, right⟩
+  · rintro ⟨u, left, right⟩
+    exact ⟨u, (eqv s u).mpr left, right⟩
 ```
 
-Why is one case split sufficient here when the mathematical proof also inspected the second result? In the ordinary case both sides reduce to the *same expression*, `(f a).bind g`. Its value may still depend on an unknown argument and an unknown function. Reflexivity suffices because equality holds before either is evaluated. The types also reveal the role of grouping. On the right the partially applied suffix is a function expecting an ordinary `a`. The outside bind supplies that argument precisely when the first computation returns one.
+*Proposition 7.5 (Observing a store one variable at a time).* Fix a variable `out`. For any variable y, run c from s, append `out := y`, and observe only the final integer in `out`. Let $`O(c,s,y)` be the set of integers this experiment can return; it is empty if c has no terminating run. In deterministic IMP, two commands are equivalent in the sense of Definition 7.1 if and only if $`O(c,s,y)=O(d,s,y)` for every initial store s and every variable y.
+
+*Proof.* The assignment rule gives $`O(c,s,y)=\{t(y)\mid t\in R_c(s)\}`. Equal result sets therefore give equal observations. Conversely suppose all observations agree, and choose a terminating result t of c from s. The experiment y = out returns t(out), so d must terminate from s. Fix its result u. For every y the observation for c contains t(y). Determinacy of d makes its observation set the singleton $`\{u(y)\}`. Hence t(y) = u(y) for every y, and equality of stores as functions gives t = u. This proves one inclusion; interchange c and d for the other. The variable out need not be fresh: the assignment reads y before it writes out.
+
+*Where determinacy enters.* Suppose commands could choose between two outcomes. One command sets (x,y) to either (0,0) or (1,1); another sets it to either (0,1) or (1,0). Take x and y distinct and leave other variables unchanged. Reading any single coordinate gives the same set for both commands. Yet only the first command admits an outcome with x = y. In the proof above, fixing one result u before varying the tested variable is the step that fails. This counterexample concerns the stated family of tests; a suffix that computes x + y distinguishes the commands.
 
 # Exercises
 %%%
-tag := "ch07-s4"
+tag := "ch06-s4"
 number := false
 %%%
 
-*7.1.* An analyst proposes ordering normal final states by their integer value at $`x`. Show why this would allow an approximation to change a known result.
+*7.1.* Use the sequence characterization from Chapter 2 to prove associativity up to equivalence of command sequencing. Name both middle states.
 
-*7.2.* Prove that composing with skip before or after any meaning preserves it, including on a diverging input.
+*7.2.* Refute the proposed equivalence of a while command and `if b then a else skip`. Give a terminating integer example and compute both final stores.
 
-*7.3.* On the set of all transformer functions, find the least upper bound of an increasing sequence $`f_{0},f_{1},\ldots` and justify that it is least.
+*7.3.* If one loop emits an output before diverging and another silently diverges, would the definition in §7.1 distinguish them, assuming it records only terminating stores? What additional observation would suffice?
 
-*Further problem.* Let `T` be the set of all transformers from stores to lifted stores ordered pointwise. Given two transformers `f,g`, characterize exactly when they have a common upper bound. In that case construct their least upper bound. Compare the criterion with Lemma 7.1 for increasing sequences.
+*Further problem.* Decide whether `if b then (c; k) else (d; k)` and `(if b then c else d); k` are equivalent for arbitrary commands in IMP. Then examine the proposed counterpart that moves a *prefix* in front of a test. Identify a sufficient condition on the prefix and guard, and exhibit a failure when it is dropped.
 
 # Reading for the Seminar
 %%%
-tag := "ch07-s5"
+tag := "ch06-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the input and output types of each of two transformers. Introduce the state injection and the fresh outcome.
+*Definitions · 10 minutes.* Write the two commands in Theorem 7.3 and quantify explicitly over the initial and final stores.
 
-*Joint proof · 30 minutes.* Let one group compute the suffix assignment after a terminating prefix and another after a diverging prefix. Use the two answers to define strict extension. Prove associativity with the same case split.
+*Joint proof · 30 minutes.* Use Theorem 7.3 and Proposition 7.4 to replace a loop inside a sequence. Derive the observation formula of Proposition 7.5 from the assignment rule.
 
-*Proof review · 20 minutes.* Replace the prefix by a more defined approximation. Use Proposition 7.3 to decide whether an already observed state result can change.
+*Proof review · 20 minutes.* Prove the reverse implication of Proposition 7.5. Mark where one final store is fixed for all variables; test that step on the two nondeterministic commands.
 
-*Facilitator’s hint.* Fix one initial state, and split on the value of the inner function before attempting to apply the outer function.
+*Facilitator’s hint.* Underline the recursive loop judgment already available as a premise. Ask where exactly that same judgment belongs in the target tree.
 
 # Solutions
 %%%
-tag := "ch07-s6"
+tag := "ch06-s6"
 number := false
 %%%
 
-*7.1.* A transformer already returning a state with $`x = 2` could be “improved” to one returning $`x = 3`. They disagree on a directly observable final value. Flatness treats both normal states as maximal.
+*7.1.* A run of the left association first executes $`c`, then $`d`, then $`k`, through states $`s,u,v,t`. Two inversions recover the three subderivations. Compose $`d` with $`k` at $`v`, then compose $`c` with that result at $`u`. The reverse direction regroups the same three derivations in the opposite order.
 
-*7.2.* Skip first returns $`s`, so strict extension of $`f` returns $`f(s)`. Skip last preserves an ordinary result $`u` and propagates a bottom result, yielding $`f(s)` in both cases.
+*7.2.* Use guard $`x < 2`, body `x := x + 1`, and initial value zero. One conditional execution leaves $`x = 1`. Two loop iterations followed by an exit leave $`x = 2`. All other names agree.
 
-*7.3.* Define $`g(s)` to be the least upper bound of the outcomes $`f_{n}(s)` given by Lemma 7.1. Every $`f_{n}` lies below $`g` pointwise. If $`h` bounds the whole sequence, $`h(s)` bounds those outcomes at each $`s`, so $`g(s) \sqsubseteq h(s)`. Hence $`g \sqsubseteq h`.
+*7.3.* Both result sets would be empty, so the proposed observation identifies them. Observing a finite prefix containing the first output separates them. The choice of observations must be revisited when the language gains output.
 
-*Further problem.* Agreement is required wherever both transformers return ordinary results. If `f(s)` and `g(s)` were distinct ordinary stores, any upper bound at that input would have to lie above both. In a flat order an ordinary store can only be bounded above by itself. Distinct stores therefore rule out a common upper bound.
+*Further problem.* Fix an initial store. Both commands with the common suffix inspect the guard there. If it is true, a terminating execution on either side consists of a run of `c` to some middle store followed by a run of `k` from there. The same witnesses yield executions in either syntax tree. The false branch replaces `c` by `d` and gives the same argument.
 
-Conversely, assume agreement on that overlap. Define `h(s)` to be the result of `f(s)` when ordinary, and otherwise the result of `g(s)`. At an input where neither is defined it gives bottom. Checking these cases shows that both transformers lie below `h`. For leastness consider any common upper bound `k`. Where `h(s)` is ordinary, at least one of the two transformers already has that result and forces `k(s)` to equal it. Where `h(s)` is bottom the required inequality holds automatically. Thus `h ⊑ k`. In an increasing sequence agreement on overlaps is automatic. Arbitrary pairs of transformers need not have this compatibility.
+For the prefix version compare `if b then (k; c) else (k; d)` with `k; (if b then c else d)`. It suffices that every terminating execution of `k` from any `s` to `u` preserves the truth value of `b`. Both derivations then use that same prefix execution, select the same branch, and reuse its derivation. If the prefix diverges neither command yields a result. For a counterexample use `x = 0` as guard, `x := 1` as prefix, and branches assigning 1 or 2 to a distinct `y`. From `x = 0` the two programs end with different values of `y`.

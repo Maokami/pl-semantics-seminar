@@ -3,118 +3,131 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Let-Polymorphism" =>
+#doc (Manual) "Typechecking Annotated Terms" =>
 %%%
-tag := "ch21"
-file := "chapter-21"
-%%%
-
-[Chapter PDF](print/chapter-21.pdf) · [Session 22](seminar/index.html#week-22)
-
-The identity can accept an integer in one expression and a Boolean in another. In `let id = λx. x in (id 0, id true)`, both calls occur in the same expression. If they share a single unknown parameter type, one call forces it to Nat and the other to Bool. A let-bound type scheme makes the two choices independent.
-
-*Sources.* Pierce, _Types and Programming Languages_, §22.7, pp. 331–335. Track which variables may be generalized at a let and where fresh copies are introduced. This chapter treats a pure language; Chapter 31 revisits the rule after allocation. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Schemes and instances
-%%%
-tag := "ch21-s1"
+tag := "ch19"
+file := "chapter-19"
 %%%
 
-Use the finite monotypes of Chapter 20 and product types $`A \times B`. A pair has product type when its components have the indicated types. A *scheme* has the form $`\forall\alpha_{1}\ldots\alpha_{n}.T`, where $`T` is a monotype. An instance replaces the quantified variables simultaneously by monotypes, using the same replacement for every occurrence of a given variable. Free variables of the scheme remain shared with its environment. Quantifiers occur only at the front of a type scheme. A let binding can introduce such a scheme, while a lambda-bound parameter has a monotype.
+[Chapter PDF](print/chapter-19.pdf) · [Session 21](seminar/index.html#week-21)
 
-A context maps names to schemes. A monotype in the context abbreviates the scheme with no quantifiers. On lookup instantiate every quantified variable with a fresh unknown, to be solved by the constraints of this occurrence. Lambda-bound parameters are entered with no quantifiers. At a pure nonrecursive let, infer and solve the right-hand side first. Apply its solution to both the context and the right-side type. Call the results $`\Gamma'` and $`T`. Generalize precisely the variables
+The parameter annotation in `(λx:Nat. x) 0` settles a question before the checker visits the body. It tells us what to return at the lookup of $`x`. By following the shape of each term, the checker can either construct its unique type or exhibit a failed premise.
 
-$$`F(T) \smallsetminus F\left( \Gamma' \right),`
+*Sources.* Pierce, _Types and Programming Languages_, chapter 10, especially §10.3, starting p. 115. Identify the cases for variable, abstraction and application in the ML implementation. Our checker uses a named finite map for the context and adds natural and Boolean constants. [Pierce, chapter 10.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-where $`F` takes the free type variables and forms their union over context entries. Enter the resulting scheme under the let name while inferring the body. Solving the context first ensures that any information discovered about the surrounding bindings is respected.
+# Inputs and outputs
+%%%
+tag := "ch19-s1"
+%%%
 
-The placement of a quantifier changes what information is shared. Suppose the context contains a free type variable `δ` and a binding of `choose` at the scheme `∀α. α → (α × δ)`. One lookup may instantiate this scheme at Nat, yielding `Nat → (Nat × δ)`. Another may instantiate it at Bool, yielding `Bool → (Bool × δ)`. Within the first occurrence, the argument and the first component of the result must use exactly the same replacement Nat. Across both occurrences, the second component still uses the one external `δ`. Renaming `α` consistently to a fresh quantified symbol preserves these constraints, while changing `δ` in just one occurrence would change the assumptions supplied by the surrounding scope.
+Types are finite trees formed from Nat, Bool and the binary arrow constructor. Terms are variables, literals `0` and `true`, applications and lambdas with a parameter type. Annotations must themselves be well-formed types. A context maps names to types; an inner binding shadows its outer namesake. An output is either a type or an error. Equality testing on types compares base constructors and recursively compares the domain and codomain of arrows. Distinct base constructors are unequal.
 
-This distinction explains the two traversals implicit in generalization. Look first through the solved result type to find candidates for quantification. Then look through every scheme already present in the solved context, carefully ignoring names bound by those schemes. An unknown free in both places records a dependency on an outer assumption. Binding that unknown in a new scheme would sever the dependency while keeping the same printed body type. Free-variable computation over types and schemes plays the same protective role here that free-variable computation over lambda terms played in Chapter 13.
+The declarative rules are those of Chapter 18 with the two literal axioms. At an application, the premises must have types $`A\rightarrow B` and $`A` for the same $`A`. The checker below obtains $`A` by visiting the operator.
 
-The following small scheme language has exactly one quantified slot, any number of unquantified names, arrows and products. Instantiation copies the supplied type at each use of that slot and keeps every outside name fixed. The two checked instances of the same scheme display both properties. Choosing arguments supplied by the caller here models explicit instances of a scheme; the inference algorithm may initially use fresh unknowns for these arguments.
-
-```lean
-namespace SchemeScope
-inductive Mono where
-  | name (i : Nat) | nat | bool | arr (a b : Mono) | prod (a b : Mono)
-inductive Pattern where
-  | slot | outside (i : Nat) | arr (a b : Pattern) | prod (a b : Pattern)
-
-def inst (arg : Mono) : Pattern → Mono
-  | .slot => arg
-  | .outside i => .name i
-  | .arr a b => .arr (inst arg a) (inst arg b)
-  | .prod a b => .prod (inst arg a) (inst arg b)
-
-def scheme := Pattern.arr .slot (.prod .slot (.outside 0))
-example : inst .nat scheme = .arr .nat (.prod .nat (.name 0)) := rfl
-example : inst .bool scheme = .arr .bool (.prod .bool (.name 0)) := rfl
-end SchemeScope
+```
+check(Γ, x)       = look up x in Γ, or report an unbound name
+check(Γ, 0)       = Nat
+check(Γ, true)    = Bool
+check(Γ, λx:A.b)  = A → check(Γ[x ↦ A], b)
+check(Γ, f a)     = inspect check(Γ, f)
+    if it is A → B, require check(Γ, a) = A and return B
+    otherwise report an invalid operator
 ```
 
-# A derivation using two instances
+Any failing recursive call propagates its error. A failed domain equality reports an argument-type error. Termination follows from recursion on proper subterms and the finite comparison of type trees.
+
+Structural type comparison is needed even when a caller never supplies an explicit type argument. Consider an operator whose parameter annotation is `(Nat→Bool)→Nat`. A suitable operand may itself be an abstraction, so its computed type will be another constructed tree. Comparing merely the outer arrow constructor would accept both `(Nat→Bool)→Nat` and `(Bool→Nat)→Nat`. Descend first into the domains. Both are arrows; descend again to their domains, which are Nat in the first tree and Bool in the second. This single mismatch makes the entire equality false. Equality of the result branches, both Nat, cannot repair it.
+
+An error can consequently be located quite precisely: the checker has already synthesized a type for each subterm, and the first mismatching path in their types points to the premise which cannot be satisfied. This chapter's decidable test depends on its type grammar. With aliases that abbreviate other types, an implementation would need a specified policy for expansion before comparison. With subtyping, the application premise itself changes. The exact structural equality described here is justified by the current typing rules and by the absence of such additional equations or conversion rules.
+
+# A trace and its derivation
 %%%
-tag := "ch21-s2"
-%%%
-
-In the empty context `λx. x` has provisional type $`\alpha\rightarrow\alpha` with no constraints. Its free variable can therefore be generalized. Bind `id` at $`\forall\alpha.\alpha\rightarrow\alpha`. The left lookup in the pair yields $`\beta\rightarrow\beta` and the right one yields $`\gamma\rightarrow\gamma`, with distinct unknowns. At `id 0` the application equation forces $`\beta = \text{Nat}` and the result is Nat. At `id true` it forces $`\gamma = \text{Bool}` and the result is Bool. Pair introduction yields $`\text{Nat} \times \text{Bool}`. At runtime the two lookups use the same pure function; instantiation is part of typing.
-
-Under a single lambda binder in `λid. (id 0, id true)`, the two lookups share one monotype. It must equal both an arrow with domain Nat and an arrow with domain Bool. Unification of the domains fails. In this type system replacing a let by application of an unannotated lambda can change typability even when the two pure programs compute alike.
-
-A useful intermediate example is to name an application of the identity to itself. In `let id = λx. x in let h = id id in (h 0, h true)`, the two occurrences in `id id` are separate lookups. Let their types be `α→α` and `β→β` respectively. The application equation is `α→α = (β→β)→γ`. Its most general solution sets `α = β→β` and `γ = β→β`. Thus the right-hand side for `h` has type `β→β`. The prior context gives `id` a closed scheme, so `β` is not free in that context. Generalization at the inner let gives `h` a scheme that admits both calls.
-
-No argument in this derivation has a quantified monotype. The argument occurrence of `id` was instantiated before application, and `β→β` is an ordinary monotype containing an unresolved variable. This explains why `id id` succeeds although the monomorphic self-application `λx. x x` has no finite simple type. In the latter term both occurrences look up the very same monotype and force it to be its own function domain. At the let-bound name each occurrence instead receives a new instance of the same scheme.
-
-# Why environment variables stay free
-%%%
-tag := "ch21-s3"
+tag := "ch19-s2"
 %%%
 
-Consider `λy. let k = λx. y in (k 0, k true)`. Give $`y` the unknown type $`\delta`. The inner abstraction has type $`\alpha\rightarrow\delta`. The context contains free $`\delta`, so the scheme for $`k` quantifies only $`\alpha`. The argument type can vary at the two calls; both results have the same type as $`y`. The whole term has type $`\delta\rightarrow\left( {\delta \times \delta} \right)`.
+Start with the empty context. In the operator `λx:Nat. x`, the recursive body call sees $`x:\text{Nat}` and returns Nat. Abstraction returns
 
-If we generalized $`\delta` at the let, a caller could demand a Boolean result independently of the actual $`y`. For example imagine `λy. let k = λx. y in if k 0 then 1 else 2` applied to the number 7, using natural literals and the conditional from Chapter 16. The erroneous rule would accept this program by instantiating the local result type at Bool. Execution reaches a conditional with numeric guard 7. The correct rule propagates the Bool requirement back to $`y`, thereby rejecting the final application to 7.
+$$`\text{Nat}\rightarrow\text{Nat}`
 
-Solving the context before generalization matters when an outer type variable acquires new structure during inference. Consider `λf. let h = λx. f x in (h 0, h true)`. Give the lambda-bound `f` one unknown type `δ`. In the definition of `h`, give `x` type `α` and its application result type `β`. Solving that application forces `δ = α→β`. The solved right-hand side therefore has type `α→β`, and the solved context now contains `f:α→β`.
+. The literal argument returns Nat. The domain comparison succeeds, so the entire application returns Nat.
 
-Generalization must inspect that updated entry. Both `α` and `β` occur free in it, so neither can be generalized at `h`. The first call requires `α=Nat` and the second requires `α=Bool`; the constraints conflict. Computing context free variables from the *original* entry `f:δ` would miss both dependencies and could wrongly accept the pair. Operationally the function bound to `h` simply forwards its argument to the one supplied `f`. There is no opportunity in either call to replace that outer monomorphic function with a freshly chosen one. The solved context records exactly that fact before the body of the let is checked.
+Read the same computation from the leaves as a proof. The variable premise under $`x:\text{Nat}` yields $`x:\text{Nat}`. Discharge that assumption using abstraction to type the operator. Use the zero axiom under the empty context to type the operand, then combine these two premises using application. This reconstruction explains what the returned type certifies.
+
+Trace a term containing a genuinely free name before closing it with a lambda. In the context `u:Bool`, check `(λk:Bool→Nat. k u) (λz:Bool. 0)`. On the operator side, the checker extends the context with `k:Bool→Nat`. The inner application requires two successful lookups. The operator lookup returns `Bool→Nat`; the lookup of `u` returns Bool from the outer context. Their domain comparison succeeds, so the body returns Nat. Discharging the parameter makes the outer operator's synthesized type `(Bool→Nat)→Nat`.
+
+The right operand is checked in the original context containing `u`. Under the local binding `z:Bool`, the zero literal synthesizes Nat. The lambda therefore synthesizes `Bool→Nat`, which matches the outer operator's domain exactly. The complete expression receives Nat. Replacing the inner operand `u` by the literal zero would instead fail the *inner* comparison, before an outer operator type could be returned. Drawing the derivation tree makes the difference between these two application nodes visible. Writing down only the final error message would hide the scope in which the failed type equality was required.
+
+This executable fragment uses a list of parameter types as a context. Variable zero names the most recent binder. The checker either returns a type or returns `none` for an absent binding, a nonfunction operator, or an incompatible operand. The examples exercise the application and lookup branches, including an operator whose result differs from its domain.
+
+```lean
+namespace CheckingTerms
+inductive Ty where
+  | nat | bool | arr (a b : Ty)
+  deriving DecidableEq
+
+inductive Exp where
+  | var (i : Nat) | zero | yes | lam (a : Ty) (body : Exp) | app (f x : Exp)
+
+def check (Γ : List Ty) : Exp → Option Ty
+  | .var i => Γ[i]?
+  | .zero => some .nat
+  | .yes => some .bool
+  | .lam a body => (check (a :: Γ) body).map (.arr a)
+  | .app f x => do
+    let .arr a b ← check Γ f | none
+    let c ← check Γ x
+    if a = c then some b else none
+
+example : check [] (.app (.lam .nat .yes) .zero) = some .bool := rfl
+example : check [] (.app (.lam .nat .yes) .yes) = none := rfl
+example : check [] (.lam .nat (.lam .bool (.var 1))) =
+    some (.arr .nat (.arr .bool .nat)) := rfl
+end CheckingTerms
+```
+
+# Correctness of the checker
+%%%
+tag := "ch19-s3"
+%%%
+
+*Theorem 21.1.* For every well-formed input context and term, the checker returns $`T` exactly when $`\Gamma \vdash t:T`. For soundness induct on the term with a successful output. Variable success means the lookup premise holds, and each literal return matches its axiom. At abstraction, recursive success types the body at the returned codomain in the extended context. Discharge the binding. At application success entails an operator return $`A\rightarrow T` and an argument return $`A`. By induction these are precisely the premises of application.
+
+For completeness induct on the typing derivation. A variable lookup or literal axiom determines the same output. For abstraction the induction hypothesis computes the body’s type, so the checker constructs the conclusion arrow. In an application derivation its two premises already fix results $`A\rightarrow T` and $`A`; by induction both recursive calls return these types. Structural equality therefore succeeds and the result is $`T`. As a consequence a reported error entails that there is no typing derivation, and two derivations for the same inputs have the same result type. Both conclusions rely on having only the rules listed in §21.1.
+
+One useful consequence of the equivalence is a principled account of negative answers. Suppose the checker rejects `f a` because it computes Nat for `f`. Assume for contradiction there is a typing derivation of the whole application. Its last rule supplies some types `A,B` and a premise typing `f` at `A→B`. Completeness applied to that premise says the same checker call returns `A→B`. A deterministic computation on a fixed input cannot return both Nat and an arrow, so the assumed derivation is impossible. This argument needs completeness: soundness alone would only explain why already accepted inputs have derivations.
+
+Conversely, returning an arbitrary accepted type at every leaf could make a checker permissive while destroying soundness. At an abstraction one can see precisely what the soundness hypothesis must quantify over. The recursive body call runs under an extended context. Therefore structural induction on terms should keep the context and claimed output universally quantified. Fixing an empty context before induction would produce a body hypothesis about an input the algorithm never uses. The annotation at the lambda determines the extension, and the generalized hypothesis then turns that particular successful call into the body typing needed by the abstraction rule.
 
 # Exercises
 %%%
-tag := "ch21-s4"
+tag := "ch19-s4"
 number := false
 %%%
 
-1. In the two-call example, instantiate the scheme twice but accidentally give both lookups the same fresh variable. Identify the contradictory equations.
-2. Give the scheme for `λx. (x,y)` when $`y:\delta` is in the context. Can the two components change type independently when the bound function is reused?
-3. Show why a result equal to the actual value of $`y` can safely be returned twice at the same type.
+1. Trace `(λx:Nat. x) true` through the first failing test. Can a different final typing rule save it?
+2. Determine the type of `λx:Nat. λx:Bool. x`. Which context is needed for the innermost lookup?
+3. Extend the checker to the conditional of Chapter 17. Which induction hypotheses suffice for soundness in the new case?
 
-*Further problem.* Infer a scheme for `dup` in `let dup = λx. (x,x) in (dup 0, dup true)`. Could the body of the same definition typecheck at the purported scheme `∀α β. α→(α×β)`? Justify both answers from lookups.
+*Further problem.* Suppose a checker for the annotated fragment returns the operator's *domain* whenever an application's domain comparison succeeds. Find a closed term on which it returns an incorrect type. Would tests using only applications of identity functions find the error?
 
 # Reading for the Seminar
 %%%
-tag := "ch21-s5"
+tag := "ch19-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* List the free variables in the inferred right-side type and in the surrounding context.
-
-*Joint proof · 30 minutes.* Type the pair of identity uses, giving a different color to each instantiation. Then type the constant function returning the outer variable and recompute the generalization set.
-
-*Proof review · 20 minutes.* Use the numeric-guard example to refute generalization of every unknown. Identify the exact lost equality between the result and the captured variable.
-
-*Facilitator’s hint.* At a lookup, copy only the variables following the quantifier. Circle the unquantified result variable before drawing either copy.
+*Session 21 · With Chapter 22.* Start with `(λx:Nat. x) 0`. Under the binder, lookup gives the body type Nat. The abstraction therefore has type Nat → Nat, and the argument has precisely its domain type. Write the three typing rules beside the corresponding checker calls. Spend the first 20 minutes on this annotated term, then continue with the same syntax after erasing its annotation in Chapter 22.
 
 # Solutions
 %%%
-tag := "ch21-s6"
+tag := "ch19-s6"
 number := false
 %%%
 
-*1.* The left argument imposes $`\beta = \text{Nat}` and the right imposes $`\beta = \text{Bool}`. Independent instantiation avoids this accidental identification.
+*1.* The operator returns Nat to Nat. The argument returns Bool, so comparison with Nat fails. Only application could type the whole syntax; its premises cannot be obtained at a common domain.
 
-*2.* The scheme is $`\forall\alpha.\alpha\rightarrow\left( {\alpha \times \delta} \right)`. The first component follows the argument type at each call. The second remains tied to the context’s $`\delta`.
+*2.* The innermost lookup sees Bool. The result type is Nat to (Bool to Bool). The two assumptions can equivalently be given distinct fresh binder names.
 
-*3.* Each call returns the same outer binding. If $`y:A`, each copy has type $`A`, and pair introduction permits product $`A \times A`. Quantification of the argument type of $`k` imposes no new requirement on $`A`.
+*3.* Require the guard call to return Bool, compute both branch types, and return their common type when equal. The three induction hypotheses supply the guard derivation at Bool and both branch derivations at that common type.
 
-*Further problem.* Inside the lambda the term context supplies one monomorphic entry `x:γ`. Both projections of the proposed result are constructed by looking up this same variable, so the pair has type `γ×γ`. Abstraction gives `γ→(γ×γ)`; the empty outer context leaves `γ` available for generalization. The two lookups of `dup` in the let body may now instantiate the scheme independently. The first call yields `Nat×Nat`, and the second yields `Bool×Bool`, so the entire pair has type `(Nat×Nat)×(Bool×Bool)`. To check the purported stronger scheme, choose Nat for its first variable and Bool for its second. Its instance would return `Nat×Bool` on zero. In the lambda body, however, the right component is again precisely `x`, and lookup assigns it Nat. Instantiation may vary a quantified variable between separate uses of the *function*, but all occurrences of that variable in the type of one use receive one consistent replacement.
+*Further problem.* Use `(λx:Nat. true) 0`. Under `x:Nat` the checker returns Bool for the body, hence `Nat→Bool` for the abstraction. It returns Nat for the literal zero. Domain comparison succeeds, but the faulty rule now returns Nat. Inverting any declarative application typing instead requires an operator type `C→T` and an operand type `C`. Inverting the abstraction fixes `C` at Nat from the annotation and `T` at Bool from the body. The alleged typing at Nat is therefore impossible. This is a failure of soundness for accepted type *assignments* even though acceptance of this particular term at some type was appropriate. An identity application always has an operator type of the shape `A→A`. Both the correct and defective return choices then equal `A`, irrespective of how elaborate the type `A` itself is. A test needs differing domains and codomains to separate those two implementations.

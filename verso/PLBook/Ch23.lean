@@ -3,114 +3,118 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Universal Types and System F" =>
+#doc (Manual) "Let-Polymorphism" =>
 %%%
-tag := "ch23"
-file := "chapter-23"
-%%%
-
-[Chapter PDF](print/chapter-23.pdf) · [Session 24](seminar/index.html#week-24)
-
-In the let system of Chapter 21 the type chosen at a use of the identity was inferred. System F lets a programmer bind a type variable in a term and supply its argument explicitly. This gives us an expression whose own type says that its caller may choose any type.
-
-*Sources.* Pierce, _Types and Programming Languages_, §§23.3–23.5, pp. 341–353. Follow the rules for type abstraction and application and calculate one substitution at each level. [Pierce, universal types.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Two levels of binding
-%%%
-tag := "ch23-s1"
+tag := "ch21"
+file := "chapter-21"
 %%%
 
-Add type variables $`X` and universal types $`\forall X.T` to base types and arrows. A type context $`\Delta` records which type variables are in scope. A type is well formed when all of its free variables belong to $`\Delta`. In $`\forall X.T` the binder removes the occurrences of $`X` in its scope from the free set. Term contexts contain names assigned well-formed types.
+[Chapter PDF](print/chapter-21.pdf) · [Session 22](seminar/index.html#week-22)
 
-Add the term forms $`\Lambda X.t` and $`t\lbrack A\rbrack`. The first is a *type abstraction*: it binds $`X` in type annotations and type arguments inside $`t`. The second applies a polymorphic term to a type. Ordinary $`\lambda x:A.t` still binds a term variable, and $`f\, u` still supplies a term argument. We choose all binders fresh when needed and use capture-avoiding substitution at both levels.
+The identity can accept an integer in one expression and a Boolean in another. In `let id = λx. x in (id 0, id true)`, both calls occur in the same expression. If they share a single unknown parameter type, one call forces it to Nat and the other to Bool. A let-bound type scheme makes the two choices independent.
 
-If $`t:T` is derivable in type context $`\Delta,X` and term context $`\Gamma`, we may derive $`\Lambda X.t:\forall X.T` under $`\Delta,\Gamma`, provided $`X` is fresh for $`\Delta` and for the types in $`\Gamma`. Conversely, if $`t:\forall X.T` and $`A` is well formed in $`\Delta`, then $`t\lbrack A\rbrack:T\left\lbrack {A/X} \right\rbrack`. An explicit type argument can itself be universal. This feature is called *impredicative instantiation*.
+*Sources.* Pierce, _Types and Programming Languages_, §22.7, pp. 331–335. Track which variables may be generalized at a let and where fresh copies are introduced. This chapter treats a pure language; Chapter 31 revisits the rule after allocation. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-Consider the closed term `twice = ΛX. λf:X→X. λx:X. f (f x)`. At the innermost occurrence of `x`, the type context contains the single name `X` and the term context contains `f:X→X, x:X`. Lookup gives the operand type `X`; applying the function found by lookup at `f` yields another term of type `X`. This is exactly the domain needed for the outer application. Abstracting first over `x` yields an arrow `X→X`. Abstracting over `f` yields `(X→X)→(X→X)`. Only now is the term context empty, so type abstraction yields `∀X.(X→X)→(X→X)`.
-
-Read the same derivation as instructions for a caller. The intermediate expression `twice[Bool]` has type `(Bool→Bool)→(Bool→Bool)`. Giving it Boolean negation leaves an ordinary Boolean endofunction, that is, a function from Bool to itself. Applying that result to true calculates two negations and returns true. Removing the type application from the explicitly typed source leaves no arrow available to the first ordinary application. Conversely, writing `twice[true]` fails before the arrow premises matter: the expression inside brackets must form a type in the caller's type context. These failures locate the two separate formation checks in a single example.
-
-# The identity
+# Schemes and instances
 %%%
-tag := "ch23-s2"
+tag := "ch21-s1"
 %%%
 
-Let $`i = \Lambda X.\left( {\lambda x:X.x} \right)`. Under type assumption $`X` and term assumption $`x:X`, lookup types the body at $`X`. Discharging $`x` gives an arrow $`X\rightarrow X` under type assumption $`X`. The term context is now empty, so discharging $`X` gives the closed typing
+Use the finite monotypes of Chapter 22 and product types $`A \times B`. A pair has product type when its components have the indicated types. A *scheme* has the form $`\forall\alpha_{1}\ldots\alpha_{n}.T`, where $`T` is a monotype. An instance replaces the quantified variables simultaneously by monotypes, using the same replacement for every occurrence of a given variable. Free variables of the scheme remain shared with its environment. Quantifiers occur only at the front of a type scheme. A let binding can introduce such a scheme, while a lambda-bound parameter has a monotype.
 
-$$`i:\forall X.\left( {X\rightarrow X} \right).`
+A context maps names to schemes. A monotype in the context abbreviates the scheme with no quantifiers. On lookup instantiate every quantified variable with a fresh unknown, to be solved by the constraints of this occurrence. Lambda-bound parameters are entered with no quantifiers. At a pure nonrecursive let, infer and solve the right-hand side first. Apply its solution to both the context and the right-side type. Call the results $`\Gamma'` and $`T`. Generalize precisely the variables
 
-Instantiating with Nat replaces *both* occurrences of $`X` in the result type. Thus $`i\left\lbrack \text{Nat} \right\rbrack` has type $`\text{Nat}\rightarrow\text{Nat}`, and $`i\left\lbrack \text{Nat} \right\rbrack\, 0` has type Nat.
+$$`F(T) \smallsetminus F\left( \Gamma' \right),`
 
-Operationally, type application of a type abstraction substitutes the type argument in its body. Ordinary beta reduction of an abstraction applied to a value substitutes that term value in its body. Treat type and term abstractions as values. In a left-to-right value evaluation the first step of the example is
+where $`F` takes the free type variables and forms their union over context entries. Enter the resulting scheme under the let name while inferring the body. Solving the context first ensures that any information discovered about the surrounding bindings is respected.
 
-$$`i\left\lbrack \text{Nat} \right\rbrack\, 0\rightarrow\left( {\lambda x:\text{Nat}.x} \right)\, 0.`
+The placement of a quantifier changes what information is shared. Suppose the context contains a free type variable `δ` and a binding of `choose` at the scheme `∀α. α → (α × δ)`. One lookup may instantiate this scheme at Nat, yielding `Nat → (Nat × δ)`. Another may instantiate it at Bool, yielding `Bool → (Bool × δ)`. Within the first occurrence, the argument and the first component of the result must use exactly the same replacement Nat. Across both occurrences, the second component still uses the one external `δ`. Renaming `α` consistently to a fresh quantified symbol preserves these constraints, while changing `δ` in just one occurrence would change the assumptions supplied by the surrounding scope.
 
-The second step returns zero. The first replacement changes a parameter annotation; the second replaces an occurrence of a variable used in a computation.
+This distinction explains the two traversals implicit in generalization. Look first through the solved result type to find candidates for quantification. Then look through every scheme already present in the solved context, carefully ignoring names bound by those schemes. An unknown free in both places records a dependency on an outer assumption. Binding that unknown in a new scheme would sever the dependency while keeping the same printed body type. Free-variable computation over types and schemes plays the same protective role here that free-variable computation over lambda terms played in Chapter 14.
 
-A polymorphic value can itself be the argument of an ordinary function. With the product types of Chapter 21, write `U = ∀X.X→X` and consider `use = λk:U. (k[Nat] 0, k[Bool] true)`. There is just one assumption for the parameter, namely `k:U`. At the first occurrence the universal elimination rule yields `k[Nat]:Nat→Nat`. At the second occurrence it yields `k[Bool]:Bool→Bool`. Arrow elimination in each component and then product formation give `use : U → (Nat × Bool)`. Notice the position of the universal quantifier inside the domain of an arrow. An ordinary lambda parameter in the let-polymorphic calculus of Chapter 21 receives a monotype, which would have to account for both uses without these two independent instantiations.
-
-For the particular call `use i`, ordinary beta reduction first supplies the entire polymorphic identity for both occurrences of `k`. The left component then reduces to zero and the right component to true. There is no type argument to `use` itself: its parameter has a polymorphic type, while its own outermost type constructor is an arrow. The following Lean example checks the same two instantiations at one universe and computes the result of this particular call.
+The following small scheme language has exactly one quantified slot, any number of unquantified names, arrows and products. Instantiation copies the supplied type at each use of that slot and keeps every outside name fixed. The two checked instances of the same scheme display both properties. Choosing arguments supplied by the caller here models explicit instances of a scheme; the inference algorithm may initially use fresh unknowns for these arguments.
 
 ```lean
-namespace ExplicitPoly
-def useBoth (k : (α : Type) → α → α) : Nat × Bool :=
-  (k Nat 0, k Bool true)
+namespace SchemeScope
+inductive Mono where
+  | name (i : Nat) | nat | bool | arr (a b : Mono) | prod (a b : Mono)
+inductive Pattern where
+  | slot | outside (i : Nat) | arr (a b : Pattern) | prod (a b : Pattern)
 
-example : useBoth (fun _ x => x) = (0, true) := rfl
-end ExplicitPoly
+def inst (arg : Mono) : Pattern → Mono
+  | .slot => arg
+  | .outside i => .name i
+  | .arr a b => .arr (inst arg a) (inst arg b)
+  | .prod a b => .prod (inst arg a) (inst arg b)
+
+def scheme := Pattern.arr .slot (.prod .slot (.outside 0))
+example : inst .nat scheme = .arr .nat (.prod .nat (.name 0)) := rfl
+example : inst .bool scheme = .arr .bool (.prod .bool (.name 0)) := rfl
+end SchemeScope
 ```
 
-# Freshness and capture
+# A derivation using two instances
 %%%
-tag := "ch23-s3"
+tag := "ch21-s2"
 %%%
 
-Suppose an outer term variable has type $`X`. Arbitrarily generalizing that type variable while keeping the term variable in the context would permit the same supplied value to be treated as any independently chosen type. The freshness condition in the abstraction rule prevents this. It corresponds to the exclusion of context variables at let-generalization in Chapter 21.
+In the empty context `λx. x` has provisional type $`\alpha\rightarrow\alpha` with no constraints. Its free variable can therefore be generalized. Bind `id` at $`\forall\alpha.\alpha\rightarrow\alpha`. The left lookup in the pair yields $`\beta\rightarrow\beta` and the right one yields $`\gamma\rightarrow\gamma`, with distinct unknowns. At `id 0` the application equation forces $`\beta = \text{Nat}` and the result is Nat. At `id true` it forces $`\gamma = \text{Bool}` and the result is Bool. Pair introduction yields $`\text{Nat} \times \text{Bool}`. At runtime the two lookups use the same pure function; instantiation is part of typing.
 
-As an example of type-level capture, consider $`T = \forall Y.\left( {X\rightarrow Y} \right)` and substitute free $`Y` for $`X`. Rename the binder to fresh $`Z` first. The result is $`\forall Z.\left( {Y\rightarrow Z} \right)`; its domain still refers to the surrounding $`Y`. The literal replacement $`\forall Y.\left( {Y\rightarrow Y} \right)` changes the domain into a bound variable and therefore describes a different type.
+Under a single lambda binder in `λid. (id 0, id true)`, the two lookups share one monotype. It must equal both an arrow with domain Nat and an arrow with domain Bool. Unification of the domains fails. In this type system replacing a let by application of an unannotated lambda can change typability even when the two pure programs compute alike.
 
-Substitution through a term can require the same renaming in several places. Work under the type assumption `X` and take `s = ΛY. λg:X→Y. λv:X. g v`. Its type is `∀Y.(X→Y)→X→Y`, with arrows associating to the right. We want to use a free type name `Y` from a different context as the argument replacing `X`. First change the bound name of the type abstraction to fresh `Z`. Its bound occurrences in the annotation of `g` and in the result type change together. Substitution now produces `ΛZ. λg:Y→Z. λv:Y. g v`, of type `∀Z.(Y→Z)→Y→Z` in the context containing the free `Y`.
+A useful intermediate example is to name an application of the identity to itself. In `let id = λx. x in let h = id id in (h 0, h true)`, the two occurrences in `id id` are separate lookups. Let their types be `α→α` and `β→β` respectively. The application equation is `α→α = (β→β)→γ`. Its most general solution sets `α = β→β` and `γ = β→β`. Thus the right-hand side for `h` has type `β→β`. The prior context gives `id` a closed scheme, so `β` is not free in that context. Generalization at the inner let gives `h` a scheme that admits both calls.
 
-The caller can choose Bool for the outer free type and subsequently Nat for the locally bound argument. The resulting term then accepts a function from Bool to Nat and a Boolean input. A literal replacement that captures the free name would instead accept a function from Nat to Nat and a natural input when the local argument is Nat. Checking the two instantiations therefore gives a concrete way to detect the changed dependency. In the correct substitution, the set of free type names of the resulting type is exactly the singleton containing the caller's name.
+No argument in this derivation has a quantified monotype. The argument occurrence of `id` was instantiated before application, and `β→β` is an ordinary monotype containing an unresolved variable. This explains why `id id` succeeds although the monomorphic self-application `λx. x x` has no finite simple type. In the latter term both occurrences look up the very same monotype and force it to be its own function domain. At the let-bound name each occurrence instead receives a new instance of the same scheme.
 
-*From let to explicit type application.* In Chapter 21 the two occurrences of a let-bound identity can be instantiated independently. Write its System F value as `ΛA. λx:A. x`. Bind this value to the name `id`. The uses that inferred Nat and Bool now read `id [Nat] 0` and `id [Bool] true`. Substituting Nat for A in the first function leaves the second use free to choose Bool. In Chapter 21 generalization was restricted by the types in the surrounding context; the System F typing rule for type abstraction likewise requires its bound type variable to be fresh for that context.
+# Why environment variables stay free
+%%%
+tag := "ch21-s3"
+%%%
+
+Consider `λy. let k = λx. y in (k 0, k true)`. Give $`y` the unknown type $`\delta`. The inner abstraction has type $`\alpha\rightarrow\delta`. The context contains free $`\delta`, so the scheme for $`k` quantifies only $`\alpha`. The argument type can vary at the two calls; both results have the same type as $`y`. The whole term has type $`\delta\rightarrow\left( {\delta \times \delta} \right)`.
+
+If we generalized $`\delta` at the let, a caller could demand a Boolean result independently of the actual $`y`. For example imagine `λy. let k = λx. y in if k 0 then 1 else 2` applied to the number 7, using natural literals and the conditional from Chapter 17. The erroneous rule would accept this program by instantiating the local result type at Bool. Execution reaches a conditional with numeric guard 7. The correct rule propagates the Bool requirement back to $`y`, thereby rejecting the final application to 7.
+
+Solving the context before generalization matters when an outer type variable acquires new structure during inference. Consider `λf. let h = λx. f x in (h 0, h true)`. Give the lambda-bound `f` one unknown type `δ`. In the definition of `h`, give `x` type `α` and its application result type `β`. Solving that application forces `δ = α→β`. The solved right-hand side therefore has type `α→β`, and the solved context now contains `f:α→β`.
+
+Generalization must inspect that updated entry. Both `α` and `β` occur free in it, so neither can be generalized at `h`. The first call requires `α=Nat` and the second requires `α=Bool`; the constraints conflict. Computing context free variables from the *original* entry `f:δ` would miss both dependencies and could wrongly accept the pair. Operationally the function bound to `h` simply forwards its argument to the one supplied `f`. There is no opportunity in either call to replace that outer monomorphic function with a freshly chosen one. The solved context records exactly that fact before the body of the let is checked.
 
 # Exercises
 %%%
-tag := "ch23-s4"
+tag := "ch21-s4"
 number := false
 %%%
 
-1. Let $`U = \forall X.\left( {X\rightarrow X} \right)`. Type $`i\lbrack U\rbrack\, i` and compute its result under the given rules.
-2. Type the constant function `ΛX. ΛY. λx:X. λy:Y. x`. Show the type remaining after supplying only Nat for its first argument.
-3. Explain why an ordinary function application rule cannot by itself type $`i\left\lbrack \text{Bool} \right\rbrack`.
+1. In the two-call example, instantiate the scheme twice but accidentally give both lookups the same fresh variable. Identify the contradictory equations.
+2. Give the scheme for `λx. (x,y)` when $`y:\delta` is in the context. Can the two components change type independently when the bound function is reused?
+3. Show why a result equal to the actual value of $`y` can safely be returned twice at the same type.
 
-*Further problem.* In System F derive the type of `applyAt = ΛA. λk:(∀X.X→X). λa:A. k[A] a`. Compare `applyAt[Nat] i 0` and `applyAt i [Nat] 0`, understanding the second expression as first applying `applyAt` to term argument `i`.
+*Further problem.* Infer a scheme for `dup` in `let dup = λx. (x,x) in (dup 0, dup true)`. Could the body of the same definition typecheck at the purported scheme `∀α β. α→(α×β)`? Justify both answers from lookups.
 
 # Reading for the Seminar
 %%%
-tag := "ch23-s5"
+tag := "ch21-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Mark the type and term binders in the identity and identify the scope of each.
+*Definitions · 10 minutes.* List the free variables in the inferred right-side type and in the surrounding context.
 
-*Joint proof · 30 minutes.* Derive its universal type and calculate the two distinct substitutions in the application to zero. Require the group to write the type after each step.
+*Joint proof · 30 minutes.* Type the pair of identity uses, giving a different color to each instantiation. Then type the constant function returning the outer variable and recompute the generalization set.
 
-*Proof review · 20 minutes.* Try the polymorphic type argument of Exercise 1 and the capture example of §23.3.
+*Proof review · 20 minutes.* Use the numeric-guard example to refute generalization of every unknown. Identify the exact lost equality between the result and the captured variable.
 
-*Facilitator’s hint.* Look at the binder removed by a step. A capital lambda discharges a type parameter, so look inside term annotations when performing that substitution.
+*Facilitator’s hint.* At a lookup, copy only the variables following the quantifier. Circle the unquantified result variable before drawing either copy.
 
 # Solutions
 %%%
-tag := "ch23-s6"
+tag := "ch21-s6"
 number := false
 %%%
 
-*1.* The type application has type $`U\rightarrow U`. Its operand has type $`U`, so the whole term has type $`U`. First reduce the type application to $`\lambda x:U.x`, then apply it to $`i` to obtain $`i`.
+*1.* The left argument imposes $`\beta = \text{Nat}` and the right imposes $`\beta = \text{Bool}`. Independent instantiation avoids this accidental identification.
 
-*2.* Nested introduction yields $`\forall X.\forall Y.\left( {X\rightarrow\left( {Y\rightarrow X} \right)} \right)`. The first instantiation gives $`\forall Y.\left( {\text{Nat}\rightarrow\left( {Y\rightarrow\text{Nat}} \right)} \right)`. Choosing the second type and supplying the two term arguments are still pending.
+*2.* The scheme is $`\forall\alpha.\alpha\rightarrow\left( {\alpha \times \delta} \right)`. The first component follows the argument type at each call. The second remains tied to the context’s $`\delta`.
 
-*3.* That rule requires a term with an arrow type and a term argument. Here the premise is universal typing and the argument is the well-formed type Bool.
+*3.* Each call returns the same outer binding. If $`y:A`, each copy has type $`A`, and pair introduction permits product $`A \times A`. Quantification of the argument type of $`k` imposes no new requirement on $`A`.
 
-*Further problem.* Under the type assumption `A`, lookup assigns `k` the universal type and `a` the type `A`. Since `A` is well formed there, universal elimination gives `k[A]:A→A`. Term application gives `k[A] a:A`. Discharging `a`, then `k`, then the type parameter gives `∀A.(∀X.X→X)→A→A`; the outer type abstraction now has an empty term context. In the first expression, the type application yields `(∀X.X→X)→Nat→Nat`, the term application to `i` yields `Nat→Nat`, and the final term application yields Nat. Reducing the outer type redex changes the annotation on `a` and the type argument of `k` to Nat. Substitution of `i` and zero leaves `i[Nat] 0`, which returns zero. In the second expression the very first term application would require the outermost type of `applyAt` to be an arrow. It is a universal type, and the ordinary application rule cannot supply the missing type elimination.
+*Further problem.* Inside the lambda the term context supplies one monomorphic entry `x:γ`. Both projections of the proposed result are constructed by looking up this same variable, so the pair has type `γ×γ`. Abstraction gives `γ→(γ×γ)`; the empty outer context leaves `γ` available for generalization. The two lookups of `dup` in the let body may now instantiate the scheme independently. The first call yields `Nat×Nat`, and the second yields `Bool×Bool`, so the entire pair has type `(Nat×Nat)×(Bool×Bool)`. To check the purported stronger scheme, choose Nat for its first variable and Bool for its second. Its instance would return `Nat×Bool` on zero. In the lambda body, however, the right component is again precisely `x`, and lookup assigns it Nat. Instantiation may vary a quantified variable between separate uses of the *function*, but all occurrences of that variable in the type of one use receive one consistent replacement.

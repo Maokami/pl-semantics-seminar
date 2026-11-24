@@ -22,13 +22,31 @@
     main .math.inline { display: inline-block; max-width: 100%; overflow-x: auto; vertical-align: middle; }
   }
 }
-.course-toc ul {list-style:none; margin:0; padding:0}
+.course-toc {container-type:inline-size}
+.course-toc ul {
+  display:grid;
+  grid-template-columns:max-content minmax(0,1fr);
+  column-gap:.75em;
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.course-toc li, .course-toc li a {
+  display:grid;
+  grid-column:1 / -1;
+  grid-template-columns:subgrid;
+}
 .course-toc summary, .guide-link {display:block; padding:.45em .65em}
-.course-toc summary {display:list-item; cursor:pointer; font-weight:600}
-.course-toc li a {display:flex; gap:.65em; padding:.25em .5em; align-items:baseline}
-.course-toc .meeting-no {min-width:3em; color:#526578; font-size:.86em; white-space:nowrap}
+.course-toc summary {display:list-item; list-style-position:outside; margin-inline-start:1.55em; padding-inline-start:0; cursor:pointer; font-weight:600}
+.course-toc li a {padding:.28em .5em; align-items:baseline; line-height:1.35}
+.course-toc li a > :last-child {overflow-wrap:anywhere}
+.course-toc .meeting-no {color:#526578; font-size:.86em; white-space:nowrap}
 .course-toc [aria-current=page] {font-weight:bold; background:#eaf1f5}
 main .course-toc section {margin:1.6rem 0}
 main .course-toc section h3 {margin-bottom:.1rem}
 main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 #toc .course-toc {font-size:.93em}
+#toc .split-toc .title .current {text-decoration:none; font-weight:600}
+@container (max-width: 14rem) {
+  .course-toc li a {grid-template-columns:minmax(0,1fr)}
+}

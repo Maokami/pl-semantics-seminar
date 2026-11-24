@@ -23,7 +23,8 @@ from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 
-from editions import units
+from editions import chapter_link, units
+from seminar import chapter_slug
 
 ROOT = Path(__file__).resolve().parent
 TITLE = "Programming Languages"
@@ -207,7 +208,7 @@ def generate(site, chrome, ko=False):
     numbers = [n for *_, chapter_weeks in groups for n in chapter_weeks]
     filename = "pl-study-ko.pdf" if ko else "pl-study.pdf"
     book_title = "프로그래밍 언어 이론" if ko else TITLE
-    expected = [site / f"chapter-{i:02}/index.html" for i in numbers]
+    expected = [site / chapter_link(i) for i in numbers]
     if missing := [str(f) for f in expected if not f.is_file()]:
         raise SystemExit(f"Generate the complete Verso site first. Missing {missing[0]}")
     with TemporaryDirectory(dir=site, prefix=".print-") as scratch, serve(site) as base, sync_playwright() as api:
@@ -234,7 +235,7 @@ def generate(site, chrome, ko=False):
         chapters, articles = [], []
         next_page = 3 if ko else 4  # cover and one or two contents pages
         for number in numbers:
-            page.goto(f"{base}/chapter-{number:02}/", wait_until="load")
+            page.goto(f"{base}/{chapter_link(number)}", wait_until="load")
             title = page.evaluate(EXTRACT, [number, ko])
             page.add_style_tag(content=css)
             page.evaluate(FIT)
@@ -245,7 +246,7 @@ def generate(site, chrome, ko=False):
             pages = len(PdfReader(io.BytesIO(pdf)).pages)
             chapters.append((number, title, next_page))
             next_page += pages
-            (directory / f"chapter-{number:02}.pdf").write_bytes(pdf)
+            (directory / f"{chapter_slug(number)}.pdf").write_bytes(pdf)
             articles.append(page.locator(".print-chapter").evaluate("el => el.outerHTML"))
             print(f"{number:02} {title}: {pages} pages", flush=True)
         # Use the already typeset chapter bodies and the same local KaTeX styles.

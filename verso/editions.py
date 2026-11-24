@@ -3,7 +3,7 @@ import html
 import re
 from pathlib import Path
 
-from seminar import study_groups
+from seminar import chapter_slug, study_groups
 
 ROOT = Path(__file__).resolve().parent
 EN_UNITS = [
@@ -34,7 +34,7 @@ def titles(ko):
 
 
 def chapter_link(n):
-    return f'chapter-{n:02}/index.html'
+    return f'{chapter_slug(n)}/index.html'
 
 
 def reader_buttons(page, current, order, names):
@@ -78,14 +78,14 @@ def update_pages(site, ko=False):
     groups = list(units(ko))
     names = titles(ko)
     order = [n for *_, chapters in groups for n in chapters]
+    by_slug = {chapter_slug(n): n for n in order}
     for p in [site/'index.html', *site.glob('*/index.html')]:
         if p.parent.parent == site and p.parent.name == 'ko':
             continue
         s = p.read_text()
         if 'split-toc book' not in s:
             continue
-        m = re.fullmatch(r'chapter-(\d+)', p.parent.name)
-        ch = int(m[1]) if m else None
+        ch = by_slug.get(p.parent.name)
         guide = '../seminar/index.html' if ko else 'seminar/index.html'
         guide_label = '42회 읽기 일정' if ko else 'Reading schedule (Korean)'
         more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'

@@ -3,131 +3,121 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Typechecking Annotated Terms" =>
+#doc (Manual) "Progress and Preservation for Functions" =>
 %%%
-tag := "ch19"
-file := "chapter-19"
-%%%
-
-[Chapter PDF](print/chapter-19.pdf) · [Session 21](seminar/index.html#week-21)
-
-The parameter annotation in `(λx:Nat. x) 0` settles a question before the checker visits the body. It tells us what to return at the lookup of $`x`. By following the shape of each term, the checker can either construct its unique type or exhibit a failed premise.
-
-*Sources.* Pierce, _Types and Programming Languages_, chapter 10, especially §10.3, starting p. 115. Identify the cases for variable, abstraction and application in the ML implementation. Our checker uses a named finite map for the context and adds natural and Boolean constants. [Pierce, chapter 10.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Inputs and outputs
-%%%
-tag := "ch19-s1"
+tag := "ch18"
+file := "chapter-18"
 %%%
 
-Types are finite trees formed from Nat, Bool and the binary arrow constructor. Terms are variables, literals `0` and `true`, applications and lambdas with a parameter type. Annotations must themselves be well-formed types. A context maps names to types; an inner binding shadows its outer namesake. An output is either a type or an error. Equality testing on types compares base constructors and recursively compares the domain and codomain of arrows. Distinct base constructors are unequal.
+[Chapter PDF](print/chapter-18.pdf) · [Session 19](seminar/index.html#week-19)
 
-The declarative rules are those of Chapter 17 with the two literal axioms. At an application, the premises must have types $`A\rightarrow B` and $`A` for the same $`A`. The checker below obtains $`A` by visiting the operator.
+The application of a function to a value disappears in a single beta step. Before that step its type follows from an application rule. Afterwards the result may be a variable, another application, or an abstraction. The substitution theorem lets us transport a typing derivation across this change of syntax.
 
-```
-check(Γ, x)       = look up x in Γ, or report an unbound name
-check(Γ, 0)       = Nat
-check(Γ, true)    = Bool
-check(Γ, λx:A.b)  = A → check(Γ[x ↦ A], b)
-check(Γ, f a)     = inspect check(Γ, f)
-    if it is A → B, require check(Γ, a) = A and return B
-    otherwise report an invalid operator
-```
+*Sources.* Pierce, _Types and Programming Languages_, §9.3, pp. 104–107. Use the substitution result of Chapter 18. The shared proof is preservation for beta reduction, followed by progress at application. [Pierce, properties of typing.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-Any failing recursive call propagates its error. A failed domain equality reports an argument-type error. Termination follows from recursion on proper subterms and the finite comparison of type trees.
-
-Structural type comparison is needed even when a caller never supplies an explicit type argument. Consider an operator whose parameter annotation is `(Nat→Bool)→Nat`. A suitable operand may itself be an abstraction, so its computed type will be another constructed tree. Comparing merely the outer arrow constructor would accept both `(Nat→Bool)→Nat` and `(Bool→Nat)→Nat`. Descend first into the domains. Both are arrows; descend again to their domains, which are Nat in the first tree and Bool in the second. This single mismatch makes the entire equality false. Equality of the result branches, both Nat, cannot repair it.
-
-An error can consequently be located quite precisely: the checker has already synthesized a type for each subterm, and the first mismatching path in their types points to the premise which cannot be satisfied. This chapter's decidable test depends on its type grammar. With aliases that abbreviate other types, an implementation would need a specified policy for expansion before comparison. With subtyping, the application premise itself changes. The exact structural equality described here is justified by the current typing rules and by the absence of such additional equations or conversion rules.
-
-# A trace and its derivation
+# The closed call-by-value calculus
 %%%
-tag := "ch19-s2"
+tag := "ch18-s1"
 %%%
 
-Start with the empty context. In the operator `λx:Nat. x`, the recursive body call sees $`x:\text{Nat}` and returns Nat. Abstraction returns
+Use Chapter 18’s variables, annotated abstractions and applications. Include a base type Unit and a constant `unit` with that type. A value is the unit constant or an abstraction. A term is closed if it has no free variables. The expression $`\Gamma \vdash t:T` has the typing rules of Chapter 18. The empty context is written $`\varnothing`.
 
-$$`\text{Nat}\rightarrow\text{Nat}`
+The evaluation rules are weak and left-to-right as in Chapter 15. A step under the operator of an application always propagates. When the operator is a value a step of the argument propagates. Finally $`\left( {\lambda x:A.b} \right)\, v\rightarrow b\left\lbrack {v/x} \right\rbrack` for a value $`v`. An abstraction does not step under its binder. The typing rules inspect the body even though evaluation stops at an abstraction.
 
-. The literal argument returns Nat. The domain comparison succeeds, so the entire application returns Nat.
+*Inversion for applications.* Any derivation typing $`f\, a` at $`T` ends with application, since every other rule has another outer constructor. Its premises therefore give some $`A` with $`f:A\rightarrow T` and $`a:A` in the same context. A derivation of $`\lambda x:A.b` at $`A\rightarrow T` in turn has a body premise at $`T` under $`x:A`. Function types are syntax trees, so equality of two arrow types gives equality of their domains and of their codomains.
 
-Read the same computation from the leaves as a proof. The variable premise under $`x:\text{Nat}` yields $`x:\text{Nat}`. Discharge that assumption using abstraction to type the operator. Use the zero axiom under the empty context to type the operand, then combine these two premises using application. This reconstruction explains what the returned type certifies.
+A typing derivation can inspect code that evaluation never reaches. Let the operator be `λf:Unit→Unit. unit`, and try supplying `λz:Unit. z unit`. Both expressions are values according to weak evaluation. The untyped beta rule could therefore return unit immediately. Typing the operand, however, first requires a derivation for `z unit` under `z:Unit`. Inversion of application demands an arrow type for `z`, whereas the only possible lookup returns Unit. The operand fails before any comparison of the two sides of the outer application. The typing derivation must account for the delayed body even when this particular caller discards it.
 
-Trace a term containing a genuinely free name before closing it with a lambda. In the context `u:Bool`, check `(λk:Bool→Nat. k u) (λz:Bool. 0)`. On the operator side, the checker extends the context with `k:Bool→Nat`. The inner application requires two successful lookups. The operator lookup returns `Bool→Nat`; the lookup of `u` returns Bool from the outer context. Their domain comparison succeeds, so the body returns Nat. Discharging the parameter makes the outer operator's synthesized type `(Bool→Nat)→Nat`.
+Now replace the operand with `λz:Unit. z`. Its body has a one-leaf typing derivation, and abstraction yields precisely the domain required by the operator. The two applications have the same immediate dynamic result, but only the latter falls within the hypothesis of type safety. This shows the direction of the guarantee: a successful derivation rules out a reachable stuck term. One successful execution on concrete inputs is insufficient evidence for typability, because other paths through the syntax may still have impossible premises.
 
-The right operand is checked in the original context containing `u`. Under the local binding `z:Bool`, the zero literal synthesizes Nat. The lambda therefore synthesizes `Bool→Nat`, which matches the outer operator's domain exactly. The complete expression receives Nat. Replacing the inner operand `u` by the literal zero would instead fail the *inner* comparison, before an outer operator type could be returned. Drawing the derivation tree makes the difference between these two application nodes visible. Writing down only the final error message would hide the scope in which the failed type equality was required.
+# Preservation
+%%%
+tag := "ch18-s2"
+%%%
 
-This executable fragment uses a list of parameter types as a context. Variable zero names the most recent binder. The checker either returns a type or returns `none` for an absent binding, a nonfunction operator, or an incompatible operand. The examples exercise the application and lookup branches, including an operator whose result differs from its domain.
+*Theorem 19.1.* If $`\Gamma \vdash t:T` and $`t\rightarrow t'`, then $`\Gamma \vdash t':T`. Induct on the step derivation, considering any typing of its source.
+
+In an operator step invert the application typing to obtain $`f:A\rightarrow T` and $`a:A`. Apply the induction hypothesis at the *function* type to type the new operator. Reuse the old argument typing and rebuild application. In an operand step the operator retains its type and the induction hypothesis now applies at the *domain* type. Rebuilding yields the same result type.
+
+For beta, invert the source typing twice. The outer inversion supplies an argument type $`C`, an abstraction typing at $`C\rightarrow T`, and a typing for $`v:C`. The abstraction inversion identifies $`C = A` and types $`b:T` in $`\Gamma,x:A`, renaming $`x` fresh as needed. Substitute $`v` by Theorem 18.2 to obtain $`\Gamma \vdash b\left\lbrack {v/x} \right\rbrack:T`, exactly the target typing. The value restriction chooses when reduction is allowed. The substitution theorem itself also accepts well-typed arguments that are still computations.
+
+For a beta step whose result is itself an abstraction, take `(λf:Unit→Unit. λy:Unit. f y) (λz:Unit. z)`. Its result type is `Unit→Unit`. Recover the particular premises needed for substitution. The left-hand abstraction was typed by first deriving $`f:\mathrm{Unit}\to\mathrm{Unit} \vdash \lambda y:\mathrm{Unit}.\,f\,y : \mathrm{Unit}\to\mathrm{Unit}`. The right-hand abstraction has a derivation in the empty context at `Unit→Unit`. In the substitution theorem of Chapter 18, set the distinguished variable to `f`, the parameter type to `Unit→Unit`, the source term to `λy:Unit. f y`, and the replacement to `λz:Unit. z`. Its conclusion types `λy:Unit. (λz:Unit. z) y` in the empty context at the original result type. Descending through the binder `y` uses the weakening established in that chapter.
+
+The resulting expression is already a value in this weak semantics. Its body contains a redex which will become available when a caller supplies an argument. Preservation relates the types across the one step just taken, irrespective of whether the result is canonical or contains further redexes. A proof appealing to equality of the printed source and target syntax would fail even on this example, since substitution introduced an application beneath the result's lambda.
+
+# Progress
+%%%
+tag := "ch18-s3"
+%%%
+
+*Canonical forms for arrows.* A closed value typed at $`A\rightarrow B` is an abstraction. Inspect the two value forms. The constant has only type Unit; an abstraction is the sole remaining form.
+
+*Theorem 19.2.* If $`\varnothing \vdash t:T`, then $`t` is a value or $`t` takes a step. Induct on typing, restricted to closed inputs. Variables cannot be typed by lookup in the empty context. Unit and lambda are values. For an application $`f\, a`, first use progress on $`f`. An operator step lifts. Otherwise $`f` has arrow type by inversion and is a value, so canonical forms makes it an abstraction. Now use progress on $`a`. A step of $`a` lifts, and a value $`a` enables beta. The source is closed, so the subterms of an application are closed, as required. No induction hypothesis on the open body of an abstraction is used.
+
+Together, the theorems exclude reaching a stuck term in finitely many steps from a well-typed closed term. Apply preservation along the prefix and progress at its end. Proving that every evaluation is finite would require an additional argument.
+
+Exactly where does the empty context enter the application proof? At the top application the operator and operand both inherit the typing context unchanged. When it is empty we can invoke closed progress on either typing premise. Inside an abstraction the premise has a new variable assumption, so it cannot receive the same hypothesis. Since the outer abstraction is already a value, that recursive result is unnecessary. Thus a formal induction proof can generalize the context and state that progress follows *if the context is empty*. This produces an impossible equality with the empty map when it encounters a supposed variable lookup.
+
+To see what fails when the hypothesis is weakened to an arbitrary well-formed context, give `f` type `Unit→Unit` and consider `f unit`. Its typing derivation is complete, yet its operator cannot take a step and cannot be recognized as an abstraction. Filling the environment by a closed substitution assigning `λz:Unit. z` to `f` changes the question. The closed instance can now reduce to unit. Thus it would also be possible to formulate progress for closed *instances* of open typed terms. That formulation requires evidence associating each free name with a suitable closed term.
+
+We can factor the final safety argument away from the syntax. Fix a type and let the predicate `Typed` mean closed typing at that type. A finite execution is either empty or one step followed by a finite execution. The Lean proof carries typing across its first step before invoking induction on the remaining steps. Only at the endpoint does it use progress. Instantiating the two hypotheses with this chapter's theorems gives safety for this calculus.
 
 ```lean
-namespace CheckingTerms
-inductive Ty where
-  | nat | bool | arr (a b : Ty)
-  deriving DecidableEq
+namespace SafePrefixes
+inductive Runs {α : Type} (step : α → α → Prop) : α → α → Prop where
+  | refl (a) : Runs step a a
+  | cons {a b c} : step a b → Runs step b c → Runs step a c
 
-inductive Exp where
-  | var (i : Nat) | zero | yes | lam (a : Ty) (body : Exp) | app (f x : Exp)
-
-def check (Γ : List Ty) : Exp → Option Ty
-  | .var i => Γ[i]?
-  | .zero => some .nat
-  | .yes => some .bool
-  | .lam a body => (check (a :: Γ) body).map (.arr a)
-  | .app f x => do
-    let .arr a b ← check Γ f | none
-    let c ← check Γ x
-    if a = c then some b else none
-
-example : check [] (.app (.lam .nat .yes) .zero) = some .bool := rfl
-example : check [] (.app (.lam .nat .yes) .yes) = none := rfl
-example : check [] (.lam .nat (.lam .bool (.var 1))) =
-    some (.arr .nat (.arr .bool .nat)) := rfl
-end CheckingTerms
+theorem endpoint {α : Type} {step : α → α → Prop}
+    {Typed Value : α → Prop}
+    (pres : ∀ {a b}, Typed a → step a b → Typed b)
+    (prog : ∀ {a}, Typed a → Value a ∨ ∃ b, step a b)
+    {a b} (path : Runs step a b) (start : Typed a) :
+    Value b ∨ ∃ c, step b c := by
+  induction path with
+  | refl => exact prog start
+  | cons first _ ih => exact ih (pres start first)
+end SafePrefixes
 ```
 
-# Correctness of the checker
-%%%
-tag := "ch19-s3"
-%%%
-
-*Theorem 19.1.* For every well-formed input context and term, the checker returns $`T` exactly when $`\Gamma \vdash t:T`. For soundness induct on the term with a successful output. Variable success means the lookup premise holds, and each literal return matches its axiom. At abstraction, recursive success types the body at the returned codomain in the extended context. Discharge the binding. At application success entails an operator return $`A\rightarrow T` and an argument return $`A`. By induction these are precisely the premises of application.
-
-For completeness induct on the typing derivation. A variable lookup or literal axiom determines the same output. For abstraction the induction hypothesis computes the body’s type, so the checker constructs the conclusion arrow. In an application derivation its two premises already fix results $`A\rightarrow T` and $`A`; by induction both recursive calls return these types. Structural equality therefore succeeds and the result is $`T`. As a consequence a reported error entails that there is no typing derivation, and two derivations for the same inputs have the same result type. Both conclusions rely on having only the rules listed in §19.1.
-
-One useful consequence of the equivalence is a principled account of negative answers. Suppose the checker rejects `f a` because it computes Nat for `f`. Assume for contradiction there is a typing derivation of the whole application. Its last rule supplies some types `A,B` and a premise typing `f` at `A→B`. Completeness applied to that premise says the same checker call returns `A→B`. A deterministic computation on a fixed input cannot return both Nat and an arrow, so the assumed derivation is impossible. This argument needs completeness: soundness alone would only explain why already accepted inputs have derivations.
-
-Conversely, returning an arbitrary accepted type at every leaf could make a checker permissive while destroying soundness. At an abstraction one can see precisely what the soundness hypothesis must quantify over. The recursive body call runs under an extended context. Therefore structural induction on terms should keep the context and claimed output universally quantified. Fixing an empty context before induction would produce a body hypothesis about an input the algorithm never uses. The annotation at the lambda determines the extension, and the generalized hypothesis then turns that particular successful call into the body typing needed by the abstraction rule.
+*Safety and normalization.* In the pure simply typed language without general recursion, every closed well-typed term evaluates to a value. This normalization result requires an additional proof (Pierce §12.1). Progress supplies a next step for a nonvalue, and preservation lets the next state take another step; neither bounds the number of steps. In Chapter 28 we will add a typed fixed-point operator and see precisely which conclusion fails.
 
 # Exercises
 %%%
-tag := "ch19-s4"
+tag := "ch18-s4"
 number := false
 %%%
 
-1. Trace `(λx:Nat. x) true` through the first failing test. Can a different final typing rule save it?
-2. Determine the type of `λx:Nat. λx:Bool. x`. Which context is needed for the innermost lookup?
-3. Extend the checker to the conditional of Chapter 16. Which induction hypotheses suffice for soundness in the new case?
+1. Assign a type to `(λf:Unit→Unit. f unit) (λz:Unit. z)` and derive both reductions. State the result type after each step.
+2. Give an open well-typed application that is not a value and cannot step. Identify the precise use of closedness it evades.
+3. If a new constant `bad` of type $`A\rightarrow B` were declared a value with no application rule, which line of progress would fail?
 
-*Further problem.* Suppose a checker for the annotated fragment returns the operator's *domain* whenever an application's domain comparison succeeds. Find a closed term on which it returns an incorrect type. Would tests using only applications of identity functions find the error?
+*Further problem.* Extend the language with a closed constant `loop:Unit`. Keep the original values and add `loop → loop`. Check preservation and progress, then give a closed, well-typed application whose unique evaluation runs forever under the left-to-right call-by-value rules.
 
 # Reading for the Seminar
 %%%
-tag := "ch19-s5"
+tag := "ch18-s5"
 number := false
 %%%
 
-*Session 21 · With Chapter 20.* Start with `(λx:Nat. x) 0`. Under the binder, lookup gives the body type Nat. The abstraction therefore has type Nat → Nat, and the argument has precisely its domain type. Write the three typing rules beside the corresponding checker calls. Spend the first 20 minutes on this annotated term, then continue with the same syntax after erasing its annotation in Chapter 20.
+*Definitions · 10 minutes.* Copy the operational beta rule and the two relevant typing rules. Keep the rule conclusions visible.
+
+*Joint proof · 30 minutes.* Start from the typing of a beta redex at an unknown result type. Recover two premises, identify its domain, and instantiate Theorem 18.2 explicitly.
+
+*Proof review · 20 minutes.* Prove progress for an application, then add the constant in Exercise 3 and show exactly where a new case is required.
+
+*Facilitator’s hint.* Ask which theorem provides a typing for the *substituted body*. Inversion only types the original body under an extra assumption.
 
 # Solutions
 %%%
-tag := "ch19-s6"
+tag := "ch18-s6"
 number := false
 %%%
 
-*1.* The operator returns Nat to Nat. The argument returns Bool, so comparison with Nat fails. Only application could type the whole syntax; its premises cannot be obtained at a common domain.
+*1.* The argument has type Unit to Unit, and the operator takes such a function and returns Unit. The first step gives `(λz:Unit. z) unit`, the second gives `unit`. Each whole term has type Unit.
 
-*2.* The innermost lookup sees Bool. The result type is Nat to (Bool to Bool). The two assumptions can equivalently be given distinct fresh binder names.
+*2.* In a context containing $`f:\text{Unit}\rightarrow\text{Unit}` the term `f unit` has type Unit. Its free operator is neither a value nor reducible. Closed progress would have excluded the operator variable case.
 
-*3.* Require the guard call to return Bool, compute both branch types, and return their common type when equal. The three induction hypotheses supply the guard derivation at Bool and both branch derivations at that common type.
+*3.* The canonical forms lemma for arrows is now false. Applying `bad` to a closed value of its domain gives a well-typed stuck term whenever such a value exists.
 
-*Further problem.* Use `(λx:Nat. true) 0`. Under `x:Nat` the checker returns Bool for the body, hence `Nat→Bool` for the abstraction. It returns Nat for the literal zero. Domain comparison succeeds, but the faulty rule now returns Nat. Inverting any declarative application typing instead requires an operator type `C→T` and an operand type `C`. Inverting the abstraction fixes `C` at Nat from the annotation and `T` at Bool from the body. The alleged typing at Nat is therefore impossible. This is a failure of soundness for accepted type *assignments* even though acceptance of this particular term at some type was appropriate. An identity application always has an operator type of the shape `A→A`. Both the correct and defective return choices then equal `A`, irrespective of how elaborate the type `A` itself is. A test needs differing domains and codomains to separate those two implementations.
+*Further problem.* The constant's only typing assigns Unit, and the target of its new rule is the very same term, so its typing derivation can be reused. The two application congruence cases still rebuild the typing from their induction hypotheses. The beta case still follows from substitution; adding the constant gives substitution one more immediate case since it contains no variables. For progress the new typing case supplies the displayed self-step. The constant is a nonvalue, so canonical forms for closed values of arrow type is unchanged. Take `(λu:Unit. unit) loop`. The body constant has type Unit in the extended context, hence the operator has type `Unit→Unit`; the operand has type Unit and application yields Unit. The sole eligible step evaluates the operand, leaving the same application. Induction on the length of any finite execution shows the program is still that nonvalue application at its end. Thus all of these preservation and progress checks are compatible with divergence.

@@ -13,7 +13,7 @@ file := "chapter-27"
 
 A recursive definition can give an answer at input zero before it gives one at input one. Each finite approximation is already a function on the entire input domain. To pass from approximants to the recursive function we must specify how to compare functions and which properties survive their limit.
 
-*Sources.* Cambridge _Denotational Semantics_, lecture 3 and notes §§3.3, 4.1–4.3. Read the function-space construction and the hypotheses of Scott induction. Connect the chain of functions below with Chapter 8’s loop approximants. [Lecture 3.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Lecture3.pdf) [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
+*Sources.* Cambridge _Denotational Semantics_, lecture 3 and notes §§3.3, 4.1–4.3. Read the function-space construction and the hypotheses of Scott induction. Connect the chain of functions below with Chapter 9’s loop approximants. [Lecture 3.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Lecture3.pdf) [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 # Pointwise order
 %%%
@@ -35,7 +35,7 @@ tag := "ch27-s2"
 
 Take the flat natural domain, obtained by placing bottom below each natural and leaving distinct naturals incomparable. Define $`f_{n}` to return zero on natural inputs $`k < n` and bottom everywhere else, including at bottom. These strict maps are continuous because an increasing chain in a flat domain either stays bottom or stabilizes at its first ordinary value. At input two we see bottom at stages zero, one, two and zero as the *result* at stage three. At input bottom the result is always bottom. The pointwise limit returns zero on every ordinary input. There is no finite stage that supplies all these answers simultaneously.
 
-One can generate the chain with a continuous operator $`F` on functions: its output is bottom at bottom, zero at input zero, and $`f(k)` at input $`k + 1`. It preserves chain bounds by inspecting each input separately. With $`f_{0}` constantly bottom we have $`f_{n + 1} = F\left( f_{n} \right)`. Its limit is the least fixed point by the argument of Chapter 8.
+One can generate the chain with a continuous operator $`F` on functions: its output is bottom at bottom, zero at input zero, and $`f(k)` at input $`k + 1`. It preserves chain bounds by inspecting each input separately. With $`f_{0}` constantly bottom we have $`f_{n + 1} = F\left( f_{n} \right)`. Its limit is the least fixed point by the argument of Chapter 9.
 
 Changing a single line of the recurrence clarifies how semantic approximations depend on evaluation of an argument. Keep the zero and successor clauses but let the output at bottom be zero. A monotone function on a flat domain that sends bottom to the ordinary value zero must send *every* input to zero. Indeed bottom lies below every natural input, so monotonicity places zero below that input's output, and the only element above zero in the flat order is zero. At an early stage the proposed recurrence also sends some successor to bottom. These two demands conflict. Checking the bottom clause is part of checking that the construction even returns a function in the specified domain.
 

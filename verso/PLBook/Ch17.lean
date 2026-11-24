@@ -3,161 +3,111 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Weakening and Typed Substitution" =>
+#doc (Manual) "Type Safety for Arithmetic Expressions" =>
 %%%
-tag := "ch17"
-file := "chapter-17"
-%%%
-
-[Chapter PDF](print/chapter-17.pdf) · [Session 18](seminar/index.html#week-18)
-
-To run a function we substitute an argument into its body. Typing knows the body under an assumption about the parameter. Once the parameter disappears, we need a typing derivation for the substituted body in the caller’s context. The only delicate step is passing beneath another binder.
-
-*Sources.* Pierce, _Types and Programming Languages_, §§9.1–9.3, pp. 99–107. Read the application and abstraction rules before the substitution lemma. We use finite maps of names and prove the version admitting an open substituting term. [Pierce, chapter 9.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Contexts and typing
-%%%
-tag := "ch17-s1"
+tag := "ch16"
+file := "chapter-16"
 %%%
 
-In the simply typed lambda calculus, a type is a base type or a function type $`A\rightarrow B`. The latter associates to the right. A term is a variable, a typed abstraction $`\lambda x:A.b`, or an application $`f\, a`. We may include a constant of a specified base type. A typing context $`\Gamma` is a finite mapping from distinct names to types. Write $`\Gamma,x:A` for extension by a fresh name. Terms are considered up to consistent renaming of bound variables (Chapter 13).
+[Chapter PDF](print/chapter-16.pdf) · [Session 17](seminar/index.html#week-17)
 
-The judgment $`\Gamma \vdash t:A` assigns type $`A` to $`t` under those assumptions. A lookup $`\Gamma(x) = A` types a variable. If $`\Gamma,x:A \vdash b:B`, then $`\Gamma \vdash \left( {\lambda x:A.b} \right):A\rightarrow B`. If $`\Gamma \vdash f:A\rightarrow B` and $`\Gamma \vdash a:A`, then $`\Gamma \vdash f\, a:B`. A declared constant keeps its type under every context. A free variable of any typable term occurs in the context: induction on typing passes to the two children at application and removes the local parameter at abstraction.
+The term `if 0 then true else false` is closed. Its guard is already a numeral, yet neither conditional reduction rule selects a branch. A type system can exclude such a stuck computation before evaluation begins. We now use Pierce’s language of natural numbers and Booleans; the state and signed integers of Chapter 1 play no role.
 
-Consider the judgment for `λf:A→B. λx:A. f x`. Start at the two leaves of the typing tree. Both occur in the context containing `f:A→B` and `x:A`. One lookup justifies the occurrence of the function and the other justifies the occurrence of its argument. Application combines these judgments in their common context to give `f x : B`. Introducing the inner abstraction discharges the assumption about `x`, giving $`f:A\to B \vdash \lambda x:A.\, f\,x : A\to B`. Introducing the outer abstraction discharges the remaining assumption. The closed result has type `(A→B)→(A→B)`.
+*Sources.* Pierce, _Types and Programming Languages_, chapter 8, especially §§8.2–8.3, pp. 92–98. Read the canonical forms lemma and reconstruct the conditional case of progress. The evaluation rules are in §3.5. [Book and section numbers.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-Read the same tree downwards from its conclusion. The inner lambda introduced the assumption about `x`, so that assumption is available at both lookup leaves, even though the leaf for `f` never uses it. Consequently a typing judgment does not assert that all names in its context occur in the term. It asserts that the context supplies a consistent type for every lookup the derivation actually performs. For instance, a judgment about the open subterm `f x` needs both assumptions. Removing either one destroys a leaf of this derivation. Adding a third, fresh binding preserves both leaves. This is the distinction the weakening lemma makes precise.
-
-# Weakening
+# Terms, values and steps
 %%%
-tag := "ch17-s2"
+tag := "ch16-s1"
 %%%
 
-Say $`\Gamma \subseteq \Delta` if every name in $`\Gamma` has the same binding in $`\Delta`. *Lemma 17.1.* If $`\Gamma \vdash t:A` and $`\Gamma \subseteq \Delta`, then $`\Delta \vdash t:A`. Induct on the typing derivation, allowing any such $`\Delta`. A variable keeps its lookup. At a constant the rule works in any context. At an application use both induction hypotheses and reapply the application rule. At an abstraction rename its parameter to $`z` fresh for both contexts and the body’s other names. Then $`\Gamma,z:C \subseteq \Delta,z:C`. The induction hypothesis types the body under the larger extended context, and abstraction discharges $`z:C`.
+Terms are `true`, `false`, `0`, `succ t`, `pred t`, `iszero t`, and `if g then a else b`. A *numeric value* is zero or the successor of a numeric value. The values are the numeric values and the two Boolean constants. For example `succ (pred 0)` is a term, and its argument must still step before it becomes a value.
 
-The renaming convention used here can itself be justified by relabeling a derivation: consistently replace a binder and its bound variable lookups by the fresh name, copy each unaffected lookup, and reconstruct the same application and abstraction rules. Freshness prevents any formerly distinct lookup from changing its target.
+A conditional steps its guard if possible; a true guard selects the first branch and a false guard selects the second. Each unary operation steps its operand if that operand steps. The remaining computation rules send `pred 0` to zero and `pred (succ nv)` to the numeric value `nv`. Similarly `iszero 0` returns true and `iszero (succ nv)` returns false. Successor applied to a numeric value is already a value. Write $`t\rightarrow t'` for one such step. A term is *stuck* when it is neither a value nor able to step.
 
-In the abstraction case of weakening, choosing a fresh name sometimes requires changing the displayed derivation. For example, start from the empty-context typing of `λy:A. y` and weaken it into the context containing `y:B`, where `A` and `B` are distinct. The premise of the original abstraction rule types its body in the one-entry context `y:A`. If we attempt to add `y:A` directly to the target context, the new entry collides with `y:B`. A finite map cannot extend both contexts by this key while retaining their original bindings.
+The definition of a numeric value has a premise all the way down its spine. Inspect `pred (succ (if true then 0 else succ 0))`. To use the computation rule for predecessor immediately, its operand would have to be the successor of a numeric value. The conditional inside the successor is still a computation. First the conditional selects zero. The successor propagation rule lifts that step over the surrounding successor, and the predecessor propagation rule lifts the result over the outer predecessor. These three rule applications justify one step of the complete term, to `pred (succ 0)`. Now the predecessor computation rule returns zero in one further step. Counting the nodes in the proof of one step and counting steps of execution answer different questions.
 
-Choose `z` fresh and use the representative `λz:A. z` of the original abstraction. Its premise uses the context `z:A`. The new premise requires `y:B, z:A`, which genuinely extends `z:A`. Apply the induction hypothesis to the lookup of `z` and discharge `z:A` again. This leaves precisely `y:B` in the conclusion. There are two different uses of the variable convention in this argument. Renaming transports a derivation to an alpha-equivalent term. Inclusion transports the new body judgment to a larger map without changing its term. Keeping these steps distinct also explains why context inclusion compares the types as well as the presence of keys.
+By comparison, `pred (succ false)` admits no such path. The inner Boolean already is a value, so it cannot step. The successor fails the definition of a numeric value because its child is false. Thus the outer computation rule and both possible propagation attempts fail. The syntax still contains a predecessor immediately above a successor. The numeric-value premise is what rules out cancelling them here.
 
-# Substitution in context
+# Typing and canonical forms
 %%%
-tag := "ch17-s3"
+tag := "ch16-s2"
 %%%
 
-*Theorem 17.2.* If $`\Gamma,x:A \vdash t:B` and $`\Gamma \vdash u:A`, then $`\Gamma \vdash t\left\lbrack {u/x} \right\rbrack:B`. Here $`x` is fresh for $`\Gamma` and substitution avoids capture. We induct on the first typing derivation, with the context and substituting term universally quantified.
+There are two types, Bool and Nat. The judgment $`t:A` holds when the following rules yield it. The Boolean constants have type Bool, and zero has type Nat. Successor and predecessor take Nat and return Nat. The zero test takes Nat and returns Bool. For a conditional the guard must have type Bool and both branches must have the same type $`A`; the result type is $`A`. Each rule constrains every syntactic child even when only one branch will run.
 
-At a variable $`y = x`, the result term is $`u` and the desired judgment is the second premise. For $`y \neq x` the original lookup already belongs to $`\Gamma`. Constants remain typed by their declarations. At application substitute independently in the two premises, retaining the original domain type, and reassemble the application.
+*Lemma 17.1 (Canonical forms).* A value of type Bool is true or false. A value of type Nat is a numeric value. For the first claim inspect the possible values. Zero can have only Nat from its typing rule, and a successor can have only Nat. This leaves the two Boolean forms. For the second claim the two Boolean forms are excluded by the same inspection. What remains is numeric by the definition of a value. The value hypothesis matters: `iszero 0` has type Bool and is neither Boolean constant.
 
-At an abstraction choose a representative $`\lambda z:C.b` with $`z` fresh for $`\Gamma,x,u` and the body’s other names. Inverting typing gives the body judgment in $`\Gamma,x:A,z:C`. Since contexts are maps with distinct keys we may present the same map as $`\Gamma,z:C,x:A`. Weakening types $`u:A` in $`\Gamma,z:C`. Instantiate the induction hypothesis with this extended context. It gives
+The canonical forms argument combines information obtained by looking at two different derivations. A value derivation certifies that the inspected term belongs to one of a small number of syntactic classes. A typing derivation identifies which of those classes remain possible. For the conditional guard, knowing its type alone leaves possibilities such as `iszero (pred 0)`, whose first step must take place inside the guard. Knowing only that it is a value also leaves `succ 0`, which cannot select a branch. Meeting the two hypotheses together leaves exactly the information needed for a computation rule.
 
-$$`\Gamma,z:C \vdash b\left\lbrack {u/x} \right\rbrack:D.`
-
-Abstraction now gives the required type $`C\rightarrow D` in $`\Gamma`. The precise need for weakening is visible here: the body derivation and the argument derivation must agree on what remains in scope after removing $`x`.
-
-Here is an instance in which the argument genuinely needs an outer assumption. Let `Γ` consist of `y:B` and `f:B→A`. Take the substituting expression to be `f y`. It has type `A` by two lookups and application. Under the extra assumption `x:A` the source body `λz:C. x` has type `C→A`. To substitute under its lambda, the induction hypothesis requests a derivation of $`\Gamma,z:C \vdash f\,y : A`. The derivation in hand concludes $`\Gamma \vdash f\,y : A`. Weakening transports both lookups to the larger map and preserves the application that joins them. Substitution in the variable body then yields $`\Gamma,z:C \vdash f\,y : A`. Discharging the binder produces $`\Gamma \vdash \lambda z:C.\,f\,y : C\to A`. A proof restricted to closed arguments could never use this example.
-
-The Lean development below encodes each variable occurrence by a path to its binder. A path carries its type: `here` selects the newest entry and `there` passes over one entry. A term of type `Term Γ a` therefore contains evidence of its context and type in its constructors. A renaming maps each path to a path with the same type. A simultaneous substitution maps each path to a term of the same type. In `liftSub`, the new binder maps to itself. Every older variable maps to an expression which must now be weakened under that binder. This is the precise argument supplied by the named weakening lemma in the paper proof. The last declaration specializes simultaneous substitution to a single parameter. Its return type states the typing judgment needed by beta preservation.
+The following checked example isolates the reasoning at *already established values*. It represents unary numeric values by Lean naturals, and uses a relation assigning each kind of value its corresponding object-language type. Inspecting a proof of Boolean typing eliminates the numeric alternative. This smaller lemma deliberately omits reducible expressions. In the full theorem an additional premise recognizing values is what permits this smaller choice of constructors in the first place.
 
 ```lean
-namespace BinderProof
+namespace ValueForms
+inductive Ty where | nat | bool
+inductive Val where | num (n : Nat) | yes | no
+inductive Has : Val → Ty → Prop where
+  | num (n : Nat) : Has (.num n) .nat
+  | yes : Has .yes .bool
+  | no : Has .no .bool
 
-inductive Ty where
-  | base
-  | arr (a b : Ty)
-
-inductive Var : List Ty → Ty → Type where
-  | here : Var (a :: Γ) a
-  | there : Var Γ a → Var (b :: Γ) a
-
-inductive Term : List Ty → Ty → Type where
-  | var : Var Γ a → Term Γ a
-  | lam : Term (a :: Γ) b → Term Γ (.arr a b)
-  | app : Term Γ (.arr a b) → Term Γ a → Term Γ b
-
-abbrev Ren (Γ Δ : List Ty) := ∀ {a}, Var Γ a → Var Δ a
-
-def liftRen (r : Ren Γ Δ) : Ren (b :: Γ) (b :: Δ)
-  | _, .here => .here
-  | _, .there x => .there (r x)
-
-def rename (r : Ren Γ Δ) : Term Γ a → Term Δ a
-  | .var x => .var (r x)
-  | .lam t => .lam (rename (liftRen r) t)
-  | .app f t => .app (rename r f) (rename r t)
-
-def weaken (t : Term Γ a) : Term (b :: Γ) a :=
-  rename (fun x => .there x) t
-
-abbrev Sub (Γ Δ : List Ty) := ∀ {a}, Var Γ a → Term Δ a
-
-def liftSub (s : Sub Γ Δ) : Sub (b :: Γ) (b :: Δ)
-  | _, .here => .var .here
-  | _, .there x => weaken (s x)
-
-def subst (s : Sub Γ Δ) : Term Γ a → Term Δ a
-  | .var x => s x
-  | .lam t => .lam (subst (liftSub s) t)
-  | .app f t => .app (subst s f) (subst s t)
-
-def replaceTop (u : Term Γ a) : Sub (a :: Γ) Γ
-  | _, .here => u
-  | _, .there x => .var x
-
-def betaBody (t : Term (a :: Γ) b) (u : Term Γ a) : Term Γ b :=
-  subst (replaceTop u) t
-
-end BinderProof
+theorem boolean {v : Val} (h : Has v .bool) : v = .yes ∨ v = .no := by
+  cases h with
+  | yes => exact Or.inl rfl
+  | no => exact Or.inr rfl
+end ValueForms
 ```
 
-# An open argument
+# Progress and preservation
 %%%
-tag := "ch17-s4"
+tag := "ch16-s3"
 %%%
 
-Choose distinct $`x,y,z`, and set $`\Gamma` to the single binding $`y:A`. In `λy:A. x`, use alpha-renaming to separate the local binder from the free name of the argument $`u = y`. The resulting abstraction is `λz:A. y`. Its body lookup uses $`y:A` from $`\Gamma`, even after $`z:A` has been introduced. Both this term and the incorrectly captured `λy:A. y` can receive type $`A\rightarrow A`; type equality alone cannot detect a change of binding.
+*Progress.* Every well-typed term in this language is a value or takes a step. Induct on the typing derivation. Constants are values. For a conditional use the induction hypothesis on the guard. A guard step lifts into a step of the conditional. If the guard is a value, its Bool type and Lemma 17.1 give the two cases that select a branch. No assumption about immediate reducibility of the branches is required. For the three unary forms, a step of the argument lifts into the outer term. If the argument is a value, its Nat type implies it is numeric. Successor then forms a value, while predecessor and the zero test each have a rule for zero and for a successor.
 
-To distinguish two terms which both have type `A→A`, supply a context that can observe which binding they read. Instantiate the base type with Bool and supply the external value true for `y`. Apply the function to false. After capture-avoiding substitution the closed application is `(λz:Bool. true) false`. Its body does not depend on the argument, so beta reduction returns true. After the accidental capture the closed application is `(λy:Bool. y) false`, which returns false. The observation takes place in the Boolean fragment from Chapter 16. All the applications and intermediate terms have types, including the ones constructed from the incorrect substitution.
+*Preservation.* If $`t:A` and $`t\rightarrow t'`, then $`t':A`. Induct on the step. A computation selecting a branch returns a term already typed $`A` by the conditional typing premise. For a step inside the guard, apply the induction hypothesis at Bool, retain the two original branch premises, and rebuild the typing rule. The same rebuilding works under unary operators. The predecessor rules return zero or the inner numeral, both of type Nat; the zero test returns a Boolean constant. These cases exhaust the steps.
 
-The lemma proved in this chapter constrains the result type of a specifically defined syntactic operation. It cannot serve as that operation's sole specification. For the two function bodies above, Chapter 13 supplies a second test: before closing the surrounding context, the first abstraction still has the free variable `y`, whereas the second has no free variables. The free-variable calculation detects the lost dependency before running a single step. The Boolean application subsequently shows that this syntactic difference can affect a closed program's observable result.
+Starting from a well-typed term, preservation keeps every term in a finite sequence well typed. If the last term cannot step, progress makes it a value. This argument establishes safety without putting a bound on the length of a computation.
+
+The two safety theorems quantify over different evidence. To use preservation on `if iszero 0 then succ 0 else 0`, begin with a derivation of a particular step. If the step reduces the guard, its premise is `iszero 0 → true`. Invert the conditional typing to recover both branch typings at Nat and the guard typing at Bool. Preservation for the guard step gives a new Boolean guard typing; rebuild exactly the conditional that remains after the step. On the next step the guard is already true. Inverting the same three typing premises now yields the typing of `succ 0` immediately. In the first case the proof constructs a replacement typing node; in the second it reuses an existing premise.
+
+For progress, even before an evaluator has chosen a step, the typing tree supplies the input to induction. The guard hypothesis tells us either that a guard step exists or that the guard is a value. In the latter branch Boolean canonical forms decides which computation rule to use. This order matters when composing progress with preservation over many steps. Progress holds at the next configuration only after preservation has restored its typing premise. Iterating progress by itself would leave the argument without an induction invariant.
 
 # Exercises
 %%%
-tag := "ch17-s5"
+tag := "ch16-s4"
 number := false
 %%%
 
-1. Type $`\left( {f\, x} \right)\left\lbrack {u/x} \right\rbrack` from $`f:A\rightarrow B` in $`\Gamma` and $`\Gamma \vdash u:A`. Indicate which premise uses the substitution hypothesis.
-2. Change the local binder type to $`C` in §17.4, choosing $`C` distinct from $`A`. What goes wrong with the type of the captured result?
-3. Why could the proof of weakening fail if context extension were allowed to overwrite an existing name?
+1. Type and reduce `if iszero (pred (succ 0)) then 0 else succ 0`. Give the static type at every step.
+2. Exhibit an ill-typed conditional that evaluates to a numeric value. Explain why it does not contradict progress.
+3. Drop the guard typing premise alone. Which safety theorem fails on the opening example?
 
-*Further problem.* Prepare the beta case of Chapter 18 with an open value. Let `Γ = f:A→B`, let `V = λy:A. f y`, and consider `(λg:A→B. λf:A. g f) V`. Derive its type, take the call-by-value beta step, and instantiate Theorem 17.2 under the remaining binder. What would literal replacement do?
+*Further problem.* Keep the original typing and evaluation rules, but add the one-step rule `if true then t else u → true`. Give a closed source term witnessing the failure of preservation. Does the original progress theorem still hold? Does one-step evaluation remain deterministic?
 
 # Reading for the Seminar
 %%%
-tag := "ch17-s6"
+tag := "ch16-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write down the domains of both maps in the substitution theorem.
+*Definitions · 10 minutes.* Classify a Boolean constant, a Boolean computation and a stuck guard.
 
-*Joint proof · 30 minutes.* Derive the abstraction case from its body premise. Ask the group to name the context in which the argument must be typed immediately before induction.
+*Joint proof · 30 minutes.* Prove canonical forms at Bool from the list of values. Prove progress at the conditional, marking the exact place where that lemma applies.
 
-*Proof review · 20 minutes.* Compute Exercise 2 with and without renaming. Mark the typing rule whose lookup changes.
+*Proof review · 20 minutes.* Try a guard with type Nat after removing its typing premise. Contrast this case with an ill-typed unused branch.
 
-*Facilitator’s hint.* Circle the binder that will still be in scope after substitution. Weakening adds exactly its assumption to the argument derivation.
+*Facilitator’s hint.* The guard induction hypothesis gives a disjunction. Only its value branch permits the use of canonical forms.
 
 # Solutions
 %%%
-tag := "ch17-s7"
+tag := "ch16-s6"
 number := false
 %%%
 
-*1.* The left variable remains $`f` by ordinary lookup. The right variable $`x` is replaced by $`u` and uses the given derivation at $`A`. Application yields $`B`.
+*1.* The guard’s predecessor reduces to zero, the zero test returns true, and the conditional returns zero. Each entire term has type Nat. The intermediate guard always has type Bool.
 
-*2.* Capture-avoiding substitution produces `λz:C. y` of type $`C\rightarrow A`. Textual capture produces `λy:C. y` of type $`C\rightarrow C`. Its body can no longer use the old $`y:A` lookup.
+*2.* For example `if true then 0 else true` steps to zero, although the branches have incompatible types. Progress makes a claim about terms that have a typing derivation.
 
-*3.* Overwriting $`x:A` by $`x:B` with distinct types destroys a previous typing of the term $`x`. The inclusion premise in Lemma 17.1 specifically preserves the types of existing names.
+*3.* The newly admitted term has type Bool, is not a value and cannot step. This refutes progress directly. The failed derivation occurs before any step for preservation to inspect.
 
-*Further problem.* Choose `w` fresh and represent the inner function as `λw:A. g w`. Under `Γ,g:A→B,w:A`, application types `g w:B`. Discharging `w` gives `A→B`, and discharging `g` gives `(A→B)→(A→B)`. Separately, lookup of `f` in `Γ,y:A` and application to `y` give $`\Gamma \vdash V : A\to B`. The source application has type `A→B`. Its operand is an abstraction, so call-by-value beta yields `λw:A. (λy:A. f y) w`. Theorem 17.2 removes `g:A→B` using the two preceding typings. In its abstraction case the new base context is `Γ,w:A`. Weakening gives $`\Gamma,w:A \vdash V : A\to B`; lookup types `w:A`, so application gives `V w:B`. Abstracting `w` recovers the source result type. Literal replacement under the original spelling would bind the argument's free `f` to a local of type `A`. Taking `A` as a base type makes the resulting application of that local to `y` untypable. The open source rules out invoking closed progress here, but preservation and Theorem 17.2 both permit this context.
+*Further problem.* Use the source `if true then 0 else succ 0`. Its guard has type Bool, both branches have type Nat, and the conditional rule therefore assigns Nat to the whole term. The new rule produces true, whose only typing is Bool. The preservation statement requires *every* permitted step from a well-typed source to retain the source type, so this one step refutes it. The original computation rule still permits a step to zero from exactly the same source. Since zero and true are different terms, the extended relation is nondeterministic. Progress survives: take an arbitrary closed typing derivation and apply the old progress theorem. If the term was a value, its value status is unchanged. If there was an old step, its derivation is still admitted by the extended rules. Progress asks for the existence of a step from a nonvalue, with no uniqueness or result-typing condition.

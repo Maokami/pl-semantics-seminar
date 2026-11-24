@@ -1,6 +1,6 @@
 # 프로그래밍 언어 이론 스터디
 
-운영적·표시적·공리적 의미론, 타입 이론, 영역 이론, 컴파일러 정확성과 정적 분석을 공부하는 42회 스터디 교재다. 영어판은 42장 전체를, 한국어판은 1–7회에 읽는 1·2·3·25·4·5·6장을 수록한다.
+운영적·표시적·공리적 의미론, 타입 이론, 영역 이론, 컴파일러 정확성과 정적 분석을 공부하는 42회 스터디 교재다. 영어판은 42장 전체를, 한국어판은 1–7회에 읽는 1–7장을 수록한다.
 
 [영어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/) · [한국어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/) · [42회 읽기 일정](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/seminar/)
 
@@ -15,7 +15,7 @@
 | 장별 PDF와 책갈피가 있는 합본 생성 | [print_book.py](verso/print_book.py) |
 | 한국어 강의계획서 조판 | [curriculum.typ](curriculum.typ), [style.typ](style.typ) |
 
-각 장은 본문·수식·Lean 코드 블록을 함께 담은 Verso 문서다. [1장](verso/PLBook/Ch01.lean)은 산술식의 평가 함수와 귀납적 평가 관계를 정의한 뒤 두 정의의 대응을 증명한다. [25장](verso/PLBook/Ch25.lean)은 식 트리의 fold를 정의하고 유일성을 증명한다. Lean은 빌드할 때 코드 블록의 정의와 증명을 검사한다. 본문에 산문으로 전개한 증명도 있다.
+각 장은 본문·수식·Lean 코드 블록을 함께 담은 Verso 문서다. [1장](verso/PLBook/Ch01.lean)은 산술식의 평가 함수와 귀납적 평가 관계를 정의한 뒤 두 정의의 대응을 증명한다. [4장](verso/PLBook/Ch04.lean)은 식 트리의 fold를 정의하고 유일성을 증명한다. Lean은 빌드할 때 코드 블록의 정의와 증명을 검사한다. 본문에 산문으로 전개한 증명도 있다.
 
 ## 빌드
 

@@ -3,106 +3,127 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Products, Exponentials and Typed Terms" =>
+#doc (Manual) "Existential Types and Abstract Data Types" =>
 %%%
-tag := "ch26"
-file := "chapter-26"
-%%%
-
-[Chapter PDF](print/chapter-26.pdf) · [Session 20](seminar/index.html#week-20)
-
-In a typing derivation for $`f\, a`, both $`f` and $`a` may depend on the same variables. Pairing their meanings keeps that shared input intact. Evaluation can then consume the resulting function–argument pair. These two operations provide the interpretation of application.
-
-*Sources.* The definitions of pairing, evaluation and currying are given below. For a fuller treatment see Roy Crole, _Categories for Types_, chapter 2 on products and exponentials and chapter 4 on functional type theory. Follow the domains of the arrows in the exponential universal property. The term syntax is the simply typed calculus of Chapter 17. [Crole, publisher’s edition.](https://www.cambridge.org/core/books/categories-for-types/258841251C62FED1DACD20884E59E61C)
-
-# Contexts and products
-%%%
-tag := "ch26-s1"
+tag := "ch24"
+file := "chapter-24"
 %%%
 
-A category has objects, composable arrows and identity arrows. Composition is associative and has those identities as units. Write $`g \circ f` for applying $`f` first. A terminal object $`1` receives exactly one arrow from each object. A binary product $`A \times B` has projections $`\pi_{1},\pi_{2}` to its two factors. For arrows $`u:G\rightarrow A` and $`v:G\rightarrow B` there is a unique pairing $`\left\langle {u,v} \right\rangle:G\rightarrow A \times B` whose projections are $`u` and $`v`.
+[Chapter PDF](print/chapter-24.pdf) · [Session 25](seminar/index.html#week-25)
 
-Assign an object to each base type. Interpret the empty context by $`1`. Extending a context with a variable of type $`A` changes its object from $`G` to $`G \times A`. A judgment in that context with result type $`B` denotes an arrow from the context object to the object for $`B`. The new variable denotes the second projection; earlier variables are recovered through the first. Weakening an existing meaning $`u:G\rightarrow B` gives $`u \circ \pi_{1}:G \times A\rightarrow B`.
+A counter implementation provides an initial counter, a way to advance it, and a way to read it. The client needs the type of each operation and the guarantee that the three operations agree on one counter representation. The concrete representation can remain private.
 
-Take a context with two declarations, `x:A, y:B`. With the product convention above, its object is `(1 × A) × B`. A point in the category of sets has the form `((⋆,a),b)`. The meaning of `y` is the outer second projection. To recover `x`, use the outer first projection to obtain `(⋆,a)` and then the inner second projection to obtain `a`. Both variables therefore have arrows with the *same* domain, even though they were declared at different steps of context construction. A derivation can pair these two arrows to exchange the order in which it presents their values.
+*Sources.* Pierce, _Types and Programming Languages_, §§24.1–24.2, pp. 363–376. Follow the representation type from packaging to unpacking. For comparison read Reynolds, _Theories of Programming Languages_, §18.2 on existential types. The record notation below is the immutable notation of Chapter 24. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-Suppose a substitution into this context supplies a term of type A and a term of type B, both in some context with object `D`. Call their meanings `u : D → A` and `v : D → B`. The assembled substitution is the arrow `⟨⟨!,u⟩,v⟩`, where `! : D → 1` is the unique arrow to the terminal object. Composing with either variable recovers its assigned meaning by the projection equations. This construction makes simultaneous substitution meaningful without choosing any order for evaluating the two assigned terms. The categorical description here concerns the pure typed language.
-
-# Exponentials and application
+# Packaging a representation
 %%%
-tag := "ch26-s2"
+tag := "ch24-s1"
 %%%
 
-An exponential $`B^{A}` has an evaluation arrow $`\mathrm{ev}:B^{A} \times A\rightarrow B`. For every $`h:G \times A\rightarrow B` there is a unique arrow $`\Lambda(h):G\rightarrow B^{A}` satisfying
+Write $`\exists X.T` for the type of packages that consist of a well-formed witness type $`A` and an implementation value of type $`T\left\lbrack {A/X} \right\rbrack`. Introduce it by `pack [A, v] as ∃X.T`. The type annotation specifies which occurrences in the public interface are abstract. Many packages with different choices of $`A` may have exactly this public type.
 
-$$`\mathrm{ev} \circ \left\langle {\Lambda(h) \circ \pi_{1},\pi_{2}} \right\rangle = h.`
+Let $`T(X)` denote the record `{init:X, next:X→X, read:X→Nat}` and $`C = \exists X.T(X)`. Represent counters by Nat, take the initial value zero, `next = λn:Nat. succ n`, and `read = λn:Nat. n`. Each field has the type obtained by replacing $`X` with Nat. Record formation therefore gives $`T\left( \text{Nat} \right)` and packaging at $`C` hides the chosen witness. The witness is chosen by the implementer; in Chapter 25 a caller of a universal value chose the argument type.
 
-The arrow $`\Lambda(h)` is the curry of $`h`; in sets, $`\mathrm{ev}(f,a)=f(a)`. Its inverse sends $`k:G\rightarrow B^{A}` to the map on $`G \times A` that pairs $`k \circ \pi_{1}` with $`\pi_{2}` and evaluates. A category with a terminal object, binary products and all these exponentials is *cartesian closed*.
+There is genuine information in the ascription after `as`. Consider the concrete payload `(2,5)` with witness Nat. The types `∃X.X×Nat` and `∃X.Nat×X` are both valid ascriptions: replacing `X` by Nat in either body gives the payload type `Nat×Nat`. Yet a client of the first interface can return the second projection as a natural, observing five; a client of the second can return the first projection as a natural, observing two. In the first case the other projection has the fresh abstract type introduced by unpacking. No operation in that interface converts its result to Nat. A third ascription, `∃X.X×X`, reveals that both components have the same type while withholding the concrete identity of that type.
 
-Interpret the type $`A\rightarrow B` by $`B^{A}`. For a body with meaning $`h:G \times A\rightarrow B`, interpret its abstraction by $`\Lambda(h)`. For an operator meaning $`f:G\rightarrow B^{A}` and argument meaning $`a:G\rightarrow A`, the application meaning is
+The counter signature exploits exactly this ability to disclose selected equalities. The result type of initialization, the argument and result of advancement, and the argument of reading all mention one bound name. The client may therefore pass a value produced by any operation returning that name to either operation accepting it. If instead the three fields were packaged using separate existential quantifiers, opening the packages would provide independent names. Even well-typed implementations that secretly chose Nat three times could no longer support this chain by the public field types alone.
 
-$$`G\overset{\langle{f,a}\rangle}{\rightarrow}B^{A} \times A\overset{\mathrm{ev}}{\rightarrow}B.`
-
-For example, in the category of sets a point $`g` is a simultaneous assignment of values to the context. Pairing produces $`\left( {f(g),a(g)} \right)` and evaluation returns $`f(g)\left( {a(g)} \right)`. The input assignment is used twice by the pairing.
-
-In sets, choose `A` to contain exactly two Booleans and `B` to contain the two numbers zero and one. There are four functions from `A` to `B`, because the two Boolean inputs each require a choice of one output. Take a context that stores one such function `f` and one Boolean `x`. The meaning of the term `f x` must inspect both components. For the assignment consisting of the function that sends true to one and false to zero and the argument false, it gives zero. Keeping the function component fixed and changing only the argument to true gives one. Keeping true fixed and changing the function to the constant-zero function changes the answer back to zero.
-
-This dependence on two components yields a useful uniqueness check on the interpretation. Pairing the two variable projections gives the identity on their product, up to the harmless initial terminal factor in context notation. Indeed both composites with the projections match those of the identity, so the uniqueness clause for products forces equality. In this particular context the application term therefore denotes the evaluation arrow itself under that identification. Applying an arbitrary function-producing term to an arbitrary argument-producing term is the same construction after changing the input assignment by the arrow that pairs their meanings.
-
-# The beta equation
+# Opening a package
 %%%
-tag := "ch26-s3"
+tag := "ch24-s2"
 %%%
 
-Apply an abstraction with body $`h` to an argument $`a` in the original context. Its meaning is $`\mathrm{ev} \circ \left\langle {\Lambda(h),a} \right\rangle`. The semantic substitution of $`a` for the new variable has meaning $`h \circ \left\langle {\text{id}_{G},a} \right\rangle`. Both arrows have source $`G` and target $`B`. To prove equality, take the exponential equation of §26.2 and precompose both sides with $`s = \left\langle {\text{id}_{G},a} \right\rangle:G\rightarrow G \times A`. Pairing commutes with precomposition by uniqueness of the arrow with its specified projections. The product laws give $`\pi_{1} \circ s = \text{id}_{G}` and $`\pi_{2} \circ s = a`. Thus the left side becomes $`\mathrm{ev} \circ \left\langle {\Lambda(h),a} \right\rangle` and the right side becomes $`h \circ s`, as claimed. For a syntactic body the general substitution law identifies this latter composite with the interpretation of the substituted term; it follows by induction on typing.
+The term `unpack [Y,p] = q in b` first evaluates $`q` to a package. In its body it introduces a fresh abstract type name $`Y` and a term name $`p:T(Y)`. If $`q:C` and $`b:B` can be typed under these additional assumptions, the whole expression has type $`B` in the original context. The type $`B` must be well formed outside the scope of $`Y`. A type containing a free occurrence of $`Y` cannot escape this opening.
 
-The same calculation works when an occurrence of a variable is duplicated in the body. Let `G` be the set of integers, let the parameter and result types both denote the integers, and choose the body `(g,x) ↦ x + x + g`. Apply its abstraction to the argument `g ↦ g + 1`. At `g = 3`, forming the extended assignment yields `(3,4)`, and passing that assignment to the body gives eleven. Evaluating the function associated with three and applying it to four gives the same result. Both occurrences of the local variable read the same component of the extended assignment. An occurrence of the old variable still reads three.
+Consider `unpack [Y,p] = counter in p.read (p.next p.init)`. Projection gives `p.init` type $`Y` and `p.next` type $`Y\rightarrow Y`. Application gives another $`Y`. Projecting `p.read` and applying it yields Nat, which is well formed in the outer context. Operationally opening `pack [A,v]` substitutes $`A` for the type binder and $`v` for the module name in the body, avoiding capture. For the representation above the body calls successor on zero, then reads the resulting 1.
 
-The equation can be checked for arbitrary sets and arbitrary assignments without simplifying this arithmetic. The pair on the right below represents the simultaneous retention of the old context and the addition of the argument value. Unfolding the lambda on the left produces the right side by the computation rule for functions in Lean. This verifies the equation in the set-like interpretation by types and functions. The proof above using universal properties supplies the result for other cartesian closed categories.
+Two separate openings introduce different abstract type names. Even if two packages happen to contain the same representation, the typing rules alone cannot supply an equality between the fresh names. A client must keep the operations and counter values from each opening together.
+
+A client can retain an operation after leaving the scope of the opening. Consider `unpack [Y,p] = counter in λu:Unit. p.read (p.next p.init)`, where Unit has the single value `unit`. In the body of the lambda, `p.next p.init` has type `Y` and applying `p.read` produces Nat. Introducing the unused Unit argument gives `Unit→Nat`. This result type is well formed outside the opening. Later application of the returned closure to `unit` may use the captured implementation, which shares its private representation with its captured operations. The caller receives only the resulting natural.
+
+Changing the body to `λu:Unit. p.next p.init` changes the inferred arrow to `Unit→Y`. A free occurrence of the representation name in the codomain violates the same scope check as returning the counter directly. An interface can expose an advanced counter by packaging it again. Inside the opening, form the record with `init = p.next p.init`, `next = p.next`, and `read = p.read`. It has type `T(Y)`. Pack it using witness `Y` and ascription `C`; the result type is the closed existential type `C`. A subsequent client obtains a fresh type name on opening this new package and can read its advanced initial value.
+
+# A second implementation
+%%%
+tag := "ch24-s3"
+%%%
+
+Use pairs of naturals for the witness. Store a current count in the first component and the number of advances in the second. Use $`\left( {0,0} \right)` for `init`, increment both components in `next`, and project the first in `read`. Writing $`A = \text{Nat} \times \text{Nat}`, the constructor, updater and reader again supply all fields of $`T(A)`. The same client therefore typechecks once at $`C` and computes the integer 1 using either package.
+
+Typing a common interface alone does not assert that implementations compute equal observations. To explain this example, relate a natural $`n` and a pair $`\left( {a,b} \right)` when $`n = a`. The initial values are related, related inputs stay related after `next`, and reading related inputs gives the same natural. By induction on the number of advances, any client consisting of initialization, finitely many advances and a single read obtains the same observation from these implementations. A full representation-independence theorem for arbitrary higher-order clients requires a corresponding relation for all client types.
+
+We can extend the induction to clients that inspect an observation before deciding whether to advance again. Let a client be a finite tree with three constructors: read the current value, advance and continue with a subtree, or inspect whether the current observation is zero and choose between two subtrees. The result of each client is a natural. For any two implementations, assume a relation on their states, a proof that advancing preserves the relation, and a proof that related states yield equal readings. Structural induction on the client tree now proves equal results from every pair of related states. In the branch case the two guards read equal naturals, hence choose corresponding subtrees. The induction hypothesis applies there to the original related states. The advance case instead needs the hypothesis at a *new* pair of states. This is why the theorem quantifies over all related starting states at each subtree.
+
+The code states this argument for arbitrary operations. For our two packages use the relation saying that the left state equals the first component of the right state. Applying the theorem at zero and the initial pair then proves equality of observations for every client described by the three constructors.
 
 ```lean
-example {G A B : Type} (h : G × A → B) (a : G → A) (g : G) :
-    (fun x ↦ h (g, x)) (a g) = h ((fun r ↦ (r, a r)) g) := rfl
+namespace CounterClients
+inductive Client where
+  | read
+  | next (rest : Client)
+  | branchZero (yes no : Client)
+
+def observe {S : Type} (step : S → S) (readout : S → Nat) :
+    Client → S → Nat
+  | .read, s => readout s
+  | .next k, s => observe step readout k (step s)
+  | .branchZero yes no, s =>
+    if readout s = 0 then observe step readout yes s
+    else observe step readout no s
+
+theorem simulation {S T : Type} (ss : S → S) (ts : T → T)
+    (sr : S → Nat) (tr : T → Nat) (R : S → T → Prop)
+    (stepEq : ∀ s t, R s t → R (ss s) (ts t))
+    (readEq : ∀ s t, R s t → sr s = tr t)
+    (k : Client) (s : S) (t : T) (h : R s t) :
+    observe ss sr k s = observe ts tr k t := by
+  induction k generalizing s t with
+  | read => exact readEq s t h
+  | next k ih => exact ih _ _ (stepEq s t h)
+  | branchZero yes no ihYes ihNo =>
+    simp only [observe, readEq s t h]
+    split
+    · exact ihYes _ _ h
+    · exact ihNo _ _ h
+end CounterClients
 ```
 
 # Exercises
 %%%
-tag := "ch26-s4"
+tag := "ch24-s4"
 number := false
 %%%
 
-1. Interpret the identity abstraction $`\lambda x:A.x` in the empty context. Give the body arrow before currying.
-2. In sets take $`G = A = B = {\mathbb{Z}}`, $`h\left( {g,x} \right) = g + x`, and $`a(g) = 2g`. Compute the meaning of the beta equation at $`g = 3`.
-3. Explain why $`f \circ a` is in general ill typed for the arrows used in §26.2.
+1. Is `unpack [Y,p] = counter in p.init` typable with result Nat? What if the body returns `p.read p.init`?
+2. Construct an implementation at $`C` that always returns zero from `read`. Give a client distinguishing it from the first implementation.
+3. Explain why using the first package’s `next` on the second package’s `init` fails when checked only from the public interfaces.
 
-*Further problem.* Substitution under an abstraction. Let `h : G × A → B` interpret a body and let `u : D → G` change its surrounding assignment. Prove `curry(h) ∘ u = curry(h ∘ (u × id_A))` without using elements of a set. Construct `u × id_A` explicitly from the product projections. Track each arrow's source and target before invoking exponential uniqueness.
+*Further problem.* Package the counter with witness Nat but represent the logical initial count by one, use successor for advancement, and use predecessor for reading. Prove agreement with the original counter for all finite clients of §26.3, including clients that branch on a reading. Is equality of machine states an invariant?
 
 # Reading for the Seminar
 %%%
-tag := "ch26-s5"
+tag := "ch24-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Recall the beta step in Chapter 18. State its preservation conclusion as a typing judgment. At the end compare it with the equality of arrows obtained here. Write the sources and targets of both projections for $`G \times A`. Interpret the newest variable and a weakened old one.
+*Definitions · 10 minutes.* Write the three field types with an abstract representation, then instantiate them with Nat.
 
-*Joint proof · 30 minutes.* Construct the application arrow using pairing. Then derive the beta equation using the exponential equation and the two projection identities.
+*Joint proof · 30 minutes.* Derive the client judgment under a fresh type name and check that its result type survives leaving the scope. Repeat with the pair implementation and compare the execution.
 
-*Proof review · 20 minutes.* Evaluate both sides in sets for Exercise 2 and reconstruct the categorical proof without referring to elements.
+*Proof review · 20 minutes.* Prove the relation in §26.3 for one advance and one read. Explain what the common interface guarantees even for the implementation in Exercise 2.
 
-*Facilitator’s hint.* Verify each side has source $`G` before simplifying. The exponential equation itself starts at $`G \times A`, which is why the proof precomposes it.
+*Facilitator’s hint.* Keep the witness chosen inside the package on one part of the board and the fresh type variable available to the client on another.
 
 # Solutions
 %%%
-tag := "ch26-s6"
+tag := "ch24-s6"
 number := false
 %%%
 
-*1.* The body is $`\pi_{2}:1 \times A\rightarrow A`. Its curry has type $`1\rightarrow A^{A}` and selects the identity function in sets.
+*1.* The first body yields $`Y`. Identifying it with Nat would require an equality hidden by the package, and returning it directly would allow $`Y` to escape. Reading it first yields Nat, which passes the scope check.
 
-*2.* The curried function at 3 sends $`x` to $`3 + x`. Its argument is 6, giving 9. On the substitution side the pairing first supplies $`\left( {3,6} \right)` and $`h` returns 9.
+*2.* Keep the natural witness and successor, but define `read = λn:Nat. 0`. The client of §26.2 observes zero there and one with the original package. Both satisfy the three field types.
 
-*3.* The codomain of $`a` is $`A`, whereas the domain of $`f` is $`G`. Even if these objects happen to agree, that composite would land in $`B^{A}`. Evaluation of the paired arrows is what gives an arrow to $`B`.
+*3.* The first operation expects $`Y_{1}` and the second package supplies $`Y_{2}`. The application rule requires equal types. The two open scopes supply no equation between the distinct names.
 
-*Further problem.* Write `π₁` and `π₂` for the projections from `D × A`. Form `w = ⟨u ∘ π₁, π₂⟩ : D × A → G × A`. It changes the outer assignment while keeping the new bound variable. The right side of the proposed equation is the unique arrow `D → Bᴬ` whose application in context `D × A` recovers `h ∘ w`. It remains to check the left side against that specification.
-
-Its application is `ev ∘ ⟨curry(h) ∘ u ∘ π₁, π₂⟩`. By the two projection equations for `w` and uniqueness of pairing, the paired arrow factors as `⟨curry(h) ∘ π₁′, π₂′⟩ ∘ w`, where primes denote the projections from `G × A`. Composing with `ev` and using the defining equation for `curry(h)` reduces this to `h ∘ w`. Exponential uniqueness now proves equality of the two arrows out of `D`. The unmodified second projection in `w` explains why the substituted outer assignment leaves the newly introduced variable available to the body.
+*Further problem.* Choose the relation `R(n,m)` meaning `m=n+1`, where `n` is the original state and `m` the offset state. Initialization establishes `R(0,1)`. If `m=n+1`, then `m+1=(n+1)+1`, which proves the relation for the two successor states. For every related pair, reading the left state yields `n` and reading the right yields `pred(n+1)=n`. These are exactly the two premises of the client-tree induction. At a read leaf the result follows from reading agreement. At an advance node apply the child hypothesis at the successor pair. At a zero test both readings are equal, so the evaluation of each implementation chooses the same child and the original pair still satisfies its hypothesis. Applying the conclusion to the initial pair proves the claim for every such finite client. Equality of the stored naturals is already false at initialization. Abstract observational agreement can therefore hold even for two witnesses that happen to be the same concrete type.

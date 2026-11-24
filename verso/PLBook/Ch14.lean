@@ -3,128 +3,119 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Evaluation Strategies" =>
+#doc (Manual) "Binding and Capture-Avoiding Substitution" =>
 %%%
-tag := "ch14"
-file := "chapter-14"
-%%%
-
-[Chapter PDF](print/chapter-14.pdf) · [Session 15](seminar/index.html#week-15)
-
-A caller passes two pieces of code to an evaluator: a function and its argument. The function may return without ever inspecting the argument. If the argument runs forever, deciding when to evaluate it determines whether the whole application returns.
-
-*Sources.* Reynolds, _Theories of Programming Languages_, §§10.3–10.4, pp. 201–207. Compare the normal-order and eager treatments of application. We compare their behavior at the outermost result of a closed pure term using two weak strategies, each stopping at a lambda. Pierce, _Types and Programming Languages_, §5.1 introduces related reduction strategies. [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html) [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Two one-step relations
-%%%
-tag := "ch14-s1"
+tag := "ch13"
+file := "chapter-13"
 %%%
 
-Use the terms and capture-avoiding substitution of Chapter 13. A value in this chapter is an abstraction. A *redex* is an expression to which a reduction rule applies. A beta step replaces an application of an abstraction by its body with its parameter replaced by the argument. To specify a strategy we must also say which redex can be chosen and when the argument is eligible.
+[Chapter PDF](print/chapter-13.pdf) · [Session 14](seminar/index.html#week-14)
 
-Call-by-name first evaluates the operator of an application. Once the operator is an abstraction, it substitutes the entire unevaluated argument. The only rules are these, with the subscript $`n` denoting one name step:
+In the expression `λy. x y`, the first occurrence of a variable in the body obtains its value from outside the function. Replace that occurrence by `y`. If we simply write `λy. y y`, both occurrences now receive their values from the function’s caller. The substitution has changed where a name is bound.
 
-$$`\frac{f\to_{\mathrm n} f'}{f\, a\to_{\mathrm n} f'\, a}\quad\left( {\lambda x.b} \right)\, a\to_{\mathrm n} b\left\lbrack {a/x} \right\rbrack.`
+*Sources.* Pierce, _Types and Programming Languages_, §5.3, starting p. 68, on free variables and substitution. Compute the example above before reading the abstraction clause. Compare Reynolds, _Theories of Programming Languages_, §1.4, where the same issue occurs under quantifiers. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-Call-by-value evaluates the operator, then the operand. Its beta rule requires a value operand. Write $`v,w` for values. The subscript $`v` on an arrow denotes a value step:
-
-$$`\frac{f\to_{\mathrm v} f'}{f\, a\to_{\mathrm v} f'\, a}\quad\frac{a\to_{\mathrm v} a'}{v\, a\to_{\mathrm v} v\, a'}`
-
-$$`\left( {\lambda x.b} \right)\, w\to_{\mathrm v} b\left\lbrack {w/x} \right\rbrack.`
-
-Neither relation descends beneath an abstraction. Thus observing convergence here means reaching an abstraction in finitely many steps. Full normalization may inspect its body as well. For each strategy at most one step is possible: at an application the outer form and the operator’s value status determine which rule can apply, and the recursive positions inherit uniqueness by induction.
-
-One can predict a complete first step by marking the particular hole in which the next redex must lie. Write a hole as `□`. For name evaluation the permitted contexts are `□` and `E a`, recursively. For value evaluation they are `□`, `E a` and `v E`, where the operator in the last case must already be a value. Filling the hole with a reducible application gives the whole term. Each constructor surrounding the hole corresponds to one propagation rule in the earlier presentation.
-
-For example, take `((λf. f) I) ((λw. w) I)`, with `I = λz. z`. Both strategies begin in the operator, even though the operand contains another beta redex. The left application reduces to `I`; the whole term is now `I ((λw. w) I)`. Name evaluation accepts it immediately as an outer redex. Value evaluation moves the hole to the operand, because the outer operator is a value and the operand has yet to become one. This gives a mechanical way to read a derivation backwards: identify the hole from the outside in, perform one beta step there, then rebuild the surrounding application nodes unchanged.
-
-# An ignored argument
+# Terms and scope
 %%%
-tag := "ch14-s2"
+tag := "ch13-s1"
 %%%
 
-Let $`I = \lambda z.z`, $`D = \lambda u.\left( {u\, u} \right)`, and $`\Omega = D\, D`. The operand $`D` is a value. Substituting it for both occurrences of $`u` in the body yields $`D\, D` again. Consequently $`\Omega` takes a step back to itself under either strategy. Repetition gives an infinite sequence of steps, even though all the printed terms look identical.
+Choose an infinite set of variable names. A term is a variable $`x`, an application $`t\, u`, or an abstraction $`\lambda x.t`. An abstraction binds occurrences of its parameter in its body. When nested abstractions use the same name, an occurrence belongs to the nearest enclosing binder with that name. Application associates to the left, and the body of a lambda extends as far right as possible. Thus `λx. f x y` means `λx. ((f x) y)`.
 
-Take $`M = \left( {\lambda x.I} \right)\,\Omega`, with $`x` fresh. Under call-by-name the outer beta rule gives $`I\left\lbrack {\Omega/x} \right\rbrack = I` in one step. Under call-by-value the operator is already a value but the operand is an application. Only the operand rule applies. Its premise steps $`\Omega` to itself, so its conclusion steps $`M` to itself. By uniqueness, every finite run still ends at $`M`, which is an application. Thus no finite run reaches a value. The arguments for convergence and divergence use the actual strategy rules in different ways.
+Write $`F(t)` for the names occurring free in $`t`. A variable has free set $`\{ x\}`. For application take the union of the two free sets. For abstraction remove the parameter from the body’s free set. In `λx. (λx. x) y`, the inner occurrence of `x` belongs to the inner binder, the outer binder has no occurrences, and $`F` contains only $`y`. A closed term has empty free set.
 
-The distinction can be measured at the level of functions as well as at individual programs. Consider the closed function `K = λx. λz. z`. Used on the ordinary argument `I`, both weak strategies immediately return `λz. z`. That agreement on value arguments does not settle their agreement on all closed arguments. The application context `K □` permits a computation in its hole. Filling it with the closed diverging term gives precisely the two observations just established: a function value under name evaluation and divergence under value evaluation.
+Renaming one binder and exactly the occurrences it binds to a fresh name preserves binding. Terms obtainable from one another by such renamings and their inverses are *alpha-equivalent*. For example, `λx. λy. x` and `λa. λb. a` are alpha-equivalent. The term `λa. λb. b` has a different binding structure.
 
-Change the body to `x I` so that the function must inspect its argument in operator position. On the same diverging input, name evaluation first obtains `Ω I`. Its next step reduces the operator `Ω` to itself, and this repeats forever. Value evaluation again remains at the original application. Thus a difference in the number or position of initial steps need not give a difference in convergence. To show separation of the strategies one needs both sides of the original example: a finite path that actually reaches a value, and an argument excluding every such path for the other strategy.
+Binding can be read off a syntax tree without computing any values. At each variable leaf, follow the path towards the root until the first abstraction whose parameter has the same name. If the path reaches the root first, record the name of that free occurrence. In `(λx. x) x` the paths from the two leaves behave differently. The left leaf encounters the lambda on the operator side. The right leaf reaches only the application node, then the root. A binder's scope consists of its body, so the binder in the operator has no authority over the argument.
 
-For this single application we can quotient the computation down to two configurations. Name evaluation moves from the original application to its final value. Value evaluation leaves the application at precisely the same configuration. The induction in Lean establishes the claim about *all* finite value prefixes; the correspondence of the two displayed transitions with the actual beta and operand rules was derived above. At the final value, the option result `none` records the absence of a next step.
+This calculation gives a practical test for alpha-equivalence. Traverse two trees in parallel. Constructors must match; each bound occurrence must refer to the corresponding binder on its path, and free occurrences must have the same name. For example, `λa. λb. a b` and `λb. λa. b a` pass this test. In both bodies the operator leaf refers to the outer binder and the operand leaf to the inner one. Exchanging just the two leaves in the second body fails the test. Computing the free sets alone could not detect that change because both trees are closed.
+
+The following function implements the free-occurrence test for one name. Application combines answers with Boolean disjunction, and a matching lambda binder blocks examination of its body for that name. The two checks differ only in whether the right occurrence is inside the lambda's scope.
 
 ```lean
-namespace StrategyPrefix
-inductive Point where | app | result
-  deriving DecidableEq
+namespace ScopePaths
+inductive Exp where
+  | var (name : Nat)
+  | app (f a : Exp)
+  | lam (name : Nat) (body : Exp)
 
-def byName : Point → Option Point
-  | .app => some .result
-  | .result => none
+def occursFree (x : Nat) : Exp → Bool
+  | .var y => x == y
+  | .app f a => occursFree x f || occursFree x a
+  | .lam y b => x != y && occursFree x b
 
-def byValue : Point → Option Point
-  | .app => some .app
-  | .result => none
-
-def after (step : Point → Option Point) : Nat → Point → Option Point
-  | 0, p => some p
-  | n+1, p => (step p).bind (after step n)
-
-example : after byName 1 .app = some .result := rfl
-example (n : Nat) : after byValue n .app = some .app := by
-  induction n with
-  | zero => rfl
-  | succ n ih => exact ih
-end StrategyPrefix
+example : occursFree 0 (.app (.lam 0 (.var 0)) (.var 0)) = true := rfl
+example : occursFree 0 (.lam 0 (.app (.var 0) (.var 0))) = false := rfl
+end ScopePaths
 ```
 
-# Repeated uses of a parameter
+# Substitution
 %%%
-tag := "ch14-s3"
+tag := "ch13-s2"
 %%%
 
-Set $`A = \left( {\lambda z.z} \right)\, I`. It steps to $`I` in one step under either strategy. Consider $`\left( {\lambda x.x\, x} \right)\, A`. Under call-by-value, first evaluate $`A` and perform the outer beta step to obtain $`I\, I`, which returns $`I`. Under call-by-name, the first step produces $`A\, A`. Evaluate its operator, obtaining $`I\, A`. This reduces to $`A`, which must be evaluated again. The result is $`I` in each case. The two copies distinguish call-by-name from *call-by-need*, which stores a result for reuse when a delayed argument is demanded again. We assume no sharing rule in the name semantics.
+Write $`t\left\lbrack {u/x} \right\rbrack` for replacing the free occurrences of $`x` in $`t` by $`u`. The result is determined up to alpha-equivalence. A name fresh for a list of terms is a name occurring nowhere in any of them. Finiteness of the terms and infinitude of the name supply guarantee a choice. Use the following procedure.
 
-Duplication has a numerical cost even for arguments that return normally. Define `A₀ = I` and `Aₖ₊₁ = (λz.z) Aₖ`. With either weak strategy, evaluating `Aₖ` to its outer value costs exactly `k` beta steps. Under name evaluation each outer identity immediately exposes its argument. Under value evaluation each identity waits until its argument returns, then passes that value upward. Induction on `k` verifies both counts.
+1. At a variable return $`u` if it is $`x` and the original variable otherwise.
+2. At an application substitute independently into both children.
+3. At $`\lambda y.b`, leave the abstraction alone if $`y = x` or $`x` is absent from $`F(b)`. Otherwise if $`y` is absent from $`F(u)`, retain $`y` and substitute into $`b`.
+4. In the remaining case choose $`z` fresh for $`b,u,x,y`. Rename the outer binder $`y` to $`z`, replacing just its bound occurrences in $`b` to obtain $`b'`. Return $`\lambda z.\left( {b'\left\lbrack {u/x} \right\rbrack} \right)`.
 
-Now evaluate `(λx. x x) Aₖ`. With values, the first `k` steps reduce the argument to `I`. The outer substitution and the final `I I` together cost two further steps. With names, the first beta step produces `Aₖ Aₖ`. Reducing its operator costs `k`; applying the resulting identity costs one step and exposes the second copy. That copy costs another `k`, for a total of `2k + 2`. In this example the cost difference is exactly `k`. The count concerns beta steps in the stated semantics. An implementation of call-by-need would also perform operations to create, force and update a shared delayed computation, so the same numerical cost model cannot be carried over without additional rules.
+Renaming a binder leaves the size of the body unchanged, so the recursive call still works on a smaller term than the original abstraction. Alternative fresh choices rename the same binder and its bound occurrences together.
+
+Substitution is simultaneous at the selected occurrences. For example, `(x x)[x y/x]` is the application `(x y) (x y)`. Each of the two original leaves contributes one copy of the replacement. A recursive call that entered the newly inserted `x y` to look for another `x` would attempt the same replacement again. The variable clause returns its replacement immediately. This restriction both determines the mathematical operation and explains why induction on the original syntax tree suffices for an application.
+
+Two substitutions in succession require attention to order. For distinct names `x,y,z`, start from the one-leaf tree `x`. Replacing `x` by `y` and then `y` by `z` gives `z`. Reversing these operations gives `y`, since the first replacement of `y` has no occurrence on which to act. The disagreement already occurs in a language with no binders. When proving substitution laws under lambdas, there are consequently two obligations to track: a later substitution may act on material inserted by an earlier one, and each intervening binder must preserve the free occurrences in that material. Alpha-renaming handles the latter obligation.
+
+# A substitution under an abstraction
+%%%
+tag := "ch13-s3"
+%%%
+
+Take $`t = \lambda y.\left( {x\, y} \right)` and $`u = y`. The name being inserted occurs free in $`u`, and the target $`x` occurs free in the body. Choose fresh $`z`. First write $`\lambda z.\left( {x\, z} \right)`, then replace $`x` to obtain $`\lambda z.\left( {y\, z} \right)`. The occurrence to the left of the final application is free and the occurrence to its right is bound. Their roles remain distinct even if this function is later applied to another argument.
+
+*Free-variable lemma.* If $`x \in F(t)`, then $`F\left( {t\left\lbrack {u/x} \right\rbrack} \right) = \left( {F(t) \smallsetminus \left\{ x \right\}} \right) \cup F(u)`, where $`\smallsetminus` denotes set difference. If $`x \notin F(t)`, substitution leaves the term unchanged up to alpha-equivalence. To prove the first claim, induct on term size. The variable case returns the inserted term. For an application apply the corresponding assertion to each child, taking account of a child that has no free $`x`, then take the union. For an abstraction traversed by substitution, choose its binder $`z` fresh for $`u` and distinct from $`x`. Removing $`z` from the body’s new free set removes nothing from $`F(u)`, so the displayed formula follows. The absence claim follows from the variable and application clauses and the stopping test at an abstraction.
+
+The free-variable lemma can be used to check a longer reduction by hand. Choose distinct names and start with `(λx. λy. x (λx. y)) y`. The substitution targets the body `λy. x (λx. y)`; the new free occurrence of `y` would cross its outer binder. Rename that binder to `w`. Its bound occurrences include the occurrence inside `λx. y`, because that inner binder introduces `x`, so the new body is `λw. x (λx. w)`. Substitute the argument to obtain `λw. y (λx. w)`. The inner lambda binds its own parameter and substitution for `x` stops there.
+
+Calculate the free set at each boundary. Before substitution, the outer abstraction's only free name is `x`. Renaming has left this set unchanged. After substitution it contains just `y`, as predicted by removing `x` and adding the free set of the operand. Renaming only the first binder token, without updating its occurrence beneath the inner lambda, would leave behind a second, unintended source of dependence on `y`. Rechecking each occurrence's path to its binder detects even errors that happen to preserve the final set of free names.
 
 # Exercises
 %%%
-tag := "ch14-s4"
+tag := "ch13-s4"
 number := false
 %%%
 
-1. Count the steps in §14.3 under each strategy. Identify the precise step at which the argument is duplicated.
-2. For `λz. Ω`, classify weak evaluation under both strategies. Can repeated beta contraction inside its body terminate?
-3. Replace the function in $`M` by $`I`. Does call-by-name now terminate?
+1. Compute `(λy. (λy. y) x)[y/x]` and mark all free occurrences in the result.
+2. Give a term with two occurrences of the spelling `x` where only one is affected by substitution for $`x`.
+3. Would the equality in the lemma hold for all $`t` if the hypothesis $`x \in F(t)` were dropped? Give a counterexample.
 
-*Further problem.* For fresh names `x,u`, put `L = (λx. λu. x) Ω`. Trace evaluation of both `L` and `L I` under each weak strategy. Which observations change when a caller supplies one more argument?
+*Further problem.* Let `p = λz. (x z) y`, with all three names distinct. Calculate `(p[y/x])[z/y]` and `(p[z/y])[y/x]`. List the free names after each substitution and decide whether the final terms are alpha-equivalent.
 
 # Reading for the Seminar
 %%%
-tag := "ch14-s5"
+tag := "ch13-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Annotate each use of a congruence rule and each beta rule in the one-step definitions.
+*Definitions · 10 minutes.* Mark the binding of each occurrence in the opening term.
 
-*Joint proof · 30 minutes.* Build the finite name evaluation of $`M`. Then prove, by induction on the number of value steps, that every finite value-strategy prefix ends at $`M`.
+*Joint proof · 30 minutes.* Have one reader perform textual replacement and another perform capture-avoiding substitution. Compute the free sets and then prove the abstraction case of the lemma.
 
-*Proof review · 20 minutes.* Trace the repeated-use example, distinguishing substitution of code from reuse of an already computed value.
+*Proof review · 20 minutes.* Repeat the calculation with nested binders in Exercise 1 and with a different choice of fresh name.
 
-*Facilitator’s hint.* When a term steps to itself, an infinite path exists. To exclude a second, terminating path use uniqueness of the selected step.
+*Facilitator’s hint.* Draw a line from each bound occurrence to its binder before changing any names. A line cannot cross over a nearer binder of the same name.
 
 # Solutions
 %%%
-tag := "ch14-s6"
+tag := "ch13-s6"
 number := false
 %%%
 
-*1.* Value takes three steps: reduce $`A` inside the argument, perform the outer substitution, then reduce $`I\, I`. Name takes four: duplicate $`A` at the outer beta step, reduce the left $`A`, apply $`I`, then reduce the remaining $`A`.
+*1.* One result is `λz. (λy. y) y`. Renaming the outer binder does not enter the inner abstraction that binds its own $`y`. The final argument $`y` is the only free occurrence.
 
-*2.* An abstraction is already a weak value under both strategies. If contraction proceeds inside the body, the only redex there is $`\Omega`, whose contraction reproduces it. The term has no beta-normal form.
+*2.* In `x (λx. x)`, replacing $`x` by $`u` gives `u (λx. x)` with the chosen term in the left position. The inner abstraction stops substitution.
 
-*3.* The first name step in $`I\,\Omega` yields $`\Omega`. Each subsequent step reproduces it, so this term diverges under name as well.
+*3.* Take $`t = z`, with three distinct names $`x,y,z`, and $`u = y`. Substitution returns $`z`. The proposed right side would also contain $`y`.
 
-*Further problem.* Under call-by-name the operator of `L` is already an abstraction, so one beta step substitutes the closed term `Ω` and yields `λu. Ω`. This is a value under the weak rules. In `L I`, that same step occurs in operator position; the next step applies the resulting abstraction to `I` and leaves `Ω`. Every subsequent step returns `Ω` itself, so this second experiment never reaches a value. Under call-by-value, `L` already has a value operator but still requires a value operand. The only possible step evaluates `Ω` to itself and leaves `L` unchanged. In `L I`, the operator must step first, which carries that self-step to the enclosing application. Neither value run can reach an abstraction, by uniqueness of the selected step. Thus observing the returned function and observing the result of calling it are distinct experiments even though their programs share the entire expression `L`.
+*Further problem.* In the first order, replacing `x` by `y` gives `λz. (y z) y`, whose free set is the singleton containing `y`. Before replacing those occurrences by the free variable `z`, rename the binder to a fresh `w`, including its bound occurrence. Substitution then gives `λw. (z w) z`, with free set containing only `z`. In the reverse order, rename the original binder before the first substitution. The intermediate expression is `λw. (x w) z`, with two free names, `x` and `z`. Replacing `x` by `y` gives `λw. (y w) z`, with free set containing `y` and `z`. Alpha-equivalence preserves free names, so the unequal final sets decide the question. The occurrence introduced by the first replacement in the first order becomes a target for the second replacement. The reverse order has already finished replacing `y` before that new occurrence is introduced.
