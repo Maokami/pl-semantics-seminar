@@ -1,0 +1,85 @@
+{"9": "<code>Formal.IntExp.var : Var → IntExp</code>",
+ "8": "<code>Formal.Alg.lit {A : Type} (self : Alg A) : Int → A</code>",
+ "7": "<code>Int</code>",
+ "6": "<code>Formal.IntExp.lit : Int → IntExp</code>",
+ "55": "<code>h e₂ = fold a e₂</code>",
+ "54": "<code>h e₁ = fold a e₁</code>",
+ "53":
+ "<code class=\"docstring\">This tactic applies to a goal whose target has the form `x ~ x`,\nwhere `~` is equality, heterogeneous equality or any relation that\nhas a reflexivity lemma tagged with the attribute @[refl].\n</code>",
+ "52":
+ "<code class=\"docstring\">`rw` is like `rewrite`, but also tries to close the goal by \"cheap\" (reducible) `rfl` afterwards.\n</code>",
+ "51": "<code>h e = fold a e</code>",
+ "50":
+ "<code class=\"docstring\">`exact e` closes the main goal if its target type matches that of `e`.\n</code>",
+ "5":
+ "<code>Formal.IntExp : Type</code><span class=\"sep\"></span><code class=\"docstring\">정수식의 abstract syntax.\n잎(nullary)은 `lit`, `var`. </code>",
+ "49":
+ "<code class=\"docstring\">After `with`, there is an optional tactic that runs on all branches, and\nthen a list of alternatives.\n</code>",
+ "48":
+ "<code class=\"docstring\">Assuming `x` is a variable in the local context with an inductive type,\n`induction x` applies induction on `x` to the main goal,\nproducing one goal for each constructor of the inductive type,\nin which the target is replaced by a general instance of that constructor\nand an inductive hypothesis is added for each recursive argument to the constructor.\nIf the type of an element in the local context depends on `x`,\nthat element is reverted and reintroduced afterward,\nso that the inductive hypothesis incorporates that hypothesis as well.\n\nFor example, given `n : Nat` and a goal with a hypothesis `h : P n` and target `Q n`,\n`induction n` produces one goal with hypothesis `h : P 0` and target `Q 0`,\nand one goal with hypotheses `h : P (Nat.succ a)` and `ih₁ : P a → Q a` and target `Q (Nat.succ a)`.\nHere the names `a` and `ih₁` are chosen automatically and are not accessible.\nYou can use `with` to provide the variables names for each constructor.\n- `induction e`, where `e` is an expression instead of a variable,\n  generalizes `e` in the goal, and then performs induction on the resulting variable.\n- `induction e using r` allows the user to specify the principle of induction that should be used.\n  Here `r` should be a term whose result type must be of the form `C t`,\n  where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables\n- `induction e generalizing z₁ ... zₙ`, where `z₁ ... zₙ` are variables in the local context,\n  generalizes over `z₁ ... zₙ` before applying the induction but then introduces them in each goal.\n  In other words, the net effect is that each inductive hypothesis is generalized.\n- Given `x : Nat`, `induction x with | zero =&gt; tac₁ | succ x' ih =&gt; tac₂`\n  uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.\n</code>",
+ "47":
+ "<code class=\"docstring\">Introduces one or more hypotheses, optionally naming and/or pattern-matching them.\nFor each hypothesis to be introduced, the remaining main goal's target type must\nbe a `let` or function type.\n\n* `intro` by itself introduces one anonymous hypothesis, which can be accessed\n  by e.g. `assumption`. It is equivalent to `intro _`.\n* `intro x y` introduces two hypotheses and names them. Individual hypotheses\n  can be anonymized via `_`, given a type ascription, or matched against a pattern:\n  ```lean\n  -- ... ⊢ α × β → ...\n  intro (a, b)\n  -- ..., a : α, b : β ⊢ ...\n  ```\n* `intro rfl` is short for `intro h; subst h`, if `h` is an equality where the left-hand or right-hand side\n  is a variable.\n* Alternatively, `intro` can be combined with pattern matching much like `fun`:\n  ```lean\n  intro\n  | n + 1, 0 =&gt; tac\n  | ...\n  ```\n</code>",
+ "46": "<code>∀ (x y : IntExp), h (termAlg.mul x y) = a.mul (h x) (h y)</code>",
+ "45": "<code>∀ (x y : IntExp), h (termAlg.add x y) = a.add (h x) (h y)</code>",
+ "44": "<code>∀ (x : IntExp), h (termAlg.neg x) = a.neg (h x)</code>",
+ "43": "<code>∀ (v : Var), h (termAlg.var v) = a.var v</code>",
+ "42": "<code>∀ (n : Int), h (termAlg.lit n) = a.lit n</code>",
+ "41":
+ "<code class=\"docstring\">The `obtain` tactic is a combination of `have` and `rcases`. See `rcases` for\na description of supported patterns.\n\n```lean\nobtain ⟨patt⟩ : type := proof\n```\nis equivalent to\n```lean\nhave h : type := proof\nrcases h with ⟨patt⟩\n```\n\nIf `⟨patt⟩` is omitted, `rcases` will try to infer the pattern.\n\nIf `type` is omitted, `:= proof` is required.\n</code>",
+ "40":
+ "<code>Eq.{u_1} {α : Sort u_1} : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The equality relation. It has one introduction rule, `Eq.refl`.\nWe use `a = b` as notation for `Eq a b`.\nA fundamental property of equality is that it is an equivalence relation.\n```\nvariable (α : Type) (a b c d : α)\nvariable (hab : a = b) (hcb : c = b) (hcd : c = d)\n\nexample : a = d :=\n  Eq.trans (Eq.trans hab (Eq.symm hcb)) hcd\n```\nEquality is much more than an equivalence relation, however. It has the important property that every assertion\nrespects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.\nThat is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.\nExample:\n```\nexample (α : Type) (a b : α) (p : α → Prop)\n        (h1 : a = b) (h2 : p a) : p b :=\n  Eq.subst h1 h2\n\nexample (α : Type) (a b : α) (p : α → Prop)\n    (h1 : a = b) (h2 : p a) : p b :=\n  h1 ▸ h2\n```\nThe triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\\t`.\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `=` in identifiers is `eq`.</code>",
+ "4":
+ "<code>Formal.Alg (A : Type) : Type</code><span class=\"sep\"></span><code class=\"docstring\">Λ + Var signature의 algebra.\nconstructor마다 해석 하나. </code>",
+ "39":
+ "<code class=\"docstring\">`by tac` constructs a term of the expected type by running the tactic(s) `tac`. </code>",
+ "38":
+ "<code>Formal.termAlg : Alg IntExp</code><span class=\"sep\"></span><code class=\"docstring\">구문도 algebra다: 연산은 constructor 그대로. </code>",
+ "37":
+ "<code>Formal.IsHom {A B : Type} (a : Alg A) (b : Alg B) (h : A → B) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">두 algebra 사이의 homomorphism 조건: 모든 연산과 교환한다. </code>",
+ "36": "<code>IsHom termAlg a h</code>",
+ "35": "<code>IntExp → A</code>",
+ "34":
+ "<code>Formal.IntExp.fold_unique {A : Type} (a : Alg A) (h : IntExp → A) (hh : IsHom termAlg a h) (e : IntExp) : h e = fold a e</code><span class=\"sep\"></span><code class=\"docstring\">유일성: 구문에서 나가는 homomorphism은 fold뿐이다. </code>",
+ "33":
+ "<code>DecidableEq.{u} (α : Sort u) : Sort (max 1 u)</code><span class=\"sep\"></span><code class=\"docstring\">Propositional equality is `Decidable` for all elements of a type.\n\nIn other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is\nfor all `a b : α`.\n</code>",
+ "32":
+ "<code>Repr.{u} (α : Type u) : Type u</code><span class=\"sep\"></span><code class=\"docstring\">The standard way of turning values of some type into `Format`.\n\nWhen rendered this `Format` should be as close as possible to something that can be parsed as the\ninput value.\n</code>",
+ "31":
+ "<code>Int : Type</code><span class=\"sep\"></span><code class=\"docstring\">The integers.\n\nThis type is special-cased by the compiler and overridden with an efficient implementation. The\nruntime has a special representation for `Int` that stores “small” signed numbers directly, while\nlarger numbers use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)). A “small number” is an integer that can be encoded with one fewer bits\nthan the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit\narchitectures).\n</code>",
+ "30":
+ "<code class=\"docstring\">In Lean, every concrete type other than the universes\nand every type constructor other than dependent arrows\nis an instance of a general family of type constructions known as inductive types.\nIt is remarkable that it is possible to construct a substantial edifice of mathematics\nbased on nothing more than the type universes, dependent arrow types, and inductive types;\neverything else follows from those.\nIntuitively, an inductive type is built up from a specified list of constructors.\nFor example, `List α` is the list of elements of type `α`, and is defined as follows:\n```\ninductive List (α : Type u) where\n| nil\n| cons (head : α) (tail : List α)\n```\nA list of elements of type `α` is either the empty list, `nil`,\nor an element `head : α` followed by a list `tail : List α`.\nSee [Inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html)\nfor more information.\n</code>",
+ "3": "<code>Alg A</code>",
+ "29":
+ "<code>Eq.symm.{u} {α : Sort u} {a b : α} (h : a = b) : b = a</code><span class=\"sep\"></span><code class=\"docstring\">Equality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n</code>",
+ "28":
+ "<code>Formal.subst_right (δ : Var → IntExp) : IsHom termAlg (substTarget δ) fun e σ =&gt; eval e fun v =&gt; eval (δ v) σ</code><span class=\"sep\"></span><code class=\"docstring\">오른쪽 `e ↦ λσ. ⟦e⟧(λv. ⟦δ v⟧σ)`도 같은 target으로 가는 homomorphism이다. </code>",
+ "27":
+ "<code>Eq.trans.{u} {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c</code><span class=\"sep\"></span><code class=\"docstring\">Equality is transitive: if `a = b` and `b = c` then `a = c`.\n\nBecause this is in the `Eq` namespace, if you have variables or expressions\n`h₁ : a = b` and `h₂ : b = c`, you can use `h₁.trans h₂ : a = c` as shorthand\nfor `Eq.trans h₁ h₂`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n</code>",
+ "26":
+ "<code>Formal.subst_left (δ : Var → IntExp) : IsHom termAlg (substTarget δ) fun e =&gt; eval (subst δ e)</code><span class=\"sep\"></span><code class=\"docstring\">왼쪽 `e ↦ ⟦e/δ⟧`는 target으로 가는 homomorphism이다. </code>",
+ "25":
+ "<code>Formal.IntExp.fold_unique {A : Type} (a : Alg A) (h : IntExp → A) (hh : IsHom termAlg a h) (e : IntExp) :\n  h e = IntExp.fold a e</code><span class=\"sep\"></span><code class=\"docstring\">유일성: 구문에서 나가는 homomorphism은 fold뿐이다. </code>",
+ "24": "<code>St</code>",
+ "23":
+ "<code>Formal.subst (δ : Var → IntExp) : IntExp → IntExp</code><span class=\"sep\"></span><code class=\"docstring\">대입: 변수 해석만 δ로 바꾼 구문 algebra로 가는 fold. </code>",
+ "22":
+ "<code>Formal.eval : IntExp → St → Int</code><span class=\"sep\"></span><code class=\"docstring\">의미 = 의미 algebra로 가는 유일한 homomorphism. </code>",
+ "21":
+ "<code>Formal.Var : Type</code><span class=\"sep\"></span><code class=\"docstring\">변수 이름. </code>",
+ "20": "<code>Var → IntExp</code>",
+ "2":
+ "<code class=\"docstring\">A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. </code>",
+ "19":
+ "<code>Formal.eval_subst (δ : Var → IntExp) (e : IntExp) : eval (subst δ e) = fun σ =&gt; eval e fun v =&gt; eval (δ v) σ</code><span class=\"sep\"></span><code class=\"docstring\">대입 정리: 두 변 모두 fold와 같으므로 서로 같다. </code>",
+ "18": "<code>Formal.Alg.mul {A : Type} (self : Alg A) : A → A → A</code>",
+ "17": "<code>Formal.IntExp.mul : IntExp → IntExp → IntExp</code>",
+ "16": "<code>Formal.Alg.add {A : Type} (self : Alg A) : A → A → A</code>",
+ "15": "<code>Formal.IntExp.add : IntExp → IntExp → IntExp</code>",
+ "14": "<code>Formal.Alg.neg {A : Type} (self : Alg A) : A → A</code>",
+ "13": "<code>IntExp</code>",
+ "12": "<code>Formal.IntExp.neg : IntExp → IntExp</code>",
+ "11": "<code>Formal.Alg.var {A : Type} (self : Alg A) : Var → A</code>",
+ "10": "<code>Var</code>",
+ "1": "<code>Type</code>",
+ "0":
+ "<code>Formal.IntExp.fold {A : Type} (a : Alg A) : IntExp → A</code><span class=\"sep\"></span><code class=\"docstring\">fold: 트리를 아래에서 위로 접는다. </code>"}

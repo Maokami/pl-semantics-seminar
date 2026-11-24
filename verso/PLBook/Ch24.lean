@@ -1,0 +1,129 @@
+import VersoManual
+
+open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
+
+#doc (Manual) "Existential Types and Abstract Data Types" =>
+%%%
+tag := "ch24"
+file := "chapter-24"
+%%%
+
+[Chapter PDF](print/chapter-24.pdf) · [Session 25](seminar/index.html#week-25)
+
+A counter implementation provides an initial counter, a way to advance it, and a way to read it. The client needs the type of each operation and the guarantee that the three operations agree on one counter representation. The concrete representation can remain private.
+
+*Sources.* Pierce, _Types and Programming Languages_, §§24.1–24.2, pp. 363–376. Follow the representation type from packaging to unpacking. For comparison read Reynolds, _Theories of Programming Languages_, §18.2 on existential types. The record notation below is the immutable notation of Chapter 22. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
+
+# Packaging a representation
+%%%
+tag := "ch24-s1"
+%%%
+
+Write $`\exists X.T` for the type of packages that consist of a well-formed witness type $`A` and an implementation value of type $`T\left\lbrack {A/X} \right\rbrack`. Introduce it by `pack [A, v] as ∃X.T`. The type annotation specifies which occurrences in the public interface are abstract. Many packages with different choices of $`A` may have exactly this public type.
+
+Let $`T(X)` denote the record `{init:X, next:X→X, read:X→Nat}` and $`C = \exists X.T(X)`. Represent counters by Nat, take the initial value zero, `next = λn:Nat. succ n`, and `read = λn:Nat. n`. Each field has the type obtained by replacing $`X` with Nat. Record formation therefore gives $`T\left( \text{Nat} \right)` and packaging at $`C` hides the chosen witness. The witness is chosen by the implementer; in Chapter 23 a caller of a universal value chose the argument type.
+
+There is genuine information in the ascription after `as`. Consider the concrete payload `(2,5)` with witness Nat. The types `∃X.X×Nat` and `∃X.Nat×X` are both valid ascriptions: replacing `X` by Nat in either body gives the payload type `Nat×Nat`. Yet a client of the first interface can return the second projection as a natural, observing five; a client of the second can return the first projection as a natural, observing two. In the first case the other projection has the fresh abstract type introduced by unpacking. No operation in that interface converts its result to Nat. A third ascription, `∃X.X×X`, reveals that both components have the same type while withholding the concrete identity of that type.
+
+The counter signature exploits exactly this ability to disclose selected equalities. The result type of initialization, the argument and result of advancement, and the argument of reading all mention one bound name. The client may therefore pass a value produced by any operation returning that name to either operation accepting it. If instead the three fields were packaged using separate existential quantifiers, opening the packages would provide independent names. Even well-typed implementations that secretly chose Nat three times could no longer support this chain by the public field types alone.
+
+# Opening a package
+%%%
+tag := "ch24-s2"
+%%%
+
+The term `unpack [Y,p] = q in b` first evaluates $`q` to a package. In its body it introduces a fresh abstract type name $`Y` and a term name $`p:T(Y)`. If $`q:C` and $`b:B` can be typed under these additional assumptions, the whole expression has type $`B` in the original context. The type $`B` must be well formed outside the scope of $`Y`. A type containing a free occurrence of $`Y` cannot escape this opening.
+
+Consider `unpack [Y,p] = counter in p.read (p.next p.init)`. Projection gives `p.init` type $`Y` and `p.next` type $`Y\rightarrow Y`. Application gives another $`Y`. Projecting `p.read` and applying it yields Nat, which is well formed in the outer context. Operationally opening `pack [A,v]` substitutes $`A` for the type binder and $`v` for the module name in the body, avoiding capture. For the representation above the body calls successor on zero, then reads the resulting 1.
+
+Two separate openings introduce different abstract type names. Even if two packages happen to contain the same representation, the typing rules alone cannot supply an equality between the fresh names. A client must keep the operations and counter values from each opening together.
+
+A client can retain an operation after leaving the scope of the opening. Consider `unpack [Y,p] = counter in λu:Unit. p.read (p.next p.init)`, where Unit has the single value `unit`. In the body of the lambda, `p.next p.init` has type `Y` and applying `p.read` produces Nat. Introducing the unused Unit argument gives `Unit→Nat`. This result type is well formed outside the opening. Later application of the returned closure to `unit` may use the captured implementation, which shares its private representation with its captured operations. The caller receives only the resulting natural.
+
+Changing the body to `λu:Unit. p.next p.init` changes the inferred arrow to `Unit→Y`. A free occurrence of the representation name in the codomain violates the same scope check as returning the counter directly. An interface can expose an advanced counter by packaging it again. Inside the opening, form the record with `init = p.next p.init`, `next = p.next`, and `read = p.read`. It has type `T(Y)`. Pack it using witness `Y` and ascription `C`; the result type is the closed existential type `C`. A subsequent client obtains a fresh type name on opening this new package and can read its advanced initial value.
+
+# A second implementation
+%%%
+tag := "ch24-s3"
+%%%
+
+Use pairs of naturals for the witness. Store a current count in the first component and the number of advances in the second. Use $`\left( {0,0} \right)` for `init`, increment both components in `next`, and project the first in `read`. Writing $`A = \text{Nat} \times \text{Nat}`, the constructor, updater and reader again supply all fields of $`T(A)`. The same client therefore typechecks once at $`C` and computes the integer 1 using either package.
+
+Typing a common interface alone does not assert that implementations compute equal observations. To explain this example, relate a natural $`n` and a pair $`\left( {a,b} \right)` when $`n = a`. The initial values are related, related inputs stay related after `next`, and reading related inputs gives the same natural. By induction on the number of advances, any client consisting of initialization, finitely many advances and a single read obtains the same observation from these implementations. A full representation-independence theorem for arbitrary higher-order clients requires a corresponding relation for all client types.
+
+We can extend the induction to clients that inspect an observation before deciding whether to advance again. Let a client be a finite tree with three constructors: read the current value, advance and continue with a subtree, or inspect whether the current observation is zero and choose between two subtrees. The result of each client is a natural. For any two implementations, assume a relation on their states, a proof that advancing preserves the relation, and a proof that related states yield equal readings. Structural induction on the client tree now proves equal results from every pair of related states. In the branch case the two guards read equal naturals, hence choose corresponding subtrees. The induction hypothesis applies there to the original related states. The advance case instead needs the hypothesis at a *new* pair of states. This is why the theorem quantifies over all related starting states at each subtree.
+
+The code states this argument for arbitrary operations. For our two packages use the relation saying that the left state equals the first component of the right state. Applying the theorem at zero and the initial pair then proves equality of observations for every client described by the three constructors.
+
+```lean
+namespace CounterClients
+inductive Client where
+  | read
+  | next (rest : Client)
+  | branchZero (yes no : Client)
+
+def observe {S : Type} (step : S → S) (readout : S → Nat) :
+    Client → S → Nat
+  | .read, s => readout s
+  | .next k, s => observe step readout k (step s)
+  | .branchZero yes no, s =>
+    if readout s = 0 then observe step readout yes s
+    else observe step readout no s
+
+theorem simulation {S T : Type} (ss : S → S) (ts : T → T)
+    (sr : S → Nat) (tr : T → Nat) (R : S → T → Prop)
+    (stepEq : ∀ s t, R s t → R (ss s) (ts t))
+    (readEq : ∀ s t, R s t → sr s = tr t)
+    (k : Client) (s : S) (t : T) (h : R s t) :
+    observe ss sr k s = observe ts tr k t := by
+  induction k generalizing s t with
+  | read => exact readEq s t h
+  | next k ih => exact ih _ _ (stepEq s t h)
+  | branchZero yes no ihYes ihNo =>
+    simp only [observe, readEq s t h]
+    split
+    · exact ihYes _ _ h
+    · exact ihNo _ _ h
+end CounterClients
+```
+
+# Exercises
+%%%
+tag := "ch24-s4"
+number := false
+%%%
+
+1. Is `unpack [Y,p] = counter in p.init` typable with result Nat? What if the body returns `p.read p.init`?
+2. Construct an implementation at $`C` that always returns zero from `read`. Give a client distinguishing it from the first implementation.
+3. Explain why using the first package’s `next` on the second package’s `init` fails when checked only from the public interfaces.
+
+*Further problem.* Package the counter with witness Nat but represent the logical initial count by one, use successor for advancement, and use predecessor for reading. Prove agreement with the original counter for all finite clients of §24.3, including clients that branch on a reading. Is equality of machine states an invariant?
+
+# Reading for the Seminar
+%%%
+tag := "ch24-s5"
+number := false
+%%%
+
+*Definitions · 10 minutes.* Write the three field types with an abstract representation, then instantiate them with Nat.
+
+*Joint proof · 30 minutes.* Derive the client judgment under a fresh type name and check that its result type survives leaving the scope. Repeat with the pair implementation and compare the execution.
+
+*Proof review · 20 minutes.* Prove the relation in §24.3 for one advance and one read. Explain what the common interface guarantees even for the implementation in Exercise 2.
+
+*Facilitator’s hint.* Keep the witness chosen inside the package on one part of the board and the fresh type variable available to the client on another.
+
+# Solutions
+%%%
+tag := "ch24-s6"
+number := false
+%%%
+
+*1.* The first body yields $`Y`. Identifying it with Nat would require an equality hidden by the package, and returning it directly would allow $`Y` to escape. Reading it first yields Nat, which passes the scope check.
+
+*2.* Keep the natural witness and successor, but define `read = λn:Nat. 0`. The client of §24.2 observes zero there and one with the original package. Both satisfy the three field types.
+
+*3.* The first operation expects $`Y_{1}` and the second package supplies $`Y_{2}`. The application rule requires equal types. The two open scopes supply no equation between the distinct names.
+
+*Further problem.* Choose the relation `R(n,m)` meaning `m=n+1`, where `n` is the original state and `m` the offset state. Initialization establishes `R(0,1)`. If `m=n+1`, then `m+1=(n+1)+1`, which proves the relation for the two successor states. For every related pair, reading the left state yields `n` and reading the right yields `pred(n+1)=n`. These are exactly the two premises of the client-tree induction. At a read leaf the result follows from reading agreement. At an advance node apply the child hypothesis at the successor pair. At a zero test both readings are equal, so the evaluation of each implementation chooses the same child and the original pair still satisfies its hypothesis. Applying the conclusion to the initial pair proves the claim for every such finite client. Equality of the stored naturals is already false at initialization. Abstract observational agreement can therefore hold even for two witnesses that happen to be the same concrete type.

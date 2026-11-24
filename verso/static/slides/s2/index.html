@@ -1,0 +1,1078 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2. 순서·근사·고정점</title><link rel="stylesheet" href="../lib/reveal.js/dist/reset.css">
+    <link rel="stylesheet" href="../lib/reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="talk-kit/theme.css">
+    <link rel="stylesheet" href="../lib/monokai.css">
+    <link rel="stylesheet" href="lean-panels.css">
+    <link rel="stylesheet" href="fig.css">
+    <link rel="stylesheet" href="../lib/highlighting.css">
+    <link rel="stylesheet" href="../lib/tippy-border.css">
+    <link rel="stylesheet" href="../lib/slides-highlight.css">
+    <link rel="stylesheet" href="../lib/panel.css">
+    <link rel="stylesheet" href="../lib/lightbox.css">
+    <link rel="stylesheet" href="../lib/diagram.css">
+    <link rel="stylesheet" href="../lib/illuminate-anim.css">
+    <link rel="stylesheet" href="../lib/table.css">
+    <link rel="stylesheet" href="../lib/katex/dist/katex.min.css">
+    </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-background-color="#1f3a5f">
+          <h2>
+            S2. 순서·근사·고정점</h2>
+          <p>
+            자기 자신을 부르는 방정식에서 해를 고르는 법</p>
+          <p>
+            Reynolds, <em>Theories of Programming Languages</em> 2장 · 시리즈 2/9</p>
+          <aside class="notes"><p>
+              S1의 마지막 장에서 멈춘 while 방정식에서 시작한다. 다섯 막이다: 명령의 의미, 정보의 순서, Kleene 정리, while의 의미, 그리고 "가장 작은 것 = initial"이라는 S1과의 연결.</p>
+            </aside></section>
+        <section>
+          <h2>
+            S1이 남긴 방정식</h2>
+          <div class="tk-box tk-remark">
+            <div class="tk-box-label">
+              S1: 부분식의 의미만 나온다</div>
+            <p>
+              <code class="math display">\sem{e_1 + e_2} = \add_{\Sem}(\sem{e_1},\ \sem{e_2})</code>
+정리 1(initiality)이 해를 하나 준다.</p>
+            </div>
+          <div class="tk-box tk-warn">
+            <div class="tk-box-label">
+              <span class="tk-box-kind">반례</span>  ·  while: 자기 자신이 나온다</div>
+            <p>
+              <code class="math display">\sem{\cmd{while}\ b\ \cmd{do}\ c}\,\sigma =
+\begin{cases}
+\ext{\chg{\sem{\cmd{while}\ b\ \cmd{do}\ c}}}(\sem{c}\,\sigma) &amp; \sem{b}\sigma = \mathrm{true} \\
+\sigma &amp; \text{그 밖}
+\end{cases}</code></p>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              노란 칸이 왼쪽 전체다. 해가 여럿이면 어느 것을 의미로 고르는가? 고른 해는 왜 존재하는가?</p>
+            </div>
+          <aside class="notes"><p>
+              Reynolds는 이 식을 의미 방정식이라고 부르지 않는다. 부분식의 의미만으로 쓰이지 않았기 때문이다(2.2절). 오늘은 이 식을 함수에 대한 방정식 W = F(W)로 읽고, 해들 사이에 순서를 주어 가장 작은 해를 고른다. 끝에서 그렇게 고른 해로 while을 다시 fold 안에 넣는다.</p>
+            </aside></section>
+        <section data-background-color="#1f3a5f">
+          <h2>
+            1. 명령의 의미</h2>
+          <p class="tk-question">
+            끝나지 않는 실행은 어디에 두는가?</p>
+          </section>
+        <section>
+          <h2>
+            명령의 의미: Σ → Σ⊥</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.1fr 1fr; align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  결과에 ⊥를 하나 더한다</div>
+              <p>
+                <code class="math display">\sem{c} \in \Sigma \to \Sb,\qquad \Sb = \Sigma \cup \{\bot\}</code></p>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">\sem{v := e}\,\sigma</code></td><td class="tk-calc-r"><code class="math inline">= [\sigma \mid v : \sem{e}\sigma]</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">\sem{\cmd{skip}}\,\sigma</code></td><td class="tk-calc-r"><code class="math inline">= \sigma</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">\sem{\cmd{while}\ \cmd{true}\ \cmd{do}\ \cmd{skip}}\,\sigma</code></td><td class="tk-calc-r"><code class="math inline">= \bot</code></td><td class="tk-calc-why"></td></tr></tbody></table></div>
+            <div class="tk-fig" style="width:430.000000px;height:220.000000px">
+              <svg class="tk-fig-svg" width="430.000000" height="220.000000" viewBox="0 0 430.000000 220.000000"><g class="tk-fig-e"><path d="M 194.800000 166.700000 L 84.700000 67.400000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 206.500000 161.300000 L 173.500000 68.700000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 224.300000 161.300000 L 260.700000 68.700000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 235.300000 167.300000 L 354.700000 62.700000" class="tk-fig-edge"></path></g></svg><div class="tk-fig-node" style="left:215.000000px;top:185.000000px">
+                <code class="math inline">\bot</code></div>
+              <div class="tk-fig-node" style="left:60.000000px;top:45.000000px">
+                <code class="math inline">\sigma_1</code></div>
+              <div class="tk-fig-node" style="left:165.000000px;top:45.000000px">
+                <code class="math inline">\sigma_2</code></div>
+              <div class="tk-fig-node" style="left:270.000000px;top:45.000000px">
+                <code class="math inline">\sigma_3</code></div>
+              <div class="tk-fig-node" style="left:375.000000px;top:45.000000px">
+                <code class="math inline">\cdots</code></div>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              오른쪽은 <code class="math inline">\Sb</code>의 순서다: ⊥는 모든 상태 아래, 서로 다른 상태끼리는 비교하지 않는다(flat). <code class="math inline">\sigma \sqsubseteq \tau</code>는 "τ가 σ보다 정보가 많거나 같다".</p>
+            </div>
+          <aside class="notes"><p>
+              명령은 상태를 바꾸므로 의미는 상태에서 상태로 가는 함수인데, 끝나지 않는 실행이 있으므로 결과 자리에 ⊥를 하나 더한다. 식과 조건은 항상 끝난다고 가정한다. 이 가정의 대가는 S4에서 다룬다.
+while true do skip의 결과가 ⊥라는 것은 지금은 직관이다. 4막에서 정의로부터 확인한다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            순차 합성은 ⊥를 전파한다</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.1fr 1fr; align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  strict 확장</div>
+              <p>
+                <code class="math inline">f : \Sigma\to\Sb</code>이면 <code class="math inline">\ext{f} : \Sb\to\Sb</code></p>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">\ext{f}(\bot)</code></td><td class="tk-calc-r"><code class="math inline">= \bot</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">\ext{f}(\sigma)</code></td><td class="tk-calc-r"><code class="math inline">= f(\sigma)</code></td><td class="tk-calc-why"></td></tr></tbody></table><p>
+                <code class="math display">\sem{c_0\,;\,c_1}\,\sigma = \ext{\sem{c_1}}(\sem{c_0}\,\sigma)</code></p>
+              </div>
+            <div class="tk-fig" style="width:430.000000px;height:220.000000px">
+              <svg class="tk-fig-svg" width="430.000000" height="220.000000" viewBox="0 0 430.000000 220.000000"><g class="tk-fig-e"><path d="M 91.500000 55.000000 L 296.000000 55.000000" class="tk-fig-edge"></path><polygon points="306.000000,55.000000 292.000000,48.500000 292.000000,61.500000" class="tk-fig-head"></polygon><path d="M 91.500000 47.000000 L 91.500000 63.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 91.500000 175.000000 L 318.500000 175.000000" class="tk-fig-edge"></path><polygon points="328.500000,175.000000 314.500000,168.500000 314.500000,181.500000" class="tk-fig-head"></polygon><path d="M 91.500000 167.000000 L 91.500000 183.000000" class="tk-fig-edge"></path></g></svg><div class="tk-fig-node" style="left:70.000000px;top:55.000000px">
+                <code class="math inline">\sigma</code></div>
+              <div class="tk-fig-node" style="left:70.000000px;top:175.000000px">
+                <code class="math inline">\bot</code></div>
+              <div class="tk-fig-node c-val" style="left:350.000000px;top:55.000000px">
+                <code class="math inline">f(\sigma)</code></div>
+              <div class="tk-fig-node" style="left:350.000000px;top:175.000000px">
+                <code class="math inline">\bot</code></div>
+              <div class="tk-fig-label" style="left:198.800000px;top:46.000000px;transform:translate(-50.000000%,-100.000000%)">
+                <code class="math inline">\ext{f}</code></div>
+              <div class="tk-fig-label" style="left:210.000000px;top:184.000000px;transform:translate(-50.000000%,0.000000%)">
+                <code class="math inline">\ext{f}</code></div>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              앞 명령이 끝나지 않으면 뒤 명령은 시작하지 않는다. S4에서 이 확장은 실패까지 처리하는 확장 <code class="math inline">f^*</code>로 자란다.</p>
+            </div>
+          <aside class="notes"><p>
+              <code class="math inline">\sem{c_1}(\sem{c_0}\sigma)</code>로 쓰면 앞 결과가 ⊥일 때 함수에 넣을 수 없다. ⊥를 ⊥로 보내는 확장이 필요하다. 이것이 S4에서 Kleisli 확장이라는 이름을 얻는 첫 사례다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            while은 W = F(W)를 만족한다</h2>
+          <div class="tk-cols" style="align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  펼침 함수 F</div>
+              <p>
+                <code class="math display">F(f)(\sigma) =
+\begin{cases}
+\ext{f}(\sem{c}\,\sigma) &amp; \sem{b}\,\sigma = \mathrm{true} \\
+\sigma &amp; \text{그 밖}
+\end{cases}</code>
+<code class="math display">\sem{\cmd{while}\ b\ \cmd{do}\ c} = F\bigl(\sem{\cmd{while}\ b\ \cmd{do}\ c}\bigr)</code></p>
+              </div>
+            <div class="tk-box tk-ex">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">예</span>  ·  러닝 예제 <code class="math inline">W = \cmd{while}\ x\ne 0\ \cmd{do}\ x := x - 2</code></div>
+              <p>
+                <code class="math display">F(f)(\sigma) =
+\begin{cases}
+f([\sigma \mid x : \sigma x - 2]) &amp; \sigma x \neq 0 \\
+\sigma &amp; \sigma x = 0
+\end{cases}</code></p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              <code class="math inline">F</code>는 함수를 받아 함수를 돌려준다. while의 의미는 <code class="math inline">F</code>의 고정점이어야 한다.</p>
+            </div>
+          <aside class="notes"><p>
+              F의 정의역과 공역은 Σ → Σ⊥ 전체다. 러닝 예제에서 몸체 x := x − 2는 ⊥를 내지 않으므로 f⊥⊥가 f로 바로 바뀐다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            펼침 방정식의 해는 여럿이다</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.5fr 1fr; align-items: center">
+            <div class="tk-box tk-ex">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">예</span>  ·  러닝 예제: F(h) = h가 요구하는 것</div>
+              <table class="tk-rows"><thead><tr><th><code class="math inline">\sigma x</code></th><th><code class="math inline">h(\sigma)</code>에 대한 조건</th></tr></thead><tbody><tr><td><code class="math inline">0, 2, 4, \dots</code></td><td><code class="math inline">h(\sigma) = [\sigma \mid x : 0]</code></td></tr><tr><td>음의 짝수, 홀수</td><td><code class="math inline">h(\sigma) = h([\sigma \mid x : \sigma x - 2])</code>뿐</td></tr></tbody></table><p>
+                예: 음의 짝수·홀수에서 <code class="math inline">h(\sigma) = [\sigma\mid x:7]</code>도 해다.</p>
+              </div>
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  <code class="math inline">\cmd{while}\ \cmd{true}\ \cmd{do}\ \cmd{skip}</code></div>
+              <p>
+                <code class="math display">F(f) = f</code>
+모든 함수가 해다.</p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              방정식만으로는 의미가 정해지지 않는다. 실제 실행은 음수·홀수에서 끝나지 않으므로 거기서 결과는 ⊥여야 한다.</p>
+            </div>
+          <aside class="notes"><p>
+              0 이상의 짝수에서는 x가 0이 될 때까지 2씩 빼고 멈추므로 값이 강제된다. 음의 짝수와 홀수에서는 x만 2씩 다른 상태들이 같은 값을 받으라는 조건뿐이다. x와 무관한 값 <code class="math inline">[\sigma\mid x:7]</code>이 그 조건을 만족한다. Lean의 <code>alt_fixed</code>가 이 다른 해를 검사한다.</p>
+            </aside></section>
+        <section data-background-color="#1f3a5f">
+          <h2>
+            2. 정보의 순서</h2>
+          <p class="tk-question">
+            해들을 무엇으로 비교하는가?</p>
+          </section>
+        <section>
+          <h2>
+            점별 순서: ⊥ 칸을 채우면 커진다</h2>
+          <div class="tk-box tk-defn">
+            <div class="tk-box-label">
+              <span class="tk-box-kind">정의</span>  ·  Σ → Σ⊥의 순서</div>
+            <p>
+              <code class="math display">f \sqsubseteq g \iff \forall\sigma.\ f\sigma = \bot\ \lor\ f\sigma = g\sigma</code></p>
+            </div>
+          <table class="tk-rows"><thead><tr><th><code class="math inline">\sigma x</code></th><th><code class="math inline">-2</code></th><th><code class="math inline">-1</code></th><th><code class="math inline">0</code></th><th><code class="math inline">1</code></th><th><code class="math inline">2</code></th><th><code class="math inline">3</code></th><th><code class="math inline">4</code></th></tr></thead><tbody><tr><td><code class="math inline">f</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td></tr><tr><td><code class="math inline">g</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td></tr></tbody></table><div class="tk-gloss">
+            <p>
+              <code class="math inline">f\sqsubseteq g</code>: <code class="math inline">g</code>는 <code class="math inline">f</code>가 끝나는 곳에서 같은 결과를 내고, 노란 칸에서 더 끝난다. 결과를 바꾸는 일은 없다. <code class="math inline">\sigma_0 = [\sigma\mid x:0]</code>.</p>
+            </div>
+          <aside class="notes"><p>
+              순서는 수의 크기가 아니라 정보의 양이다. 끝난 계산은 끝나지 않은 계산보다 정보가 많고, 끝난 두 결과는 서로 다른 정보라 비교하지 않는다. 이 순서에서 "가장 작은 해"는 "가장 적은 상태에서 끝나는 해"다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            domain: ⊥와 ω-chain의 상한</h2>
+          <div class="tk-cols" style="grid-template-columns: 1fr 1.1fr; align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  predomain, domain (Reynolds)</div>
+              <p>
+                ω-chain <code class="math inline">x_0 \sqsubseteq x_1 \sqsubseteq \cdots</code>마다 최소 상한 <code class="math inline">\lub_n x_n</code>이 있으면 predomain.</p>
+              <p>
+                최소 원소 <code class="math inline">\bot</code>까지 있으면 domain.</p>
+              </div>
+            <div class="tk-fig" style="width:520.000000px;height:300.000000px">
+              <svg class="tk-fig-svg" width="520.000000" height="300.000000" viewBox="0 0 520.000000 300.000000"><g class="tk-fig-e"><path d="M 90.000000 246.000000 L 90.000000 234.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 90.000000 186.000000 L 90.000000 174.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 90.000000 126.000000 L 90.000000 119.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 90.000000 71.000000 L 90.000000 59.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 344.600000 246.800000 L 295.400000 173.200000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 360.000000 246.000000 L 360.000000 174.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 375.400000 246.800000 L 424.600000 173.200000" class="tk-fig-edge"></path></g></svg><div class="tk-fig-node" style="left:90.000000px;top:270.000000px">
+                <code class="math inline">0</code></div>
+              <div class="tk-fig-node" style="left:90.000000px;top:210.000000px">
+                <code class="math inline">1</code></div>
+              <div class="tk-fig-node" style="left:90.000000px;top:150.000000px">
+                <code class="math inline">2</code></div>
+              <div class="tk-fig-node" style="left:90.000000px;top:95.000000px">
+                <code class="math inline">\vdots</code></div>
+              <div class="tk-fig-node" style="left:90.000000px;top:35.000000px">
+                <code class="math inline">\infty</code></div>
+              <div class="tk-fig-node small" style="left:90.000000px;top:300.000000px">
+                <code class="math inline">\mathbb N\cup\{\infty\}</code></div>
+              <div class="tk-fig-node" style="left:360.000000px;top:270.000000px">
+                <code class="math inline">\bot</code></div>
+              <div class="tk-fig-node" style="left:280.000000px;top:150.000000px">
+                <code class="math inline">\sigma_1</code></div>
+              <div class="tk-fig-node" style="left:360.000000px;top:150.000000px">
+                <code class="math inline">\sigma_2</code></div>
+              <div class="tk-fig-node" style="left:440.000000px;top:150.000000px">
+                <code class="math inline">\cdots</code></div>
+              <div class="tk-fig-node small" style="left:360.000000px;top:300.000000px">
+                <code class="math inline">\Sb</code> (flat)</div>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              각 상태 σ를 고정하면 <code class="math inline">f_n(\sigma)</code>는 flat한 <code class="math inline">\Sb</code>의 chain이라 어느 단계부터 일정하고, 그 값이 <code class="math inline">(\lub_n f_n)(\sigma)</code>다. 일정해지는 단계는 σ마다 다를 수 있다(Reynolds Prop 2.2).</p>
+            </div>
+          <aside class="notes"><p>
+              Reynolds의 domain은 ω-chain에만 상한을 요구한다. directed 집합을 쓰는 다른 책의 정의(dcpo)보다 약하다. 이 시리즈는 Reynolds의 정의를 따른다.
+왼쪽 <code class="math inline">\mathbb N\cup\{\infty\}</code>는 서로 다른 원소가 끝없이 이어지는 chain을 가진 가장 단순한 domain이고, 오른쪽 flat domain에는 그런 chain이 없다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            연속: 상한을 보존한다</h2>
+          <div class="tk-cols" style="grid-template-columns: 1fr 1.05fr; align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  연속 함수</div>
+              <p>
+                단조이고 모든 ω-chain에서
+<code class="math display">f\bigl(\lub_n x_n\bigr) = \lub_n f(x_n)</code></p>
+              </div>
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  단조지만 연속이 아닌 함수</div>
+              <div class="tk-fig" style="width:470.000000px;height:300.000000px">
+                <svg class="tk-fig-svg" width="470.000000" height="300.000000" viewBox="0 0 470.000000 300.000000"><g class="tk-fig-e"><path d="M 80.000000 246.000000 L 80.000000 234.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 80.000000 186.000000 L 80.000000 174.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 80.000000 126.000000 L 80.000000 119.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 80.000000 71.000000 L 80.000000 59.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 380.000000 186.000000 L 380.000000 119.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 101.400000 265.700000 L 348.800000 216.200000" class="tk-fig-edge c-muted"></path><polygon points="358.600000,214.300000 343.600000,210.700000 346.100000,223.400000" class="tk-fig-head c-muted"></polygon><path d="M 99.800000 257.900000 L 103.000000 273.600000" class="tk-fig-edge c-muted"></path></g><g class="tk-fig-e"><path d="M 101.500000 210.000000 L 348.500000 210.000000" class="tk-fig-edge c-muted"></path><polygon points="358.500000,210.000000 344.500000,203.500000 344.500000,216.500000" class="tk-fig-head c-muted"></polygon><path d="M 101.500000 202.000000 L 101.500000 218.000000" class="tk-fig-edge c-muted"></path></g><g class="tk-fig-e"><path d="M 101.400000 154.300000 L 348.800000 203.800000" class="tk-fig-edge c-muted"></path><polygon points="358.600000,205.700000 346.100000,196.600000 343.600000,209.300000" class="tk-fig-head c-muted"></polygon><path d="M 103.000000 146.400000 L 99.800000 162.100000" class="tk-fig-edge c-muted"></path></g><g class="tk-fig-e"><path d="M 101.400000 39.300000 L 348.800000 88.800000" class="tk-fig-edge c-warn"></path><polygon points="358.600000,90.700000 346.100000,81.600000 343.600000,94.300000" class="tk-fig-head c-warn"></polygon><path d="M 103.000000 31.400000 L 99.800000 47.100000" class="tk-fig-edge c-warn"></path></g></svg><div class="tk-fig-node" style="left:80.000000px;top:270.000000px">
+                  <code class="math inline">0</code></div>
+                <div class="tk-fig-node" style="left:80.000000px;top:210.000000px">
+                  <code class="math inline">1</code></div>
+                <div class="tk-fig-node" style="left:80.000000px;top:150.000000px">
+                  <code class="math inline">2</code></div>
+                <div class="tk-fig-node" style="left:80.000000px;top:95.000000px">
+                  <code class="math inline">\vdots</code></div>
+                <div class="tk-fig-node" style="left:80.000000px;top:35.000000px">
+                  <code class="math inline">\infty</code></div>
+                <div class="tk-fig-node" style="left:380.000000px;top:210.000000px">
+                  <code class="math inline">\bot</code></div>
+                <div class="tk-fig-node" style="left:380.000000px;top:95.000000px">
+                  <code class="math inline">\top</code></div>
+                </div>
+              <p>
+                <code class="math inline">f(\lub_n n) = \top \ne \bot = \lub_n f(n)</code></p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              유한한 근사에서 보이지 않던 정보가 상한에서 처음 나타나면 연속이 아니다. 오른쪽 두 점 domain <code class="math inline">\{\bot\sqsubseteq\top\}</code>은 S3·S5에서 관찰의 모양으로 다시 나온다.</p>
+            </div>
+          <aside class="notes"><p>
+              연속 함수는 단조다. 단조 함수는 chain을 chain으로 보내므로 연속성은 "상한을 보존한다"는 등식 하나다. 서로 다른 원소가 끝없이 이어지는 chain이 없는 domain에서 나가는 단조 함수는 모두 연속이다.</p>
+            </aside></section>
+        <section data-background-color="#1f3a5f">
+          <h2>
+            3. 최소 고정점</h2>
+          <p class="tk-question">
+            가장 작은 해는 왜 있고, 어떻게 구하는가?</p>
+          </section>
+        <section>
+          <h2>
+            ⊥에서 시작해 F를 반복한다</h2>
+          <div class="tk-center">
+            <table class="tk-rows"><thead><tr><th>근사</th><th><code class="math inline">\sigma x = -2</code></th><th><code class="math inline">-1</code></th><th><code class="math inline">0</code></th><th><code class="math inline">1</code></th><th><code class="math inline">2</code></th><th><code class="math inline">3</code></th><th><code class="math inline">4</code></th><th><code class="math inline">6</code></th></tr></thead><tbody><tr><td><code class="math inline">F^0\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td></tr><tr class="fragment" data-fragment-index="1"><td><code class="math inline">F^1\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td></tr><tr class="fragment" data-fragment-index="2"><td><code class="math inline">F^2\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td></tr><tr class="fragment" data-fragment-index="3"><td><code class="math inline">F^3\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td></tr><tr class="fragment" data-fragment-index="4"><td><code class="math inline">F^4\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td class="tk-chg"><code class="math inline">\sigma_0</code></td></tr><tr class="fragment" data-fragment-index="5"><td><code class="math inline">\lub_n F^n\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\bot</code></td><td><code class="math inline">\sigma_0</code></td><td><code class="math inline">\sigma_0</code></td></tr></tbody></table></div>
+          <div class="tk-gloss">
+            <p>
+              <code class="math inline">F^0\bot = \lambda\sigma.\,\bot</code>. 노란 칸이 그 단계에서 새로 정해진 값이다. 각 행은 앞 행보다 정보가 많다(chain).</p>
+            </div>
+          <aside class="notes"><p>
+              F¹⊥는 x = 0인 상태에서만 끝난다. F²⊥는 x = 2에서도 끝난다: 2를 빼면 0이 되고 F¹⊥가 거기서 끝나기 때문이다. Fⁿ⊥는 루프를 n층까지 펼치고, 그 안에서 끝나지 않으면 ⊥로 남긴 의미다. 끝나는 경로는 원래 조건을 최대 n번, 몸체를 최대 n − 1번 실행한다. 음수와 홀수 열은 끝까지 ⊥다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            정리 1. Kleene</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.05fr 1fr; align-items: center">
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  최소 고정점 정리 (Reynolds Prop 2.5)</div>
+              <p>
+                <code class="math inline">D</code>가 domain이고 <code class="math inline">f : D \to D</code>가 연속이면
+<code class="math display">Y f = \lub_n f^n(\bot)</code>
+는 고정점이고, <code class="math inline">f(y)\sqsubseteq y</code>인 모든 <code class="math inline">y</code>보다 아래다.</p>
+              </div>
+            <div class="tk-fig" style="width:470.000000px;height:320.000000px">
+              <svg class="tk-fig-svg" width="470.000000" height="320.000000" viewBox="0 0 470.000000 320.000000"><g class="tk-fig-e"><path d="M 80.400000 273.700000 L 107.300000 252.100000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 162.700000 207.900000 L 182.300000 192.100000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 238.700000 148.000000 L 254.500000 135.700000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 295.500000 104.300000 L 303.500000 98.000000" class="tk-fig-edge dashed"></path></g><g class="tk-fig-e"><path d="M 420.000000 151.000000 L 420.000000 60.000000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 381.500000 49.300000 L 377.100000 51.500000" class="tk-fig-edge c-thm dashed"></path><polygon points="386.000000,47.000000 370.600000,47.400000 376.400000,59.100000" class="tk-fig-head c-thm"></polygon></g></svg><div class="tk-fig-node" style="left:60.000000px;top:290.000000px">
+                <code class="math inline">\bot</code></div>
+              <div class="tk-fig-node" style="left:135.000000px;top:230.000000px">
+                <code class="math inline">f\bot</code></div>
+              <div class="tk-fig-node" style="left:210.000000px;top:170.000000px">
+                <code class="math inline">f^2\bot</code></div>
+              <div class="tk-fig-node" style="left:275.000000px;top:120.000000px">
+                <code class="math inline">\cdots</code></div>
+              <div class="tk-fig-node box c-thm" style="left:340.000000px;top:70.000000px">
+                <code class="math inline">Yf</code></div>
+              <div class="tk-fig-node" style="left:420.000000px;top:175.000000px">
+                <code class="math inline">f(y)</code></div>
+              <div class="tk-fig-node box" style="left:420.000000px;top:30.000000px">
+                <code class="math inline">y</code></div>
+              <div class="tk-fig-label c-thm" style="left:379.700000px;top:40.100000px;transform:translate(-72.400000%,-94.700000%)">
+                <code class="math inline">\sqsubseteq</code></div>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              <code class="math inline">f(y)\sqsubseteq y</code>인 <code class="math inline">y</code>를 pre-fixed point라 한다. 고정점은 모두 pre-fixed point이므로 <code class="math inline">Yf</code>는 최소 고정점이다.</p>
+            </div>
+          <aside class="notes"><p>
+              그림은 위가 큰 Hasse 그림이다. 사다리는 ⊥에서 시작해 f를 한 번씩 적용한 근사들이고, 꼭대기가 그 상한 Yf다. 오른쪽 y는 f(y) ⊑ y인 아무 원소다. 정리는 Yf가 고정점이며 그런 y 모두의 아래에 있다고 말한다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            증명: 사다리를 오르고, 한 칸 민다</h2>
+          <div class="tk-cols">
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  ① chain, ② 상한은 고정점</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">f^n\bot</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq f^{n+1}\bot</code></td><td class="tk-calc-why">귀납: <code class="math inline">\bot\sqsubseteq f\bot</code>, 단조</td></tr><tr><td class="tk-calc-l"><code class="math inline">f\bigl(\lub_n f^n\bot\bigr)</code></td><td class="tk-calc-r"><code class="math inline">= \lub_n f^{n+1}\bot</code></td><td class="tk-calc-why">연속</td></tr><tr><td class="tk-calc-l"><td class="tk-calc-r"><code class="math inline">= \lub_n f^n\bot</code></td><td class="tk-calc-why">한 칸 밀어도 같다</td></tr></tbody></table></div>
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  ③ 모든 pre-fixed point 아래</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">f^n\bot</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq y</code></td><td class="tk-calc-why">귀납: <code class="math inline">f^{n+1}\bot\sqsubseteq f(y)\sqsubseteq y</code></td></tr><tr><td class="tk-calc-l"><code class="math inline">\lub_n f^n\bot</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq y</code></td><td class="tk-calc-why">최소 상한</td></tr></tbody></table></div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              쓴 조건: ⊥(①③), 단조(①③), ω-chain의 상한(②③), 상한 보존(②만). 다음 장에서 하나씩 뺀다.</p>
+            </div>
+          <aside class="notes"><p>
+              ①과 ③은 n에 대한 귀납이다. 상한 보존이 쓰이는 곳은 ② 하나다. f를 상한 안으로 넣어야 한 칸 밀린 chain이 되고, 앞에 ⊥ 하나를 붙여도 상한은 같다.
+③에는 상한 보존이 필요 없다. 단조성만으로 ⊔fⁿ⊥ ⊑ y다. 다만 그 상한이 고정점이라는 것은 ②가 필요하다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            조건 하나씩 빼기</h2>
+          <div class="tk-cols" style="grid-template-columns: 1fr 1fr 1fr">
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  ⊥가 없으면</div>
+              <div class="tk-fig" style="width:300.000000px;height:160.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="160.000000" viewBox="0 0 300.000000 160.000000"><g class="tk-fig-e"><path d="M 104.100000 65.100000 Q 150.000000 45.000000 186.800000 61.100000" class="tk-fig-edge"></path><polygon points="195.900000,65.100000 185.700000,53.500000 180.500000,65.400000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 195.900000 94.900000 Q 150.000000 115.000000 113.200000 98.900000" class="tk-fig-edge"></path><polygon points="104.100000,94.900000 114.300000,106.500000 119.500000,94.600000" class="tk-fig-head"></polygon></g></svg><div class="tk-fig-node circ" style="left:70.000000px;top:80.000000px">
+                  <code class="math inline">a</code></div>
+                <div class="tk-fig-node circ" style="left:230.000000px;top:80.000000px">
+                  <code class="math inline">b</code></div>
+                <div class="tk-fig-label" style="left:150.000000px;top:46.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">f</code></div>
+                <div class="tk-fig-label" style="left:150.000000px;top:114.000000px;transform:translate(-50.000000%,0.000000%)">
+                  <code class="math inline">f</code></div>
+                </div>
+              <p>
+                discrete <code class="math inline">\{a, b\}</code>, 고정점 없음.</p>
+              </div>
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  상한이 없으면</div>
+              <div class="tk-fig" style="width:300.000000px;height:160.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="160.000000" viewBox="0 0 300.000000 160.000000"><g class="tk-fig-e"><path d="M 91.500000 130.000000 L 118.500000 130.000000" class="tk-fig-edge"></path><polygon points="128.500000,130.000000 114.500000,123.500000 114.500000,136.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 171.500000 130.000000 L 198.500000 130.000000" class="tk-fig-edge"></path><polygon points="208.500000,130.000000 194.500000,123.500000 194.500000,136.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 251.500000 130.000000 L 260.800000 130.000000" class="tk-fig-edge"></path><polygon points="270.800000,130.000000 256.800000,123.500000 256.800000,136.500000" class="tk-fig-head"></polygon></g></svg><div class="tk-fig-node" style="left:70.000000px;top:130.000000px">
+                  <code class="math inline">0</code></div>
+                <div class="tk-fig-node" style="left:150.000000px;top:130.000000px">
+                  <code class="math inline">1</code></div>
+                <div class="tk-fig-node" style="left:230.000000px;top:130.000000px">
+                  <code class="math inline">2</code></div>
+                <div class="tk-fig-node small" style="left:290.000000px;top:130.000000px">
+                  <code class="math inline">\cdots</code></div>
+                <div class="tk-fig-label" style="left:110.000000px;top:121.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">f</code></div>
+                <div class="tk-fig-label" style="left:190.000000px;top:121.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">f</code></div>
+                </div>
+              <p>
+                <code class="math inline">\mathbb N</code>, <code class="math inline">f(n) = n+1</code>. chain에 상한이 없고 고정점도 없다.</p>
+              </div>
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  연속이 아니면</div>
+              <div class="tk-fig" style="width:300.000000px;height:160.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="160.000000" viewBox="0 0 300.000000 160.000000"><g class="tk-fig-e"><path d="M 61.500000 120.000000 L 63.500000 120.000000" class="tk-fig-edge"></path><polygon points="73.500000,120.000000 59.500000,113.500000 59.500000,126.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 116.500000 120.000000 L 118.500000 120.000000" class="tk-fig-edge"></path><polygon points="128.500000,120.000000 114.500000,113.500000 114.500000,126.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 236.500000 120.000000 L 235.000000 120.000000" class="tk-fig-edge c-warn"></path><polygon points="245.000000,120.000000 231.000000,113.500000 231.000000,126.500000" class="tk-fig-head c-warn"></polygon></g></svg><div class="tk-fig-node" style="left:40.000000px;top:120.000000px">
+                  <code class="math inline">0</code></div>
+                <div class="tk-fig-node" style="left:95.000000px;top:120.000000px">
+                  <code class="math inline">1</code></div>
+                <div class="tk-fig-node" style="left:150.000000px;top:120.000000px">
+                  <code class="math inline">\cdots</code></div>
+                <div class="tk-fig-node" style="left:215.000000px;top:120.000000px">
+                  <code class="math inline">\omega</code></div>
+                <div class="tk-fig-node" style="left:280.000000px;top:120.000000px;min-width:50.000000px">
+                  <code class="math inline">\omega{+}1</code></div>
+                <div class="tk-fig-label" style="left:67.500000px;top:111.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">f</code></div>
+                <div class="tk-fig-label c-warn" style="left:240.800000px;top:111.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">f</code></div>
+                </div>
+              <p>
+                <code class="math inline">\lub_n f^n(0) = \omega</code>인데 <code class="math inline">f(\omega) = \omega + 1</code>.</p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              근사를 시작할 곳(⊥), 근사가 도착할 곳(상한), 도착점을 고정점으로 만드는 조건(연속)이 모두 필요하다.</p>
+            </div>
+          <aside class="notes"><p>
+              왼쪽: discrete 집합은 predomain이고 모든 함수가 연속이지만 출발점이 없다. 가운데: ⊥ = 0, 단조, 존재하는 상한은 보존하지만 0, 1, 2, …가 어디에도 도착하지 않는다. 오른쪽: 0 &lt; 1 &lt; ⋯ &lt; ω &lt; ω+1로 일렬인 domain, f(n) = n+1, f(ω) = f(ω+1) = ω+1. 최소 고정점 ω+1은 있지만 유한 반복의 상한 ω는 고정점이 아니다. 연속성은 "근사의 상한이 최소 고정점"이 되게 하는 조건이다.</p>
+            </aside></section>
+        <section data-background-color="#1f3a5f">
+          <h2>
+            4. while의 의미</h2>
+          <p class="tk-question">
+            그 해는 실행과 맞는가?</p>
+          </section>
+        <section>
+          <h2>
+            ⟦while⟧ = YF, 근사는 펼친 프로그램</h2>
+          <div class="tk-cols" style="grid-template-columns: 0.75fr 1.4fr; align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  while (Reynolds 2.4절)</div>
+              <p>
+                <code class="math display">\sem{\cmd{while}\ b\ \cmd{do}\ c}</code>
+<code class="math display">:= Y F = \lub_n F^n\bot</code>
+<code class="math inline">F</code>는 연속이다(부록).</p>
+              </div>
+            <div class="tk-box tk-ex">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">예</span>  ·  <code class="math inline">F^n\bot</code> = <code class="math inline">w_n</code>의 의미</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">w_0</code></td><td class="tk-calc-r"><code class="math inline">= \cmd{while}\ \cmd{true}\ \cmd{do}\ \cmd{skip}</code></td><td class="tk-calc-why"><code class="math inline">\sem{w_0} = F^0\bot</code></td></tr><tr><td class="tk-calc-l"><code class="math inline">w_{n+1}</code></td><td class="tk-calc-r"><code class="math inline">= \cmd{if}\ b\ \cmd{then}\ (c\,;\,w_n)\ \cmd{else}\ \cmd{skip}</code></td><td class="tk-calc-why"><code class="math inline">\sem{w_{n+1}} = F\sem{w_n}</code></td></tr></tbody></table></div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              실제 while은 어떤 n보다도 많이 반복할 수 있다. 그래서 의미를 <code class="math inline">w_n</code>들의 의미의 상한으로 정한다.</p>
+            </div>
+          <aside class="notes"><p>
+              "가장 작은 해가 올바른 의미"는 정리가 아니라 선택이다. Reynolds도 while에 대한 다른 엄밀한 정의가 없으므로 증명할 수 없다고 말하고, wₙ으로 직관을 준다. 실행이 b를 정확히 n번 검사하고 끝나면 i &lt; n인 wᵢ는 ⊥, i ≥ n인 wᵢ는 같은 결과다. 끝나지 않으면 모든 wᵢ가 ⊥다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            최소 해 = 실제 실행</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.2fr 1fr; align-items: center">
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  닫힌 꼴</div>
+              <p>
+                <code class="math display">F^n\bot(\sigma) = \begin{cases}\sigma_0 &amp; \sigma x\ \text{짝수},\ 0\le\sigma x&lt;2n\\ \bot &amp; \text{그 밖}\end{cases}</code>
+<code class="math display">YF(\sigma) = \begin{cases}\sigma_0 &amp; \sigma x\ \text{짝수},\ \sigma x\ge 0\\ \bot &amp; \text{그 밖}\end{cases}</code></p>
+              </div>
+            <table class="tk-rows"><thead><tr><th><code class="math inline">\sigma x</code></th><th>방정식</th><th><code class="math inline">YF</code></th><th>실행</th></tr></thead><tbody><tr><td><code class="math inline">0, 2, 4, \dots</code></td><td><code class="math inline">\sigma_0</code>로 강제</td><td><code class="math inline">\sigma_0</code></td><td>멈춤</td></tr><tr><td>음의 짝수, 홀수</td><td>상태끼리 같기만</td><td class="tk-chg"><code class="math inline">\bot</code></td><td>안 끝남</td></tr></tbody></table></div>
+          <div class="tk-gloss">
+            <p>
+              최소 해는 방정식이 강제하지 않는 곳에서 아무것도 주장하지 않는다(⊥). 0 이상의 짝수 m은 <code class="math inline">F^{m/2+1}\bot</code>에서 처음 값을 얻는다.</p>
+            </div>
+          <aside class="notes"><p>
+              닫힌 꼴은 n에 대한 귀납으로 증명한다. σx ≠ 0이면 <code class="math inline">F^{n+1}\bot(\sigma) = F^n\bot([\sigma\mid x:\sigma x-2])</code>이고, 귀납 가정으로 σx − 2가 0 이상 2n 미만의 짝수일 때만 ⊥가 아니다. Lean의 <code>approx_eq</code>가 닫힌 꼴을, <code>approx_reaches</code>가 도달 단계를 검사한다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            Lean: 일반 정리와 러닝 예제</h2>
+          <code class="hl lean block"><span class="doc-comment token" data-binding="">/-- Kleene 최소 고정점 정리 (Reynolds Prop 2.5). -/</span><span class="inter-text">
+</span><span class="keyword token" data-binding="kw-occ-Lean.Parser.Command.theorem-3109">theorem</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.kleene" data-verso-hover="0">kleene</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3124">(</span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3124">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2883" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-Lean.Parser.Term.arrow-3129">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2883" data-verso-hover="2">D</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3124">)</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3138">(</span><span class="var token" data-binding="var-_uniq.2896" data-verso-hover="3">hf</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3138">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.explicitBinder-3138">)</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Term.typeSpec-3160">:</span><span class="inter-text">
+    </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-3168">(</span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="6">lfp</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-3168">)</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_=_»-3166">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="6">lfp</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_∧_»-3166">∧</span><span class="inter-text"> </span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2914" data-verso-hover="7">y</span><span class="punctuation separator token" data-binding="kw-occ-Lean.Parser.Term.forall-3192">,</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.le" data-verso-hover="8">le</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-3204">(</span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2914" data-verso-hover="7">y</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-3204">)</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2914" data-verso-hover="7">y</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-Lean.Parser.Term.arrow-3199">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.le" data-verso-hover="8">le</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-3221">(</span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="6">lfp</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-3221">)</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2914" data-verso-hover="7">y</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Command.declValSimple-3233">:=</span><span class="inter-text">
+  </span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">⟨</span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp_fixed" data-verso-hover="10">lfp_fixed</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2896" data-verso-hover="3">hf</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">,</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2885" data-verso-hover="4">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.park" data-verso-hover="11">park</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2889" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2896" data-verso-hover="3">hf</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous.mono" data-verso-hover="12">mono</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">⟩</span></code><code class="hl lean block"><span class="doc-comment token" data-binding="">/-- 러닝 예제: W는 최소 해이고, W와 다른 해도 있다. -/</span><span class="inter-text">
+</span><span class="keyword token" data-binding="kw-occ-Lean.Parser.Command.theorem-4694">theorem</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.while_summary" data-verso-hover="13">while_summary</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Term.typeSpec-4716">:</span><span class="inter-text">
+    </span><span class="const token" data-binding="const-Formal.F" data-verso-hover="14">F</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.W" data-verso-hover="15">W</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_=_»-4722">=</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.W" data-verso-hover="15">W</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_∧_»-4722">∧</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-4734">(</span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1523" data-verso-hover="16">h</span><span class="punctuation separator token" data-binding="kw-occ-Lean.Parser.Term.forall-4735">,</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.F" data-verso-hover="14">F</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1523" data-verso-hover="16">h</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_=_»-4742">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1523" data-verso-hover="16">h</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-Lean.Parser.Term.arrow-4742">→</span><span class="inter-text"> </span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1537" data-verso-hover="17">σ</span><span class="punctuation separator token" data-binding="kw-occ-Lean.Parser.Term.forall-4754">,</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.ResLe" data-verso-hover="18">ResLe</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-4768">(</span><span class="const token" data-binding="const-Formal.W" data-verso-hover="15">W</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1537" data-verso-hover="17">σ</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-4768">)</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-4775">(</span><span class="var token" data-binding="var-_uniq.1523" data-verso-hover="16">h</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1537" data-verso-hover="17">σ</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-4775">)</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-4734">)</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_∧_»-4734">∧</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.F" data-verso-hover="14">F</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.alt" data-verso-hover="19">alt</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_=_»-4787">=</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.alt" data-verso-hover="19">alt</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_∧_»-4787">∧</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.W" data-verso-hover="15">W</span><span class="inter-text"> </span><span class="punctuation operator token" data-binding="kw-occ-«term_≠_»-4803">≠</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.alt" data-verso-hover="19">alt</span><span class="inter-text"> </span><span class="built-in delim token" data-binding="kw-occ-Lean.Parser.Command.declValSimple-4813">:=</span><span class="inter-text">
+  </span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">⟨</span><span class="const token" data-binding="const-Formal.W_fixed" data-verso-hover="20">W_fixed</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">,</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.W_least" data-verso-hover="21">W_least</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">,</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.alt_fixed" data-verso-hover="22">alt_fixed</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">,</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.W_ne_alt" data-verso-hover="23">W_ne_alt</span><span class="const anon-ctor token" data-binding="const-And.intro" data-verso-hover="9">⟩</span></code><p class="tk-badge">
+            ✔ <code>kleene</code>, <code>park</code>, <code>lambek_poset</code> · ✔ <code>approx_eq</code>, <code>while_summary</code> · ✘ <code class="math inline">\Sigma \to \Sb</code>의 domain 구조와 <code class="math inline">F</code>의 연속성 연결</p>
+          <aside class="notes"><p>
+              위는 Reynolds의 domain을 구조체로 적고 연속 f에 대해 ⊔fⁿ⊥가 최소 pre-fixed point인 고정점임을 증명한 것이다. 아래는 러닝 예제를 직접 계산한 것이다: W는 F의 해이고 모든 해보다 아래이며, W와 다른 해 alt도 있다. 두 결과를 하나로 잇는 Domain 인스턴스는 만들지 않았다.</p>
+            </aside></section>
+        <section data-background-color="#1f3a5f">
+          <h2>
+            5. 가장 작은 것은 initial이다</h2>
+          <p class="tk-question">
+            S1의 initiality와 무엇이 같은가?</p>
+          </section>
+        <section>
+          <h2>
+            순서 집합도 category다</h2>
+          <table class="tk-rows"><thead><tr><th>S1: <code class="math inline">\Sets</code>와 <code class="math inline">\Alg(F)</code></th><th>S2: 순서 집합 <code class="math inline">(D, \sqsubseteq)</code></th></tr></thead><tbody><tr><td>대상 <code class="math inline">A</code></td><td>원소 <code class="math inline">x</code></td></tr><tr><td>사상 <code class="math inline">h : A\to B</code></td><td><code class="math inline">x\sqsubseteq y</code>일 때 하나 (아니면 없음)</td></tr><tr><td>endofunctor <code class="math inline">F</code></td><td>단조 함수 <code class="math inline">f</code></td></tr><tr><td>F-algebra <code class="math inline">\alpha : FA\to A</code></td><td class="tk-em"><code class="math inline">f(x)\sqsubseteq x</code> (pre-fixed point)</td></tr><tr><td>hom</td><td><code class="math inline">x\sqsubseteq y</code> (사각형은 저절로 가환)</td></tr><tr><td>initial algebra</td><td class="tk-em">최소 pre-fixed point</td></tr></tbody></table><div class="tk-gloss">
+            <p>
+              사상이 많아야 하나이므로 유일성은 저절로 성립하고 존재만 남는다. 합성은 추이성, 항등은 반사성이다.</p>
+            </div>
+          <aside class="notes"><p>
+              S1의 정의를 다시 쓰지 않고 category만 바꾼다. 여기서만 D의 원소가 category의 대상이다. 단조 함수는 사상(x ⊑ y)을 사상(f x ⊑ f y)으로 보내므로 functor다. F-algebra는 사상 f(x) → x, 즉 f(x) ⊑ x다.
+initial algebra는 모든 pre-fixed point로 가는 사상이 있는 pre-fixed point, 즉 최소 pre-fixed point다. 정의만으로는 존재를 모른다. domain과 연속성 아래에서 Kleene 정리가 그것이 Yf라고 알려 준다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            정리 2. Park 귀납 = initiality</h2>
+          <div class="tk-cols" style="align-items: center">
+            <div class="tk-box tk-remark">
+              <div class="tk-box-label">
+                S1의 사각형</div>
+              <div class="tk-fig" style="width:440.000000px;height:240.000000px">
+                <svg class="tk-fig-svg" width="440.000000" height="240.000000" viewBox="0 0 440.000000 240.000000"><g class="tk-fig-e"><path d="M 114.000000 40.000000 L 331.000000 40.000000" class="tk-fig-edge"></path><polygon points="341.000000,40.000000 327.000000,33.500000 327.000000,46.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 70.000000 64.000000 L 70.000000 171.000000" class="tk-fig-edge"></path><polygon points="70.000000,181.000000 76.500000,167.000000 63.500000,167.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 370.000000 64.000000 L 370.000000 171.000000" class="tk-fig-edge"></path><polygon points="370.000000,181.000000 376.500000,167.000000 363.500000,167.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 106.500000 205.000000 L 338.500000 205.000000" class="tk-fig-edge c-thm dashed"></path><polygon points="348.500000,205.000000 334.500000,198.500000 334.500000,211.500000" class="tk-fig-head c-thm"></polygon></g></svg><div class="tk-fig-node" style="left:70.000000px;top:40.000000px">
+                  <code class="math inline">F\Exp</code></div>
+                <div class="tk-fig-node" style="left:370.000000px;top:40.000000px">
+                  <code class="math inline">F A</code></div>
+                <div class="tk-fig-node" style="left:70.000000px;top:205.000000px">
+                  <code class="math inline">\Exp</code></div>
+                <div class="tk-fig-node" style="left:370.000000px;top:205.000000px">
+                  <code class="math inline">A</code></div>
+                <div class="tk-fig-label" style="left:227.500000px;top:31.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">F\fold_\alpha</code></div>
+                <div class="tk-fig-label" style="left:61.000000px;top:122.500000px;transform:translate(-100.000000%,-50.000000%)">
+                  <code class="math inline">\inn</code></div>
+                <div class="tk-fig-label" style="left:379.000000px;top:122.500000px;transform:translate(0.000000%,-50.000000%)">
+                  <code class="math inline">\alpha</code></div>
+                <div class="tk-fig-label c-thm" style="left:227.500000px;top:214.000000px;transform:translate(-50.000000%,0.000000%)">
+                  <code class="math inline">\fold_\alpha</code></div>
+                </div>
+              </div>
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  순서에서: f(y) ⊑ y ⇒ Yf ⊑ y</div>
+              <div class="tk-fig" style="width:440.000000px;height:240.000000px">
+                <svg class="tk-fig-svg" width="440.000000" height="240.000000" viewBox="0 0 440.000000 240.000000"><g class="tk-fig-e"><path d="M 121.500000 40.000000 L 316.000000 40.000000" class="tk-fig-edge"></path><polygon points="326.000000,40.000000 312.000000,33.500000 312.000000,46.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 70.000000 64.000000 L 70.000000 171.000000" class="tk-fig-edge"></path><polygon points="70.000000,181.000000 76.500000,167.000000 63.500000,167.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 370.000000 64.000000 L 370.000000 171.000000" class="tk-fig-edge"></path><polygon points="370.000000,181.000000 376.500000,167.000000 363.500000,167.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 99.000000 205.000000 L 338.500000 205.000000" class="tk-fig-edge c-thm dashed"></path><polygon points="348.500000,205.000000 334.500000,198.500000 334.500000,211.500000" class="tk-fig-head c-thm"></polygon></g></svg><div class="tk-fig-node" style="left:70.000000px;top:40.000000px">
+                  <code class="math inline">f(Yf)</code></div>
+                <div class="tk-fig-node" style="left:370.000000px;top:40.000000px">
+                  <code class="math inline">f(y)</code></div>
+                <div class="tk-fig-node" style="left:70.000000px;top:205.000000px">
+                  <code class="math inline">Yf</code></div>
+                <div class="tk-fig-node" style="left:370.000000px;top:205.000000px">
+                  <code class="math inline">y</code></div>
+                <div class="tk-fig-label" style="left:223.800000px;top:31.000000px;transform:translate(-50.000000%,-100.000000%)">
+                  <code class="math inline">\sqsubseteq</code></div>
+                <div class="tk-fig-label" style="left:61.000000px;top:122.500000px;transform:translate(-100.000000%,-50.000000%)">
+                  <code class="math inline">=</code></div>
+                <div class="tk-fig-label" style="left:379.000000px;top:122.500000px;transform:translate(0.000000%,-50.000000%)">
+                  <code class="math inline">\sqsubseteq</code></div>
+                <div class="tk-fig-label c-thm" style="left:223.800000px;top:214.000000px;transform:translate(-50.000000%,0.000000%)">
+                  <code class="math inline">\sqsubseteq</code></div>
+                </div>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              같은 사각형이다. 점선(유일한 사상)이 "Yf ⊑ y"가 된다. 예: while true do skip은 <code class="math inline">F=\id</code>라 <code class="math inline">\lambda\sigma.\bot</code>가 pre-fixed point이고, <code class="math inline">YF\sqsubseteq\lambda\sigma.\bot</code>.</p>
+            </div>
+          <aside class="notes"><p>
+              Park 귀납은 최소 고정점이 무엇인지 몰라도 그보다 큰 것을 찾으면 쓸 수 있다. 오른쪽 사각형의 오른쪽 변이 가정 f(y) ⊑ y, 왼쪽 변이 Kleene가 준 등식, 아래 점선이 결론이다. S1에서 "initial에서 같은 algebra로 가는 hom은 하나"였던 것이 여기서는 "Yf에서 y로 가는 ⊑가 있다"로 바뀐다.
+while true do skip의 의미가 ⊥라는 1막의 직관이 이렇게 확인된다: 모든 상태를 ⊥로 보내는 함수는 항등 함수 F의 고정점이므로 의미는 그 아래이고, 그것이 최소 원소이므로 같다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            정리 3. Lambek: initial이면 고정점</h2>
+          <div class="tk-cols" style="grid-template-columns: 1fr 1.1fr">
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  poset: x가 최소 pre-fixed point이면 f(x) = x</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">f(x)</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq x</code></td><td class="tk-calc-why">pre-fixed point</td></tr><tr class="fragment" data-fragment-index="1"><td class="tk-calc-l"><code class="math inline">f(f(x))</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq f(x)</code></td><td class="tk-calc-why">단조: <code class="math inline">f(x)</code>도 pre-fixed</td></tr><tr class="fragment" data-fragment-index="2"><td class="tk-calc-l"><code class="math inline">x</code></td><td class="tk-calc-r"><code class="math inline">\sqsubseteq f(x)</code></td><td class="tk-calc-why"><code class="math inline">x</code>가 최소</td></tr><tr class="fragment" data-fragment-index="3"><td class="tk-calc-l"><code class="math inline">f(x)</code></td><td class="tk-calc-r"><code class="math inline">= x</code></td><td class="tk-calc-why">반대칭</td></tr></tbody></table></div>
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  임의의 category</div>
+              <p>
+                initial F-algebra의 구조 사상 <code class="math inline">\inn : F I\to I</code>는 동형이다. Set에서는 전단사, 순서에서는 등호.</p>
+              </div>
+            </div>
+          <div class="tk-box tk-warn">
+            <div class="tk-box-label">
+              <span class="tk-box-kind">반례</span>  ·  역은 거짓</div>
+            <p>
+              1막의 다른 해(음수·홀수에서 <code class="math inline">[\sigma\mid x:7]</code>)는 고정점이지만 최소가 아니다. S1의 유한·무한 트리 algebra는 <code class="math inline">\inn</code>이 전단사지만 initial이 아니다.</p>
+            </div>
+          <aside class="notes"><p>
+              최소 pre-fixed point가 있기만 하면 고정점이다. 단조성만 쓴다. Lean의 <code>lambek_poset</code>가 이 증명이다.
+일반 category의 증명은 S1의 세 법칙을 그대로 쓴다(부록). Lambek은 "initial이면 한 층 분해가 동형"이라는 한 방향이고, 유한 생성을 주지 않는다. 무한 트리가 그 반례다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            구문도 최소 고정점이다</h2>
+          <div class="tk-cols" style="grid-template-columns: 0.85fr 1.25fr; align-items: center">
+            <div class="tk-fig" style="width:470.000000px;height:300.000000px">
+              <div class="tk-fig-area dashed" style="left:8.000000px;top:8.000000px;width:455.000000px;height:285.000000px">
+                <div class="tk-fig-area-label">
+                  <code class="math inline">E_3</code></div>
+                </div>
+              <div class="tk-fig-area dashed" style="left:30.000000px;top:45.000000px;width:300.000000px;height:215.000000px">
+                <div class="tk-fig-area-label">
+                  <code class="math inline">E_2</code></div>
+                </div>
+              <div class="tk-fig-area fill" style="left:52.000000px;top:82.000000px;width:155.000000px;height:155.000000px">
+                <div class="tk-fig-area-label">
+                  <code class="math inline">E_1</code></div>
+                </div>
+              <svg class="tk-fig-svg" width="470.000000" height="300.000000" viewBox="0 0 470.000000 300.000000"></svg><div class="tk-fig-node circ c-syn" style="left:88.000000px;top:135.000000px">
+                <code class="math inline">x</code></div>
+              <div class="tk-fig-node circ c-syn" style="left:130.000000px;top:192.000000px">
+                <code class="math inline">2</code></div>
+              <div class="tk-fig-node circ c-syn" style="left:172.000000px;top:135.000000px">
+                <code class="math inline">y</code></div>
+              <div class="tk-fig-node box c-syn" style="left:265.000000px;top:125.000000px">
+                <code class="math inline">2\times y</code></div>
+              <div class="tk-fig-node box c-syn" style="left:265.000000px;top:205.000000px">
+                <code class="math inline">-x</code></div>
+              <div class="tk-fig-node box c-syn" style="left:395.000000px;top:165.000000px;min-width:95.000000px">
+                <code class="math inline">x + 2\times y</code></div>
+              </div>
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  Φ : 𝒫(T) → 𝒫(T)</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">\Phi(S)</code></td><td class="tk-calc-r"><code class="math inline">= \text{잎}\ \cup\ \{\syn{\nega(e)} \mid e\in S\}</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><td class="tk-calc-r"><code class="math inline">\cup\ \{\syn{\add(e_1,e_2)},\ \syn{\mul(e_1,e_2)} \mid e_i\in S\}</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">E_n</code></td><td class="tk-calc-r"><code class="math inline">= \Phi^n(\varnothing)</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">\Exp</code></td><td class="tk-calc-r"><code class="math inline">= \textstyle\bigcup_n E_n = Y\Phi</code></td><td class="tk-calc-why"></td></tr></tbody></table></div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              <code class="math inline">T</code>는 모든 트리, 순서는 ⊆, ⊥ = ∅, 상한 = 합집합. 생성자가 자식을 유한 개만 쓰므로 Φ는 연속이다. 높이 n인 트리가 <code class="math inline">E_n</code>에 처음 들어간다.</p>
+            </div>
+          <aside class="notes"><p>
+              Reynolds 2.4절 끝은 BNF로 정의한 구문 집합이 집합들의 domain에서 최소 고정점이라고 말한다. S1의 Exp는 E₀ ⊆ E₁ ⊆ ⋯의 합집합이고, 이것은 원소 수준(부분집합 poset)의 Kleene 정리다. S1의 무한 트리 t = x + t는 어떤 Eₙ에도 없다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            colimit: 단계별 사상을 유일하게 이어 붙인다</h2>
+          <div class="tk-cols" style="grid-template-columns: 1.25fr 1fr; align-items: center">
+            <div class="tk-fig" style="width:660.000000px;height:320.000000px">
+              <svg class="tk-fig-svg" width="660.000000" height="320.000000" viewBox="0 0 660.000000 320.000000"><g class="tk-fig-e"><path d="M 89.000000 160.000000 L 151.000000 160.000000" class="tk-fig-edge"></path><polygon points="161.000000,160.000000 147.000000,153.500000 147.000000,166.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 219.000000 160.000000 L 281.000000 160.000000" class="tk-fig-edge"></path><polygon points="291.000000,160.000000 277.000000,153.500000 277.000000,166.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 349.000000 160.000000 L 408.500000 160.000000" class="tk-fig-edge"></path><polygon points="418.500000,160.000000 404.500000,153.500000 404.500000,166.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 88.900000 153.800000 L 555.800000 54.400000" class="tk-fig-edge c-muted"></path><polygon points="565.600000,52.300000 550.600000,48.900000 553.300000,61.600000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 218.800000 151.900000 L 556.100000 57.300000" class="tk-fig-edge c-muted"></path><polygon points="565.700000,54.600000 550.500000,52.100000 554.000000,64.700000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 348.600000 148.200000 L 556.600000 62.800000" class="tk-fig-edge c-muted"></path><polygon points="565.900000,59.000000 550.500000,58.300000 555.400000,70.300000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 88.900000 166.400000 L 555.900000 270.200000" class="tk-fig-edge c-muted"></path><polygon points="565.600000,272.400000 553.400000,263.000000 550.500000,275.700000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 218.800000 168.400000 L 556.100000 267.200000" class="tk-fig-edge c-muted"></path><polygon points="565.700000,270.000000 554.100000,259.800000 550.400000,272.300000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 348.600000 172.300000 L 556.700000 261.400000" class="tk-fig-edge c-muted"></path><polygon points="565.900000,265.400000 555.600000,253.900000 550.500000,265.800000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 600.000000 75.000000 L 600.000000 240.000000" class="tk-fig-edge c-thm dashed"></path><polygon points="600.000000,250.000000 606.500000,236.000000 593.500000,236.000000" class="tk-fig-head c-thm"></polygon></g></svg><div class="tk-fig-node" style="left:60.000000px;top:160.000000px">
+                <code class="math inline">X_0</code></div>
+              <div class="tk-fig-node" style="left:190.000000px;top:160.000000px">
+                <code class="math inline">X_1</code></div>
+              <div class="tk-fig-node" style="left:320.000000px;top:160.000000px">
+                <code class="math inline">X_2</code></div>
+              <div class="tk-fig-node" style="left:440.000000px;top:160.000000px">
+                <code class="math inline">\cdots</code></div>
+              <div class="tk-fig-node box" style="left:600.000000px;top:45.000000px">
+                <code class="math inline">L</code></div>
+              <div class="tk-fig-node box" style="left:600.000000px;top:280.000000px">
+                <code class="math inline">A</code></div>
+              <div class="tk-fig-label" style="left:125.000000px;top:151.000000px;transform:translate(-50.000000%,-100.000000%)">
+                <code class="math inline">j_0</code></div>
+              <div class="tk-fig-label" style="left:255.000000px;top:151.000000px;transform:translate(-50.000000%,-100.000000%)">
+                <code class="math inline">j_1</code></div>
+              <div class="tk-fig-label c-muted" style="left:325.400000px;top:94.300000px;transform:translate(-60.400000%,-98.900000%)">
+                <code class="math inline">i_0</code></div>
+              <div class="tk-fig-label c-muted" style="left:389.800000px;top:94.600000px;transform:translate(-63.500000%,-98.100000%)">
+                <code class="math inline">i_1</code></div>
+              <div class="tk-fig-label c-muted" style="left:453.800000px;top:95.300000px;transform:translate(-69.000000%,-96.300000%)">
+                <code class="math inline">i_2</code></div>
+              <div class="tk-fig-label c-muted" style="left:325.300000px;top:228.200000px;transform:translate(-60.800000%,-1.200000%)">
+                <code class="math inline">q_0</code></div>
+              <div class="tk-fig-label c-muted" style="left:389.700000px;top:227.800000px;transform:translate(-64.000000%,-2.000000%)">
+                <code class="math inline">q_1</code></div>
+              <div class="tk-fig-label c-muted" style="left:453.700000px;top:227.100000px;transform:translate(-69.700000%,-4.000000%)">
+                <code class="math inline">q_2</code></div>
+              <div class="tk-fig-label c-thm" style="left:609.000000px;top:162.500000px;transform:translate(0.000000%,-50.000000%)">
+                <code class="math inline">q</code></div>
+              </div>
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  chain의 colimit <code class="math inline">(L, i_n)</code></div>
+              <p>
+                <code class="math display">i_{n+1}\circ j_n = i_n</code>
+<code class="math inline">q_{n+1}\circ j_n = q_n</code>인 모든 <code class="math inline">q_n</code>에 대해
+<code class="math display">\exists!\, q : L\to A,\quad q\circ i_n = q_n</code></p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              Set에서 <code class="math inline">j_n</code>이 포함이면 <code class="math inline">L = \bigcup_n X_n</code>, <code class="math inline">q(x) = q_n(x)</code>. 일반적으로는 서로소 합을 연결 사상이 요구하는 동치로 나눈 것이다.</p>
+            </div>
+          <aside class="notes"><p>
+              colimit은 원소들의 합집합이 아니라 대상과 사상에 대한 보편 성질이다. 점선이 다시 나왔다: 호환되는 단계별 사상들이 주어지면 L에서 나가는 사상이 정확히 하나 있다. 다음 장에서 이 q가 S1의 fold가 된다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            Adámek: initial 사슬의 colimit이 initial algebra</h2>
+          <div class="tk-fig" style="width:1000.000000px;height:150.000000px">
+            <svg class="tk-fig-svg" width="1000.000000" height="150.000000" viewBox="0 0 1000.000000 150.000000"><g class="tk-fig-e"><path d="M 81.500000 75.000000 L 171.000000 75.000000" class="tk-fig-edge"></path><polygon points="181.000000,75.000000 167.000000,68.500000 167.000000,81.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 239.000000 75.000000 L 333.500000 75.000000" class="tk-fig-edge"></path><polygon points="343.500000,75.000000 329.500000,68.500000 329.500000,81.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 416.500000 75.000000 L 508.500000 75.000000" class="tk-fig-edge"></path><polygon points="518.500000,75.000000 504.500000,68.500000 504.500000,81.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 561.500000 75.000000 L 718.000000 75.000000" class="tk-fig-edge c-thm dashed"></path></g></svg><div class="tk-fig-node" style="left:60.000000px;top:75.000000px">
+              <code class="math inline">0</code></div>
+            <div class="tk-fig-node" style="left:210.000000px;top:75.000000px">
+              <code class="math inline">F0</code></div>
+            <div class="tk-fig-node" style="left:380.000000px;top:75.000000px">
+              <code class="math inline">F^2 0</code></div>
+            <div class="tk-fig-node" style="left:540.000000px;top:75.000000px">
+              <code class="math inline">\cdots</code></div>
+            <div class="tk-fig-node box c-thm" style="left:760.000000px;top:75.000000px">
+              <code class="math inline">\mu F</code></div>
+            <div class="tk-fig-label" style="left:131.300000px;top:66.000000px;transform:translate(-50.000000%,-100.000000%)">
+              <code class="math inline">!</code></div>
+            <div class="tk-fig-label" style="left:291.300000px;top:66.000000px;transform:translate(-50.000000%,-100.000000%)">
+              <code class="math inline">F!</code></div>
+            <div class="tk-fig-label" style="left:467.500000px;top:66.000000px;transform:translate(-50.000000%,-100.000000%)">
+              <code class="math inline">F^2!</code></div>
+            <div class="tk-fig-label c-thm" style="left:639.800000px;top:66.000000px;transform:translate(-50.000000%,-100.000000%)">
+              colimit</div>
+            </div>
+          <div class="tk-cols">
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  조건: 0이 initial, 이 사슬의 colimit이 있고 F가 그것을 보존</div>
+              <p>
+                <code class="math display">\alpha : F(\mu F)\to\mu F,\qquad \alpha\circ F i_n = i_{n+1}</code>
+<code class="math inline">(\mu F, \alpha)</code>는 initial algebra다.</p>
+              </div>
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  fold를 만드는 호환 사상</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">q_0</code></td><td class="tk-calc-r"><code class="math inline">= {!} : 0\to A</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">q_{n+1}</code></td><td class="tk-calc-r"><code class="math inline">= \beta\circ F q_n</code></td><td class="tk-calc-why"></td></tr><tr><td class="tk-calc-l"><code class="math inline">q\circ i_n</code></td><td class="tk-calc-r"><code class="math inline">= q_n</code></td><td class="tk-calc-why">colimit의 유일한 <code class="math inline">q</code></td></tr></tbody></table></div>
+            </div>
+          <aside class="notes"><p>
+              F가 colimit을 보존한다는 것은 (F(μF), F iₙ)이 한 칸 밀린 사슬의 colimit이라는 뜻이다. 맨 앞을 뺀 사슬도 같은 colimit을 가지므로 α가 정해지고 동형이다. qα와 βFq는 모든 F iₙ과 합성하면 같으므로 같다. 다른 hom r도 귀납으로 r iₙ = qₙ이므로 colimit의 유일성으로 r = q다.
+유한 arity 다항 functor는 이 조건을 만족한다. 한 원소가 자식을 유한 개만 쓰므로 모든 자식을 담는 단계를 고를 수 있기 때문이다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            같은 구문, 두 층위</h2>
+          <div class="tk-cols" style="align-items: center">
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  원소: 부분집합 poset 안에서</div>
+              <p>
+                <code class="math display">\Phi : \mathcal P(T)\to\mathcal P(T)</code>
+<code class="math display">\Exp = \textstyle\bigcup_n\Phi^n(\varnothing) = Y\Phi</code>
+Kleene: 최소 고정점이라는 원소</p>
+              </div>
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  대상: Set 안에서</div>
+              <p>
+                <code class="math display">F : \Sets\to\Sets</code>
+<code class="math display">\inn : F\Exp\xrightarrow{\ \cong\ }\Exp</code>
+Adámek: initial algebra라는 대상과 구조 사상</p>
+              </div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              왼쪽은 고정된 집합 <code class="math inline">T</code>의 부분집합 하나를 찾는 일, 오른쪽은 집합과 함수에 작용하는 F의 대상을 만드는 일이다. 연결 사상을 포함으로 실현하면 두 사슬이 대응한다.</p>
+            </div>
+          <aside class="notes"><p>
+              "최소 고정점"이라는 말이 두 층위에서 쓰인다. 원소 층위에서는 순서 집합 안의 한 원소이고, 대상 층위에서는 category의 한 대상과 구조 사상이다. Lambek은 대상 층위의 동형 F(μF) ≅ μF를 준다. S6의 재귀 도메인은 대상 층위의 이야기를 CPO⊥!에서 다시 한다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            while도 fold가 된다</h2>
+          <div class="tk-box tk-defn">
+            <div class="tk-box-label">
+              <span class="tk-box-kind">정의</span>  ·  D = Σ → Σ⊥, β : Σ → 𝔹, γ ∈ D일 때 while 연산을 먼저 정한다</div>
+            <p>
+              <code class="math display">\mathrm{while}_D(\beta, \gamma) := Y\,F_{\beta,\gamma},\qquad F_{\beta,\gamma}(h)(\sigma) = \begin{cases}\ext{h}(\gamma\sigma) &amp; \beta\sigma = \mathrm{true}\\ \sigma &amp; \text{그 밖}\end{cases}</code></p>
+            </div>
+          <p class="tk-key">
+            <code class="math display">\sem{\cmd{while}\ b\ \cmd{do}\ c} = \mathrm{while}_D\bigl(\sem{b},\ \sem{c}\bigr)</code></p>
+          <div class="tk-gloss">
+            <p>
+              오른쪽에는 부분식의 의미만 있다. 다른 명령 연산까지 정하면 명령 signature의 의미 algebra가 되고, 유한 명령 구문의 initiality(S1과 같은 원리)로 전체 의미가 유일한 fold가 된다. 최소 해 선택은 이 algebra의 정의에 들어 있다.</p>
+            </div>
+          <aside class="notes"><p>
+              S1의 질문 1로 돌아간다. 펼침 방정식은 syntax-directed가 아니었지만, Y로 최소 해를 골라 while 연산을 정의하면 의미 방정식이 syntax-directed가 된다. 그러면 S1의 initiality가 명령 전체에 적용된다.
+주의할 점 둘. 첫째, 최소 해를 고르는 선택은 구문의 initiality에서 나오지 않는다. 둘째, while 연산 내부의 Y 계산은 구조적 재귀가 아니라 근사의 상한이다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            오늘의 그림 셋</h2>
+          <div class="tk-cols" style="grid-template-columns: 1fr 1fr 1fr; align-items: center">
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  사다리 (Kleene)</div>
+              <div class="tk-fig" style="width:300.000000px;height:230.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="230.000000" viewBox="0 0 300.000000 230.000000"><g class="tk-fig-e"><path d="M 60.300000 193.000000 L 73.400000 182.200000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 126.600000 137.800000 L 133.400000 132.200000" class="tk-fig-edge"></path></g><g class="tk-fig-e"><path d="M 188.400000 87.900000 L 213.900000 68.100000" class="tk-fig-edge dashed"></path></g></svg><div class="tk-fig-node" style="left:40.000000px;top:210.000000px">
+                  <code class="math inline">\bot</code></div>
+                <div class="tk-fig-node" style="left:100.000000px;top:160.000000px">
+                  <code class="math inline">f\bot</code></div>
+                <div class="tk-fig-node" style="left:160.000000px;top:110.000000px">
+                  <code class="math inline">f^2\bot</code></div>
+                <div class="tk-fig-node box c-thm" style="left:250.000000px;top:40.000000px">
+                  <code class="math inline">Yf</code></div>
+                </div>
+              </div>
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  사각형 (Park)</div>
+              <div class="tk-fig" style="width:300.000000px;height:230.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="230.000000" viewBox="0 0 300.000000 230.000000"><g class="tk-fig-e"><path d="M 101.500000 35.000000 L 196.000000 35.000000" class="tk-fig-edge"></path><polygon points="206.000000,35.000000 192.000000,28.500000 192.000000,41.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 50.000000 59.000000 L 50.000000 161.000000" class="tk-fig-edge"></path><polygon points="50.000000,171.000000 56.500000,157.000000 43.500000,157.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 250.000000 59.000000 L 250.000000 161.000000" class="tk-fig-edge"></path><polygon points="250.000000,171.000000 256.500000,157.000000 243.500000,157.000000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 79.000000 195.000000 L 218.500000 195.000000" class="tk-fig-edge c-thm dashed"></path><polygon points="228.500000,195.000000 214.500000,188.500000 214.500000,201.500000" class="tk-fig-head c-thm"></polygon></g></svg><div class="tk-fig-node" style="left:50.000000px;top:35.000000px">
+                  <code class="math inline">f(Yf)</code></div>
+                <div class="tk-fig-node" style="left:250.000000px;top:35.000000px">
+                  <code class="math inline">f(y)</code></div>
+                <div class="tk-fig-node" style="left:50.000000px;top:195.000000px">
+                  <code class="math inline">Yf</code></div>
+                <div class="tk-fig-node" style="left:250.000000px;top:195.000000px">
+                  <code class="math inline">y</code></div>
+                <div class="tk-fig-label" style="left:41.000000px;top:115.000000px;transform:translate(-100.000000%,-50.000000%)">
+                  <code class="math inline">=</code></div>
+                <div class="tk-fig-label" style="left:259.000000px;top:115.000000px;transform:translate(0.000000%,-50.000000%)">
+                  <code class="math inline">\sqsubseteq</code></div>
+                </div>
+              </div>
+            <div class="tk-box tk-thm">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정리</span>  ·  사슬 (Adámek)</div>
+              <div class="tk-fig" style="width:300.000000px;height:230.000000px">
+                <svg class="tk-fig-svg" width="300.000000" height="230.000000" viewBox="0 0 300.000000 230.000000"><g class="tk-fig-e"><path d="M 60.300000 183.000000 L 65.700000 178.600000" class="tk-fig-edge"></path><polygon points="73.400000,172.200000 58.400000,176.200000 66.800000,186.200000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 128.000000 128.500000 L 128.400000 128.100000" class="tk-fig-edge"></path><polygon points="136.300000,122.000000 121.300000,125.400000 129.200000,135.700000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 193.800000 78.000000 L 213.300000 63.000000" class="tk-fig-edge dashed"></path></g></svg><div class="tk-fig-node" style="left:40.000000px;top:200.000000px">
+                  <code class="math inline">0</code></div>
+                <div class="tk-fig-node" style="left:100.000000px;top:150.000000px">
+                  <code class="math inline">F0</code></div>
+                <div class="tk-fig-node" style="left:165.000000px;top:100.000000px">
+                  <code class="math inline">F^20</code></div>
+                <div class="tk-fig-node box c-thm" style="left:250.000000px;top:35.000000px">
+                  <code class="math inline">\mu F</code></div>
+                </div>
+              </div>
+            </div>
+          <table class="tk-rows"><thead><tr><th>식</th><th>이름</th></tr></thead><tbody><tr><td><code class="math inline">\sem{\cmd{while}\ b\ \cmd{do}\ c} = YF = \lub_n F^n\bot</code></td><td>의미 (선택)</td></tr><tr><td><code class="math inline">f(y)\sqsubseteq y\ \Rightarrow\ Yf\sqsubseteq y</code></td><td>Park = initiality</td></tr><tr><td><code class="math inline">\mu F = \mathrm{colim}_n F^n 0</code></td><td>Adámek</td></tr></tbody></table><aside class="notes"><p>
+              세 그림은 같은 모양이다. 가장 작은 것에서 출발해 같은 함수를 거듭 적용하고, 그 극한이 모든 algebra로 가는 유일한 사상을 갖는다. 왼쪽 둘은 원소 층위, 오른쪽은 대상 층위다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            세 수준의 "가장 작은 것"</h2>
+          <div class="tk-fig" style="width:1150.000000px;height:330.000000px">
+            <svg class="tk-fig-svg" width="1150.000000" height="330.000000" viewBox="0 0 1150.000000 330.000000"><g class="tk-fig-e"><path d="M 234.500000 50.000000 L 288.000000 50.000000" class="tk-fig-edge c-thm"></path><polygon points="298.000000,50.000000 284.000000,43.500000 284.000000,56.500000" class="tk-fig-head c-thm"></polygon></g><g class="tk-fig-e"><path d="M 382.000000 50.000000 L 420.500000 50.000000" class="tk-fig-edge c-thm"></path><polygon points="430.500000,50.000000 416.500000,43.500000 416.500000,56.500000" class="tk-fig-head c-thm"></polygon></g><g class="tk-fig-e"><path d="M 529.500000 50.000000 L 578.500000 50.000000" class="tk-fig-edge c-thm"></path><polygon points="588.500000,50.000000 574.500000,43.500000 574.500000,56.500000" class="tk-fig-head c-thm"></polygon></g><g class="tk-fig-e"><path d="M 631.500000 50.000000 L 708.000000 50.000000" class="tk-fig-edge c-thm"></path><polygon points="718.000000,50.000000 704.000000,43.500000 704.000000,56.500000" class="tk-fig-head c-thm"></polygon></g><g class="tk-fig-e"><path d="M 221.500000 165.000000 L 301.000000 165.000000" class="tk-fig-edge"></path><polygon points="311.000000,165.000000 297.000000,158.500000 297.000000,171.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 369.000000 165.000000 L 433.500000 165.000000" class="tk-fig-edge"></path><polygon points="443.500000,165.000000 429.500000,158.500000 429.500000,171.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 516.500000 165.000000 L 578.500000 165.000000" class="tk-fig-edge"></path><polygon points="588.500000,165.000000 574.500000,158.500000 574.500000,171.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 631.500000 165.000000 L 721.000000 165.000000" class="tk-fig-edge"></path><polygon points="731.000000,165.000000 717.000000,158.500000 717.000000,171.500000" class="tk-fig-head"></polygon></g><g class="tk-fig-e"><path d="M 246.500000 280.000000 L 286.000000 280.000000" class="tk-fig-edge c-muted"></path><polygon points="296.000000,280.000000 282.000000,273.500000 282.000000,286.500000" class="tk-fig-head c-muted"></polygon><polygon points="236.500000,280.000000 250.500000,286.500000 250.500000,273.500000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 394.000000 280.000000 L 418.500000 280.000000" class="tk-fig-edge c-muted"></path><polygon points="428.500000,280.000000 414.500000,273.500000 414.500000,286.500000" class="tk-fig-head c-muted"></polygon><polygon points="384.000000,280.000000 398.000000,286.500000 398.000000,273.500000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 541.500000 280.000000 L 578.500000 280.000000" class="tk-fig-edge c-muted"></path><polygon points="588.500000,280.000000 574.500000,273.500000 574.500000,286.500000" class="tk-fig-head c-muted"></polygon><polygon points="531.500000,280.000000 545.500000,286.500000 545.500000,273.500000" class="tk-fig-head c-muted"></polygon></g><g class="tk-fig-e"><path d="M 641.500000 280.000000 L 728.500000 280.000000" class="tk-fig-edge c-muted"></path><polygon points="738.500000,280.000000 724.500000,273.500000 724.500000,286.500000" class="tk-fig-head c-muted"></polygon><polygon points="631.500000,280.000000 645.500000,286.500000 645.500000,273.500000" class="tk-fig-head c-muted"></polygon></g></svg><div class="tk-fig-node small" style="left:70.000000px;top:50.000000px">
+              원소</div>
+            <div class="tk-fig-node box c-thm" style="left:200.000000px;top:50.000000px">
+              <code class="math inline">\bot</code></div>
+            <div class="tk-fig-node box c-thm" style="left:340.000000px;top:50.000000px">
+              <code class="math inline">f\bot</code></div>
+            <div class="tk-fig-node box c-thm" style="left:480.000000px;top:50.000000px">
+              <code class="math inline">f^2\bot</code></div>
+            <div class="tk-fig-node c-thm" style="left:610.000000px;top:50.000000px">
+              <code class="math inline">\cdots</code></div>
+            <div class="tk-fig-node box c-thm" style="left:760.000000px;top:50.000000px">
+              <code class="math inline">Yf</code></div>
+            <div class="tk-fig-node small c-thm" style="left:1000.000000px;top:50.000000px">
+              domain · S2(오늘), S3</div>
+            <div class="tk-fig-node small" style="left:70.000000px;top:165.000000px">
+              집합</div>
+            <div class="tk-fig-node" style="left:200.000000px;top:165.000000px">
+              <code class="math inline">\varnothing</code></div>
+            <div class="tk-fig-node" style="left:340.000000px;top:165.000000px">
+              <code class="math inline">F\varnothing</code></div>
+            <div class="tk-fig-node" style="left:480.000000px;top:165.000000px">
+              <code class="math inline">F^2\varnothing</code></div>
+            <div class="tk-fig-node" style="left:610.000000px;top:165.000000px">
+              <code class="math inline">\cdots</code></div>
+            <div class="tk-fig-node" style="left:760.000000px;top:165.000000px">
+              <code class="math inline">\mu F</code></div>
+            <div class="tk-fig-node small" style="left:1000.000000px;top:165.000000px">
+              Set · S1, S2(Adámek)</div>
+            <div class="tk-fig-node small" style="left:70.000000px;top:280.000000px">
+              도메인</div>
+            <div class="tk-fig-node c-muted" style="left:200.000000px;top:280.000000px">
+              <code class="math inline">\{\bot\}</code></div>
+            <div class="tk-fig-node c-muted" style="left:340.000000px;top:280.000000px">
+              <code class="math inline">H\{\bot\}</code></div>
+            <div class="tk-fig-node c-muted" style="left:480.000000px;top:280.000000px">
+              <code class="math inline">H^2\{\bot\}</code></div>
+            <div class="tk-fig-node c-muted" style="left:610.000000px;top:280.000000px">
+              <code class="math inline">\cdots</code></div>
+            <div class="tk-fig-node c-muted" style="left:760.000000px;top:280.000000px">
+              <code class="math inline">D</code></div>
+            <div class="tk-fig-node small c-muted" style="left:1000.000000px;top:280.000000px">
+              CPO⊥! · S5, S6</div>
+            </div>
+          <div class="tk-gloss">
+            <p>
+              조건: 원소 행은 domain 위의 연속 <code class="math inline">f</code>, 집합 행은 유한 arity 다항 <code class="math inline">F</code>, 도메인 행은 locally continuous <code class="math inline">H</code>(S6). poset에서 colimit은 최소 상한이다.</p>
+            </div>
+          <aside class="notes"><p>
+              오늘 첫 행을 채웠고, 둘째 행이 첫 행과 같은 모양의 구성이라는 것을 Adámek으로 보였다. 셋째 행은 S6에서 Ω ≅ (Σ̂ + ℤ × Ω)⊥을 풀 때 채운다.</p>
+            </aside></section>
+        <section>
+          <h2>
+            다음: 명세는 의미들의 집합이다</h2>
+          <p>
+            <code class="math display">\{p\}\ c\ \{q\}\ \text{가 참} \iff \sem{c} \in \PC(p, q) = \{\, f \mid \forall \sigma \in p.\ f\sigma = \bot \ \lor\ f\sigma \in q \,\}</code></p>
+          <div class="tk-gloss">
+            <p>
+              <code class="math inline">\PC(p,q)</code>는 <code class="math inline">\lambda\sigma.\bot</code>를 포함하고 chain의 상한에 닫혀 있다. <code class="math inline">F</code>가 PC를 PC로 보내면 모든 근사가, 그리고 상한 <code class="math inline">YF</code>가 PC 안에 있다.</p>
+            </div>
+          <p class="tk-next">
+            ↪ S3: 고정점 귀납과 while 규칙, Scott 위상, safety와 liveness.</p>
+          <aside class="notes"><p>
+              partial correctness는 "p에서 시작해 끝나면 q"이다. 끝나지 않는 것(⊥)은 허용한다. 그래서 오늘의 사다리를 그대로 따라 올라가며 증명할 수 있다. total correctness는 끝나는 것까지 요구하므로 ⊥에서 출발할 수 없다. S3에서 위상으로 그 차이를 설명한다.</p>
+            </aside></section>
+        <section>
+          <section>
+            <h2>
+              부록</h2>
+            <p>
+              질문이 나왔을 때 찾아보는 자료다.</p>
+            <ul>
+              <li>
+                <p>
+                  F의 연속성과 Lean의 연속성 단계</p>
+                </li>
+              <li>
+                <p>
+                  일반 Lambek 증명, powerset 반례</p>
+                </li>
+              <li>
+                <p>
+                  Knaster–Tarski, dcpo와 ω-cpo</p>
+                </li>
+              <li>
+                <p>
+                  합을 누적하는 루프, soundness와 full abstraction</p>
+                </li>
+              </ul>
+            </section>
+          <section>
+            <h3>
+              F는 연속이다 (Reynolds 연습문제 2.4)</h3>
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  chain <code class="math inline">f_0 \sqsubseteq f_1 \sqsubseteq \cdots</code>, <code class="math inline">\sem{b}\sigma = \mathrm{true}</code>인 상태 <code class="math inline">\sigma</code>에서</div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">F\bigl(\lub_n f_n\bigr)(\sigma)</code></td><td class="tk-calc-r"><code class="math inline">= \ext{\bigl(\lub_n f_n\bigr)}(\sem{c}\sigma)</code></td><td class="tk-calc-why"><code class="math inline">F</code>의 정의</td></tr><tr><td class="tk-calc-l"><td class="tk-calc-r"><code class="math inline">= \lub_n \ext{f_n}(\sem{c}\sigma)</code></td><td class="tk-calc-why">상한은 상태마다, <code class="math inline">\ext{\cdot}</code>는 상한 보존</td></tr><tr><td class="tk-calc-l"><td class="tk-calc-r"><code class="math inline">= \lub_n F(f_n)(\sigma)</code></td><td class="tk-calc-why"><code class="math inline">F</code>의 정의</td></tr></tbody></table></div>
+            <div class="tk-gloss">
+              <p>
+                <code class="math inline">\sem{b}\sigma = \mathrm{false}</code>이면 양변이 모두 <code class="math inline">\sigma</code>다. 단조성은 같은 식에서 바로 나온다.</p>
+              </div>
+            <aside class="notes"><p>
+                Σ → Σ⊥의 상한은 상태마다 구한다(Prop 2.2). strict 확장도 상한을 보존한다: ⊥에서는 양변이 ⊥, 상태 τ에서는 (⊔fₙ)(τ) = ⊔fₙ(τ)이다. Reynolds는 Prop 2.3과 2.4로 이런 함수의 연속성을 조립한다.</p>
+              </aside></section>
+          <section>
+            <h3>
+              Lean에서 연속성은 f를 상한 안으로 옮긴다</h3>
+            <div class="code-with-panel tk-lean-walk">
+              <code class="hl lean block"><span class="tactic" data-tactic-range="31128-31130"><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1105\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;277\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.lfp\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;4416\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.lfp\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;68\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,68,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,1105,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,4416,\&quot;lfp\&quot;]]]]],[4,1,[6,[3,2,[7,277,\&quot;f\&quot;]]]]]]]],\&quot;)\&quot;]]]]]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;lfp\&quot;]]]]],[4,1,[6,[3,2,[7,21,\&quot;f\&quot;]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="6">lfp</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="6">lfp</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span></span></span><span class="inter-text">
+  </span><span class="tactic" data-tactic-range="31149-31166"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Tactic.unfold-31149" data-verso-hover="27">unfold</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.lfp" data-verso-hover="28">Domain.lfp</span><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1105\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1361\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1365\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17745\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17749\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;2\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21760\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;283904\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;3\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;4416\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5441\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5456\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;68\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70977\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70992\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,68,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,1105,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,4416,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,2,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,283904,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,70977,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,17745,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,17749,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,70992,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]],\&quot;)\&quot;]]]]]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,3,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,21760,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,5441,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,1361,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1365,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,5456,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span></span></span></span></span></span><span class="inter-text">
+</span><span class="inter-text">  </span><span class="fragment slide-click-only"><span class="tactic" data-tactic-range="31169-31173"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Tactic.skip-31169" data-verso-hover="33">skip</span><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1105\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1361\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1365\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17745\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17749\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;2\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21760\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;283904\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;3\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;4416\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5441\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5456\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;68\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70977\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70992\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,68,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,1105,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,4416,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,2,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,283904,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,70977,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,17745,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,17749,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,70992,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]],\&quot;)\&quot;]]]]]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,3,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,21760,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,5441,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,1361,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1365,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,5456,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span></span></span></span></span></span></span><span class="inter-text">
+</span><span class="inter-text">  </span><span class="tactic" data-tactic-range="31188-31229"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Tactic.rwSeq-31188" data-verso-hover="34">rw</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Tactic.rwRuleSeq-31191">[</span><span class="tactic" data-tactic-range="31192-31228"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="35">hf</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous.sup_eq" data-verso-hover="36">sup_eq</span><span class="inter-text"> </span><span class="wildcard token" data-binding="">_</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-31204">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="37">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.iter_chain" data-verso-hover="38">iter_chain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="39">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.15" data-verso-hover="35">hf</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous.mono" data-verso-hover="40">mono</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-31204">)</span><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1088\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;1108\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1361\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1365\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17745\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17749\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;2\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21760\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;273\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;283904\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;3\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5441\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5456\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;70977\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70992\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,273,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,1088,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,2,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1108,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[7,283904,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,70977,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,17745,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,17749,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,70992,\&quot;bot\&quot;]]]]]]]]]]]]]],\&quot;)\&quot;]]]]]]]]]]]]]]]],\&quot;)\&quot;]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,3,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,21760,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,5441,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,1361,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1365,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,5456,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span><span class="unknown token" data-binding="">)</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span></span></span></span></span></span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Tactic.rwRuleSeq-31191">]</span><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1088\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;1108\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1361\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1365\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17745\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17749\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;2\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21760\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;273\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;283904\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;3\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5441\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5456\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;70977\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70992\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,273,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,1088,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,2,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1108,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[7,283904,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,70977,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,17745,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,17749,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,70992,\&quot;bot\&quot;]]]]]]]]]]]]]],\&quot;)\&quot;]]]]]]]]]]]]]]]],\&quot;)\&quot;]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,3,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,21760,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,5441,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,1361,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1365,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,5456,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span><span class="unknown token" data-binding="">)</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span></span></span></span></span></span><span class="inter-text">
+</span><span class="inter-text">  </span><span class="fragment slide-click-only"><span class="tactic" data-tactic-range="31232-31236"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Tactic.skip-31232" data-verso-hover="33">skip</span><span class="tactic-state" style="display:none" data-rich-format="[{&quot;goalPrefix&quot;:&quot;⊢ &quot;,&quot;hypotheses&quot;:[{&quot;names&quot;:[&quot;D&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1\&quot;:{\&quot;binding\&quot;:\&quot;sort-7243200735919010059\&quot;,\&quot;cssClass\&quot;:\&quot;sort\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[7,1,\&quot;Type\&quot;]]]]}&quot;},{&quot;names&quot;:[&quot;P&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;Domain\&quot;]]],[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;f&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;4\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.2\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[7,4,\&quot;D\&quot;]]],[4,\&quot; →\&quot;,[4,1,[6,[3,2,[7,5,\&quot;D\&quot;]]]]]]]]]}&quot;},{&quot;names&quot;:[&quot;hf&quot;],&quot;ppType&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;17\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;64\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.Continuous\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,17,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,64,\&quot;Continuous\&quot;]]]]],[4,1,[6,[3,2,[7,5,\&quot;f\&quot;]]]]]]]]}&quot;}],&quot;name&quot;:null,&quot;ppConclusion&quot;:&quot;{\&quot;annotations\&quot;:{\&quot;1088\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;1108\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1361\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;1365\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17745\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;17749\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;2\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.168\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;21760\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;273\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;283904\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.iter\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;3\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.178\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;320\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.sup\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;5441\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;5456\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;70977\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.8\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;},\&quot;70992\&quot;:{\&quot;binding\&quot;:\&quot;const-Formal.Domain.bot\&quot;,\&quot;cssClass\&quot;:\&quot;const\&quot;},\&quot;81\&quot;:{\&quot;binding\&quot;:\&quot;var-_uniq.4\&quot;,\&quot;cssClass\&quot;:\&quot;var\&quot;}},\&quot;fmt\&quot;:[6,[6,[3,2,[4,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,273,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,1088,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,2,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1108,\&quot;f\&quot;]]],[4,1,[6,[3,2,[4,\&quot;(\&quot;,[4,[3,-2,[6,[3,2,[4,[6,[3,2,[7,283904,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,70977,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,17745,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,17749,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,70992,\&quot;bot\&quot;]]]]]]]]]]]]]],\&quot;)\&quot;]]]]]]]]]]]]]]]],\&quot;)\&quot;]]]],[4,[4,\&quot; =\&quot;,1],[6,[3,2,[4,[6,[3,2,[4,[6,[3,2,[7,81,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,320,\&quot;sup\&quot;]]]]],[4,1,[4,\&quot;fun\&quot;,[4,[6,[3,2,[4,1,[4,[6,[3,2,[7,3,\&quot;n\&quot;]]],\&quot; =>\&quot;]]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,21760,\&quot;Domain.iter\&quot;]]],[4,1,[4,[6,[3,2,[7,5441,\&quot;f\&quot;]]],[4,1,[4,[6,[3,2,[7,1361,\&quot;n\&quot;]]],[4,1,[6,[3,2,[4,[6,[3,2,[7,1365,\&quot;P\&quot;]]],[4,\&quot;.\&quot;,[7,5456,\&quot;bot\&quot;]]]]]]]]]]]]]]]]]]]]]]]]]}&quot;}]"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="24">Type</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Formal.Domain" data-verso-hover="25">Domain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="2">D</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.15" data-verso-hover="3">hf</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="inter-text"></span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous" data-verso-hover="5">Continuous</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.168" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span><span class="unknown token" data-binding="">)</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Eq" data-verso-hover="26">=</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup" data-verso-hover="29">sup</span><span class="inter-text"> </span><span class="keyword token" data-binding="">fun</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">=&gt;</span><span class="inter-text"> </span><span class="const token" data-binding="const-Formal.Domain.iter" data-verso-hover="31">Domain.iter</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.178" data-verso-hover="30">n</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="4">P</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.bot" data-verso-hover="32">bot</span></span></span></span></span></span></span><span class="inter-text">
+</span><span class="inter-text">  </span><span class="fragment slide-click-only"><span class="tactic" data-tactic-range="31251-31295"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Tactic.exact-31251" data-verso-hover="41">exact</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="37">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.sup_shift" data-verso-hover="42">sup_shift</span><span class="inter-text"> </span><span class="wildcard token" data-binding="">_</span><span class="inter-text"> </span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.hygienicLParen-31271">(</span><span class="var token" data-binding="var-_uniq.4" data-verso-hover="37">P</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.iter_chain" data-verso-hover="38">iter_chain</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="39">f</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.15" data-verso-hover="35">hf</span><span class="built-in delim token" data-binding="">.</span><span class="const token" data-binding="const-Formal.Domain.Continuous.mono" data-verso-hover="40">mono</span><span class="punctuation bracket token" data-binding="kw-occ-Lean.Parser.Term.paren-31271">)</span><span class="tactic-state" style="display:none">All goals completed! 🐙</span></span></span><span class="inter-text">
+</span><span class="unknown token" data-binding=""></span></code><div class="panel-divider"></div>
+              <div class="panel-cell">
+                <div class="info-panel"></div>
+                </div>
+              </div>
+            <aside class="notes"><p>
+                첫 목표의 f는 상한 밖에 있다. 연속성의 상한 보존 식을 적용하면 f가 상한 안으로 들어가고, 새 chain은 기존 근사의 다음 항들이므로 <code>sup_shift</code>로 같은 상한이다. skip은 목표를 바꾸지 않는 확인 지점이다.</p>
+              </aside></section>
+          <section>
+            <h3>
+              일반 Lambek: S1의 세 법칙으로 두 줄</h3>
+            <div class="tk-box tk-proof">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">증명</span>  ·  <code class="math inline">h := \fold_{F\inn} : I\to FI</code></div>
+              <table class="tk-calc"><tbody><tr><td class="tk-calc-l"><code class="math inline">\inn\circ h</code></td><td class="tk-calc-r"><code class="math inline">= \fold_{\inn} = \id_I</code></td><td class="tk-calc-why"><code class="math inline">\inn</code>은 <code class="math inline">(FI, F\inn)\to(I,\inn)</code> hom, fusion·reflection</td></tr><tr><td class="tk-calc-l"><code class="math inline">h\circ\inn</code></td><td class="tk-calc-r"><code class="math inline">= F\inn\circ F h = F(\inn\circ h) = \id_{FI}</code></td><td class="tk-calc-why">computation</td></tr></tbody></table></div>
+            <div class="tk-gloss">
+              <p>
+                따라서 <code class="math inline">h = \inn^{-1}</code>. colimit이나 원소에 대한 가정 없이 보편 성질만 쓴다. 유한 생성은 이 증명의 결론이 아니다.</p>
+              </div>
+            </section>
+          <section>
+            <h3>
+              모든 Set functor에 initial algebra가 있지는 않다</h3>
+            <div class="tk-box tk-warn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">반례</span>  ·  전체 powerset functor</div>
+              <p>
+                <code class="math inline">\mathcal P</code>의 initial algebra <code class="math inline">I</code>가 있다면 Lambek으로 <code class="math inline">\mathcal P(I)\cong I</code>. Cantor 정리로 그런 전단사는 없다.</p>
+              </div>
+            <div class="tk-gloss">
+              <p>
+                장애물은 크기다. 유한 부분집합만 쓰는 <code class="math inline">\mathcal P_{\mathrm{fin}}</code>은 initial algebra(유전적 유한 집합 <code class="math inline">V_\omega</code>)를 가진다. 범주 이름만 바꿔서는 해결되지 않고, 새 범주에서 functor와 보존 조건을 다시 정해야 한다.</p>
+              </div>
+            </section>
+          <section>
+            <h3>
+              Knaster–Tarski, dcpo, ω-cpo</h3>
+            <table class="tk-rows"><thead><tr><th>순서 구조</th><th>단조 <code class="math inline">f</code>의 최소 고정점</th><th>근거</th></tr></thead><tbody><tr><td>완비 격자</td><td>있다: <code class="math inline">\bigwedge\{x \mid f x\sqsubseteq x\}</code></td><td>Knaster–Tarski</td></tr><tr><td>pointed dcpo</td><td>있다</td><td>Pataraia(1997 발표, 증명 출판 Escardó 2003), 초한 반복</td></tr><tr><td>pointed ω-cpo</td><td class="tk-em">없을 수 있다</td><td>셀 수 있는 서수 전체, <code class="math inline">f(\alpha) = \alpha+1</code></td></tr></tbody></table><div class="tk-gloss">
+              <p>
+                ω-cpo에서는 단조성만으로 존재도 보장되지 않는다. Reynolds가 연속성을 요구하는 이유는 ω단계 계산만이 아니라 존재 자체이기도 하다. <code class="math inline">\Sigma\to\Sb</code>는 완비 격자가 아니다(서로 다른 두 상태의 상한이 없다).</p>
+              </div>
+            <aside class="notes"><p>
+                셀 수 있는 서수의 가산 증가열의 상한은 셀 수 있는 서수이므로 이 집합은 ⊥ = 0인 ω-cpo다. f(α) = α + 1은 단조이고 고정점이 없다. 집합 전체가 directed이지만 상한이 없으므로 dcpo는 아니다. Pataraia 정리는 초한 반복 없이 증명하는 구성적 방법이다.</p>
+              </aside></section>
+          <section>
+            <h3>
+              Reynolds의 둘째 예: 합을 누적하는 루프</h3>
+            <p>
+              <code class="math display">F^n\bot(\sigma) =
+\begin{cases}
+[\sigma \mid x : 0 \mid y : \sigma y + \sigma x(\sigma x - 1)/2] &amp; 0 \leq \sigma x &lt; n \\
+\bot &amp; \text{그 밖}
+\end{cases}</code></p>
+            <div class="tk-gloss">
+              <p>
+                명령: <code class="math inline">\cmd{while}\ x \neq 0\ \cmd{do}\ (x := x - 1\,;\,y := y + x)</code>. 상한은 <code class="math inline">\sigma x \geq 0</code>에서 위의 상태, 음수에서 ⊥다.</p>
+              </div>
+            </section>
+          <section>
+            <h3>
+              soundness와 full abstraction (Reynolds 2.8절)</h3>
+            <div class="tk-box tk-defn">
+              <div class="tk-box-label">
+                <span class="tk-box-kind">정의</span>  ·  관찰과 문맥</div>
+              <p>
+                문맥 <code class="math inline">C</code>와 허용 관찰 <code class="math inline">O</code>의 집합을 고정한다.</p>
+              <p>
+                <code class="math inline">\semfn</code>가 sound: <code class="math inline">\sem{c} = \sem{c'}</code>이면 모든 <code class="math inline">C</code>, <code class="math inline">O</code>에서 <code class="math inline">O(C[c]) = O(C[c'])</code>.</p>
+              <p>
+                fully abstract: 위의 "이면"이 "일 때 그리고 그때만"이다.</p>
+              </div>
+            <div class="tk-gloss">
+              <p>
+                <code class="math inline">x := x + 1\,;\,x := x + 1</code>과 <code class="math inline">x := x + 2</code>는 같은 의미지만 실행 시간을 허용 관찰에 넣으면 구별된다. 그래서 관찰의 범위를 먼저 고정한다.</p>
+              </div>
+            <aside class="notes"><p>
+                S1의 congruence와 같은 질문이다: 의미가 같은 부분을 문맥 안에서 바꿔도 관찰이 같은가. S3에서 말하는 추론 규칙의 soundness와는 다른 뜻이다.</p>
+              </aside></section>
+          </section>
+        </div>
+      </div>
+    <script src="../lib/reveal.js/dist/reveal.js"></script>
+    <script src="../lib/reveal.js/plugin/notes/notes.js"></script>
+    <script src="../lib/reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../lib/katex/dist/katex.min.js"></script>
+    <script>
+      window.__versoMathPrelude = "\\newcommand{\\sem}[1]{\\llbracket \\textcolor{c2410c}{#1} \\rrbracket}\n\\newcommand{\\syn}[1]{\\textcolor{c2410c}{#1}}\n\\newcommand{\\den}[1]{\\textcolor{1d4ed8}{#1}}\n\\newcommand{\\semfn}{\\llbracket\\cdot\\rrbracket}\n\\newcommand{\\chg}[1]{\\colorbox{fef3c7}{$#1$}}\n\\newcommand{\\intexp}{\\langle\\mathrm{intexp}\\rangle}\n\\newcommand{\\Exp}{\\mathrm{Exp}}\n\\newcommand{\\Var}{\\mathrm{Var}}\n\\newcommand{\\Val}{\\mathrm{Val}}\n\\newcommand{\\Size}{\\mathrm{Size}}\n\\newcommand{\\Sem}{\\mathrm{Sem}}\n\\newcommand{\\Str}{\\mathrm{Str}}\n\\newcommand{\\fold}{\\mathrm{fold}}\n\\newcommand{\\lit}{\\mathrm{lit}}\n\\newcommand{\\var}{\\mathrm{var}}\n\\newcommand{\\nega}{\\mathrm{neg}}\n\\newcommand{\\add}{\\mathrm{add}}\n\\newcommand{\\mul}{\\mathrm{mul}}\n\\newcommand{\\Sb}{\\Sigma_\\bot}\n\\newcommand{\\ext}[1]{{#1}_{\\bot\\!\\bot}}\n\\newcommand{\\lub}{\\textstyle\\bigsqcup}\n\\newcommand{\\cmd}[1]{\\mathsf{#1}}\n\\newcommand{\\Alg}{\\mathbf{Alg}}\n\\newcommand{\\Sets}{\\mathbf{Set}}\n\\newcommand{\\Pre}{\\mathbf{Predom}}\n\\newcommand{\\CPO}{\\mathbf{CPO}_{\\bot!}}\n\\newcommand{\\id}{\\mathrm{id}}\n\\newcommand{\\inn}{\\mathrm{in}}\n\\newcommand{\\out}{\\mathrm{out}}\n\\newcommand{\\unfold}{\\mathrm{unfold}}\n\\newcommand{\\lfp}{\\mathrm{lfp}}\n\\newcommand{\\PC}{\\mathrm{PC}}\n\\newcommand{\\TC}{\\mathrm{TC}}\n\\newcommand{\\Term}{\\mathrm{Term}}\n\\newcommand{\\wlp}{\\mathrm{wlp}}\n\\newcommand{\\post}{\\mathrm{post}}\n\\newcommand{\\Paren}{\\mathrm{Paren}}\n";</script>
+    <script src="../lib/math.js"></script>
+    <script>
+      
+      Reveal.initialize({
+        hash: true,
+        controls: true,
+        progress: true,
+        slideNumber: true,
+        center: false,
+        transition: 'fade',
+        width: 1280,
+        height: 720,
+        margin: 0.040000,
+        navigationMode: 'default',
+        autoSlide: 0,
+        autoSlideStoppable: true,
+        autoSlideMethod: null,
+        plugins: [ RevealNotes, RevealHighlight ]
+      });
+    </script>
+    <script src="../lib/marked.min.js"></script>
+    <script src="../lib/popper.js"></script>
+    <script src="../lib/tippy.js"></script>
+    <script src="../lib/tippy-panel-filter.js"></script>
+    <script src="../lib/highlighting.js"></script>
+    <script src="../lib/code-block-bg.js"></script>
+    <script src="../lib/pretty.js"></script>
+    <script src="../lib/panel.js"></script>
+    <script src="../lib/lightbox.js"></script>
+    <script src="../lib/illuminate-reveal.js"></script>
+    </body>
+  </html>

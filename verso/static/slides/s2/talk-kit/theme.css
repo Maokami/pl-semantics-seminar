@@ -1,0 +1,692 @@
+/* reveal.js 'white' 테마 (MIT, Hakim El Hattab). 외부 글꼴 @import만 제거했다. 라이선스: licenses/revealjs-LICENSE.txt */
+/**
+ * White theme for reveal.js. This is the opposite of the 'black' theme.
+ *
+ * By Hakim El Hattab, http://hakim.se
+ */
+section.has-dark-background, section.has-dark-background h1, section.has-dark-background h2, section.has-dark-background h3, section.has-dark-background h4, section.has-dark-background h5, section.has-dark-background h6 {
+  color: #fff;
+}
+
+/*********************************************
+ * GLOBAL STYLES
+ *********************************************/
+:root {
+  --r-background-color: #fff;
+  --r-main-font: Source Sans Pro, Helvetica, sans-serif;
+  --r-main-font-size: 42px;
+  --r-main-color: #222;
+  --r-block-margin: 20px;
+  --r-heading-margin: 0 0 20px 0;
+  --r-heading-font: Source Sans Pro, Helvetica, sans-serif;
+  --r-heading-color: #222;
+  --r-heading-line-height: 1.2;
+  --r-heading-letter-spacing: normal;
+  --r-heading-text-transform: uppercase;
+  --r-heading-text-shadow: none;
+  --r-heading-font-weight: 600;
+  --r-heading1-text-shadow: none;
+  --r-heading1-size: 2.5em;
+  --r-heading2-size: 1.6em;
+  --r-heading3-size: 1.3em;
+  --r-heading4-size: 1em;
+  --r-code-font: monospace;
+  --r-link-color: #2a76dd;
+  --r-link-color-dark: rgb(30.7720647773, 99.5566801619, 192.7779352227);
+  --r-link-color-hover: rgb(73.95, 138.55, 226.1);
+  --r-selection-background-color: rgb(95.25, 152.25, 229.5);
+  --r-selection-color: #fff;
+  --r-overlay-element-bg-color: 0, 0, 0;
+  --r-overlay-element-fg-color: 240, 240, 240;
+}
+
+.reveal-viewport {
+  background: #fff;
+  background-color: var(--r-background-color);
+}
+
+.reveal {
+  font-family: var(--r-main-font);
+  font-size: var(--r-main-font-size);
+  font-weight: normal;
+  color: var(--r-main-color);
+}
+
+.reveal ::selection {
+  color: var(--r-selection-color);
+  background: var(--r-selection-background-color);
+  text-shadow: none;
+}
+
+.reveal ::-moz-selection {
+  color: var(--r-selection-color);
+  background: var(--r-selection-background-color);
+  text-shadow: none;
+}
+
+.reveal .slides section,
+.reveal .slides section > section {
+  line-height: 1.3;
+  font-weight: inherit;
+}
+
+/*********************************************
+ * HEADERS
+ *********************************************/
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  margin: var(--r-heading-margin);
+  color: var(--r-heading-color);
+  font-family: var(--r-heading-font);
+  font-weight: var(--r-heading-font-weight);
+  line-height: var(--r-heading-line-height);
+  letter-spacing: var(--r-heading-letter-spacing);
+  text-transform: var(--r-heading-text-transform);
+  text-shadow: var(--r-heading-text-shadow);
+  word-wrap: break-word;
+}
+
+.reveal h1 {
+  font-size: var(--r-heading1-size);
+}
+
+.reveal h2 {
+  font-size: var(--r-heading2-size);
+}
+
+.reveal h3 {
+  font-size: var(--r-heading3-size);
+}
+
+.reveal h4 {
+  font-size: var(--r-heading4-size);
+}
+
+.reveal h1 {
+  text-shadow: var(--r-heading1-text-shadow);
+}
+
+/*********************************************
+ * OTHER
+ *********************************************/
+.reveal p {
+  margin: var(--r-block-margin) 0;
+  line-height: 1.3;
+}
+
+/* Remove trailing margins after titles */
+.reveal h1:last-child,
+.reveal h2:last-child,
+.reveal h3:last-child,
+.reveal h4:last-child,
+.reveal h5:last-child,
+.reveal h6:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure certain elements are never larger than the slide itself */
+.reveal img,
+.reveal video,
+.reveal iframe {
+  max-width: 95%;
+  max-height: 95%;
+}
+
+.reveal strong,
+.reveal b {
+  font-weight: bold;
+}
+
+.reveal em {
+  font-style: italic;
+}
+
+.reveal ol,
+.reveal dl,
+.reveal ul {
+  display: inline-block;
+  text-align: left;
+  margin: 0 0 0 1em;
+}
+
+.reveal ol {
+  list-style-type: decimal;
+}
+
+.reveal ul {
+  list-style-type: disc;
+}
+
+.reveal ul ul {
+  list-style-type: square;
+}
+
+.reveal ul ul ul {
+  list-style-type: circle;
+}
+
+.reveal ul ul,
+.reveal ul ol,
+.reveal ol ol,
+.reveal ol ul {
+  display: block;
+  margin-left: 40px;
+}
+
+.reveal dt {
+  font-weight: bold;
+}
+
+.reveal dd {
+  margin-left: 40px;
+}
+
+.reveal blockquote {
+  display: block;
+  position: relative;
+  width: 70%;
+  margin: var(--r-block-margin) auto;
+  padding: 5px;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
+}
+
+.reveal blockquote p:first-child,
+.reveal blockquote p:last-child {
+  display: inline-block;
+}
+
+.reveal q {
+  font-style: italic;
+}
+
+.reveal pre {
+  display: block;
+  position: relative;
+  width: 90%;
+  margin: var(--r-block-margin) auto;
+  text-align: left;
+  font-size: 0.55em;
+  font-family: var(--r-code-font);
+  line-height: 1.2em;
+  word-wrap: break-word;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.reveal code {
+  font-family: var(--r-code-font);
+  text-transform: none;
+  tab-size: 2;
+}
+
+.reveal pre code {
+  display: block;
+  padding: 5px;
+  overflow: auto;
+  max-height: 400px;
+  word-wrap: normal;
+}
+
+.reveal .code-wrapper {
+  white-space: normal;
+}
+
+.reveal .code-wrapper code {
+  white-space: pre;
+}
+
+.reveal table {
+  margin: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.reveal table th {
+  font-weight: bold;
+}
+
+.reveal table th,
+.reveal table td {
+  text-align: left;
+  padding: 0.2em 0.5em 0.2em 0.5em;
+  border-bottom: 1px solid;
+}
+
+.reveal table th[align=center],
+.reveal table td[align=center] {
+  text-align: center;
+}
+
+.reveal table th[align=right],
+.reveal table td[align=right] {
+  text-align: right;
+}
+
+.reveal table tbody tr:last-child th,
+.reveal table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.reveal sup {
+  vertical-align: super;
+  font-size: smaller;
+}
+
+.reveal sub {
+  vertical-align: sub;
+  font-size: smaller;
+}
+
+.reveal small {
+  display: inline-block;
+  font-size: 0.6em;
+  line-height: 1.2em;
+  vertical-align: top;
+}
+
+.reveal small * {
+  vertical-align: top;
+}
+
+.reveal img {
+  margin: var(--r-block-margin) 0;
+}
+
+/*********************************************
+ * LINKS
+ *********************************************/
+.reveal a {
+  color: var(--r-link-color);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.reveal a:hover {
+  color: var(--r-link-color-hover);
+  text-shadow: none;
+  border: none;
+}
+
+.reveal .roll span:after {
+  color: #fff;
+  background: var(--r-link-color-dark);
+}
+
+/*********************************************
+ * Frame helper
+ *********************************************/
+.reveal .r-frame {
+  border: 4px solid var(--r-main-color);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.reveal a .r-frame {
+  transition: all 0.15s linear;
+}
+
+.reveal a:hover .r-frame {
+  border-color: var(--r-link-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.55);
+}
+
+/*********************************************
+ * NAVIGATION CONTROLS
+ *********************************************/
+.reveal .controls {
+  color: var(--r-link-color);
+}
+
+/*********************************************
+ * PROGRESS BAR
+ *********************************************/
+.reveal .progress {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--r-link-color);
+}
+
+/*********************************************
+ * PRINT BACKGROUND
+ *********************************************/
+@media print {
+  .backgrounds {
+    background-color: var(--r-background-color);
+  }
+}
+
+/* =====================================================================
+   talk-kit 테마 (v2)
+   - 규칙과 근거: README.md
+   - 화면 기준: 1280×720 (TalkKit.config)
+   - 블록: TalkKit/Blocks.lean (tk-box, tk-cols, tk-calc, tk-tree …)
+   ===================================================================== */
+
+/* ---------- 글꼴 (SIL OFL 1.1, talk-kit/licenses/) ---------- */
+@font-face {
+  font-family: "Pretendard Variable";
+  src: url("fonts/PretendardVariable.woff2") format("woff2-variations"),
+       url("fonts/PretendardVariable.woff2") format("woff2");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JuliaMono";
+  src: url("fonts/JuliaMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JuliaMono";
+  src: url("fonts/JuliaMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ---------- 설계 토큰 ---------- */
+:root {
+  --tk-font: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  --tk-mono: "JuliaMono", "D2Coding", ui-monospace, monospace;
+
+  --tk-text: #1e293b;      /* 본문 (흰 배경 대비 약 14:1) */
+  --tk-muted: #475569;     /* 보조 글 (약 7.5:1) */
+  --tk-faint: #94a3b8;     /* 선, 비활성 */
+  --tk-rule: #e2e8f0;      /* 구분선 */
+  --tk-dark: #1f3a5f;      /* 표지·장 구분 배경 */
+
+  /* 구문(주황)과 의미(파랑): \syn, \den 매크로와 같은 색 */
+  --tk-syn: #c2410c;  --tk-syn-bg: #fff7ed;  --tk-syn-line: #fdba74;
+  --tk-den: #1d4ed8;  --tk-den-bg: #eff6ff;  --tk-den-line: #bfdbfe;
+
+  /* 상자 색: 테두리·라벨 / 배경. 흰 배경 대비 4.5:1 이상 */
+  --tk-defn-fg: #1d4ed8;   --tk-defn-bg: #f3f7ff;
+  --tk-thm-fg: #6d28d9;    --tk-thm-bg: #f7f4ff;
+  --tk-ex-fg: #047857;     --tk-ex-bg: #f0fbf6;
+  --tk-warn-fg: #b45309;   --tk-warn-bg: #fff8eb;
+  --tk-proof-fg: #334155;  --tk-proof-bg: #ffffff;
+  --tk-remark-fg: #334155; --tk-remark-bg: #f6f8fb;
+  --tk-lean-fg: #0e7490;   --tk-lean-bg: #ecfeff;
+
+  /* reveal 변수 덮어쓰기 */
+  --r-background-color: #ffffff;
+  --r-main-font: var(--tk-font);
+  --r-main-font-size: 30px;
+  --r-main-color: var(--tk-text);
+  --r-block-margin: 14px;
+  --r-heading-font: var(--tk-font);
+  --r-heading-color: #0f172a;
+  --r-heading-line-height: 1.25;
+  --r-heading-letter-spacing: -0.015em;
+  --r-heading-text-transform: none;
+  --r-heading-font-weight: 700;
+  --r-heading1-size: 2em;
+  --r-heading2-size: 1.4em;
+  --r-heading3-size: 1.15em;
+  --r-heading4-size: 1em;
+  --r-code-font: var(--tk-mono);
+  --r-link-color: var(--tk-defn-fg);
+}
+
+/* ---------- 기본 배치: 왼쪽 정렬, 어절 단위 줄바꿈 ---------- */
+.reveal .slides { text-align: left; }
+.reveal .slides section,
+.reveal .slides section > section {
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.reveal p { line-height: 1.5; margin: 0.4em 0; }
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 { text-transform: none; }
+
+/* 슬라이드 제목: 짧은 주장 한 줄. 구분선 없이 여백으로 나눈다 */
+.reveal .slides section > h2,
+.reveal .slides section > h3 {
+  margin: 0;
+  padding-bottom: 0.7em;
+}
+
+/* 세로 배치: 제목은 위에 고정하고, 본문은 남은 공간의 위쪽 1/3 지점에 오게 한다.
+   reveal은 보이는 슬라이드에 style="display: block"을 넣으므로 그 슬라이드만 flex로 바꾼다.
+   제목 아래 여백 : 본문 아래 여백 = 1 : 2. 내용이 꽉 차면 여백은 0이 된다. */
+.reveal .slides section:not(.stack):not([data-background-color])[style*="display: block"] {
+  display: flex !important;
+  flex-direction: column;
+  height: 100%;
+}
+.reveal .slides section:not(.stack):not([data-background-color]) > h2:first-child,
+.reveal .slides section:not(.stack):not([data-background-color]) > h3:first-child {
+  flex: 1 0 auto;
+  max-height: 34%;
+}
+.reveal .slides section:not(.stack):not([data-background-color])::after {
+  content: "";
+  flex: 2 0 auto;
+}
+.reveal .slides section:not(.stack):not([data-background-color]) > * { flex-shrink: 0; }
+
+.reveal ul, .reveal ol { display: block; margin: 0.3em 0 0.3em 1.2em; }
+.reveal li { margin: 0.2em 0; line-height: 1.45; }
+.reveal strong, .reveal b { font-weight: 700; }
+.reveal em { font-style: normal; font-weight: 650; }
+
+/* 수식: Pretendard 옆에서 크기를 맞춘다 */
+.reveal .katex { font-size: 1.08em; }
+.reveal .katex-display { margin: 0.35em 0; }
+
+/* ---------- 표 ---------- */
+.reveal table.slide-table { font-size: 0.86em; margin: 0.3em 0; border-collapse: collapse; }
+.reveal table.slide-table th,
+.reveal table.slide-table td {
+  overflow-wrap: normal;
+  padding: 0.28em 0.8em;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--tk-rule);
+}
+.reveal table.slide-table thead th {
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--tk-muted);
+  border-bottom: 2px solid #cbd5e1;
+}
+.reveal table.slide-table tbody tr:last-child td { border-bottom: none; }
+.reveal .tk-center table.slide-table { margin: 0.3em auto; }
+
+/* ---------- 어두운 배경: 표지와 장 구분에만 ---------- */
+.reveal .slides section[data-background-color] { text-align: center; }
+.reveal .slides section[data-background-color] > h2,
+.reveal .slides section[data-background-color] > h3 {
+  margin-top: 220px;
+  color: #ffffff;
+  font-size: 1.6em;
+}
+.reveal .slides section[data-background-color] > h1 { margin-top: 170px; color: #ffffff; }
+.reveal .slides section[data-background-color] p { color: #cbd5e1; font-size: 0.95em; }
+
+/* =====================================================================
+   블록 (TalkKit/Blocks.lean)
+   ===================================================================== */
+
+/* ---------- 상자: :::defn "이름" 등 ----------
+   첫 줄 라벨("정의 · 이름")은 Blocks.lean이 넣는다. 색만으로 구분하지 않도록 항상 글자 라벨이 있다. */
+.reveal .tk-box {
+  margin: 0.45em 0;
+  padding: 0.55em 0.9em 0.6em;
+  border-left: 6px solid var(--tk-box-fg);
+  border-radius: 10px;
+  background: var(--tk-box-bg);
+}
+.reveal .tk-box-label {
+  font-size: 0.66em;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  color: var(--tk-box-fg);
+  margin-bottom: 0.25em;
+}
+.reveal .tk-box-label .katex { font-size: 1.05em; }
+.reveal .tk-box > :first-child { margin-top: 0; }
+.reveal .tk-box > :last-child { margin-bottom: 0; }
+.reveal .tk-defn   { --tk-box-fg: var(--tk-defn-fg);   --tk-box-bg: var(--tk-defn-bg); }
+.reveal .tk-thm    { --tk-box-fg: var(--tk-thm-fg);    --tk-box-bg: var(--tk-thm-bg); }
+.reveal .tk-ex     { --tk-box-fg: var(--tk-ex-fg);     --tk-box-bg: var(--tk-ex-bg); }
+.reveal .tk-warn   { --tk-box-fg: var(--tk-warn-fg);   --tk-box-bg: var(--tk-warn-bg); }
+.reveal .tk-proof  { --tk-box-fg: var(--tk-proof-fg);  --tk-box-bg: var(--tk-proof-bg); }
+.reveal .tk-remark { --tk-box-fg: var(--tk-remark-fg); --tk-box-bg: var(--tk-remark-bg); }
+.reveal .tk-proof { border: 2px solid var(--tk-rule); border-left: 6px solid var(--tk-proof-fg); }
+.reveal .tk-box > .tk-tree { margin-left: auto; margin-right: auto; }
+
+/* ---------- 배치 ---------- */
+.reveal .tk-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 40px;
+  align-items: start;
+}
+.reveal .tk-cols > * { min-width: 0; }
+.reveal .tk-cols > .tk-box { margin-top: 0; }
+.reveal .tk-center { text-align: center; }
+.reveal .tk-center > .tk-tree,
+.reveal .tk-center > table { margin-left: auto; margin-right: auto; }
+.reveal .tk-center > p,
+.reveal .tk-center > .tk-gloss { text-align: center; }
+
+/* 기호 풀이·읽는 법: 작은 회색 글 */
+.reveal .tk-gloss {
+  font-size: 0.8em;
+  line-height: 1.5;
+  color: var(--tk-muted);
+  margin-top: 0.5em;
+}
+.reveal .tk-gloss p { margin: 0.15em 0; }
+
+/* ---------- 계산: ```calc ---------- */
+.reveal table.tk-calc {
+  margin: 0.35em 0;
+  border-collapse: collapse;
+  font-size: 1em;
+}
+.reveal table.tk-calc td {
+  border: none;
+  padding: 0.12em 0.18em;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+.reveal table.tk-calc td.tk-calc-l { text-align: right; padding-right: 0.25em; }
+.reveal table.tk-calc td.tk-calc-r { text-align: left; }
+.reveal table.tk-calc td.tk-calc-why {
+  padding-left: 1.4em;
+  font-size: 0.7em;
+  color: var(--tk-muted);
+}
+.reveal table.tk-calc td.tk-calc-why .katex { font-size: 1.1em; }
+.reveal .tk-center table.tk-calc { margin-left: auto; margin-right: auto; }
+.reveal .tk-box table.tk-calc { margin: 0.1em 0; }
+
+/* ---------- 행 단위 표: ```rows ---------- */
+.reveal table.tk-rows { border-collapse: collapse; margin: 0.3em auto; font-size: 0.86em; }
+.reveal table.tk-rows th, .reveal table.tk-rows td {
+  padding: 0.22em 0.65em;
+  text-align: center;
+  border-bottom: 1px solid var(--tk-rule);
+  white-space: nowrap;
+}
+.reveal table.tk-rows thead th { font-size: 0.85em; color: var(--tk-muted); border-bottom: 2px solid #cbd5e1; }
+.reveal table.tk-rows td:first-child, .reveal table.tk-rows th:first-child { text-align: left; }
+.reveal table.tk-rows .tk-chg { background: #fef3c7; }
+.reveal table.tk-rows .tk-em { font-weight: 700; color: var(--tk-thm-fg); }
+
+/* ---------- 트리: ```tree ---------- */
+.reveal .tk-tree { position: relative; margin: 0.3em 0; }
+.reveal .tk-tree-edges { position: absolute; top: 0; left: 0; overflow: visible; }
+.reveal .tk-edge { stroke: var(--tk-faint); stroke-width: 2.5; }
+.reveal .tk-edge.tk-hl { stroke: var(--tk-syn); stroke-width: 3; }
+.reveal .tk-tree-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 46px;
+  height: 46px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--tk-syn-line);
+  border-radius: 23px;
+  background: var(--tk-syn-bg);
+  color: var(--tk-syn);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+.reveal .tk-tree-node.tk-hl { background: #fed7aa; border-color: var(--tk-syn); }
+/* Hasse 그림(+up): 순서 집합의 원소이므로 구문색을 쓰지 않는다 */
+.reveal .tk-hasse .tk-tree-node { color: var(--tk-text); border-color: var(--tk-faint); background: var(--tk-remark-bg); }
+.reveal .tk-tree-ann {
+  position: absolute;
+  padding: 0.05em 0.45em;
+  border: 1.5px solid var(--tk-den-line);
+  border-radius: 8px;
+  background: var(--tk-den-bg);
+  color: var(--tk-den);
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+.reveal .tk-tree-ann.tk-ann-syn { border-color: var(--tk-syn-line); background: var(--tk-syn-bg); color: var(--tk-syn); }
+/* 노드 안에 붙인다: 아래쪽(잎) 또는 오른쪽(나머지) */
+.reveal .tk-tree-ann.tk-ann-below { top: calc(100% + 6px); left: 50%; transform: translateX(-50%); }
+.reveal .tk-tree-ann.tk-ann-right { left: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
+
+/* ---------- 작은 글, 예고, 검증 배지 ---------- */
+.reveal .tk-small { font-size: 0.78em; color: var(--tk-muted); }
+.reveal .tk-next { font-size: 0.74em; color: var(--tk-muted); margin-top: 0.9em; }
+.reveal .tk-badge {
+  display: inline-block;
+  font-size: 0.62em;
+  color: var(--tk-lean-fg);
+  background: var(--tk-lean-bg);
+  border: 1px solid #a5f3fc;
+  border-radius: 999px;
+  padding: 0.15em 0.8em;
+  margin-top: 0.6em;
+}
+
+/* 장 구분의 질문 */
+.reveal .slides section[data-background-color] .tk-question {
+  font-size: 1.05em;
+  color: #e2e8f0;
+  margin-top: 0.8em;
+}
+
+/* ---------- Lean 코드: 크기와 밝은 배경용 대비 ---------- */
+/* Verso의 slides-highlight.css(테마보다 뒤에 로드)에 같은 선택자가 있어 한 단계 더 구체적으로 쓴다 */
+.reveal .slides code.hl.lean.block { font-size: 23px; line-height: 1.45; }
+.reveal code.hl.lean { font-family: var(--tk-mono); }
+/* 흰 배경 대비 4.5:1 이상인 토큰 색. 어두운 슬라이드는 Verso 기본값을 쓴다 */
+.reveal section:not([data-background-color]) {
+  --verso-code-keyword-color: #7e22ce;
+  --verso-code-const-color: #1d4ed8;
+  --verso-code-var-color: #0f766e;
+  --verso-code-comment-color: #57606a;
+}
+
+/* ---------- Illuminate 도식 ----------
+   Verso는 diagram 폭을 viewBox 폭/10 vw로 정한다. vw는 창 크기 단위라 reveal의 슬라이드 좌표와 맞지 않으므로,
+   폭은 슬라이드 기준(최대 100%)으로, 높이는 최대값으로 덮어쓴다. */
+.reveal .slides div.diagram {
+  width: auto !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  padding: 0.2em !important;
+  margin: 0.3em auto;
+}
+.reveal .slides div.diagram > svg {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  max-height: var(--tk-diagram-h, 380px);
+}
+.reveal .slides .tk-diagram-sm { --tk-diagram-h: 260px; }
+.reveal .slides .tk-diagram-lg { --tk-diagram-h: 480px; }

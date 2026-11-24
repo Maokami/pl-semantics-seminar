@@ -1,0 +1,60 @@
+:root {
+  --tk-lecture-code-size: 23px;
+  --tk-lecture-panel-size: 22px;
+  --tk-lecture-panel-height: 390px;
+  --tk-lecture-panel-padding: 20px;
+}
+
+.reveal .tk-lean-walk.code-with-panel {
+  grid-template-columns: minmax(0, 1fr) 4px minmax(0, 1.15fr);
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--tk-lecture-panel-height);
+  margin: 0;
+}
+
+.reveal .tk-lean-walk.code-with-panel > code.hl.lean.block {
+  font-size: var(--tk-lecture-code-size);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  padding: var(--tk-lecture-panel-padding);
+  min-width: 0;
+  overflow: visible;
+}
+
+.reveal .tk-lean-walk .panel-cell {
+  min-width: 0;
+  background: var(--tk-remark-bg);
+  overflow: visible;
+}
+
+.reveal .tk-lean-walk .info-panel {
+  position: relative;
+  inset: auto;
+  font-size: var(--tk-lecture-panel-size);
+  line-height: 1.45;
+  padding: var(--tk-lecture-panel-padding);
+  overflow: visible;
+}
+
+.reveal .tk-lean-walk .info-panel .hl.lean {
+  font-family: var(--tk-mono);
+}
+
+.reveal .tk-lean-walk .info-panel .docstring {
+  font-size: inherit;
+  max-height: var(--tk-lecture-panel-height);
+  overflow-y: auto;
+}
+
+.reveal .tk-lean-walk .info-panel:empty::before {
+  content: "다음 키 → Lean의 현재 정보";
+  color: var(--tk-muted);
+  font-family: var(--tk-font);
+}
+
+.reveal code.tk-lean-types.hl.lean.block {
+  font-size: var(--tk-lecture-code-size);
+  padding: var(--tk-lecture-panel-padding);
+  margin: 0.35em 0;
+}

@@ -1,0 +1,34 @@
+@media screen {
+  main section p { line-height: 1.57; }
+  main section :is(pre, .hl.lean.block, .math.display) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  main section .hl.lean.block {
+    box-sizing: border-box;
+    margin-inline: 0;
+    padding: .8rem 1rem;
+    border-inline-start: 2px solid #8495a3;
+    background: #f4f6f8;
+    color: #17212a;
+  }
+  main section .math.display > .katex-display {
+    width: max-content;
+    min-width: 100%;
+  }
+  @media (max-width: 700px) {
+    main section p, main section li { overflow-wrap: anywhere; }
+    main .math.inline { display: inline-block; max-width: 100%; overflow-x: auto; vertical-align: middle; }
+  }
+}
+.course-toc ul {list-style:none; margin:0; padding:0}
+.course-toc summary, .guide-link {display:block; padding:.45em .65em}
+.course-toc summary {display:list-item; cursor:pointer; font-weight:600}
+.course-toc li a {display:flex; gap:.65em; padding:.25em .5em; align-items:baseline}
+.course-toc .meeting-no {min-width:3em; color:#526578; font-size:.86em; white-space:nowrap}
+.course-toc [aria-current=page] {font-weight:bold; background:#eaf1f5}
+main .course-toc section {margin:1.6rem 0}
+main .course-toc section h3 {margin-bottom:.1rem}
+main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
+#toc .course-toc {font-size:.93em}

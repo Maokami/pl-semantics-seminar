@@ -1,0 +1,13 @@
+/* 시리즈 공통 스타일: 본문은 작게, 표와 수식이 한 화면에 들어가도록 */
+.reveal { font-size: 30px; }
+.reveal h1, .reveal h2 { font-size: 1.4em; text-transform: none; }
+.reveal table { font-size: 0.8em; }
+.reveal .katex-display { margin: 0.4em 0; }
+.reveal p { line-height: 1.35; }
+/* 정보 패널이 폭의 1/3을 차지하므로, 긴 Lean 줄이 잘리지 않게 코드 글꼴을 줄인다 */
+.reveal .code-with-panel code.hl.lean.block { font-size: 14px; }
+/* 시험: 정의·정리 상자 */
+.reveal .defn, .reveal .thm { text-align: left; padding: 0.5em 0.9em; margin: 0.5em 0; border-radius: 6px; }
+.reveal .defn { border-left: 6px solid #2f855a; background: #eef8f1; }
+.reveal .thm  { border-left: 6px solid #2b6cb0; background: #eef4fb; }
+.reveal .defn p, .reveal .thm p { margin: 0.25em 0; }

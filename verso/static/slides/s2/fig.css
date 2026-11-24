@@ -1,0 +1,143 @@
+/* ```fig 블록 (Talk/Fig.lean): 노드는 KaTeX 라벨, 선과 화살촉은 SVG */
+.reveal .tk-fig { position: relative; margin: 0.25em auto; }
+.reveal .tk-box > .tk-fig { margin: 0.2em auto; }
+.reveal .tk-fig-svg { position: absolute; left: 0; top: 0; overflow: visible; }
+
+.reveal .tk-fig-edge { fill: none; stroke: #64748b; stroke-width: 2.4; }
+.reveal .tk-fig-edge.dashed { stroke-dasharray: 8 6; }
+.reveal .tk-fig-edge.thick { stroke-width: 3.4; }
+.reveal .tk-fig-head { fill: #64748b; stroke: none; }
+
+.reveal .tk-fig-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-size: 0.86em;
+  line-height: 1.2;
+  color: var(--tk-text);
+  text-align: center;
+}
+.reveal .tk-fig-node.small { font-size: 0.7em; }
+.reveal .tk-fig-node.big { font-size: 1.06em; }
+.reveal .tk-fig-node.circ {
+  border: 2px solid var(--tk-faint);
+  border-radius: 999px;
+  padding: 0.12em 0.55em;
+  background: #ffffff;
+}
+.reveal .tk-fig-node.box {
+  border: 2px solid var(--tk-faint);
+  border-radius: 10px;
+  padding: 0.18em 0.55em;
+  background: var(--tk-remark-bg);
+}
+.reveal .tk-fig-node.dot {
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--tk-text);
+}
+
+/* 색: 구문(주황), 계산 결과(파랑), 바뀐 칸(노랑), 이번 회차 강조(보라) */
+.reveal .tk-fig-node.c-syn { color: var(--tk-syn); }
+.reveal .tk-fig-node.c-syn.circ, .reveal .tk-fig-node.c-syn.box { border-color: var(--tk-syn-line); background: var(--tk-syn-bg); }
+.reveal .tk-fig-node.c-val { color: var(--tk-den); }
+.reveal .tk-fig-node.c-val.circ, .reveal .tk-fig-node.c-val.box { border-color: var(--tk-den-line); background: var(--tk-den-bg); }
+.reveal .tk-fig-node.c-hl { background: #fef3c7; border-radius: 8px; padding: 0.05em 0.35em; }
+.reveal .tk-fig-node.c-hl.circ, .reveal .tk-fig-node.c-hl.box { border-color: #f59e0b; padding: 0.12em 0.55em; }
+.reveal .tk-fig-node.c-thm { color: var(--tk-thm-fg); }
+.reveal .tk-fig-node.c-thm.circ, .reveal .tk-fig-node.c-thm.box { border-color: #c4b5fd; background: var(--tk-thm-bg); }
+.reveal .tk-fig-node.c-warn { color: var(--tk-warn-fg); }
+.reveal .tk-fig-node.c-warn.circ, .reveal .tk-fig-node.c-warn.box { border-color: #fcd34d; background: var(--tk-warn-bg); }
+.reveal .tk-fig-node.c-ex { color: var(--tk-ex-fg); }
+.reveal .tk-fig-node.c-defn { color: var(--tk-defn-fg); }
+.reveal .tk-fig-node.c-muted { color: var(--tk-faint); }
+.reveal .tk-fig-node.c-muted.dot { background: var(--tk-faint); }
+.reveal .tk-fig-node.c-thm.dot { background: var(--tk-thm-fg); }
+.reveal .tk-fig-node.c-syn.dot { background: var(--tk-syn); }
+.reveal .tk-fig-node.c-val.dot { background: var(--tk-den); }
+
+.reveal .tk-fig-edge.c-hl, .reveal .tk-fig-edge.c-thm { stroke: var(--tk-thm-fg); }
+.reveal .tk-fig-head.c-hl, .reveal .tk-fig-head.c-thm { fill: var(--tk-thm-fg); }
+.reveal .tk-fig-edge.c-syn { stroke: var(--tk-syn); }
+.reveal .tk-fig-head.c-syn { fill: var(--tk-syn); }
+.reveal .tk-fig-edge.c-val { stroke: var(--tk-den); }
+.reveal .tk-fig-head.c-val { fill: var(--tk-den); }
+.reveal .tk-fig-edge.c-warn { stroke: var(--tk-warn-fg); }
+.reveal .tk-fig-head.c-warn { fill: var(--tk-warn-fg); }
+.reveal .tk-fig-edge.c-ex { stroke: var(--tk-ex-fg); }
+.reveal .tk-fig-head.c-ex { fill: var(--tk-ex-fg); }
+.reveal .tk-fig-edge.c-muted { stroke: #cbd5e1; }
+.reveal .tk-fig-head.c-muted { fill: #cbd5e1; }
+
+.reveal .tk-fig-label {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 0.72em;
+  line-height: 1.15;
+  color: var(--tk-muted);
+}
+.reveal .tk-fig-label.on { background: #ffffff; padding: 0 0.2em; }
+.reveal .tk-fig-label.c-hl, .reveal .tk-fig-label.c-thm { color: var(--tk-thm-fg); }
+.reveal .tk-fig-label.c-syn { color: var(--tk-syn); }
+.reveal .tk-fig-label.c-val { color: var(--tk-den); }
+.reveal .tk-fig-label.c-warn { color: var(--tk-warn-fg); }
+.reveal .tk-fig-label.c-ex { color: var(--tk-ex-fg); }
+
+.reveal .tk-fig-area {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--tk-rule);
+  border-radius: 14px;
+}
+.reveal .tk-fig-area.dashed { border-style: dashed; border-color: var(--tk-faint); }
+.reveal .tk-fig-area.fill { background: var(--tk-remark-bg); }
+.reveal .tk-fig-area.c-defn { border-color: #bfdbfe; background: var(--tk-defn-bg); }
+.reveal .tk-fig-area.c-thm { border-color: #ddd6fe; background: var(--tk-thm-bg); }
+.reveal .tk-fig-area.c-ex { border-color: #a7f3d0; background: var(--tk-ex-bg); }
+.reveal .tk-fig-area.c-warn { border-color: #fde68a; background: var(--tk-warn-bg); }
+.reveal .tk-fig-area.c-syn { border-color: var(--tk-syn-line); background: var(--tk-syn-bg); }
+.reveal .tk-fig-area.c-val { border-color: var(--tk-den-line); background: var(--tk-den-bg); }
+.reveal .tk-fig-area.c-hl { border-color: #f59e0b; background: #fffbeb; }
+.reveal .tk-fig-area-label {
+  position: absolute;
+  left: 12px;
+  top: 4px;
+  font-size: 0.6em;
+  font-weight: 650;
+  color: var(--tk-muted);
+  white-space: nowrap;
+}
+
+/* 표지·장 구분: 짧은 부제 */
+.reveal .slides section[data-background-color] .tk-sub { color: #cbd5e1; font-size: 0.8em; margin-top: 0.6em; }
+
+/* 핵심 식 한 줄을 크게 */
+.reveal .tk-key { font-size: 1.12em; text-align: center; margin: 0.4em 0; }
+.reveal .tk-key .katex-display { margin: 0.2em 0; }
+
+/* 다각형 영역: 도메인의 모양, 열린·닫힌 집합 */
+.reveal .tk-fig-poly { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-linejoin: round; }
+.reveal .tk-fig-poly.dashed { stroke-dasharray: 8 6; }
+.reveal .tk-fig-poly.fill { fill: #f6f8fb; }
+.reveal .tk-fig-poly.c-defn { fill: #eff6ff; stroke: #93c5fd; }
+.reveal .tk-fig-poly.c-thm { fill: #f5f3ff; stroke: #c4b5fd; }
+.reveal .tk-fig-poly.c-ex { fill: #ecfdf5; stroke: #6ee7b7; }
+.reveal .tk-fig-poly.c-warn { fill: #fffbeb; stroke: #fcd34d; }
+.reveal .tk-fig-poly.c-syn { fill: #fff7ed; stroke: #fdba74; }
+.reveal .tk-fig-poly.c-val { fill: #eff6ff; stroke: #93c5fd; }
+.reveal .tk-fig-poly.c-hl { fill: #fef3c7; stroke: #f59e0b; }
+.reveal .tk-fig-poly.c-muted { fill: none; stroke: #cbd5e1; }
+.reveal .tk-fig-poly-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-size: 0.72em;
+  color: var(--tk-muted);
+}
+.reveal .tk-fig-poly-label.c-thm { color: var(--tk-thm-fg); }
+.reveal .tk-fig-poly-label.c-ex { color: var(--tk-ex-fg); }
+.reveal .tk-fig-poly-label.c-warn { color: var(--tk-warn-fg); }
+.reveal .tk-fig-poly-label.c-defn, .reveal .tk-fig-poly-label.c-val { color: var(--tk-den); }
+.reveal .tk-fig-poly-label.c-syn { color: var(--tk-syn); }
