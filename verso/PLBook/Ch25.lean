@@ -10,8 +10,8 @@ file := "chapter-25"
 
 * *Definitions.* Free variables, alpha-equivalence and capture-avoiding substitution ([C.1](lambda-card/index.html#lambda-c1), extended to annotated abstractions and constants in [C.3](lambda-card/index.html#lambda-c3)). The typing rules of [C.2](lambda-card/index.html#lambda-c2). Typing contexts, $`\mathrm{dom}(\Gamma)`, the extension $`\Gamma,x{:}T` and the rules T-Var, T-Abs, T-App and T-Unit ([C.3](lambda-card/index.html#lambda-c3)). Derivations ([A.3](imp-card/index.html#imp-a3)), side conditions ([A.5](imp-card/index.html#imp-a5)), induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)), the height of a derivation ([Session 2, §2.4](chapter-02/index.html#ch02-s4)) and induction on height ([Session 3, §3.1](chapter-03/index.html#ch03-s1)).
 * *New terms.* Typing context, permutation of a context, weakening, substitution lemma. [Glossary and label key](glossary/index.html)
-* *Theorem 25.5 \[Paper proof only: proof in §25.3\].* For all contexts $`\Gamma`, variables $`x`, terms $`s,t` and types $`S,T`: if $`\Gamma,x{:}S\vdash t:T` and $`\Gamma\vdash s:S`, then $`\Gamma\vdash[x\mapsto s]t:T`.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §9.3: permutation (Lemma 25.2), weakening (Lemma 25.4) and the preservation of types under substitution (Theorem 25.5) for the simply typed lambda calculus. The proofs here follow the same plan and cover every rule of C.2 and C.3. \[This book\] Lemmas 25.1 and 25.3 make the convention on bound variables of C.1 precise for derivations. [Card source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+* *Theorem 25.5 (Substitution lemma).* For all contexts $`\Gamma`, variables $`x`, terms $`s,t` and types $`S,T`: if $`\Gamma,x{:}S\vdash t:T` and $`\Gamma\vdash s:S`, then $`\Gamma\vdash[x\mapsto s]t:T`.
+* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §9.3: permutation (Lemma 25.2), weakening (Lemma 25.4) and the preservation of types under substitution (Theorem 25.5) for the simply typed lambda calculus. The proofs here follow the same plan and cover every rule of C.2 and C.3. Lemmas 25.1 and 25.3 make the convention on bound variables of C.1 precise for derivations. [Card source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* The abstraction case of Theorem 25.5, in six numbered steps (§25.3). The context of the premise shows that the parameter $`y` is new. Lemma 25.1 lets substitution pass under the binder. Permutation moves $`x{:}S` to the end of the premise's context. Weakening adds $`y{:}T_1` to the derivation of $`s`. The induction hypothesis applies to the permuted premise, and T-Abs closes the case.
 * *Proof outline.* Fix $`x,S,s`. Induction on the height of a derivation $`D` of $`\Gamma,x{:}S\vdash t:T`, with $`P(D)\coloneqq(\Gamma\vdash s:S)\Rightarrow(\Gamma\vdash[x\mapsto s]t:T)`, where $`\Gamma,t,T` are read from the conclusion of $`D`. The variable case uses $`\Gamma\vdash s:S` or T-Var. The other cases without a binder rebuild the last rule from the induction hypotheses. In the abstraction case the premise's context ends with the parameter's binding, not with $`x{:}S`. Permutation reorders it without changing the height, so the induction hypothesis is applied to a derivation that is not a subderivation of $`D`. This is why the induction is on height.
 * *From Session 24.* Session 24 typed terms without variables, and its rules never inspected the context. Here T-Var reads the type of a variable from the context, and T-Abs extends the context. Session 26 uses Theorem 25.5 for the preservation case of E-AppAbs, which replaces a parameter by an argument ([C.8](lambda-card/index.html#lambda-c8), Row 2).
@@ -39,7 +39,7 @@ The premise $`x{:}T\in\Gamma` of T-Var is a side condition (A.5). It is checked,
 
 In $`E`, the free variables $`z` and $`x` of the body lie in $`\mathrm{dom}(\Gamma_2)=\{n,x,z\}`. The only free variable $`x` of the term at the root lies in $`\mathrm{dom}(n{:}\mathsf{Nat},x{:}\mathsf{Nat})=\{n,x\}`.
 
-*Lemma 25.1 (Free variables lie in the context) \[This book\] \[Paper proof only: proof in this section\].* For every context $`\Gamma`, term $`t` and type $`T`, if $`\Gamma\vdash t:T` then $`\mathrm{FV}(t)\subseteq\mathrm{dom}(\Gamma)`.
+*Lemma 25.1 (Free variables lie in the context).* For every context $`\Gamma`, term $`t` and type $`T`, if $`\Gamma\vdash t:T` then $`\mathrm{FV}(t)\subseteq\mathrm{dom}(\Gamma)`.
 
 *Proof.* Induction on a derivation $`D` of $`\Gamma\vdash t:T`, with $`F(D)\coloneqq\mathrm{FV}(t)\subseteq\mathrm{dom}(\Gamma)`. If $`D` ends with T-Var, then $`t=x` with $`x{:}T\in\Gamma`, so $`\mathrm{FV}(t)=\{x\}\subseteq\mathrm{dom}(\Gamma)`. The constants have no free variables. For T-If, T-Succ, T-Pred, T-IsZero and T-App, every premise has the context $`\Gamma`, and $`\mathrm{FV}(t)` is the union of the free variables of the immediate subterms, so the induction hypotheses give $`F(D)`. If $`D` ends with T-Abs, then $`t=\lambda y{:}T_1.t_2` and the premise $`D_2` derives $`\Gamma,y{:}T_1\vdash t_2:T_2`. Its induction hypothesis is $`F(D_2):\ \mathrm{FV}(t_2)\subseteq\mathrm{dom}(\Gamma)\cup\{y\}`. Hence $`\mathrm{FV}(t)=\mathrm{FV}(t_2)\setminus\{y\}\subseteq\mathrm{dom}(\Gamma)`. $`\square`
 
@@ -52,7 +52,7 @@ tag := "ch25-s2"
 
 The bindings of $`\Gamma_2` can be listed in another order, for instance $`n{:}\mathsf{Nat},z{:}\mathsf{Bool},x{:}\mathsf{Nat}`. Each leaf of $`E_2` still finds its binding, so the same three rules and T-If derive the same judgment over the reordered context. A context $`\Delta` is a *permutation* of $`\Gamma` if $`\Delta` and $`\Gamma` consist of the same bindings, possibly in a different order. Then $`\mathrm{dom}(\Delta)=\mathrm{dom}(\Gamma)`.
 
-*Lemma 25.2 (Permutation) \[Paper proof only: proof in this section\].* If $`\Gamma\vdash t:T` and $`\Delta` is a permutation of $`\Gamma`, then $`\Delta\vdash t:T` by a derivation of the same height.
+*Lemma 25.2 (Permutation).* If $`\Gamma\vdash t:T` and $`\Delta` is a permutation of $`\Gamma`, then $`\Delta\vdash t:T` by a derivation of the same height.
 
 *Proof.* Induction on a derivation $`D` of $`\Gamma\vdash t:T`, with
 
@@ -62,13 +62,13 @@ The permutation is quantified inside $`Q(D)`, because the premise of T-Abs has a
 
 Weakening adds a binding $`y{:}U` to every context of a derivation. This fails at a T-Abs node whose parameter is $`y`. Take $`\vdash\lambda y{:}\mathsf{Nat}.\,y:\mathsf{Nat}\to\mathsf{Nat}`, derived by T-Var and T-Abs, and add $`y{:}\mathsf{Bool}`. The premise would need the context $`y{:}\mathsf{Bool},y{:}\mathsf{Nat}`, which is not formed. The same term is written $`\lambda w{:}\mathsf{Nat}.\,w` (C.1), and its derivation has the premise $`y{:}\mathsf{Bool},w{:}\mathsf{Nat}\vdash w:\mathsf{Nat}`. The next lemma performs this renaming in any derivation.
 
-*Lemma 25.3 (Renaming the parameter) \[This book\] \[Paper proof only: proof in this section\].* Let $`D` derive $`\Gamma\vdash t:T` and end with T-Abs, and let $`V` be a finite set of variables. Then $`\Gamma\vdash t:T` has a derivation of height $`h(D)` that ends with T-Abs and whose parameter is not in $`V`.
+*Lemma 25.3 (Renaming the parameter).* Let $`D` derive $`\Gamma\vdash t:T` and end with T-Abs, and let $`V` be a finite set of variables. Then $`\Gamma\vdash t:T` has a derivation of height $`h(D)` that ends with T-Abs and whose parameter is not in $`V`.
 
 *Proof.* Let $`t=\lambda w{:}T_1.t_2`, and let $`D_2` derive the premise $`\Gamma,w{:}T_1\vdash t_2:T_2`. Choose a variable $`z\notin V` that occurs nowhere in $`D`. Replace $`w` by $`z` at every occurrence in every judgment of $`D_2`. Because $`z` is new, distinct variables stay distinct. So, by induction on $`D_2`, every side condition $`x{:}T\in\Delta` and every extension remains valid, and every node becomes an instance of the same rule. The context $`\Gamma` does not change, since $`w\notin\mathrm{dom}(\Gamma)`. The result derives $`\Gamma,z{:}T_1\vdash t_2':T_2` with height $`h(D_2)`, where $`t_2'` is $`t_2` with $`w` replaced by $`z`. No abstraction inside $`t_2` has the parameter $`w`, because $`D_2` types each of them under a context that already binds $`w`. So $`t_2'=[w\mapsto z]t_2`, and $`\lambda z{:}T_1.t_2'` is alpha-equivalent to $`\lambda w{:}T_1.t_2`, hence equal to $`t` (C.1). T-Abs completes the derivation. $`\square`
 
 For example, $`n{:}\mathsf{Nat}\vdash\mathsf{succ}\ n:\mathsf{Nat}` has a derivation of height 1, by T-Var and T-Succ. Adding $`z{:}\mathsf{Bool}` to both contexts gives a derivation of $`n{:}\mathsf{Nat},z{:}\mathsf{Bool}\vdash\mathsf{succ}\ n:\mathsf{Nat}`, again of height 1.
 
-*Lemma 25.4 (Weakening) \[Paper proof only: proof in this section\].* If $`\Gamma\vdash t:T` and $`y\notin\mathrm{dom}(\Gamma)`, then $`\Gamma,y{:}U\vdash t:T` for every type $`U`, by a derivation of the same height.
+*Lemma 25.4 (Weakening).* If $`\Gamma\vdash t:T` and $`y\notin\mathrm{dom}(\Gamma)`, then $`\Gamma,y{:}U\vdash t:T` for every type $`U`, by a derivation of the same height.
 
 *Proof.* Induction on height. For a derivation $`D` of $`\Gamma\vdash t:T` let
 
@@ -89,7 +89,7 @@ $$`\frac{\dfrac{z{:}\mathsf{Bool}\in\Gamma_3}{\Gamma_3\vdash z:\mathsf{Bool}}\,\
 
 T-Abs then gives $`\Gamma\vdash[x\mapsto s]t:\mathsf{Bool}\to\mathsf{Nat}`. Compared with $`E_2`, the context has lost $`x{:}\mathsf{Nat}`. The leaf for $`x` has become the derivation of $`\mathsf{succ}\ n` from the example before Lemma 25.4, weakened by $`z{:}\mathsf{Bool}`. The height has grown from 1 to 2. The argument $`s` is open: it uses $`n` from $`\Gamma`.
 
-*Theorem 25.5 (Substitution lemma) \[Paper proof only: proof in this section\].* For all contexts $`\Gamma`, variables $`x`, terms $`s,t` and types $`S,T`: if $`\Gamma,x{:}S\vdash t:T` and $`\Gamma\vdash s:S`, then $`\Gamma\vdash[x\mapsto s]t:T`.
+*Theorem 25.5 (Substitution lemma).* For all contexts $`\Gamma`, variables $`x`, terms $`s,t` and types $`S,T`: if $`\Gamma,x{:}S\vdash t:T` and $`\Gamma\vdash s:S`, then $`\Gamma\vdash[x\mapsto s]t:T`.
 
 We call Theorem 25.5 the *substitution lemma*, as C.8 does. It concerns typing. The substitution lemma for IMP expressions in Sessions 1 and 11 concerns evaluation and is a different statement. Its first hypothesis includes that the context $`\Gamma,x{:}S` is formed, so $`x\notin\mathrm{dom}(\Gamma)`.
 
@@ -177,3 +177,15 @@ number := false
 *Typing does not determine the substitution.* Let $`\Gamma=y{:}\mathsf{Bool}`, so that $`\Gamma,x{:}\mathsf{Bool}\vdash\lambda w{:}\mathsf{Bool}.\,x:\mathsf{Bool}\to\mathsf{Bool}`. Capture-avoiding substitution gives $`[x\mapsto y](\lambda w{:}\mathsf{Bool}.\,x)=\lambda w{:}\mathsf{Bool}.\,y`, and literal replacement in $`\lambda y{:}\mathsf{Bool}.\,x` gives $`\lambda y{:}\mathsf{Bool}.\,y`. Both have type $`\mathsf{Bool}\to\mathsf{Bool}` under $`\Gamma`. So the capturing result has the type that Theorem 25.5 promises, and a type check of the result cannot detect capture. Evaluation can. Substitute $`\mathsf{true}` for $`y` in both terms and apply each to $`\mathsf{false}`. E-AppAbs gives $`(\lambda w{:}\mathsf{Bool}.\,\mathsf{true})\,\mathsf{false}\to\mathsf{true}` and $`(\lambda y{:}\mathsf{Bool}.\,y)\,\mathsf{false}\to\mathsf{false}`. The free variables of C.1 detect the difference before any step: $`\mathrm{FV}(\lambda w{:}\mathsf{Bool}.\,y)=\{y\}`, while $`\mathrm{FV}(\lambda y{:}\mathsf{Bool}.\,y)=\varnothing`. Theorem 25.5 constrains the type of the result of substitution. It does not specify the operation.
 
 *Nameless and intrinsically typed terms.* In a nameless representation a variable is the position of its binding in the context (TAPL, §6.1). If each term is indexed by its context and its type, every term is typed by construction, and the typing judgment is no longer a separate relation. Weakening becomes a renaming of positions that skips the new binding. Substitution becomes a map from the positions of one context to terms over another. Passing it under a binder weakens every replacement term by the new binding, which is step 4 of the board case. Theorem 25.5 is then the type of the substitution function. This book keeps the typing judgment as a relation separate from the syntax (C.3), and Lemma 25.3 is the form that the identification of alpha-equivalent terms (TAPL, §5.3) takes for derivations.
+
+# Sources and Formalization
+%%%
+tag := "ch25-notes"
+number := false
+%%%
+
+* *Lemma 25.1.* Formulated in this book. Paper proof only (proof in [§25.1](chapter-25/index.html#ch25-s1)).
+* *Lemma 25.2.* Source: TAPL §9.3. Paper proof only (proof in [§25.2](chapter-25/index.html#ch25-s2)).
+* *Lemma 25.3.* Formulated in this book. Paper proof only (proof in [§25.2](chapter-25/index.html#ch25-s2)).
+* *Lemma 25.4.* Source: TAPL §9.3. Paper proof only (proof in [§25.2](chapter-25/index.html#ch25-s2)).
+* *Theorem 25.5.* Source: TAPL §9.3. Paper proof only (proof in [§25.3](chapter-25/index.html#ch25-s3)).

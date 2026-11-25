@@ -10,7 +10,7 @@ file := "chapter-30"
 
 * *Definitions.* [Lambda card C.6](lambda-card/index.html#lambda-c6): locations $`l`, stores $`\mu` with extension $`(\mu,l\mapsto v)` and update $`[l\mapsto v]\mu`, the steps $`t\mid\mu\to t'\mid\mu'` with E-RefV, E-Ref, E-DerefLoc, E-Deref, E-Assign, E-Assign1, E-Assign2 and the lifted earlier rules, store typings $`\Sigma` and extension $`\Sigma\subseteq\Sigma'`, the rules T-Loc, T-Ref, T-Deref and T-Assign, well-typed stores $`\Gamma\mid\Sigma\vdash\mu`, and the value restriction. The typed language and the judgment $`\Gamma\mid\Sigma\vdash t:T` ([Lambda card, Judgments](lambda-card/index.html)). Sequencing $`t_1;t_2` ([C.3](lambda-card/index.html#lambda-c3)). The inference form, type schemes, T-VarInst and T-LetGen ([C.5](lambda-card/index.html#lambda-c5), [Session 29](chapter-29/index.html)). The statements from Session 30 on, the form of the safety table and Rows 1–4 ([C.8](lambda-card/index.html#lambda-c8)). Inversion, canonical forms, progress, and preservation by induction on the evaluation derivation ([Session 24](chapter-24/index.html#ch24-s3)). The weakening and substitution lemmas ([Session 25](chapter-25/index.html)).
 * *New terms.* Location, store (of a running term), store typing, well-typed store, value restriction. [Glossary and label key](glossary/index.html)
-* *Theorem 30.6 \[Corresponding: TAPL §13.5\] \[Paper proof only: proof in §30.3\].* For every $`\Gamma`, $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`.
+* *Theorem 30.6 (Preservation).* For every $`\Gamma`, $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`.
 * *Source.* Pierce, _Types and Programming Languages_ (TAPL). The constructs, evaluation rules, store typings and typing rules of C.6 are those of §§13.1–13.4. §13.5 states progress and preservation for the simply typed lambda calculus with Unit and references, together with the two store lemmas used here. Theorems 30.5–30.6 and Lemmas 30.2–30.3 are the same statements for the typed language of this session, which also has Bool, Nat, products, sums and let. §22.7 shows that let-polymorphism is unsound with references and introduces the value restriction. Lemmas 30.1 and 30.4 are this book’s. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Preservation, case E-RefV (allocation). Invert the typing of $`\mathsf{ref}\ v_1`. Extend $`\Sigma` at the fresh location. Type the result with T-Loc. Check the new store cell by cell with store weakening.
 * *Proof outline.* Fix $`\Gamma` and induct on the evaluation derivation $`E:t\mid\mu\to t'\mid\mu'`, with $`Q(E)\coloneqq\forall\Sigma,T,\ (\Gamma\mid\Sigma\vdash t:T\land\Gamma\mid\Sigma\vdash\mu)\Rightarrow\exists\Sigma',\ \Sigma\subseteq\Sigma'\land\Gamma\mid\Sigma'\vdash t':T\land\Gamma\mid\Sigma'\vdash\mu'`. E-RefV takes $`\Sigma'=(\Sigma,l{:}T_1)`. The other computation rules take $`\Sigma'=\Sigma`, and E-Assign uses store update (Lemma 30.3). A congruence rule takes $`\Sigma'` from the induction hypothesis and retypes the other immediate subterms by store weakening (Lemma 30.2).
@@ -59,7 +59,7 @@ tag := "ch30-s2"
 
 Each form of term in C.6 is the conclusion of exactly one typing rule. For example, a derivation of $`\varnothing\mid\varnothing\vdash\mathsf{ref}\ 0:T` must end with T-Ref. Its premise types $`0`, so it ends with T-Zero, and $`T=\mathsf{Ref}\ \mathsf{Nat}`. As in [Session 24, Lemma 24.1](chapter-24/index.html#ch24-s2), inversion reads the premises off the form.
 
-*Lemma 30.1 (Inversion for references) \[This book\] \[Paper proof only: proof in §30.2\].* For all $`\Gamma`, $`\Sigma`, $`T`, terms $`t_1,t_2` and locations $`l`:
+*Lemma 30.1 (Inversion for references).* For all $`\Gamma`, $`\Sigma`, $`T`, terms $`t_1,t_2` and locations $`l`:
 
 * (a) If $`\Gamma\mid\Sigma\vdash l:T`, then $`l\in\mathrm{dom}(\Sigma)` and $`T=\mathsf{Ref}\ \Sigma(l)`.
 * (b) If $`\Gamma\mid\Sigma\vdash\mathsf{ref}\ t_1:T`, then $`T=\mathsf{Ref}\ T_1` for a type $`T_1` with $`\Gamma\mid\Sigma\vdash t_1:T_1`.
@@ -70,7 +70,7 @@ Each form of term in C.6 is the conclusion of exactly one typing rule. For examp
 
 A step may add a location to the store typing, and the terms typed before the step must keep their types. Let $`\Sigma_1=(\varnothing,l_1{:}\mathsf{Nat})` and $`\Sigma_2=(\Sigma_1,l_2{:}\mathsf{Bool})`. T-Loc, T-Deref and T-Succ give $`\varnothing\mid\Sigma_1\vdash\mathsf{succ}\ ({!}l_1):\mathsf{Nat}`. The same three rules give $`\varnothing\mid\Sigma_2\vdash\mathsf{succ}\ ({!}l_1):\mathsf{Nat}`, because the T-Loc leaf reads $`\Sigma_2(l_1)=\Sigma_1(l_1)=\mathsf{Nat}`. Under $`(\varnothing,l_1{:}\mathsf{Bool})` the term has no type. That map changes an old binding, so it does not extend $`\Sigma_1`.
 
-*Lemma 30.2 (Store weakening) \[Corresponding: TAPL §13.5\] \[Paper proof only: proof in §30.2\].* For all $`\Gamma`, $`\Sigma`, $`\Sigma'`, $`t` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T` and $`\Sigma\subseteq\Sigma'`, then $`\Gamma\mid\Sigma'\vdash t:T`.
+*Lemma 30.2 (Store weakening).* For all $`\Gamma`, $`\Sigma`, $`\Sigma'`, $`t` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T` and $`\Sigma\subseteq\Sigma'`, then $`\Gamma\mid\Sigma'\vdash t:T`.
 
 *Proof.* Fix $`\Sigma\subseteq\Sigma'`. We prove $`P(D)` for every typing derivation $`D` under $`\Sigma` by induction on $`D`, where for $`D:\Gamma\mid\Sigma\vdash t:T`
 
@@ -80,7 +80,7 @@ If $`D` ends with T-Loc, then $`t=l`, $`l\in\mathrm{dom}(\Sigma)` and $`T=\maths
 
 A write keeps the store typing. Step 4 of the opening trace replaces $`0` by $`\mathsf{succ}\ 0` in a cell of type Nat. T-Assign admits $`l\mathrel{:=}t_2` only when $`t_2` has the type $`\Sigma(l)`. Under $`(\varnothing,l{:}\mathsf{Nat})` it rejects $`l\mathrel{:=}\mathsf{true}`.
 
-*Lemma 30.3 (Store update) \[Corresponding: TAPL §13.5\] \[Paper proof only: proof in §30.2\].* For all $`\Gamma`, $`\Sigma`, $`\mu`, $`l`, $`v` and $`T`: if $`\Gamma\mid\Sigma\vdash\mu`, $`\Sigma(l)=T` and $`\Gamma\mid\Sigma\vdash v:T`, then $`\Gamma\mid\Sigma\vdash[l\mapsto v]\mu`.
+*Lemma 30.3 (Store update).* For all $`\Gamma`, $`\Sigma`, $`\mu`, $`l`, $`v` and $`T`: if $`\Gamma\mid\Sigma\vdash\mu`, $`\Sigma(l)=T` and $`\Gamma\mid\Sigma\vdash v:T`, then $`\Gamma\mid\Sigma\vdash[l\mapsto v]\mu`.
 
 *Proof.* Since $`l\in\mathrm{dom}(\Sigma)=\mathrm{dom}(\mu)`, the update is defined, and $`\mathrm{dom}([l\mapsto v]\mu)=\mathrm{dom}(\mu)=\mathrm{dom}(\Sigma)`. Let $`l'\in\mathrm{dom}(\mu)`. If $`l'=l`, the cell holds $`v`, and $`\Gamma\mid\Sigma\vdash v:\Sigma(l)` by hypothesis. If $`l'\neq l`, the cell still holds $`\mu(l')`, and $`\Gamma\mid\Sigma\vdash\mu(l'):\Sigma(l')` because $`\mu` is well typed. $`\square`
 
@@ -91,7 +91,7 @@ tag := "ch30-s3"
 
 Let $`\Sigma_1=(\varnothing,l{:}\mathsf{Nat})`. Then $`\varnothing\mid\Sigma_1\vdash l:\mathsf{Ref}\ \mathsf{Nat}` and $`\varnothing\mid\Sigma_1\vdash{!}l:\mathsf{Nat}`. In the store $`(\varnothing,l\mapsto 0)` the term $`{!}l` steps to $`0` by E-DerefLoc. In the store $`\varnothing` it has no step, because E-DerefLoc needs a cell at $`l`, and it is not a value. The store $`\varnothing` is not well typed under $`\Sigma_1`. So progress must assume a well-typed store, and the canonical form of a Ref value must connect $`\Sigma` with that store.
 
-*Lemma 30.4 (Canonical forms) \[This book\] \[Paper proof only: proof in §30.3\].* Let $`v` be a value and $`\Sigma` a store typing.
+*Lemma 30.4 (Canonical forms).* Let $`v` be a value and $`\Sigma` a store typing.
 
 * (a) If $`\varnothing\mid\Sigma\vdash v:\mathsf{Ref}\ T_1`, then $`v` is a location $`l` with $`\Sigma(l)=T_1`.
 * (b) If $`v` is a location, then $`\varnothing\mid\Sigma\vdash v:T` holds for no type $`T` of the form $`\mathsf{Bool}`, $`\mathsf{Nat}`, $`T_1\to T_2`, $`\mathsf{Unit}`, $`T_1\times T_2` or $`T_1+T_2`.
@@ -100,7 +100,7 @@ Let $`\Sigma_1=(\varnothing,l{:}\mathsf{Nat})`. Then $`\varnothing\mid\Sigma_1\v
 
 By (b), the canonical-forms statements of Rows 1–3 in [C.8](lambda-card/index.html#lambda-c8) keep their proofs: the new form of value never has their types.
 
-*Theorem 30.5 (Progress) \[Corresponding: TAPL §13.5\] \[Paper proof only: proof in §30.3\].* For every term $`t`, type $`T` and store typing $`\Sigma`: if $`\varnothing\mid\Sigma\vdash t:T`, then $`t` is a value or, for every store $`\mu` with $`\varnothing\mid\Sigma\vdash\mu`, there are $`t'` and $`\mu'` with $`t\mid\mu\to t'\mid\mu'`.
+*Theorem 30.5 (Progress).* For every term $`t`, type $`T` and store typing $`\Sigma`: if $`\varnothing\mid\Sigma\vdash t:T`, then $`t` is a value or, for every store $`\mu` with $`\varnothing\mid\Sigma\vdash\mu`, there are $`t'` and $`\mu'` with $`t\mid\mu\to t'\mid\mu'`.
 
 *Proof.* Fix $`\Sigma`. We prove $`P(D)` for every typing derivation $`D:\Gamma\mid\Sigma\vdash t:T` by induction on $`D`, as in [Session 26, Theorem 26.3](chapter-26/index.html#ch26-s2), with
 
@@ -115,7 +115,7 @@ The cases of Rows 1–4 are those of Sessions 24–29 with the store passed alon
 
 Preservation must let the store typing grow. The opening program has type Nat under $`\varnothing`. After step 1 the term $`\mathsf{let}\ r=l\ \mathsf{in}\ \ldots` contains $`l`, so it has a type only under a store typing that maps $`l`. Under $`\Sigma_1=(\varnothing,l{:}\mathsf{Nat})` it has type Nat, and the store $`(\varnothing,l\mapsto 0)` is well typed. Steps 2–6 keep $`\Sigma_1`. The write in step 4 stores a value of type Nat, and every term on the way has type Nat.
 
-*Theorem 30.6 (Preservation) \[Corresponding: TAPL §13.5\] \[Paper proof only: proof in §30.3\].* For every $`\Gamma`, $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`.
+*Theorem 30.6 (Preservation).* For every $`\Gamma`, $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`.
 
 Fix $`\Gamma`. We prove $`Q(E)` for every evaluation derivation $`E` by induction on $`E`. For $`E:t\mid\mu\to t'\mid\mu'` the induction property is
 
@@ -182,7 +182,7 @@ In Session 29 the inference-form term $`\mathsf{let}\ \mathit{id}=\lambda x.x\ \
 
 $$`u=\mathsf{let}\ r=\mathsf{ref}\ (\lambda x.x)\ \mathsf{in}\ (r\mathrel{:=}(\lambda x.\mathsf{succ}\ x);\ ({!}r)\ \mathsf{true}).`
 
-*Proposition 30.7 (Generalizing a non-value) \[Corresponding: TAPL §22.7\] \[Paper proof only: proof in §30.5\].* If T-LetGen may quantify type variables for every right-hand side, then $`\vdash u:\mathsf{Bool}` and $`u\mid\varnothing\to^*\mathsf{succ}\ \mathsf{true}\mid(\varnothing,l\mapsto\lambda x.\mathsf{succ}\ x)`, and $`\mathsf{succ}\ \mathsf{true}` is stuck. So safety fails for the inference form with this rule.
+*Proposition 30.7 (Generalizing a non-value).* If T-LetGen may quantify type variables for every right-hand side, then $`\vdash u:\mathsf{Bool}` and $`u\mid\varnothing\to^*\mathsf{succ}\ \mathsf{true}\mid(\varnothing,l\mapsto\lambda x.\mathsf{succ}\ x)`, and $`\mathsf{succ}\ \mathsf{true}` is stuck. So safety fails for the inference form with this rule.
 
 *Proof.* The typing. Write $`\Gamma_r` for the context $`\varnothing,r{:}\forall X.\mathsf{Ref}\ (X\to X)`.
 
@@ -266,3 +266,17 @@ The final configuration is $`0\mid((\varnothing,l_1\mapsto 0),l_2\mapsto\mathsf{
 *Further reading · Recursion through the store.* The typed language of Sessions 24–29 has no recursion operator. The cyclic cell of §30.1 nevertheless gives a typed program that never stops. The program $`\mathsf{let}\ r=\mathsf{ref}\ (\lambda y{:}\mathsf{Unit}.y)\ \mathsf{in}\ (r\mathrel{:=}(\lambda y{:}\mathsf{Unit}.({!}r)\,y);\ ({!}r)\ \mathsf{unit})` has type Unit and never stops. After the write, $`({!}l)\ \mathsf{unit}` steps to $`(\lambda y{:}\mathsf{Unit}.({!}l)\,y)\ \mathsf{unit}` by E-DerefLoc under E-App1, and back to $`({!}l)\ \mathsf{unit}` by E-AppAbs. Safety is not affected: every term on the path is typed and takes a step. Store typings impose no well-foundedness condition on the chain of locations reachable from a value.
 
 *Further reading · Polymorphism and references.* TAPL §22.7 introduces the value restriction and points to the literature on its soundness and on alternatives to it. This book does not prove that the inference form with the value restriction is safe. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+
+# Sources and Formalization
+%%%
+tag := "ch30-notes"
+number := false
+%%%
+
+* *Lemma 30.1.* Formulated in this book. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.2.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.3.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.4.* Formulated in this book. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
+* *Theorem 30.5.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
+* *Theorem 30.6.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
+* *Proposition 30.7.* Corresponds to TAPL §22.7. Paper proof only (proof in [§30.5](chapter-30/index.html#ch30-s5)).

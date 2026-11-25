@@ -11,7 +11,7 @@ file := "chapter-12"
 
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notation $`e_1<e_2` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Assertions, triples $`\{P\}\,c\,\{Q\}`, validity $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` and the validity of assignment triples ([Session 11, Definition 11.5 and Theorem 11.8](chapter-11/index.html#ch11-s3)).
 * *New terms.* Guard assertion, loop invariant, Hoare proof system, derivable triple, soundness. [Glossary and label key](glossary/index.html)
-* *Theorem 12.3 \[Corresponding: CS Lemma 12.2\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+* *Theorem 12.3 (Soundness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
 * *Source.* The six proof rules are those of _Concrete Semantics_, Fig. 12.3, where assertions are predicates on stores. They are written here for the guards of A.4. Nipkow and Klein prove soundness as Lemma 12.2 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §§12.2–12.3, pp. 192–204](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* The while rule. Take the hypothesis $`V(H_1)` for the body and prove $`L(D)` by induction on the loop execution $`D:s\vdash W\Downarrow t`. The iteration case takes four steps.
 * *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` with $`V(H)\coloneqq\forall s,t,\ (P(s)\land s\vdash c\Downarrow t)\Rightarrow Q(t)`. Most cases invert the execution of $`c` and apply the hypotheses of the premises. In the while case a second induction, on the height of $`D:s\vdash W\Downarrow t`, proves $`L(D)\coloneqq P(s)\Rightarrow(P(t)\land B(b,t)=\mathsf{false})`.
@@ -113,7 +113,7 @@ tag := "ch12-s3"
 
 Line 11 of §12.2 should mean the following. From every store with $`s(n)\ge0`, every terminating execution of the summation program ends in a store $`t` with $`2t(a)=t(n)\bigl(t(n)+1\bigr)`. That is the validity of the triple. The theorem below gives validity for every derivation at once.
 
-*Theorem 12.3 (Soundness) \[Corresponding: CS Lemma 12.2\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+*Theorem 12.3 (Soundness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
 
 We prove $`V(H)` for every derivation $`H` by induction on $`H`, as in [Session 1, §1.5](chapter-01/index.html#ch01-s5). For $`H` with conclusion $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` the induction property is
 
@@ -235,3 +235,11 @@ number := false
 *Locating an error with an intermediate assertion.* Between the two assignments of the summation body the assertion $`R\coloneqq\bigl(1\le i\le n\land 2a=(i-1)i\bigr)` holds. It implies $`J[(a+i)/a]`, because $`2(a+i)=(i-1)i+2i=i(i+1)`. Suppose the second assignment were $`a:=a+i+1`. Then $`R` would have to imply $`2(a+i+1)=i(i+1)`. With $`n=1`, the first iteration reaches $`i=1` and $`a=0` between the assignments. The left side is 4 and the right side is 2. This store is reached by the modified program, so the failed implication is a real counterexample to preservation.
 
 *Completeness and verification conditions.* Nipkow and Klein also prove the converse of soundness for assertions that are predicates on stores: every valid triple is derivable (_Concrete Semantics_, Theorem 12.5, p. 206). The proof uses the weakest precondition of a command, the assertion that holds at $`s` when every terminating execution from $`s` ends in the postcondition (Fact 12.3 and Lemma 12.4, pp. 204–205). §12.3.2 relates this result to Cook’s relative completeness. §12.4 computes the implications of a derivation, such as those of lines 4, 6 and 11 of §12.2, from a program annotated with invariants. [Concrete Semantics, §§12.3–12.4](https://concrete-semantics.org/concrete-semantics.pdf)
+
+# Sources and Formalization
+%%%
+tag := "ch12-notes"
+number := false
+%%%
+
+* *Theorem 12.3.* Corresponds to CS Lemma 12.2. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

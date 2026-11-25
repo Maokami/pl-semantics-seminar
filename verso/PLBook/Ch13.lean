@@ -11,7 +11,7 @@ file := "chapter-13"
 
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notations $`e_1<e_2` and $`p\lor q` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Determinacy ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)). Assertions, triples and partial correctness $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` ([Session 11, Definition 11.5](chapter-11/index.html#ch11-s3)). Guard assertions $`\mathrm{T}_b,\mathrm{F}_b`, conjunction of assertions and the Hoare proof system $`\vdash_{\mathrm H}` ([Session 12, §§12.1–12.2](chapter-12/index.html#ch12-s1)). Nested induction ([Session 10, §10.3](chapter-10/index.html#ch10-s3)).
 * *New terms.* Total correctness, variant, total-correctness proof system, strong induction. [Glossary and label key](glossary/index.html)
-* *Theorem 13.3 \[Corresponding: CS Lemma 12.13\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` then $`\models_{\mathrm{tot}}\{P\}\,c\,\{Q\}`.
+* *Theorem 13.3 (Soundness for total correctness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` then $`\models_{\mathrm{tot}}\{P\}\,c\,\{Q\}`.
 * *Source.* Validity for total correctness, the while rule with a variant, and the soundness lemma are in _Concrete Semantics_, §12.5. The defining while rule of Nipkow and Klein uses a relation between stores and natural numbers. They derive from it a rule with a function from stores to natural numbers, and that derived rule is the total while rule of this session. They prove soundness as Lemma 12.13 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §12.5, pp. 212–214](https://concrete-semantics.org/concrete-semantics.pdf#page=222)
 * *Board case.* The total while rule: termination by a variant. Prove $`L(j)` by strong induction on the value $`j` of the variant. In the true-guard case, the hypothesis for the body premise with the same $`j` produces the body’s final store $`m`, the induction hypothesis at $`m` produces the rest of the loop, and the loop iteration rule joins them. Five steps.
 * *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` with $`V_{\mathrm{tot}}(H)\coloneqq\forall s,\ P(s)\Rightarrow\exists t,\ \bigl(s\vdash c\Downarrow t\land Q(t)\bigr)`. Each case builds an execution with a rule of A.5 from the executions that the hypotheses supply. In the while case a nested strong induction on $`j` proves $`L(j)\coloneqq\forall s,\ \bigl(P(s)\land\mu(s)=j\bigr)\Rightarrow\exists t,\ \bigl(s\vdash W\Downarrow t\land P(t)\land B(b,t)=\mathsf{false}\bigr)`.
@@ -81,7 +81,7 @@ tag := "ch13-s3"
 
 Line 4 of §13.2 should mean the following. From every store with $`0\le s(x)`, the loop $`W_{\mathrm{dec}}` has a terminating execution, and its final store has $`x=0`. That is validity for total correctness. The theorem below gives it for every derivation at once.
 
-*Theorem 13.3 (Soundness for total correctness) \[Corresponding: CS Lemma 12.13\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` then $`\models_{\mathrm{tot}}\{P\}\,c\,\{Q\}`.
+*Theorem 13.3 (Soundness for total correctness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` then $`\models_{\mathrm{tot}}\{P\}\,c\,\{Q\}`.
 
 We prove $`V_{\mathrm{tot}}(H)` for every derivation $`H` by induction on $`H`. For $`H` with conclusion $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` the induction property is
 
@@ -202,3 +202,11 @@ number := false
 *Derivations with infinitely many premises.* [Session 3, §3.1](chapter-03/index.html#ch03-s1) justified induction on execution derivations by their height, a natural number. A derivation that uses the total while rule can have infinitely many premise derivations, and its height need not be a natural number. Induction on derivations remains valid. Suppose every rule carries the induction property from its premise derivations to its conclusion, and the property fails at some derivation. Then it fails at one of that derivation’s premise derivations. Repeating this gives an infinite path from the root, which a derivation does not have. Theorem 13.3 never uses height.
 
 *The rule of Nipkow and Klein.* Their defining while rule uses a relation $`\rho` between stores and natural numbers in place of $`\mu`. Its premise asks the body to end at a store related to a smaller number, and its precondition asks the initial store to be related to some number. Taking $`\rho(s,j)` to mean $`\mu(s)=j` gives the total while rule. They also prove completeness as Theorem 12.15: every triple valid for total correctness is derivable (_Concrete Semantics_, §12.5, pp. 213–214). Its key Lemma 12.14 takes $`\rho(s,j)` to mean that the loop runs from $`s` with exactly $`j` iterations, and uses determinacy to show that this number is unique. Their Exercise 12.22 (p. 215) gives a while rule whose invariant is indexed by the number of remaining iterations. [Concrete Semantics, §12.5](https://concrete-semantics.org/concrete-semantics.pdf#page=222)
+
+# Sources and Formalization
+%%%
+tag := "ch13-notes"
+number := false
+%%%
+
+* *Theorem 13.3.* Corresponds to CS Lemma 12.13. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

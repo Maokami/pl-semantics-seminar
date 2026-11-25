@@ -10,8 +10,8 @@ file := "chapter-20"
 
 * *Definitions.* Commands, stores, update and big-step execution ([IMP language card A.2, A.4–A.5](imp-card/index.html#imp-a5)). Free variables $`\mathrm{FV}(e)`, the restriction $`s|_X` and the coincidence lemma ([Session 1, Definition 1.4 and Lemma 1.1](chapter-01/index.html#ch01-s3)). Induction on execution derivations with a quantified induction property ([Session 3, §3.2](chapter-03/index.html#ch03-s2)). Free variables of a guard $`\mathrm{FV}(b)`, the observed set and the liveness transfer $`\mathrm{live}(c,L)` ([Session 19, Definitions 19.1–19.3](chapter-19/index.html#ch19-s1)). The loop-head inclusions ([Session 19, Theorem 19.6](chapter-19/index.html#ch19-s3)).
 * *New terms.* Agreement on a set, dead assignment, dead-assignment elimination. [Glossary and label key](glossary/index.html)
-* *Theorem 20.2 \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
-* *Source.* Definition 20.1 is the dead-code elimination of Xavier Leroy’s compiler verification course (Lean port), on the IMP of the language card. Lemma 20.1 and Theorem 20.2 are its lemma on guards and its correctness theorem for terminating runs. The Lean proof assumes one fact about finite sets as an axiom, stated in §20.2. \[Corresponding: CS Lemma 10.19\] Nipkow and Klein prove the same statement for their optimizer in _Concrete Semantics_, §10.3.3, and note in §10.4.1 that the statement and its proof carry over to the liveness used here. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.3.3, p. 170](https://concrete-semantics.org/concrete-semantics.pdf#page=180)
+* *Theorem 20.2 (Correctness of dead-assignment elimination).* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
+* *Source.* Definition 20.1 is the dead-code elimination of Xavier Leroy’s compiler verification course (Lean port), on the IMP of the language card. Lemma 20.1 and Theorem 20.2 are its lemma on guards and its correctness theorem for terminating runs. The Lean proof assumes one fact about finite sets as an axiom, stated in §20.2. Nipkow and Klein prove the same statement for their optimizer in _Concrete Semantics_, §10.3.3, and note in §10.4.1 that the statement and its proof carry over to the liveness used here. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.3.3, p. 170](https://concrete-semantics.org/concrete-semantics.pdf#page=180)
 * *Board case.* Assignment $`x:=e`, in both subcases: $`x\in L`, where the assignment is kept, and $`x\notin L`, where it is replaced by skip.
 * *Proof outline.* Induct on $`D:s\vdash c\Downarrow t` with $`P(D)\coloneqq\forall L,\ \forall u,\ s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}\Rightarrow\exists v,\ (u\vdash\mathrm{elim}(c,L)\Downarrow v)\land t|_L=v|_L`. Keep $`L` and $`u` inside $`P(D)`: the sequence case applies the first hypothesis at the set $`\mathrm{live}(c_2,L)`, and the loop iteration case applies the body hypothesis at the loop-head set. Lemma 20.1 compares guards. The loop cases use only the three inclusions of Theorem 19.6.
 * *From Session 19.* Session 19 computed the names live before a command and proved three inclusions for the loop-head set. Here those sets become the hypothesis of a theorem that relates a run of the original command to a run of the transformed command.
@@ -71,7 +71,7 @@ tag := "ch20-s2"
 
 The guard $`x\le y\land\neg(z=0)` has $`\mathrm{FV}=\{x,y,z\}`. Two stores that agree on $`x`, $`y` and $`z` give it the same value, whatever they hold at $`w`.
 
-*Lemma 20.1 (Guard coincidence) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every guard $`b`, every finite set of names $`X` with $`\mathrm{FV}(b)\subseteq X`, and all stores $`s,u`: if $`s|_X=u|_X`, then $`B(b,s)=B(b,u)`.
+*Lemma 20.1 (Guard coincidence).* For every guard $`b`, every finite set of names $`X` with $`\mathrm{FV}(b)\subseteq X`, and all stores $`s,u`: if $`s|_X=u|_X`, then $`B(b,s)=B(b,u)`.
 
 *Proof.* Agreement passes to the subset $`\mathrm{FV}(b)`. So it suffices to prove $`Q(b)` for every guard $`b` by structural induction on $`b`, where
 
@@ -79,7 +79,7 @@ $$`Q(b)\coloneqq\forall s,u,\quad s|_{\mathrm{FV}(b)}=u|_{\mathrm{FV}(b)}\Righta
 
 The constants $`\mathsf{true}` and $`\mathsf{false}` read no store. For $`e_1=e_2` and $`e_1\le e_2`, each $`\mathrm{FV}(e_i)` is a subset of $`\mathrm{FV}(b)`, so Lemma 1.1 gives $`\mathrm{eval}(e_i,s)=\mathrm{eval}(e_i,u)` for $`i=1,2`, and the comparison receives equal operands. For $`\neg b_1`, the set $`\mathrm{FV}(\neg b_1)` equals $`\mathrm{FV}(b_1)`, and $`Q(b_1)` gives equal values before the negation. For $`b_1\land b_2`, each $`\mathrm{FV}(b_i)` is a subset of $`\mathrm{FV}(b)`, and $`Q(b_1)`, $`Q(b_2)` give equal values of both operands. $`\square`
 
-*Theorem 20.2 (Correctness of dead-assignment elimination) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
+*Theorem 20.2 (Correctness of dead-assignment elimination).* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
 
 Taking $`u=s` gives the familiar form: from the same initial store, the transformed command terminates, and its final store agrees with the original one on $`L`. The theorem allows two initial stores because the proof needs them. In §20.1 the stores after the first assignment differ at $`z` and at $`w`. The sequence case applies an induction hypothesis to such a pair, using only their agreement on $`\{y\}`.
 
@@ -210,3 +210,12 @@ number := false
 *Further reading.* Nipkow and Klein, _Concrete Semantics_, §§10.3–10.4, pp. 164–177. Theorem 10.18 (p. 168) is Theorem 20.2 for the identity transformation: it proves the liveness analysis itself correct. Lemma 10.20 (p. 170) is the converse direction. Corollary 10.21 (p. 171) observes every name and combines both directions into equivalence in the sense of Session 7. With a finite $`L`, Theorem 20.2 gives one of the two inclusions of that equivalence when $`u=s` and $`L` contains every name assigned in $`c`. The proof also needs the fact that a command does not change a name it never assigns. [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf#page=174)
 
 Xavier Leroy’s _Compiler Verification_ course, Lean 4 port by Wojciech Różowski, part 10, liveness analysis and dead code elimination. Compare its proof of the loop iteration case with the four steps above. [Lean course](https://github.com/leanprover/LeroyCompilerVerificationCourse/tree/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01)
+
+# Sources and Formalization
+%%%
+tag := "ch20-notes"
+number := false
+%%%
+
+* *Lemma 20.1.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 20.2.* Corresponds to CS Lemma 10.19. Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

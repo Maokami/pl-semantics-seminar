@@ -10,8 +10,8 @@ file := "chapter-17"
 
 * *Definitions.* Stores, update and $`\mathrm{eval}` ([IMP language card A.2–A.3](imp-card/index.html#imp-a2)). Guards and their values $`B(b,s)` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5)). Induction on execution derivations by height ([Session 3, §3.1](chapter-03/index.html#ch03-s1)). The invariant argument for a loop execution ([Session 12, §12.3](chapter-12/index.html#ch12-s3)).
 * *New terms.* Abstract store, concretization, precision order, join, abstract transfer. [Glossary and label key](glossary/index.html)
-* *Theorem 17.8 \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, stores $`s,t` and abstract store $`A`, if $`s\vdash c\Downarrow t` and $`s\in\gamma(A)`, then $`t\in\gamma(f^{\sharp}_{c}(A))`.
-* *Source.* Abstract stores, their order and join, abstract evaluation, the abstract transfer of commands with its bounded iteration for loops, and Theorem 17.8 are those of the constant propagation chapter of Xavier Leroy’s _Compiler Verification_ course. \[Corresponding: CS Lemma 10.9\] Nipkow and Klein prove the same statement for their table of constants. Their transfer always joins at a conditional and, at a loop, forgets every variable assigned in the body. [Definitions and proof references](imp-card/index.html#imp-sources) · [Leroy’s course, constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean) · [Concrete Semantics, §10.2, p. 162](https://concrete-semantics.org/concrete-semantics.pdf#page=172)
+* *Theorem 17.8 (Soundness of the analysis).* For every command $`c`, stores $`s,t` and abstract store $`A`, if $`s\vdash c\Downarrow t` and $`s\in\gamma(A)`, then $`t\in\gamma(f^{\sharp}_{c}(A))`.
+* *Source.* Abstract stores, their order and join, abstract evaluation, the abstract transfer of commands with its bounded iteration for loops, and Theorem 17.8 are those of the constant propagation chapter of Xavier Leroy’s _Compiler Verification_ course. Nipkow and Klein prove the same statement for their table of constants. Their transfer always joins at a conditional and, at a loop, forgets every variable assigned in the body. [Definitions and proof references](imp-card/index.html#imp-sources) · [Leroy’s course, constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean) · [Concrete Semantics, §10.2, p. 162](https://concrete-semantics.org/concrete-semantics.pdf#page=172)
 * *Board case.* Conditional. Invert the execution to find the branch that ran, then split on the abstract value of the guard. When that value is $`\top`, pass from the branch result to the join with Lemma 17.3.
 * *Proof outline.* Structural induction on $`c` with $`P(c)\coloneqq\forall s,t,A,\ (s\vdash c\Downarrow t\land s\in\gamma(A))\Rightarrow t\in\gamma(f^{\sharp}_{c}(A))`. The abstract store is quantified inside $`P(c)` because the sequence case applies the hypothesis for $`c_2` at $`f^{\sharp}_{c_1}(A)`. In the loop case, fix $`X=f^{\sharp}_{W}(A)` and prove $`s\in\gamma(X)\Rightarrow t\in\gamma(X)` by a second induction on the loop execution, using Lemma 17.7.
 * *From Session 16.* Session 16 proved a property of every terminating execution by induction on its derivation, with the code position and the stack quantified inside the induction property. Here the outer induction is on the command, because the abstract transfer is defined by recursion on the command, and the abstract store is quantified inside. Induction on derivations returns inside the loop case, as in Session 12.
@@ -43,7 +43,7 @@ Read $`A\sqsubseteq A'` as “$`A` is at least as precise as $`A'`”. The small
 
 In the opening example the two branches end with $`\{x\mapsto7,\ z\mapsto0\}` and $`\{x\mapsto7,\ z\mapsto1\}`. Their join is $`\{x\mapsto7\}`. It lies above both. Any abstract store above both can contain only common entries, so it lies above the join. The join describes every store that either branch result describes, and more: a store with 7 at $`x` and 5 at $`z` is described by the join but by neither branch result.
 
-*Lemma 17.3 (Order, join and concretization) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For all abstract stores $`A,A'`: (a) if $`A\sqsubseteq A'` then $`\gamma(A)\subseteq\gamma(A')`; (b) $`A\sqsubseteq A\sqcup A'` and $`A'\sqsubseteq A\sqcup A'`; (c) $`A\sqsubseteq\{\}`.
+*Lemma 17.3 (Order, join and concretization).* For all abstract stores $`A,A'`: (a) if $`A\sqsubseteq A'` then $`\gamma(A)\subseteq\gamma(A')`; (b) $`A\sqsubseteq A\sqcup A'` and $`A'\sqsubseteq A\sqcup A'`; (c) $`A\sqsubseteq\{\}`.
 
 *Proof.* (a) Let $`s\in\gamma(A)` and let $`x\mapsto n` be an entry of $`A'`. It is an entry of $`A`, so $`s(x)=n`. (b) Every entry of $`A\sqcup A'` is an entry of $`A` and of $`A'`. (c) $`\{\}` has no entries. $`\square`
 
@@ -63,7 +63,7 @@ $$`\begin{aligned}
 
 In the second line $`n_1=\mathrm{eval}^{\sharp}(e_1,A)` and $`n_2=\mathrm{eval}^{\sharp}(e_2,A)` must both be integers. If either is $`\top`, the sum and the difference evaluate to $`\top`. The abstract value $`B^{\sharp}(b,A)` of a guard is $`\mathsf{true}`, $`\mathsf{false}` or $`\top`. The constants give their own values. A comparison compares its two operand values when both are integers. Negation exchanges true and false. Conjunction is computed when both operands have value true or false. In every other case the result is $`\top`.
 
-*Lemma 17.5 (Soundness of abstract evaluation) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* Let $`s\in\gamma(A)`. For every expression $`e` and integer $`n`, if $`\mathrm{eval}^{\sharp}(e,A)=n` then $`\mathrm{eval}(e,s)=n`. For every guard $`b`, if $`B^{\sharp}(b,A)` is $`\mathsf{true}` or $`\mathsf{false}`, then $`B(b,s)=B^{\sharp}(b,A)`.
+*Lemma 17.5 (Soundness of abstract evaluation).* Let $`s\in\gamma(A)`. For every expression $`e` and integer $`n`, if $`\mathrm{eval}^{\sharp}(e,A)=n` then $`\mathrm{eval}(e,s)=n`. For every guard $`b`, if $`B^{\sharp}(b,A)` is $`\mathsf{true}` or $`\mathsf{false}`, then $`B(b,s)=B^{\sharp}(b,A)`.
 
 *Proof.* Structural induction on $`e` with $`Q(e)\coloneqq\forall n,\ \mathrm{eval}^{\sharp}(e,A)=n\Rightarrow\mathrm{eval}(e,s)=n`. For a literal both sides are the literal. For a variable, $`\mathrm{eval}^{\sharp}(x,A)=n` means that $`x\mapsto n` is an entry of $`A`, so $`s(x)=n`. For a sum with integer value $`n`, both operands have integer values $`n_1,n_2` with $`n=n_1+n_2`. Then $`Q(e_1)` and $`Q(e_2)` give $`\mathrm{eval}(e_1,s)=n_1` and $`\mathrm{eval}(e_2,s)=n_2`, and A.3 gives $`\mathrm{eval}(e_1+e_2,s)=n`. Differences are alike. For guards use structural induction on $`b`. Comparisons use the statement for expressions, and negation and conjunction use the hypotheses for their operands. $`\square`
 
@@ -84,7 +84,7 @@ For $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and an abstract store $`A`, put $`\Ph
 
 Take `x := 0; y := 5; while x ≤ 10 do x := x + 1`. The loop starts from $`A=\{x\mapsto0,\ y\mapsto5\}`. The body gives $`f^{\sharp}_{c}(X_0)=\{x\mapsto1,\ y\mapsto5\}`, so $`X_1=A\sqcup\{x\mapsto1,\ y\mapsto5\}=\{y\mapsto5\}`. Since $`X_1` has no entry for $`x`, $`f^{\sharp}_{c}(X_1)=\{y\mapsto5\}` and $`X_2=\{y\mapsto5\}=X_1`. So $`f^{\sharp}_{W}(A)=\{y\mapsto5\}`. Every run ends with 11 at $`x` and 5 at $`y`, a store this result describes. The entry $`x\mapsto0` of $`A` holds only before the first iteration, and the iteration removes it.
 
-*Lemma 17.7 (Loop result) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* Let $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, let $`A` be an abstract store and let $`X=f^{\sharp}_{W}(A)`. Then $`\Phi_A(X)\sqsubseteq X`.
+*Lemma 17.7 (Loop result).* Let $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, let $`A` be an abstract store and let $`X=f^{\sharp}_{W}(A)`. Then $`\Phi_A(X)\sqsubseteq X`.
 
 *Proof.* If $`X=X_j` with $`X_{j+1}=X_j`, then $`\Phi_A(X)=X_{j+1}=X`, and $`\sqsubseteq` is reflexive. Otherwise $`X=\{\}`, and Lemma 17.3(c) applies. $`\square`
 
@@ -101,7 +101,7 @@ tag := "ch17-s3"
 
 In the opening example, a run from a store with $`s(y)=3` takes the second branch and ends with 7 at $`x` and 1 at $`z`. The result $`\{x\mapsto7\}` describes this final store. Theorem 17.8 states this for every command, every terminating run, and every abstract store that describes the initial store.
 
-*Theorem 17.8 (Soundness of the analysis) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, stores $`s,t` and abstract store $`A`, if $`s\vdash c\Downarrow t` and $`s\in\gamma(A)`, then $`t\in\gamma(f^{\sharp}_{c}(A))`.
+*Theorem 17.8 (Soundness of the analysis).* For every command $`c`, stores $`s,t` and abstract store $`A`, if $`s\vdash c\Downarrow t` and $`s\in\gamma(A)`, then $`t\in\gamma(f^{\sharp}_{c}(A))`.
 
 We prove $`P(c)` for every command $`c` by structural induction, with
 
@@ -200,3 +200,14 @@ number := false
 *Further reading · Iteration without a bound.* Leroy’s course also gives a loop transfer without the bound of 20. It proves that this transfer is monotone, that is, $`A\sqsubseteq A'` implies $`f^{\sharp}_{c}(A)\sqsubseteq f^{\sharp}_{c}(A')`. It also proves that every strictly increasing sequence of abstract stores is finite, because each strict step up removes an entry. Iterating $`\Phi_A` from $`A` therefore stops at an $`X` with $`\Phi_A(X)=X`, and this $`X` lies below every abstract store $`Y` with $`\Phi_A(Y)\sqsubseteq Y`. The loop case of §17.3 needs only the entry and preservation inclusions, and the course proves the order facts behind them for this version too. Compare the least fixed point of a loop meaning in [Session 9](chapter-09/index.html), which is approached by approximations that become more defined. Here the iterates become less precise.
 
 *Further reading · Sources.* Nipkow and Klein, _Concrete Semantics_, §10.2, analyse constant propagation with a table of constants. Their Lemma 10.9 (p. 162) has the shape of Theorem 17.8. Their transfer does not evaluate guards and does not iterate at loops. Their §§13.1–13.5 develop abstract interpretation in general, and §13.6.2 (p. 254) obtains constant propagation as an instance. [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf) · [Leroy’s course, constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean)
+
+# Sources and Formalization
+%%%
+tag := "ch17-notes"
+number := false
+%%%
+
+* *Lemma 17.3.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 17.5.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 17.7.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 17.8.* Corresponds to CS Lemma 10.9. Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

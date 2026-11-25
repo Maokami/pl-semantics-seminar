@@ -10,8 +10,8 @@ file := "chapter-34"
 
 * *Definitions.* The information order, strictness, increasing sequences and least upper bounds ([Session 8, Definitions 8.3, 8.7 and 8.9, Lemma 8.10, Proposition 8.11](chapter-08/index.html#ch08-s4)). The unfolding operator of a loop, its approximations, fixed points, least fixed points and continuous operators on state transformers ([Session 9, Definitions 9.1 and 9.4, Theorem 9.5](chapter-09/index.html#ch09-s3)). This session adds Definitions 34.1, 34.2 and 34.7.
 * *New terms.* Domain, continuous function, function domain, admissible property, Scott induction. [Glossary and label key](glossary/index.html)
-* *Theorem 34.8 \[Paper proof only: proof in this section\].* Let $`D` be a domain, $`f:D\to D` a continuous function and $`P` an admissible property of elements of $`D`: $`P(\bot)` holds and $`P` is chain-closed. If $`P(d)\Rightarrow P(f(d))` for every $`d\in D`, then $`P(\mathrm{lfp}(f))`, where $`\mathrm{lfp}(f)=\bigsqcup_n f^n(\bot)` is the least fixed point of $`f`.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes: function domains in §3.3; chain-closed and admissible subsets, Scott induction, its examples and the rules for building chain-closed subsets in §§4.1–4.3. A property $`P` here corresponds to the subset of elements at which $`P` holds. The notes also prove the least fixed-point theorem for continuous functions, Proposition 34.4 here. Session 9 proved its instance for loops. \[Corresponding: CS Theorem 11.12\] Nipkow and Klein prove the least fixed-point theorem for continuous functions on sets ordered by inclusion. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
+* *Theorem 34.8 (Scott induction, also called fixed-point induction).* Let $`D` be a domain, $`f:D\to D` a continuous function and $`P` an admissible property of elements of $`D`: $`P(\bot)` holds and $`P` is chain-closed. If $`P(d)\Rightarrow P(f(d))` for every $`d\in D`, then $`P(\mathrm{lfp}(f))`, where $`\mathrm{lfp}(f)=\bigsqcup_n f^n(\bot)` is the least fixed point of $`f`.
+* *Source.* Cambridge _Denotational Semantics_ lecture notes: function domains in §3.3; chain-closed and admissible subsets, Scott induction, its examples and the rules for building chain-closed subsets in §§4.1–4.3. A property $`P` here corresponds to the subset of elements at which $`P` holds. The notes also prove the least fixed-point theorem for continuous functions, Proposition 34.4 here. Session 9 proved its instance for loops. Nipkow and Klein prove the least fixed-point theorem for continuous functions on sets ordered by inclusion. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 * *Board case.* Theorem 34.8 in six numbered steps. Then its use in Proposition 34.9 for the countdown definition: check the property at the least element, check chain-closure at one fixed input, and check preservation in the three clauses of the definition.
 * *Proof outline.* Prove $`Q(n)\coloneqq P(f^n(\bot))` by induction on $`n`. The base uses $`P(\bot)` and the step uses preservation. The elements $`f^n(\bot)` form an increasing sequence, so chain-closure gives $`P` at its least upper bound. Proposition 34.4 identifies that least upper bound as the least fixed point.
 * *From Session 33.* Session 33 proved a property of every well-typed term by checking that each typing rule preserves it. Here the object is a recursive definition, and a property is checked at the least element, through one unfolding, and through least upper bounds. Domains and least fixed points generalize the state transformers and loop meanings of Sessions 8 and 9.
@@ -43,13 +43,13 @@ $$`f\Bigl(\bigsqcup_n d_n\Bigr)=\bigsqcup_n f(d_n).`
 
 Monotonicity makes the sequence $`f(d_n)` increase, so the right side exists. [Session 9, §9.3](chapter-09/index.html#ch09-s3) stated the same condition for operators on state transformers. The word strict is the one of Session 8, Definition 8.3. Every constant function is continuous, because both sides of the equation equal the constant. A continuous function need not be strict.
 
-*Lemma 34.3 (Functions out of a flat domain) \[This book\] \[Paper proof only: proof in this section\].* Let $`X_\bot` be a flat domain and $`E` a domain. Every monotone function $`f:X_\bot\to E` is continuous.
+*Lemma 34.3 (Functions out of a flat domain).* Let $`X_\bot` be a flat domain and $`E` a domain. Every monotone function $`f:X_\bot\to E` is continuous.
 
 *Proof.* Let $`d_0\sqsubseteq d_1\sqsubseteq\cdots` be increasing in $`X_\bot`. By Lemma 8.10 for $`X_\bot` there is an index $`k` with $`d_i\sqsubseteq d_k` for every $`i` and $`\bigsqcup_i d_i=d_k`. If every $`d_i` is $`\bot`, take $`k=0`. By monotonicity $`f(d_i)\sqsubseteq f(d_k)` for every $`i`, so $`f(d_k)` is an upper bound of the $`f(d_i)`. Every upper bound lies above $`f(d_k)`, which is one of them. Hence $`\bigsqcup_i f(d_i)=f(d_k)=f(\bigsqcup_i d_i)`. $`\square`
 
 [Session 9](chapter-09/index.html#ch09-s2) built the meaning of a loop by starting from the state transformer that returns $`\bot` everywhere and applying the unfolding operator again and again. Theorem 9.5 proved that the least upper bound is the least fixed point. The argument works for every continuous function on a domain. For $`f:D\to D` put $`f^0(\bot)=\bot` and $`f^{n+1}(\bot)=f(f^n(\bot))`. As in Session 9, a *fixed point* of $`f` is an element $`d` with $`f(d)=d`, and a *least fixed point* is a fixed point below every fixed point.
 
-*Proposition 34.4 (Least fixed point) \[Corresponding: CS Theorem 11.12\] \[Paper proof only: proof in this section\].* Let $`D` be a domain and $`f:D\to D` continuous.
+*Proposition 34.4 (Least fixed point).* Let $`D` be a domain and $`f:D\to D` continuous.
 
 1. $`f^0(\bot)\sqsubseteq f^1(\bot)\sqsubseteq f^2(\bot)\sqsubseteq\cdots`.
 2. The least upper bound $`\mathrm{lfp}(f)\coloneqq\bigsqcup_n f^n(\bot)` satisfies $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)`.
@@ -74,7 +74,7 @@ $$`\begin{array}{c|cccc|c} k & z_0(k) & z_1(k) & z_2(k) & z_3(k) & z(k)\\ \hline
 
 Each row increases from left to right in $`\mathbb N_\bot`. Comparing functions input by input, $`z_0\sqsubseteq z_1\sqsubseteq\cdots`. At an input $`k` the row is $`\bot` up to stage $`k` and $`0` from stage $`k+1` on, so by Lemma 8.10 its least upper bound is $`0`. At $`\bot` every entry is $`\bot`. The least upper bound is the function $`z` with $`z(\bot)=\bot` and $`z(k)=0`. It differs from every $`z_n`, since $`z_n(n)=\bot` but $`z(n)=0`. The stage at which an answer appears depends on the input. Each $`z_n` is monotone because it sends $`\bot` to $`\bot`, so it is continuous by Lemma 34.3.
 
-*Proposition 34.5 (Function domain) \[Paper proof only: proof in this section\].* Let $`D` and $`E` be domains. Let $`[D\to E]` be the set of continuous functions from $`D` to $`E`, ordered pointwise: $`g\sqsubseteq g'` when $`g(d)\sqsubseteq g'(d)` for every $`d\in D`. Then $`[D\to E]` is a domain, called a *function domain*. Its least element is the function with constant value $`\bot_E`. Every increasing sequence $`g_0\sqsubseteq g_1\sqsubseteq\cdots` in $`[D\to E]` has its least upper bound computed at each input:
+*Proposition 34.5 (Function domain).* Let $`D` and $`E` be domains. Let $`[D\to E]` be the set of continuous functions from $`D` to $`E`, ordered pointwise: $`g\sqsubseteq g'` when $`g(d)\sqsubseteq g'(d)` for every $`d\in D`. Then $`[D\to E]` is a domain, called a *function domain*. Its least element is the function with constant value $`\bot_E`. Every increasing sequence $`g_0\sqsubseteq g_1\sqsubseteq\cdots` in $`[D\to E]` has its least upper bound computed at each input:
 
 $$`\Bigl(\bigsqcup_n g_n\Bigr)(d)=\bigsqcup_n g_n(d).`
 
@@ -90,7 +90,7 @@ The recursive definition of $`z` becomes a function on the domain $`[\mathbb N_\
 
 $$`F(g)(\bot)=\bot,\qquad F(g)(0)=0,\qquad F(g)(k+1)=g(k)\quad(k\in\mathbb N).`
 
-*Lemma 34.6 (Countdown operator) \[This book\] \[Paper proof only: proof in this section\].*
+*Lemma 34.6 (Countdown operator).*
 
 1. For every $`g\in[\mathbb N_\bot\to\mathbb N_\bot]`, $`F(g)\in[\mathbb N_\bot\to\mathbb N_\bot]`.
 2. $`F:[\mathbb N_\bot\to\mathbb N_\bot]\to[\mathbb N_\bot\to\mathbb N_\bot]` is continuous.
@@ -111,7 +111,7 @@ $$`\bigl(\forall n,\ P(d_n)\bigr)\Rightarrow P\Bigl(\bigsqcup_n d_n\Bigr).`
 
 It is *admissible* if it is chain-closed and $`P(\bot)` holds. A function $`f:D\to D` *preserves* $`P` if $`P(d)\Rightarrow P(f(d))` for every $`d\in D`.
 
-*Theorem 34.8 (Scott induction, also called fixed-point induction) \[Paper proof only: proof in this section\].* Let $`D` be a domain, $`f:D\to D` continuous, and $`P` an admissible property of elements of $`D`. If $`f` preserves $`P`, then $`P(\mathrm{lfp}(f))`.
+*Theorem 34.8 (Scott induction, also called fixed-point induction).* Let $`D` be a domain, $`f:D\to D` continuous, and $`P` an admissible property of elements of $`D`. If $`f` preserves $`P`, then $`P(\mathrm{lfp}(f))`.
 
 *Proof.* We must show $`P(\mathrm{lfp}(f))`, where $`\mathrm{lfp}(f)=\bigsqcup_n f^n(\bot)` (Proposition 34.4). We first prove $`Q(n)` for every $`n` by induction on $`n`, with the induction property
 
@@ -124,7 +124,7 @@ $$`Q(n)\quad\coloneqq\quad P\bigl(f^n(\bot)\bigr).`
 5. $`P` is chain-closed. Apply Definition 34.7 to the sequence of step 4, using step 3 for its premise. It gives $`P(\bigsqcup_n f^n(\bot))`, that is, $`P(\mathrm{lfp}(f))`.
 6. By Proposition 34.4(2) and (3), $`\mathrm{lfp}(f)` is the least fixed point of $`f`. Continuity of $`f` is used only here. $`\square`
 
-*Proposition 34.9 (The countdown answers zero) \[This book\] \[Paper proof only: proof in this section\].* Let $`z=\mathrm{lfp}(F)` for the countdown operator $`F`. Then $`z(d)\sqsubseteq0` for every $`d\in\mathbb N_\bot`. At each input, $`z` returns $`0` or $`\bot`.
+*Proposition 34.9 (The countdown answers zero).* Let $`z=\mathrm{lfp}(F)` for the countdown operator $`F`. Then $`z(d)\sqsubseteq0` for every $`d\in\mathbb N_\bot`. At each input, $`z` returns $`0` or $`\bot`.
 
 *Proof.* We must show $`P(z)`, where $`P` is the property of elements of $`[\mathbb N_\bot\to\mathbb N_\bot]` given by
 
@@ -192,3 +192,16 @@ number := false
 *Further reading · Staying inside the function domain.* Change the first clause of the countdown operator to $`F'(g)(\bot)=0`. Then $`F'(\bot)(\bot)=0` and $`F'(\bot)(1)=\bot`, while $`\bot\sqsubseteq1`. So $`F'(\bot)` is not monotone, and $`F'` does not map $`[\mathbb N_\bot\to\mathbb N_\bot]` into itself. In general a monotone function on $`\mathbb N_\bot` that sends $`\bot` to $`0` sends every input to $`0`, because $`0\sqsubseteq g(k)` forces $`g(k)=0`. Lemma 34.6(1) is the check that this cannot happen for $`F`.
 
 *Further reading · Building chain-closed properties.* The Cambridge notes, §4.3, give rules for building chain-closed properties. For continuous $`g,g':D\to E`, the properties $`g(d)\sqsubseteq g'(d)` and $`g(d)=g'(d)` of $`d` are chain-closed: if $`g(d_n)\sqsubseteq g'(d_n)` for every $`n`, then $`g(\bigsqcup_n d_n)=\bigsqcup_n g(d_n)\sqsubseteq\bigsqcup_n g'(d_n)=g'(\bigsqcup_n d_n)`. If each of a family of properties is chain-closed, so is their conjunction. A property of $`g\in[D\to E]` of the form “$`Q_d(g(d))` for every $`d`”, with each $`Q_d` chain-closed on $`E`, is chain-closed because least upper bounds are computed at each input. Step 2 of Proposition 34.9 is this rule with $`Q_d(r)\coloneqq r\sqsubseteq0`. Every property of a flat domain is chain-closed, because an increasing sequence there reaches its least upper bound (Lemma 8.10). Exercise 34.4 uses this. An existential quantifier can break chain-closure, as the property $`U` shows. So can negation: the property “not $`z\sqsubseteq g`” holds at every $`z_n` and fails at $`z`.
+
+# Sources and Formalization
+%%%
+tag := "ch34-notes"
+number := false
+%%%
+
+* *Lemma 34.3.* Formulated in this book. Paper proof only (proof in [§34.1](chapter-34/index.html#ch34-s1)).
+* *Proposition 34.4.* Source: Cambridge notes, least fixed points of continuous functions. Corresponds to CS Theorem 11.12. Paper proof only (proof in [§34.1](chapter-34/index.html#ch34-s1)).
+* *Proposition 34.5.* Source: Cambridge notes §3.3. Paper proof only (proof in [§34.2](chapter-34/index.html#ch34-s2)).
+* *Lemma 34.6.* Formulated in this book. Paper proof only (proof in [§34.2](chapter-34/index.html#ch34-s2)).
+* *Theorem 34.8.* Source: Cambridge notes, Theorem 17. Paper proof only (proof in [§34.3](chapter-34/index.html#ch34-s3)).
+* *Proposition 34.9.* Formulated in this book. Paper proof only (proof in [§34.3](chapter-34/index.html#ch34-s3)).

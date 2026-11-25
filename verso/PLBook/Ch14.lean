@@ -10,8 +10,8 @@ file := "chapter-14"
 
 * *Definitions.* Expressions, stores and evaluation (Session 1, Definitions 1.1–1.3; [IMP language card A.1–A.3](imp-card/index.html#imp-a1)). Partial functions ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). The four operations and [Session 4, Theorem 4.1](chapter-04/index.html#ch04-s2). Instructions, code, stacks, transitions, finite paths and the compiler for expressions ([Stack machine card B.1–B.6](machine-card/index.html#machine-b1)).
 * *New terms.* Stack, program counter, code at a position, branch-free code, list execution. [Glossary and label key](glossary/index.html)
-* *Theorem 14.2 \[This book\] \[Paper proof only: §14.2\].* For every expression $`e`, store $`s` and stack $`S`, list execution of the compiled code $`\mathrm{cexp}(e)` from $`S` is defined and $`\mathrm{run}_s(\mathrm{cexp}(e))(S)=\mathrm{eval}(e,s)::S`.
-* *Source.* The instructions, transitions and compiler are those of Leroy’s course, as recorded in the stack machine card. List execution, Theorem 14.2 and Lemma 14.3 are formulated here. \[Corresponding: CS §3.3\] Nipkow and Klein prove the same equation for list execution of their compiler, whose expressions have no subtraction. Corollary 14.4 is the correctness theorem for compiled expressions in Leroy’s course. [Definitions and Lean names](machine-card/index.html#machine-sources) · [Concrete Semantics, §3.3, p. 35](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Theorem 14.2 (Compiled code pushes the value).* For every expression $`e`, store $`s` and stack $`S`, list execution of the compiled code $`\mathrm{cexp}(e)` from $`S` is defined and $`\mathrm{run}_s(\mathrm{cexp}(e))(S)=\mathrm{eval}(e,s)::S`.
+* *Source.* The instructions, transitions and compiler are those of Leroy’s course, as recorded in the stack machine card. List execution, Theorem 14.2 and Lemma 14.3 are formulated here. Nipkow and Klein prove the same equation for list execution of their compiler, whose expressions have no subtraction. Corollary 14.4 is the correctness theorem for compiled expressions in Leroy’s course. [Definitions and Lean names](machine-card/index.html#machine-sources) · [Concrete Semantics, §3.3, p. 35](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Sum. Show that the function “run the compiled code” and the function “push the value” satisfy the same constructor equation at $`e_1+e_2`.
 * *Proof outline.* Fix the store. Let $`A` be the set of partial functions from stacks to stacks, with four operations read off the compiler. Check the four constructor equations for both functions, using Lemma 14.1 for the compiled code. Theorem 4.1 identifies the two functions. Lemma 14.3, proved by induction on the instruction list with the program counter and the stack quantified, carries the result over to the machine with addresses.
 * *From Session 13.* Sessions 11–13 proved properties of source programs in one language. Here a compiler translates expressions into code for a second language, the stack machine, and the main theorem compares the two. Its proof reuses [Session 4, Theorem 4.1](chapter-04/index.html#ch04-s2), which was proved once, by structural induction, for every set with four operations. Here it is applied to a set of functions on stacks, so the proof of Theorem 14.2 needs no induction of its own.
@@ -37,7 +37,7 @@ An integer plays three roles here. The program counter indexes instructions. An 
 
 Since these four instructions never jump, the program counter carries no information while they run. We can describe what a list of them does to a stack without mentioning addresses. The opening run is an example: in a store with $`s(x)=8`, the list $`[\mathsf{load}(x),\mathsf{push}(1),\mathsf{plus}]` takes the stack $`[11]` to $`[9,11]`, one instruction at a time.
 
-*Definition 14.1 (Branch-free code and list execution) \[This book\].* Code is *branch-free* if each of its instructions is $`\mathsf{push}(n)`, $`\mathsf{load}(x)`, $`\mathsf{plus}` or $`\mathsf{opp}`. For a store $`s` and branch-free code $`K`, the *list execution* $`\mathrm{run}_s(K)` is the partial function from stacks to stacks defined by recursion on $`K`:
+*Definition 14.1 (Branch-free code and list execution).* Code is *branch-free* if each of its instructions is $`\mathsf{push}(n)`, $`\mathsf{load}(x)`, $`\mathsf{plus}` or $`\mathsf{opp}`. For a store $`s` and branch-free code $`K`, the *list execution* $`\mathrm{run}_s(K)` is the partial function from stacks to stacks defined by recursion on $`K`:
 
 $$`\begin{aligned}
 \mathrm{run}_s([\,])(S)&=S\\
@@ -53,7 +53,7 @@ Each equation copies the effect of one rule of B.4 on the stack. In all four cas
 
 Split $`[\mathsf{load}(x),\mathsf{push}(1),\mathsf{plus}]` after its first instruction. With $`s(x)=8`, the first part takes $`[11]` to $`[8,11]`, and the second part takes $`[8,11]` to $`[9,11]`. This is the result of the whole list.
 
-*Lemma 14.1 (Concatenation) \[This book\] \[Paper proof only: §14.1\].* For every store $`s` and all branch-free $`K_1,K_2`, $`\mathrm{run}_s(K_1\mathbin{+\!\!+}K_2)=\mathrm{run}_s(K_2)\circ\mathrm{run}_s(K_1)`.
+*Lemma 14.1 (Concatenation).* For every store $`s` and all branch-free $`K_1,K_2`, $`\mathrm{run}_s(K_1\mathbin{+\!\!+}K_2)=\mathrm{run}_s(K_2)\circ\mathrm{run}_s(K_1)`.
 
 *Proof.* Fix $`s` and $`K_2`. Use structural induction on the list $`K_1`, with the property
 
@@ -83,7 +83,7 @@ $$`g(e)=\mathrm{run}_s(\mathrm{cexp}(e)),\qquad h(e)=\bigl(S\mapsto\mathrm{eval}
 
 The function $`g` runs the compiled code. The function $`h` pushes the value.
 
-*Theorem 14.2 (Compiled code pushes the value) \[This book\] \[Paper proof only: §14.2\].* For every expression $`e`, store $`s` and stack $`S`, $`\mathrm{run}_s(\mathrm{cexp}(e))(S)` is defined and
+*Theorem 14.2 (Compiled code pushes the value).* For every expression $`e`, store $`s` and stack $`S`, $`\mathrm{run}_s(\mathrm{cexp}(e))(S)` is defined and
 
 $$`\mathrm{run}_s(\mathrm{cexp}(e))(S)=\mathrm{eval}(e,s)::S.`
 
@@ -128,7 +128,7 @@ Let $`C` contain $`\mathrm{cexp}(x-(2+1))=[\mathsf{load}(x),\mathsf{push}(2),\ma
 
 An occurrence of a block carries more information than its first instruction. The same push instruction may appear at several positions of $`C`. A premise saying only “the instruction at $`\mathit{pc}` is the first push” cannot justify the second push or the final $`\mathsf{plus}`. The relation $`\mathrm{at}(C,\mathit{pc},K)` splits $`C` into a prefix of length $`\mathit{pc}`, the block $`K` and a suffix. Stepping over one instruction extends the prefix by one and leaves the rest of the block intact (B.2, fact 1). No assumption about what follows the block is needed.
 
-*Lemma 14.3 (Bridge) \[This book\] \[Paper proof only: §14.3\].* Let $`K` be branch-free. For every code $`C`, store $`s`, position $`\mathit{pc}` and stacks $`S,S'`, if $`\mathrm{at}(C,\mathit{pc},K)` and $`\mathrm{run}_s(K)(S)=S'`, then
+*Lemma 14.3 (Bridge).* Let $`K` be branch-free. For every code $`C`, store $`s`, position $`\mathit{pc}` and stacks $`S,S'`, if $`\mathrm{at}(C,\mathit{pc},K)` and $`\mathrm{run}_s(K)(S)=S'`, then
 
 $$`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K|,S',s\rangle.`
 
@@ -142,7 +142,7 @@ The induction hypothesis is used at the counter $`\mathit{pc}+1` and the stack $
 
 Now compile $`(1+2)+(4-3)` and place the code at counter $`10` with the stack $`[99]`. The left operand occupies three instructions. Its code runs from counter $`10` and finishes at $`13` with $`[3,99]`. The right operand occupies four instructions: two pushes, $`\mathsf{opp}` and $`\mathsf{plus}`. Its code starts at $`13` with the new stack and finishes at $`17` with $`[1,3,99]`. The final $`\mathsf{plus}` at $`17` leaves $`[4,99]` at $`18`. The counter advanced by eight, the length of the code, and $`4=\mathrm{eval}((1+2)+(4-3),s)`.
 
-*Corollary 14.4 (Compiled expressions on the machine) \[Externally checked: Leroy course, [machine-card references](machine-card/index.html#machine-sources)\].* For every code $`C`, store $`s`, expression $`e`, position $`\mathit{pc}` and stack $`S`, if $`\mathrm{at}(C,\mathit{pc},\mathrm{cexp}(e))` then
+*Corollary 14.4 (Compiled expressions on the machine).* For every code $`C`, store $`s`, expression $`e`, position $`\mathit{pc}` and stack $`S`, if $`\mathrm{at}(C,\mathit{pc},\mathrm{cexp}(e))` then
 
 $$`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{cexp}(e)|,\ \mathrm{eval}(e,s)::S,\ s\rangle.`
 
@@ -195,3 +195,15 @@ number := false
 *Further reading · A direct proof.* Leroy’s course proves Corollary 14.4 directly, by structural induction on $`e` with the counter and the stack quantified inside the induction property. In the sum case write $`\ell_1=|\mathrm{cexp}(e_1)|` and $`\ell_2=|\mathrm{cexp}(e_2)|`. By B.2, the code of $`e_1` is at $`\mathit{pc}`, the code of $`e_2` at $`\mathit{pc}+\ell_1`, and $`\mathsf{plus}` at $`\mathit{pc}+\ell_1+\ell_2`. The first induction hypothesis reaches the counter $`\mathit{pc}+\ell_1` with the stack $`n_1::S`. The second is applied at this new counter and stack, and reaches $`\mathit{pc}+\ell_1+\ell_2` with $`n_2::n_1::S`. One more transition reaches $`\mathit{pc}+\ell_1+\ell_2+1` with $`(n_1+n_2)::S`. Joining the three paths proves the sum case. The proof in this session separates the two concerns: Theorem 4.1 handles the stack, and Lemma 14.3 handles the addresses once for all branch-free code.
 
 *Further reading · Sources.* Nipkow and Klein, _Concrete Semantics_, §3.3, define list execution as a total function and leave the result of an addition on a short stack unspecified. Their Exercise 3.10 asks for the partial version used here. Their Lemma 8.6 in §8.3 states the program-counter form for an extended machine. Leroy’s _Compiler Verification_ course compiles the same expressions to the machine of the stack machine card. [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf) · [Definitions and Lean names](machine-card/index.html#machine-sources)
+
+# Sources and Formalization
+%%%
+tag := "ch14-notes"
+number := false
+%%%
+
+* *Definition 14.1.* Formulated in this book.
+* *Lemma 14.1.* Formulated in this book. Paper proof only ([§14.1](chapter-14/index.html#ch14-s1)).
+* *Theorem 14.2.* Formulated in this book. Corresponds to CS §3.3. Paper proof only ([§14.2](chapter-14/index.html#ch14-s2)).
+* *Lemma 14.3.* Formulated in this book. Paper proof only ([§14.3](chapter-14/index.html#ch14-s3)).
+* *Corollary 14.4.* Externally checked: the statement matches a declaration of Leroy’s course ([machine-card references](machine-card/index.html#machine-sources)).

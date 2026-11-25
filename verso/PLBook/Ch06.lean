@@ -11,8 +11,8 @@ file := "chapter-06"
 
 * *Definitions.* Terminating execution (Session 2, Definition 2.1), transitions and finite paths (Session 5, Definition 5.1 and Lemma 5.4). [IMP language card A.5–A.6](imp-card/index.html#imp-a5)
 * *New terms.* Sequence context, path lifting. [Glossary](glossary/index.html)
-* *Theorem 6.2 \[Checked\].* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
-* *Source.* Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. \[Corresponding: CS Corollary 7.16\] Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Theorem 6.2 (Equivalence of terminating evaluations).* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
+* *Source.* Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* From an execution tree for $`c_1;c_2`, lift the path for $`c_1` through the suffix $`c_2`, discard the leading skip, and join the path for $`c_2`.
 * *Proof outline.* From a tree, induct on the execution derivation. From a path ending at skip, induct on its length, using Lemma 6.3 to reconstruct the execution before the first edge.
 * *From Session 5.* There we characterized termination by reaching skip. Here we compare that endpoint with the final store certified by a Session 2 execution tree.
@@ -28,7 +28,7 @@ Use the judgments of Session 2, Definition 2.1 and Session 5, §5.2. A *sequence
 
 For a particularly small trace take the assignment `x := 2` from store `s` to skip at `m = s[x ↦ 2]`. Fix the suffix `y := x`. Lifting produces one transition of the combined command whose target is `skip; y := x` in store `m`. For distinct names `x` and `y`, at this point the proof still knows that `y` has its *old* value. No transition of the suffix was used in the lifted path. Only after the skip is removed does the next assignment read the already updated `x`.
 
-*Lemma 6.1 (Lifting) \[This book\] \[Checked\].* If $`\left\langle {c,s} \right\rangle\rightarrow^{n}\left\langle {c',t} \right\rangle`, then
+*Lemma 6.1 (Lifting).* If $`\left\langle {c,s} \right\rangle\rightarrow^{n}\left\langle {c',t} \right\rangle`, then
 
 $$`\left\langle {c\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {c'\ \text{;}\ k,t} \right\rangle.`
 
@@ -43,7 +43,7 @@ The construction respects concatenation. If a prefix computation has been split 
 tag := "ch06-s2"
 %%%
 
-*Theorem 6.2 (Equivalence of terminating evaluations) \[Checked\].* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
+*Theorem 6.2 (Equivalence of terminating evaluations).* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
 
 For the forward direction, induct on the given execution derivation. For $`D:s\vdash c\Downarrow t` the induction property is
 
@@ -82,7 +82,7 @@ $$`Q(j)\coloneqq\forall c,s,t,\quad
 
 To apply the hypothesis to a shorter path we need to extend its reconstructed execution backwards by one edge.
 
-*Lemma 6.3 (Execution before one step) \[Checked\].* If $`\left\langle {c,s} \right\rangle\rightarrow\left\langle {d,s'} \right\rangle` and $`s' \vdash d \Downarrow t` then $`s \vdash c \Downarrow t`.
+*Lemma 6.3 (Execution before one step).* If $`\left\langle {c,s} \right\rangle\rightarrow\left\langle {d,s'} \right\rangle` and $`s' \vdash d \Downarrow t` then $`s \vdash c \Downarrow t`.
 
 *Proof.* Induct on the derivation of the step, allowing an arbitrary final store $`t`. For an edge from $`\langle c,s\rangle` to $`\langle d,s'\rangle` the property is $`\forall t,\ (s'\vdash d\Downarrow t)\Rightarrow(s\vdash c\Downarrow t)`. For assignment the residual command is skip, so inversion gives $`t = s'`. The assignment rule supplies the result. When a completed left skip is discarded, prepend a skip derivation by the sequence rule. At a conditional use the known test and branch derivation. At a false loop exit use inversion on skip and the loop exit rule.
 
@@ -152,3 +152,13 @@ Proceed along a terminating old path replacing exactly these assignment edges, i
 *Further reading · Counting steps.* The forward construction gives a cost recurrence in addition to an existence proof. Assign to a big-step derivation the length of the small-step path obtained by the construction. The length is zero for skip and one for assignment. For a conditional add one to the length of the selected branch. For a sequence add the lengths of the two child derivations and one step discarding skip. For an exiting loop charge one guard step. For an iterating loop charge a guard step, the body path, a step discarding skip, and the recursively constructed loop path. All these quantities are computed from *finite subderivations*, so the recurrence is well founded.
 
 To make an intermediate observation meaningful, specify what a path exposes. Suppose every assignment printed its assigned integer. The programs `skip` and `x := x` preserve the same store if one erases outputs. An observer recording the printed numbers could distinguish them. Recovering equality of such observations from two semantics would require a big-step judgment carrying the corresponding outputs and a proof of a strengthened correspondence theorem. Matching stores at skip remains enough for the present theorem because its conclusion asks only about termination and the resulting store.
+
+# Sources and Formalization
+%%%
+tag := "ch06-notes"
+number := false
+%%%
+
+* *Lemma 6.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 6.2.* Source: Leroy’s IMP, correspondence between executions and transitions. Corresponds to CS Corollary 7.16. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 6.3.* Source: Leroy’s IMP, execution before a transition. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

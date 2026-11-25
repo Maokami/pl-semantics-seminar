@@ -190,7 +190,7 @@ $$`T ::= X\mid\mathsf{Bool}\mid\mathsf{Nat}\mid\mathsf{Unit}\mid T\to T\mid T\ti
 
 Type variables $`X,Y,Z` are drawn from an infinite set. In this section a type variable stands for a type that inference has not yet determined, and it needs no binder. $`\mathrm{FV}(T)` is the set of type variables occurring in $`T`.
 
-*Typing unannotated terms \[This book\].* The typing rules are those of C.2–C.4 for the forms above, with T-Abs replaced by its unannotated form. In it the parameter type $`T_1` is any type:
+*Typing unannotated terms.* The typing rules are those of C.2–C.4 for the forms above, with T-Abs replaced by its unannotated form. In it the parameter type $`T_1` is any type:
 
 $$`\frac{\Gamma,x{:}T_1\vdash t_2:T_2}{\Gamma\vdash\lambda x.t_2:T_1\to T_2}\;\textsf{T-Abs}`
 
@@ -214,7 +214,7 @@ $$`\frac{\Gamma\vdash t_1:T\mid_{\mathcal X}C}{\Gamma\vdash\mathsf{iszero}\ t_1:
 
 $$`\frac{\Gamma\vdash t_1:T_1\mid_{\mathcal X_1}C_1\quad\Gamma\vdash t_2:T_2\mid_{\mathcal X_2}C_2\quad\Gamma\vdash t_3:T_3\mid_{\mathcal X_3}C_3}{\Gamma\vdash\mathsf{if}\ t_1\ \mathsf{then}\ t_2\ \mathsf{else}\ t_3:T_2\mid_{\mathcal X_1\cup\mathcal X_2\cup\mathcal X_3}C_1\cup C_2\cup C_3\cup\{T_1=\mathsf{Bool},T_2=T_3\}}\;\textsf{CT-If}`
 
-*Unit and pairs \[This book\].* TAPL gives no constraint rules for these forms. This book uses the following.
+*Unit and pairs.* TAPL gives no constraint rules for these forms. This book uses the following.
 
 $$`\frac{}{\Gamma\vdash\mathsf{unit}:\mathsf{Unit}\mid_{\varnothing}\varnothing}\;\textsf{CT-Unit}\qquad\frac{\Gamma\vdash t_1:T_1\mid_{\mathcal X_1}C_1\quad\Gamma\vdash t_2:T_2\mid_{\mathcal X_2}C_2}{\Gamma\vdash\{t_1,t_2\}:T_1\times T_2\mid_{\mathcal X_1\cup\mathcal X_2}C_1\cup C_2}\;\textsf{CT-Pair}`
 
@@ -252,7 +252,7 @@ In the inference form, let is typed with type schemes.
 
 *Type schemes · Session 29.* A *type scheme* has the form $`\forall X_1\ldots X_n.T` with $`n\ge 0`, where $`T` is a type of this section. For $`n=0` it is the type $`T`. Schemes occur only in contexts. In the inference form a context binds each variable to a scheme, $`\Gamma ::= \varnothing\mid\Gamma,x{:}\forall X_1\ldots X_n.T`, and a variable bound by an abstraction receives a scheme with $`n=0`. A scheme is never the type of a term and never occurs inside a type. Its quantifier is not the type $`\forall X.T` of C.7. $`\mathrm{FV}(\forall X_1\ldots X_n.T)=\mathrm{FV}(T)\setminus\{X_1,\ldots,X_n\}`, and $`\mathrm{FV}(\Gamma)` is the union of $`\mathrm{FV}` over the schemes in $`\Gamma`. An *instance* of $`\forall X_1\ldots X_n.T` is a type $`[X_1\mapsto T_1,\ldots,X_n\mapsto T_n]T`. Schemes that differ only in the names of their quantified variables are identified. A type substitution $`\sigma` acts on a scheme by first renaming its quantified variables to fresh variables that are not in $`\mathrm{dom}(\sigma)` and occur in no type $`\sigma X` with $`X\in\mathrm{dom}(\sigma)`, and then acting on its body (Session 29, §29.3).
 
-*Generalization \[This book\].* With schemes in the context, T-Var and T-Let are replaced by the following two rules. For $`n=0` they are T-Var and T-Let.
+*Generalization.* With schemes in the context, T-Var and T-Let are replaced by the following two rules. For $`n=0` they are T-Var and T-Let.
 
 $$`\frac{x{:}\forall X_1\ldots X_n.T\in\Gamma}{\Gamma\vdash x:[X_1\mapsto T_1,\ldots,X_n\mapsto T_n]T}\;\textsf{T-VarInst}`
 
@@ -312,7 +312,7 @@ The program has type Nat under the empty store typing. After the first step, whi
 
 *References in the inference form.* T-Ref, T-Deref and T-Assign apply to unannotated terms unchanged. Programs contain no locations, so inference uses the empty store typing.
 
-*Constraint rules for references \[This book\].* TAPL gives no constraint rules for references. This book uses the following, and $`\mathrm{unify}` gains a case for Ref.
+*Constraint rules for references.* TAPL gives no constraint rules for references. This book uses the following, and $`\mathrm{unify}` gains a case for Ref.
 
 $$`\frac{\Gamma\vdash t_1:T_1\mid_{\mathcal X}C}{\Gamma\vdash\mathsf{ref}\ t_1:\mathsf{Ref}\ T_1\mid_{\mathcal X}C}\;\textsf{CT-Ref}\qquad\frac{\Gamma\vdash t_1:T_1\mid_{\mathcal X}C\quad X\ \text{fresh}}{\Gamma\vdash{!}t_1:X\mid_{\mathcal X\cup\{X\}}C\cup\{T_1=\mathsf{Ref}\ X\}}\;\textsf{CT-Deref}`
 
@@ -442,7 +442,7 @@ tag := "lambda-sources"
 number := false
 %%%
 
-Section numbers refer to Benjamin C. Pierce, _Types and Programming Languages_, MIT Press, 2002. Rule names are TAPL’s, except the rules marked \[This book\] and the names N-App1, N-AppAbs, T-VarInst, T-LetGen, CT-VarInst and CT-LetGen. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+Section numbers refer to Benjamin C. Pierce, _Types and Programming Languages_, MIT Press, 2002. The presentations of typing unannotated terms, the constraint rules for Unit and pairs, and the generalization rules in [C.5](lambda-card/index.html#lambda-c5) are formulated in this book, as are the constraint rules for references in [C.6](lambda-card/index.html#lambda-c6). The names N-App1, N-AppAbs, T-VarInst, T-LetGen, CT-VarInst and CT-LetGen are also local to this book. Other rule names follow TAPL. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * C.1: §5.3 (syntax, free variables, substitution and the call-by-value rules); §5.1 (evaluation strategies, including call by name); §3.5 (computation and congruence rules, normal forms, multi-step evaluation).
 * C.2: §§3.2 and 3.5 (terms, values and evaluation, stuck terms); §§8.1–8.2 (types and typing rules).

@@ -10,7 +10,7 @@ file := "chapter-36"
 
 * *Definitions.* PCF types, closed terms, values, the typing judgment $`\vdash t:T`, the evaluation judgment $`t\Downarrow v` with its call-by-name application rule and its fixed-point rule, the domains $`\llbracket T\rrbracket ` and the meaning $`\llbracket t\rrbracket ` of a closed term ([Session 35](chapter-35/index.html)). Increasing sequences $`d_0\sqsubseteq d_1\sqsubseteq\cdots`, least upper bounds $`\bigsqcup_j d_j`, flat domains, the pointwise order on continuous functions and admissible sets ([Session 34](chapter-34/index.html)).
 * *New terms.* Computational adequacy, ground type, formal approximation relation, closure under evaluation. [Glossary and label key](glossary/index.html)
-* *Lemma 36.4 \[Paper proof only: §36.3\].* For every type $`T` and every closed term $`t` with $`\vdash t:T`: (a) $`\bot\lhd_T t`; (b) for every increasing sequence $`d_0\sqsubseteq d_1\sqsubseteq\cdots` in $`\llbracket T\rrbracket `, if $`d_j\lhd_T t` for every $`j`, then $`\bigsqcup_j d_j\lhd_T t`. With Lemma 36.5 it is one of the two tools for Theorem 36.2 (adequacy), which Session 37 proves.
+* *Lemma 36.4 (The related set is admissible).* For every type $`T` and every closed term $`t` with $`\vdash t:T`: (a) $`\bot\lhd_T t`; (b) for every increasing sequence $`d_0\sqsubseteq d_1\sqsubseteq\cdots` in $`\llbracket T\rrbracket `, if $`d_j\lhd_T t` for every $`j`, then $`\bigsqcup_j d_j\lhd_T t`. With Lemma 36.5 it is one of the two tools for Theorem 36.2 (adequacy), which Session 37 proves.
 * *Source.* Cambridge _Denotational Semantics_ lecture notes, 2025–26 edition. Definition 36.3 is their Definition 27, Lemma 36.4 their Lemma 33, Lemma 36.5 their Lemma 35, and Theorem 36.2 their Theorem 31. [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* Lemma 36.4(b) in the case Nat and in the case of an arrow type $`T\to S`.
 * *Proof outline.* Induction on the type $`T` with $`Q(T)\coloneqq\forall t,\ \forall(d_j)_j,\ (\forall j,\ d_j\lhd_T t)\Rightarrow\bigsqcup_j d_j\lhd_T t`, where $`t` ranges over closed terms of type $`T` and $`(d_j)_j` over increasing sequences in $`\llbracket T\rrbracket `. At $`\mathsf{Nat}` a number in the limit already occurs at a finite stage. At $`T\to S` fix a related argument pair $`(d,u)` and apply $`Q(S)` to the term $`t\,u`, which is the same at every stage.
@@ -31,11 +31,11 @@ Write $`\overline{n}` for the numeral with $`n` successors: $`\overline{0}=0` an
 
 The two results agree. In one direction the agreement holds for every closed term.
 
-*Theorem 36.1 (Soundness of evaluation) \[Paper proof only: Session 35, Theorem 35.8\].* For every type $`T`, every closed term $`t` with $`\vdash t:T` and every value $`v`, if $`t\Downarrow v` then $`\llbracket t\rrbracket =\llbracket v\rrbracket `.
+*Theorem 36.1 (Soundness of evaluation).* For every type $`T`, every closed term $`t` with $`\vdash t:T` and every value $`v`, if $`t\Downarrow v` then $`\llbracket t\rrbracket =\llbracket v\rrbracket `.
 
 This is [Session 35, Theorem 35.8](chapter-35/index.html#ch35-s4), restated. Its proof is an induction on the derivation of $`t\Downarrow v`. At type $`\mathsf{Nat}` soundness says: if $`t\Downarrow\overline{n}` then $`\llbracket t\rrbracket =n`. It says nothing about a term for which no derivation is known. The converse direction holds at the *ground types* $`\mathsf{Nat}` and $`\mathsf{Bool}`. Recall that $`\llbracket \mathsf{Bool}\rrbracket ` is the flat domain with elements $`\bot`, $`\mathrm{tt}` and $`\mathrm{ff}`, with $`\llbracket \mathsf{true}\rrbracket =\mathrm{tt}` and $`\llbracket \mathsf{false}\rrbracket =\mathrm{ff}`.
 
-*Theorem 36.2 (Computational adequacy) \[Paper proof only: Session 37, §37.4\].* Let $`t` be a closed term. If $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket =n` for a number $`n`, then $`t\Downarrow\overline{n}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket =\mathrm{tt}`, then $`t\Downarrow\mathsf{true}`; if $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket =\mathrm{ff}`, then $`t\Downarrow\mathsf{false}`.
+*Theorem 36.2 (Computational adequacy).* Let $`t` be a closed term. If $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket =n` for a number $`n`, then $`t\Downarrow\overline{n}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket =\mathrm{tt}`, then $`t\Downarrow\mathsf{true}`; if $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket =\mathrm{ff}`, then $`t\Downarrow\mathsf{false}`.
 
 This is Theorem 31 of the Cambridge notes. With Theorem 36.1 it gives, for every closed term $`t` of type $`\mathsf{Nat}` and every number $`n`: $`t\Downarrow\overline{n}` if and only if $`\llbracket t\rrbracket =n`. In particular the calculation $`\llbracket K\,\overline{1}\rrbracket =0` alone guarantees that $`K\,\overline{1}\Downarrow\overline{0}` has a derivation.
 
@@ -77,7 +77,7 @@ An application and a fixed-point term are not values. So the application rule is
 
 The approximations $`g_j` of §36.1 form an increasing sequence with $`\bigsqcup_j g_j=\llbracket K\rrbracket `. Session 37 shows $`g_j\lhd_{\mathsf{Nat}\to\mathsf{Nat}}K` for every $`j`. Look at one related argument pair, $`(1,\overline{1})`. The results $`g_0(1)=\bot`, $`g_1(1)=\bot`, $`g_2(1)=0`, $`g_3(1)=0`, … form an increasing sequence in $`\mathbb{N}_\bot`. Each of them approximates $`K\,\overline{1}`: $`\bot` approximates every term, and 0 approximates $`K\,\overline{1}` because $`K\,\overline{1}\Downarrow\overline{0}`. Their least upper bound is 0, and the evidence that it approximates $`K\,\overline{1}` is the evidence for stage 2. The next lemma says that the passage from the stages to the limit always works.
 
-*Lemma 36.4 (The related set is admissible) \[Paper proof only: this section\].* For every type $`T` and every closed term $`t` with $`\vdash t:T`: (a) $`\bot\lhd_T t`; (b) for every increasing sequence $`d_0\sqsubseteq d_1\sqsubseteq\cdots` in $`\llbracket T\rrbracket `, if $`d_j\lhd_T t` for every $`j`, then $`\bigsqcup_j d_j\lhd_T t`.
+*Lemma 36.4 (The related set is admissible).* For every type $`T` and every closed term $`t` with $`\vdash t:T`: (a) $`\bot\lhd_T t`; (b) for every increasing sequence $`d_0\sqsubseteq d_1\sqsubseteq\cdots` in $`\llbracket T\rrbracket `, if $`d_j\lhd_T t` for every $`j`, then $`\bigsqcup_j d_j\lhd_T t`.
 
 So the set $`\{d\in\llbracket T\rrbracket \mid d\lhd_T t\}` is admissible in the sense of [Session 34](chapter-34/index.html): it contains $`\bot` and the least upper bound of every increasing sequence in it. This is Lemma 33 of the Cambridge notes.
 
@@ -116,7 +116,7 @@ In step 4 the term $`t\,u` stays fixed while the semantic side moves along the i
 
 By the fixed-point rule, every value of $`G\,K` is a value of $`K`: a derivation of $`G\,(\mathsf{fix}\ G)\Downarrow v` becomes a derivation of $`K\Downarrow v` when the fixed-point rule is added at its root. So $`K` keeps every promise that $`G\,K` keeps. The next lemma turns this observation into a statement about the relation.
 
-*Lemma 36.5 (Closure under evaluation) \[Paper proof only: this section\].* Let $`T` be a type and let $`t,t'` be closed terms of type $`T`. If $`t\Downarrow v` implies $`t'\Downarrow v` for every value $`v`, then $`d\lhd_T t` implies $`d\lhd_T t'` for every $`d\in\llbracket T\rrbracket `.
+*Lemma 36.5 (Closure under evaluation).* Let $`T` be a type and let $`t,t'` be closed terms of type $`T`. If $`t\Downarrow v` implies $`t'\Downarrow v` for every value $`v`, then $`d\lhd_T t` implies $`d\lhd_T t'` for every $`d\in\llbracket T\rrbracket `.
 
 This is Lemma 35 of the Cambridge notes. For the example, it says that every element approximating $`G\,K` approximates $`K`.
 
@@ -171,3 +171,14 @@ number := false
 *Further problem.* Induct on $`T`, with the term quantified inside the property. At a ground type, if $`d'=\bot` use Lemma 36.4(a). Otherwise $`d'` is a number or a truth value, and $`d'\sqsubseteq d` in a flat domain forces $`d'=d`. At $`T\to S`, let $`f'\sqsubseteq f` and $`f\lhd t`. Fix a related pair $`(d,u)`. The arrow clause gives $`f(d)\lhd_S t\,u`. The pointwise order gives $`f'(d)\sqsubseteq f(d)`. The hypothesis at $`S`, applied to the same term $`t\,u`, gives $`f'(d)\lhd_S t\,u`. The pair $`(d,u)` and the term $`t\,u` stay fixed. For $`K`: each $`g_j` lies below $`\bigsqcup_j g_j=\llbracket K\rrbracket `, so downward closure gives $`g_j\lhd K`. For $`j=1`, $`g_1(1)=\bot` while $`\llbracket K\rrbracket (1)=0`.
 
 *Further reading.* The adequacy theorem for PCF is due to Plotkin, “LCF considered as a programming language”, _Theoretical Computer Science_ 5 (1977). In the Cambridge notes, read Definition 27 and Lemmas 33 and 35 alongside §§36.2–36.3.
+
+# Sources and Formalization
+%%%
+tag := "ch36-notes"
+number := false
+%%%
+
+* *Theorem 36.1.* Restates [Theorem 35.8](chapter-35/index.html#ch35-notes). Paper proof only ([§35.4](chapter-35/index.html#ch35-s4)).
+* *Theorem 36.2.* Source: Cambridge notes, Theorem 31. Paper proof only (Session 37, [§37.4](chapter-37/index.html#ch37-s4)).
+* *Lemma 36.4.* Source: Cambridge notes, Lemma 32 for part (a) and Lemma 33 for part (b). Paper proof only ([§36.3](chapter-36/index.html#ch36-s3)).
+* *Lemma 36.5.* Source: Cambridge notes, Lemma 35. Paper proof only ([§36.3](chapter-36/index.html#ch36-s3)).

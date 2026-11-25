@@ -11,8 +11,8 @@ file := "chapter-02"
 
 * *Definitions.* Stores, update and expression evaluation (Session 1, Definitions 1.2–1.3). Guard evaluation and command execution use [IMP language card A.4–A.5](imp-card/index.html#imp-a4).
 * *New terms.* Guard, execution judgment, sequencing, derived rule, height of a derivation. [Glossary and label key](glossary/index.html)
-* *Proposition 2.2 \[This book\] \[Checked\].* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`m` satisfies both $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`.
-* *Source.* The guards, commands and six execution rules follow Leroy’s IMP. \[Corresponding: CS §7.2.3\] Nipkow and Klein derive the sequence equivalence for their execution relation. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Proposition 2.2 (Sequence inversion).* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`m` satisfies both $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`.
+* *Source.* The guards, commands and six execution rules follow Leroy’s IMP. Nipkow and Klein derive the sequence equivalence for their execution relation. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Derive `x := 1; y := x + 3`, name the intermediate store, and recover it from the completed tree.
 * *Proof outline.* Invert the last rule of a sequence derivation to obtain a witness and two premises. Conversely, join the given premise trees with the sequence rule.
 * *From Session 1.* Both operands of a sum are evaluated in the same store. The second command in a sequence starts in the store produced by the first.
@@ -69,7 +69,7 @@ We refer to the six rules as the skip, assignment, sequence, conditional, loop e
 
 In the loop iteration rule, executing the body supplies $`m`. The recursive premise tests the guard anew in $`m`. The command in that premise is syntactically identical to the command at the root. A finite derivation may therefore have several nodes labelled with the same command.
 
-*Conditional, true and false cases \[This book\] \[Corresponding: CS IfTrue, IfFalse\] \[Checked\].* The single conditional rule specializes to the following two derived rules.
+*Conditional, true and false cases.* The single conditional rule specializes to the following two derived rules.
 
 $$`\frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow t}{s\vdash I\Downarrow t}
 \qquad
@@ -94,7 +94,7 @@ $$`\frac{\dfrac{}{s\vdash x:=1\Downarrow m}\qquad
 
 Reading upwards from the root recovers this very $`m` as the witness.
 
-*Proposition 2.2 (Sequence inversion) \[This book\] \[Checked\].* For all commands $`c,d` and stores $`s,t`,
+*Proposition 2.2 (Sequence inversion).* For all commands $`c,d` and stores $`s,t`,
 
 $$`s \vdash c\ \text{;}\ d \Downarrow t\Longleftrightarrow\exists m \in \Sigma,\; (s \vdash c \Downarrow m) \land (m \vdash d \Downarrow t).`
 
@@ -192,3 +192,12 @@ For the incrementing loop above, one can count the necessary rule uses without f
 For initial values larger than one, the guard is also false and the final value is the initial one. Thus the postcondition `x = 1` needs an input hypothesis even though the loop terminates for every integer. The result for arbitrary inputs is `x = max(j,1)` with the unchanged coordinates inherited from the original store. A single worked trace would not reveal the distinction between those two specifications.
 
 For the source presentation of the single conditional rule, see the [IMP language card](imp-card/index.html#imp-sources). For exercises using a different arithmetic model, see _The Hitchhiker’s Guide to Logical Verification_, §9.3. [Course materials](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
+
+# Sources and Formalization
+%%%
+tag := "ch02-notes"
+number := false
+%%%
+
+* *Conditional, true and false cases.* Formulated in this book. Corresponds to CS IfTrue, IfFalse. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Proposition 2.2.* Formulated in this book. Corresponds to CS §7.2.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

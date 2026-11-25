@@ -10,8 +10,8 @@ file := "chapter-23"
 
 * *Definitions.* [Lambda card C.1](lambda-card/index.html#lambda-c1): terms, values, free variables and capture-avoiding substitution $`[x\mapsto s]t` ([Session 22](chapter-22/index.html)); redexes, the call-by-value rules E-App1, E-App2 and E-AppAbs, computation and congruence rules, normal forms, $`\to^*`, the call-by-name rules N-App1 and N-AppAbs, and the term $`\Omega`. Finite and infinite paths as in [A.6](imp-card/index.html#imp-a6). Induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)) with the second result quantified inside the induction property ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)).
 * *New terms.* Evaluation strategy, call by value, call by name, determinacy of one-step evaluation, divergence. [Glossary and label key](glossary/index.html)
-* *Theorem 23.4 \[This book\] \[Paper proof only: proof in §23.3\].* Let $`\mathsf{id}=\lambda x.x` and $`u=(\lambda y.\lambda z.z)\,\Omega\,\mathsf{id}`. (a) Under call by name, $`u\to_{\mathrm n}(\lambda z.z)\,\mathsf{id}\to_{\mathrm n}\mathsf{id}`, and $`\mathsf{id}` is a value. (b) Under call by value, $`u\to u`, and for every natural number $`k` and term $`s`, if $`u\to^k s` then $`s=u`. Hence no normal form, and in particular no value, is reachable from $`u` under call by value: $`u` diverges.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §5.1 compares evaluation strategies, among them call by value and call by name, and describes call by name in prose. TAPL §5.3 gives the call-by-value rules of C.1. The term $`\Omega` and the word “diverge” are from TAPL §5.2. The statement and proof of Theorem 23.4 are this book’s, as is determinacy for these rules (Theorem 23.1, Proposition 23.2). \[Corresponding: TAPL §3.5\] Pierce proves determinacy of one-step evaluation for a language of Boolean terms. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+* *Theorem 23.4 (Call by name returns where call by value diverges).* Let $`\mathsf{id}=\lambda x.x` and $`u=(\lambda y.\lambda z.z)\,\Omega\,\mathsf{id}`. (a) Under call by name, $`u\to_{\mathrm n}(\lambda z.z)\,\mathsf{id}\to_{\mathrm n}\mathsf{id}`, and $`\mathsf{id}` is a value. (b) Under call by value, $`u\to u`, and for every natural number $`k` and term $`s`, if $`u\to^k s` then $`s=u`. Hence no normal form, and in particular no value, is reachable from $`u` under call by value: $`u` diverges.
+* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §5.1 compares evaluation strategies, among them call by value and call by name, and describes call by name in prose. TAPL §5.3 gives the call-by-value rules of C.1. The term $`\Omega` and the word “diverge” are from TAPL §5.2. The statement and proof of Theorem 23.4 are this book’s, as is determinacy for these rules (Theorem 23.1, Proposition 23.2). Pierce proves determinacy of one-step evaluation for a language of Boolean terms. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Theorem 23.4, both parts. Evaluate $`u` step by step under call by name, naming each rule and computing each substitution. Derive the call-by-value step $`u\to u`. Then use Theorem 23.1 and induction on the length of a path to show that call by value never leaves $`u`.
 * *Proof outline.* Call by name: N-AppAbs inside N-App1 discards $`\Omega` without evaluating it, and a second N-AppAbs gives $`\mathsf{id}`. Call by value: E-AppAbs gives $`\Omega\to\Omega`, and E-App2 and E-App1 lift this step to $`u\to u`. By Theorem 23.1 it is the only step from $`u`. Induction on $`k` proves $`Q(k)\coloneqq\forall s,\ (u\to^k s)\Rightarrow s=u`.
 * *From Session 22.* Session 22 defined capture-avoiding substitution. Here each computation rule substitutes an operand for a parameter. The two strategies differ in when they do so. Call by value first evaluates the operand to a value. Call by name substitutes the operand as it stands.
@@ -59,7 +59,7 @@ tag := "ch23-s2"
 
 In the example of §23.1, call by value had only one possible first step. E-AppAbs needs a value operand, and the operand $`\mathsf{id}\,(\lambda z.\mathsf{id}\,z)` is an application. E-App1 needs a step of the operator $`\mathsf{id}`, which is a value. Only E-App2 remains. The same check works for every term. Terms are equal when they are alpha-equivalent (C.1).
 
-*Theorem 23.1 (Determinacy of call by value) \[This book\] \[Paper proof only: proof in §23.2\].* For all terms $`t,t',t''`, if $`t\to t'` and $`t\to t''` then $`t'=t''`.
+*Theorem 23.1 (Determinacy of call by value).* For all terms $`t,t',t''`, if $`t\to t'` and $`t\to t''` then $`t'=t''`.
 
 *Proof.* We prove $`P(D)` for every derivation $`D` of a step, by induction on $`D`. For $`D:t\to t'` the induction property is
 
@@ -85,7 +85,7 @@ The last rule of $`E` is not E-App1, whose premise would be a step of the value 
 
 This proves $`P(D)` for every $`D`. Let $`D` derive the first step $`t\to t'` of the theorem, and apply $`P(D)` with $`s=t''` to the second step. $`\square`
 
-*Proposition 23.2 (Determinacy of call by name) \[This book\] \[Paper proof only: proof in §23.2\].* For all terms $`t,t',t''`, if $`t\to_{\mathrm n}t'` and $`t\to_{\mathrm n}t''` then $`t'=t''`.
+*Proposition 23.2 (Determinacy of call by name).* For all terms $`t,t',t''`, if $`t\to_{\mathrm n}t'` and $`t\to_{\mathrm n}t''` then $`t'=t''`.
 
 *Proof.* Induction on the derivation $`D:t\to_{\mathrm n}t'`, with $`P_{\mathrm n}(D)\coloneqq\forall s,\ (t\to_{\mathrm n}s)\Rightarrow t'=s`. Fix $`s` and $`E:t\to_{\mathrm n}s`. If $`D` ends with N-AppAbs, then $`t=(\lambda x.t_{12})\,t_2`. The derivation $`E` cannot end with N-App1, whose premise would be a step of the value $`\lambda x.t_{12}`. So $`E` also ends with N-AppAbs, and $`s=[x\mapsto t_2]t_{12}=t'`. If $`D` ends with N-App1, then $`t=t_1\,t_2` and $`t'=t_1'\,t_2`, with premise $`D_1:t_1\to_{\mathrm n}t_1'` and induction hypothesis $`P_{\mathrm n}(D_1):\ \forall s_1,\ (t_1\to_{\mathrm n}s_1)\Rightarrow t_1'=s_1`. N-AppAbs would require $`t_1` to be an abstraction, and $`t_1` has a step. So $`E` ends with N-App1 too, with premise $`E_1:t_1\to_{\mathrm n}t_1''` and $`s=t_1''\,t_2`. Apply $`P_{\mathrm n}(D_1)` with $`s_1=t_1''` to $`E_1`. This gives $`t_1'=t_1''`, so $`t'=s`. $`\square`
 
@@ -108,7 +108,7 @@ For example, $`\Omega` diverges under both strategies. The argument is steps 6�
 
 The term $`(\lambda y.\lambda z.z)\,\Omega` of the opening paragraph steps to itself by E-App2 and steps to $`\lambda z.z` by N-AppAbs. The theorem applies it to one more operand, so that call by name takes two steps and uses a congruence rule.
 
-*Theorem 23.4 (Call by name returns where call by value diverges) \[This book\] \[Paper proof only: proof in §23.3\].* Let $`u=(\lambda y.\lambda z.z)\,\Omega\,\mathsf{id}`. (a) Under call by name, $`u\to_{\mathrm n}(\lambda z.z)\,\mathsf{id}\to_{\mathrm n}\mathsf{id}`, and $`\mathsf{id}` is a value. (b) Under call by value, $`u\to u`, and for every natural number $`k` and term $`s`, if $`u\to^k s` then $`s=u`. Hence $`u` diverges under call by value. In particular no value is reachable from $`u`.
+*Theorem 23.4 (Call by name returns where call by value diverges).* Let $`u=(\lambda y.\lambda z.z)\,\Omega\,\mathsf{id}`. (a) Under call by name, $`u\to_{\mathrm n}(\lambda z.z)\,\mathsf{id}\to_{\mathrm n}\mathsf{id}`, and $`\mathsf{id}` is a value. (b) Under call by value, $`u\to u`, and for every natural number $`k` and term $`s`, if $`u\to^k s` then $`s=u`. Hence $`u` diverges under call by value. In particular no value is reachable from $`u`.
 
 *Proof.* We must show (a) and (b). Application associates to the left, so $`u` is $`((\lambda y.\lambda z.z)\,\Omega)\,\mathsf{id}`. Its operator is $`(\lambda y.\lambda z.z)\,\Omega` and its operand is $`\mathsf{id}`. Steps 1–3 prove (a) and steps 4–8 prove (b). Step 2 builds the first derivation below and step 5 builds the second.
 
@@ -180,3 +180,13 @@ number := false
 *Further reading · Evaluation contexts.* A step can be found by marking the hole in which the next redex lies. For call by name the contexts are $`\mathcal E::=\square\mid\mathcal E\,t`. For call by value they are $`\mathcal E::=\square\mid\mathcal E\,t\mid v\,\mathcal E`, where the operator in the last form is already a value. Each form other than $`\square` corresponds to one congruence rule. A step writes the term as a context whose hole holds a redex that the strategy may contract, and contracts that redex in place. Determinacy then says that each term splits in at most one way into a context and such a redex.
 
 *Further reading · Which strategy terminates more often.* If a closed term of C.1 reaches a value under call by value, it also reaches a value under call by name, though the values may differ (Exercise 23.2). So no closed term behaves as $`u` does with the two strategies exchanged. This follows from the standardization theorem of the lambda calculus. See G. D. Plotkin, “Call-by-name, call-by-value and the λ-calculus”, _Theoretical Computer Science_ 1 (1975). This book does not prove it. Part 3 returns to call by name: the language PCF of Session 35 evaluates by name.
+
+# Sources and Formalization
+%%%
+tag := "ch23-notes"
+number := false
+%%%
+
+* *Theorem 23.1.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only (proof in [§23.2](chapter-23/index.html#ch23-s2)).
+* *Proposition 23.2.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only (proof in [§23.2](chapter-23/index.html#ch23-s2)).
+* *Theorem 23.4.* Formulated in this book. Paper proof only (proof in [§23.3](chapter-23/index.html#ch23-s3)).

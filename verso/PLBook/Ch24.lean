@@ -10,7 +10,7 @@ file := "chapter-24"
 
 * *Definitions.* Terms, values, numeric values $`nv`, the evaluation rules, the types Bool and Nat and the typing rules ([C.2](lambda-card/index.html#lambda-c2)). The typing judgment $`\vdash t:T` ([Lambda card, Judgments](lambda-card/index.html)). One step $`t\to t'`, computation and congruence rules, normal forms and $`t\to^*t'` ([C.1](lambda-card/index.html#lambda-c1), Session 23). Inference rules and derivations ([A.3](imp-card/index.html#imp-a3)). Inversion and induction on derivations ([Session 1, §§1.4–1.5](chapter-01/index.html#ch01-s4)). The general statements and the form of the safety table ([C.8](lambda-card/index.html#lambda-c8)).
 * *New terms.* Stuck term, well-typed term, canonical form, preservation, type safety. [Glossary and label key](glossary/index.html)
-* *Lemma 24.2 and Theorems 24.3–24.4 \[Paper proof only: TAPL §8.3\].* (Canonical forms) For every value $`v`: if $`\vdash v:\mathsf{Bool}` then $`v=\mathsf{true}` or $`v=\mathsf{false}`; if $`\vdash v:\mathsf{Nat}` then $`v` is a numeric value. (Progress) For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (Preservation) For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to t'`, then $`\vdash t':T`.
+* *Lemma 24.2 (Canonical forms), Theorem 24.3 (Progress) and Theorem 24.4 (Preservation).* (Canonical forms) For every value $`v`: if $`\vdash v:\mathsf{Bool}` then $`v=\mathsf{true}` or $`v=\mathsf{false}`; if $`\vdash v:\mathsf{Nat}` then $`v` is a numeric value. (Progress) For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (Preservation) For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to t'`, then $`\vdash t':T`.
 * *Source.* Pierce, _Types and Programming Languages_ (TAPL). The terms, values and evaluation rules of C.2 are those of §§3.2 and 3.5, and the types and typing rules are those of §§8.1–8.2. TAPL writes the typing judgment of this language without a context. With the empty context the rules are the same. Lemma 24.1 is the inversion lemma of §8.2. Lemma 24.2 and Theorems 24.3–24.4 are the canonical forms, progress and preservation results of §8.3. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Progress, case T-If. Apply the induction hypothesis to the guard. A step of the guard lifts to the conditional by E-If. A guard that is a value has type Bool, so Lemma 24.2 makes it true or false, and E-IfTrue or E-IfFalse applies.
 * *Proof outline.* Canonical forms: list the forms of value and exclude the wrong ones with the inversion Lemma 24.1. Progress: induction on the typing derivation $`D` of $`\vdash t:T` with $`P(D)\coloneqq t\ \text{is a value}\ \lor\ \exists t',\ t\to t'`. Preservation: induction on the evaluation derivation $`E` of $`t\to t'` with $`Q(E)\coloneqq\forall T,\ (\vdash t:T)\Rightarrow(\vdash t':T)`. Each preservation case inverts the typing of $`t` and builds a typing of $`t'`.
@@ -50,7 +50,7 @@ $$`\dfrac{\dfrac{\dfrac{}{\vdash 0:\mathsf{Nat}}\;\textsf{T-Zero}}{\vdash\mathsf
 
 The stuck term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` has no type. A derivation would have to end with T-If, the only typing rule whose conclusion is a conditional. Its first premise would be $`\vdash 0:\mathsf{Bool}`. But T-Zero is the only rule whose conclusion types $`0`, and it gives Nat. In the same way $`\mathsf{pred}\ (\mathsf{succ}\ \mathsf{false})` has no type, since T-Succ would need $`\vdash\mathsf{false}:\mathsf{Nat}`. The next lemma records this reasoning once for every form of term.
 
-*Lemma 24.1 (Inversion of typing) \[Paper proof only: TAPL §8.2\].* For every type $`T` and all terms $`t_1,t_2,t_3`:
+*Lemma 24.1 (Inversion of typing).* For every type $`T` and all terms $`t_1,t_2,t_3`:
 
 * (a) If $`\vdash\mathsf{true}:T` or $`\vdash\mathsf{false}:T`, then $`T=\mathsf{Bool}`.
 * (b) If $`\vdash\mathsf{if}\ t_1\ \mathsf{then}\ t_2\ \mathsf{else}\ t_3:T`, then $`\vdash t_1:\mathsf{Bool}`, $`\vdash t_2:T` and $`\vdash t_3:T`.
@@ -62,7 +62,7 @@ The stuck term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \m
 
 Compare three guards. The term $`\mathsf{iszero}\ (\mathsf{pred}\ 0)` has type Bool but is not a value. A conditional with this guard steps inside the guard, by E-If. The term $`\mathsf{succ}\ 0` is a value but has type Nat, and no rule selects a branch with it. The term $`\mathsf{true}` is a value and has type Bool, and E-IfTrue applies. Only the two facts together, being a value and having type Bool, give the shape that a computation rule needs. The *canonical forms* of a type are the shapes that a value of that type can have. The next lemma lists them for Bool and Nat.
 
-*Lemma 24.2 (Canonical forms) \[Paper proof only: TAPL §8.3\].* Let $`v` be a value.
+*Lemma 24.2 (Canonical forms).* Let $`v` be a value.
 
 * (a) If $`\vdash v:\mathsf{Bool}`, then $`v=\mathsf{true}` or $`v=\mathsf{false}`.
 * (b) If $`\vdash v:\mathsf{Nat}`, then $`v` is a numeric value.
@@ -78,7 +78,7 @@ tag := "ch24-s3"
 
 Take $`t=\mathsf{if}\ \mathsf{iszero}\ 0\ \mathsf{then}\ \mathsf{succ}\ 0\ \mathsf{else}\ 0` with $`\vdash t:\mathsf{Nat}`. Its guard $`\mathsf{iszero}\ 0` steps to $`\mathsf{true}` by E-IszeroZero, and E-If lifts that step to $`t`. After the step the guard is $`\mathsf{true}`, a value of type Bool, and E-IfTrue applies. The proof of progress follows this pattern: ask the guard first. [Session 5](chapter-05/index.html#ch05-s2) used the word progress for IMP configurations. Here it is a property of well-typed terms.
 
-*Theorem 24.3 (Progress) \[Paper proof only: TAPL §8.3\].* For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`.
+*Theorem 24.3 (Progress).* For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`.
 
 We prove $`P(D)` for every typing derivation $`D` by induction on $`D` ([Session 1, §1.5](chapter-01/index.html#ch01-s5)). For $`D:\ \vdash t:T` the induction property is
 
@@ -106,7 +106,7 @@ In every case $`t` steps. Step 4 is the only place where the typing premise $`D_
 
 Preservation follows one step and keeps the type. The term $`t` above steps to $`t'=\mathsf{if}\ \mathsf{true}\ \mathsf{then}\ \mathsf{succ}\ 0\ \mathsf{else}\ 0` by E-If above E-IszeroZero. Lemma 24.1(b) inverts $`\vdash t:\mathsf{Nat}` into $`\vdash\mathsf{iszero}\ 0:\mathsf{Bool}`, $`\vdash\mathsf{succ}\ 0:\mathsf{Nat}` and $`\vdash 0:\mathsf{Nat}`. The guard step keeps the type Bool, since $`\vdash\mathsf{true}:\mathsf{Bool}` by T-True. T-If builds $`\vdash t':\mathsf{Nat}` from the new guard typing and the two old branch typings. The next step, by E-IfTrue, gives $`\mathsf{succ}\ 0`, and its typing is already a premise. For the first step the proof applies T-If again to build a new derivation. For the second it reuses a premise.
 
-*Theorem 24.4 (Preservation) \[Paper proof only: TAPL §8.3\].* For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to t'`, then $`\vdash t':T`.
+*Theorem 24.4 (Preservation).* For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to t'`, then $`\vdash t':T`.
 
 We prove $`Q(E)` for every evaluation derivation $`E` by induction on $`E`. For $`E:t\to t'` the induction property is
 
@@ -210,3 +210,14 @@ Every term on the path has type Nat, and every guard on it has type Bool.
 *Further reading · Two inductions.* TAPL §8.3 proves preservation by induction on the typing derivation. Induction on the evaluation derivation, used here, works as well. This chapter uses it because the preservation entries of the safety table have one case per evaluation rule.
 
 *Further reading · Uniqueness of types.* Every term of C.2 has at most one type. The proof is by structural induction on the term, using Lemma 24.1 at each form; TAPL §8.2 gives it. Theorems 24.3–24.4 do not use it. It fails for the unannotated terms of [C.5](lambda-card/index.html#lambda-c5), where $`\vdash\lambda x.x:\mathsf{Nat}\to\mathsf{Nat}` and $`\vdash\lambda x.x:X\to X`.
+
+# Sources and Formalization
+%%%
+tag := "ch24-notes"
+number := false
+%%%
+
+* *Lemma 24.1.* Source: TAPL §8.2. Paper proof only (TAPL §8.2).
+* *Lemma 24.2.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).
+* *Theorem 24.3.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).
+* *Theorem 24.4.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).

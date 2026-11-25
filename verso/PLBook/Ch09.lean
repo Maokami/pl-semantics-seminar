@@ -11,8 +11,8 @@ file := "chapter-09"
 
 * *Definitions.* Stores and guard values $`B(b,s)` ([IMP language card A.2 and A.4](imp-card/index.html#imp-a4)). Outcomes $`\Sigma_\bot`, state transformers, strict extension $`h^\dagger`, and the meanings $`f_c` of skip, assignment, sequencing and conditionals ([Session 8, §§8.1–8.2](chapter-08/index.html#ch08-s1)). The information order on outcomes and on state transformers, increasing sequences and least upper bounds ([Session 8, Definitions 8.7 and 8.9](chapter-08/index.html#ch08-s4)). The form of an increasing sequence of outcomes and its least upper bound ([Session 8, Lemma 8.10](chapter-08/index.html#ch08-s4)).
 * *New terms.* Unfolding operator, approximation, fixed point, least fixed point, continuous operator. [Glossary and label key](glossary/index.html)
-* *Theorem 9.5 \[Checked\].* For every loop $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, the least upper bound $`f_W` of the approximations $`w_0\sqsubseteq w_1\sqsubseteq\cdots` satisfies $`F(f_W)=f_W`, and $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
-* *Source.* Reynolds, _Theories of Programming Languages_, §2.4, proves the least fixed-point theorem for continuous functions and uses it to define the meaning of a loop as a state transformer. We prove the instance for the unfolding operator of a loop directly. \[Corresponding: CS Theorem 11.12\] Nipkow and Klein prove the same statement for continuous functions on sets and apply it to loop meanings that are relations between stores. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
+* *Theorem 9.5 (Least fixed point).* For every loop $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, the least upper bound $`f_W` of the approximations $`w_0\sqsubseteq w_1\sqsubseteq\cdots` satisfies $`F(f_W)=f_W`, and $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
+* *Source.* Reynolds, _Theories of Programming Languages_, §2.4, proves the least fixed-point theorem for continuous functions and uses it to define the meaning of a loop as a state transformer. We prove the instance for the unfolding operator of a loop directly. Nipkow and Klein prove the same statement for continuous functions on sets and apply it to loop meanings that are relations between stores. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 * *Board case.* Part (a), that $`f_W` is a fixed point. Fix a store $`s` and split on the three cases of Definition 9.1. In the third case the outcomes at $`s` are the outcomes at the body’s result $`m`, one stage later.
 * *Proof outline.* (a) At each store, compare the sequence $`w_n(s)` with the sequence $`w_n(m)` using $`w_{n+1}(s)=w_n(m)` and Lemma 8.10. (b) Prove $`Q(n)\coloneqq w_n\sqsubseteq g` by induction on $`n` with Lemma 9.2, then take the least upper bound at each store.
 * *From Session 8.* Session 8 gave a meaning to every command except the loop. Here the meaning of a loop is the least upper bound of an increasing sequence of state transformers, computed store by store with Lemma 8.10.
@@ -57,11 +57,11 @@ tag := "ch09-s2"
 
 Read each row of the table from left to right. Each entry is $`\bot` or equal to the entry on its right. In the information order of Session 8, Definition 8.7, this says $`w_0\sqsubseteq w_1\sqsubseteq w_2\sqsubseteq w_3` at these three stores. A later stage never revises a result found at an earlier stage. It can only add results. The next two lemmas prove this for every loop.
 
-*Lemma 9.2 (Monotonicity of unfolding) \[This book\] \[Corresponding: CS Lemma 11.3\] \[Checked\].* For all state transformers $`h,h'`, if $`h\sqsubseteq h'` then $`F(h)\sqsubseteq F(h')`.
+*Lemma 9.2 (Monotonicity of unfolding).* For all state transformers $`h,h'`, if $`h\sqsubseteq h'` then $`F(h)\sqsubseteq F(h')`.
 
 *Proof.* Fix a store $`s` and use the three cases of Definition 9.1. In case 1 both sides equal $`s`. In case 2 both sides equal $`\bot`. In case 3 we have $`F(h)(s)=h(m)` and $`F(h')(s)=h'(m)`, and $`h(m)\sqsubseteq h'(m)` is the assumption $`h\sqsubseteq h'` at the store $`m`. $`\square`
 
-*Lemma 9.3 (Increasing approximations) \[This book\] \[Checked\].* For every natural number $`n`, $`w_n\sqsubseteq w_{n+1}`.
+*Lemma 9.3 (Increasing approximations).* For every natural number $`n`, $`w_n\sqsubseteq w_{n+1}`.
 
 *Proof.* By induction on $`n` with the property
 
@@ -90,7 +90,7 @@ A *fixed point* of $`F` is a state transformer $`g` with $`F(g)=g`. Here $`F(g)=
 
 The approximations select $`\ell`. Stage 1 gives $`w_1=F(w_0)=\ell`, and $`F(\ell)=\ell`, so $`w_n=\ell` for every $`n\ge1` and $`f_W=\ell`. Moreover $`\ell\sqsubseteq g` for every fixed point $`g`. Both return $`s` when $`s(x)\le0`, and $`\ell(s)=\bot` lies below $`g(s)` otherwise. A fixed point that lies below every fixed point is a *least fixed point*. There is at most one, since two least fixed points lie below each other and the information order is antisymmetric. The order compares two outcomes at the same store. It never compares stores by the size of $`x`.
 
-*Theorem 9.5 (Least fixed point) \[Checked\].* Let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` have unfolding operator $`F` and approximations $`w_n` (Definition 9.1), and let $`f_W=\bigsqcup_n w_n` (Definition 9.4). Then (a) $`F(f_W)=f_W`, and (b) $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
+*Theorem 9.5 (Least fixed point).* Let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` have unfolding operator $`F` and approximations $`w_n` (Definition 9.1), and let $`f_W=\bigsqcup_n w_n` (Definition 9.4). Then (a) $`F(f_W)=f_W`, and (b) $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
 
 Part (a) says that $`f_W` solves the loop equation. Part (b) says that it is the least solution.
 
@@ -190,3 +190,13 @@ Conversely, if $`w_n(s)=t` is a store, there is a run from $`s` ending in $`t` w
 *Further reading · Two ways to diverge.* Let the body be $`\mathsf{while}\ y\ne0\ \mathsf{do}\ \mathsf{skip}`, which returns its input when $`y=0` and gives $`\bot` otherwise, and let the outer guard be $`0<x`. At $`s(x)=0`, case 1 returns the input at every positive stage. At $`s(x)=1` and $`s(y)=1`, case 2 gives $`\bot` at every stage without consulting $`h`. At $`s(x)=1` and $`s(y)=0`, case 3 applies with $`m=s`, so $`F(h)(s)=h(s)` for every $`h`, and induction on $`n` gives $`w_n(s)=\bot`. Both diverging inputs have meaning $`\bot`. The first never reaches the recursive occurrence. The second reaches it at every stage.
 
 *Further reading · Sources.* Reynolds, _Theories of Programming Languages_, §§2.3–2.4, defines domains and continuous functions and proves the least fixed-point theorem in general. _Concrete Semantics_, §11.1, defines loop meanings as relations: Example 11.2 is the loop $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`, and Example 11.14 computes the approximations of a countdown loop. Leroy’s course, §9.1, computes a least fixed point by iterating from a least element when every strictly increasing sequence is finite. The iteration then stops at a finite stage, which the further problem shows cannot be expected for loop meanings. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1](https://concrete-semantics.org/concrete-semantics.pdf#page=190) · [Leroy’s course, fixed points](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Fixpoints.lean)
+
+# Sources and Formalization
+%%%
+tag := "ch09-notes"
+number := false
+%%%
+
+* *Lemma 9.2.* Formulated in this book. Corresponds to CS Lemma 11.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 9.3.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 9.5.* Source: Reynolds §2.4, specialized to loop unfolding. Corresponds to CS Theorem 11.12. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

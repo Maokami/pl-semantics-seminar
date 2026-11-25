@@ -11,14 +11,15 @@ number := false
 
 The Korean column gives the term to use when discussing the English text. The last column links to the definition and identifies the session that introduces it.
 
-*Source labels.* \[This book\] (자체) marks a statement or a connection formulated here for the book’s definitions. \[Corresponding: source reference\] (대응) identifies a rule or theorem of the same form on another source’s definitions. For example, CS denotes Nipkow and Klein’s _Concrete Semantics_.
+*Reading the chapter notes.* Each chapter ends with *Sources and Formalization*. Look up a result by its number. The source describes where the statement comes from. The proof note describes what has been verified.
 
-*Proof labels.* Each numbered result has one proof label.
-
-* \[Checked\] (검사됨) The book build checks a proof of the stated result on the stated definitions.
-* \[Selected cases checked\] (일부 경우만) The build checks only the cases identified in the text.
-* \[Externally checked: appendix reference\] (외부 검사) The cited external declaration matches the statement. The appendix identifies the repository, revision and declaration.
-* \[Paper proof only: source reference\] (종이 전용) The proof is given on paper. The reference locates it in the cited source or, for a result of this book, in the text.
+* *Formulated in this book* (자체 진술). The book formulates the statement for its own definitions.
+* *Corresponds to* (대응 정리). The cited result has the same form on the source’s definitions. CS abbreviates Nipkow and Klein’s _Concrete Semantics_.
+* *Source* (원전). The cited work supplies the statement.
+* *Checked in Lean* (Lean으로 검사됨). The book build checks a proof of the stated result on the stated definitions.
+* *Selected cases checked in Lean* (일부 경우만 Lean으로 검사됨). The build checks the cases identified in the note.
+* *Externally checked* (외부에서 검사됨). The statement matches a checked declaration in the cited development. The linked card gives the repository, revision and declaration.
+* *Paper proof only* (종이 증명만). The note locates the argument in the chapter or its source and identifies a sketch or an omitted proof where applicable.
 
 *Order conventions.* In [§8.4](chapter-08/index.html#ch08-s4) and [§34.1](chapter-34/index.html#ch34-s1), moving upward in the information order can make an undefined result defined. In [§17.1](chapter-17/index.html#ch17-s1), moving upward in the precision order can replace a known integer by the unknown abstract value. For type substitutions in [C.5](lambda-card/index.html#lambda-c5), the more general substitution is on the left: the right substitution factors through it.
 

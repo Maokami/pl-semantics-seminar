@@ -25,13 +25,13 @@ tag := "ch21-s1"
 
 [Session 7, §7.1](chapter-07/index.html#ch07-s1) calls what a notion of equivalence compares about a run its *observation*. Program equivalence (Definition 7.1) observes the whole final store. We use the word in the same sense for each theorem below. The four theorems are restated with all their quantifiers. Two paragraphs then name their observations and their premises.
 
-*Theorem 6.2 (Equivalence of terminating evaluations), restated \[Checked\].* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
+*Theorem 6.2 (Equivalence of terminating evaluations), restated.* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
 
-*Theorem 10.2 (Correspondence), restated \[This book\] \[Checked\].* For every command $`c` and stores $`s,t\in\Sigma`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
+*Theorem 10.2 (Correspondence), restated.* For every command $`c` and stores $`s,t\in\Sigma`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
 
-*Theorem 16.2 (Compiled commands meet the contract), restated \[Externally checked: Leroy course, [machine-card references](machine-card/index.html#machine-sources)\].* For every command $`c` and stores $`s,t`, if $`s\vdash c\Downarrow t`, then for every code $`C`, position $`\mathit{pc}` and stack $`S` with $`\mathrm{at}(C,\mathit{pc},\mathrm{ccom}(c))`, $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{ccom}(c)|,S,t\rangle`.
+*Theorem 16.2 (Compiled commands meet the contract), restated.* For every command $`c` and stores $`s,t`, if $`s\vdash c\Downarrow t`, then for every code $`C`, position $`\mathit{pc}` and stack $`S` with $`\mathrm{at}(C,\mathit{pc},\mathrm{ccom}(c))`, $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{ccom}(c)|,S,t\rangle`.
 
-*Theorem 20.2 (Correctness of dead-assignment elimination), restated \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
+*Theorem 20.2 (Correctness of dead-assignment elimination), restated.* For every command $`c`, finite set of names $`L` and stores $`s,t,u`: if $`s\vdash c\Downarrow t` and $`s|_{\mathrm{live}(c,L)}=u|_{\mathrm{live}(c,L)}`, then some store $`v` satisfies $`u\vdash\mathrm{elim}(c,L)\Downarrow v` and $`t|_L=v|_L`.
 
 *Observations.* Theorem 6.2 equates final stores: the store at the root of a derivation is the store beside skip at the end of a path. Theorem 10.2 equates the final store with the normal result of the meaning, that is, the outcome $`f_c(s)` when it is a store. Theorem 16.2 preserves the final store and observes two more things: the run of the code reaches the position just after the block, and the stack there is the $`S` it started with. Theorem 20.2 preserves only the final values of the names in $`L`.
 
@@ -147,3 +147,14 @@ number := false
 *Further problem.* Every configuration $`p` with $`\langle c,s\rangle\to^*p` has a successor. Otherwise Lemma 5.3 gives $`p=\langle\mathsf{skip},t\rangle` for some $`t`, and the direction from paths to derivations of Theorem 6.2 gives $`s\vdash c\Downarrow t`, which was excluded. Put $`f(0)=\langle c,s\rangle` and let $`f(i+1)` be a successor of $`f(i)`. By induction on $`i`, each $`f(i)` is reached from $`\langle c,s\rangle` by a finite path, so the successor exists.
 
 *Further reading.* Nipkow and Klein prove the converse of their compiler theorem as Lemma 8.18 (p. 110) and combine both directions in Theorem 8.19 (p. 111). For their dead-code elimination they prove the converse as Lemma 10.20 (p. 170), and Corollary 10.21 (p. 171) observes every name and obtains equivalence in the sense of Session 7. The compiler chapter of Xavier Leroy’s _Compiler Verification_ course proves that the code of a diverging program diverges. It uses a small-step semantics with continuations and a measure on source configurations that decreases at every source step matched by no machine transition (Session 16, Further Reading). [Concrete Semantics, §8.4](https://concrete-semantics.org/concrete-semantics.pdf#page=120) · [Concrete Semantics, §10.3](https://concrete-semantics.org/concrete-semantics.pdf#page=180) · [Leroy’s course, compiler chapter](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Compil.lean)
+
+# Sources and Formalization
+%%%
+tag := "ch21-notes"
+number := false
+%%%
+
+* *Theorem 6.2.* Restated from Session 6; see [its notes](chapter-06/index.html#ch06-notes).
+* *Theorem 10.2.* Restated from Session 10; see [its notes](chapter-10/index.html#ch10-notes).
+* *Theorem 16.2.* Restated from Session 16; see [its notes](chapter-16/index.html#ch16-notes).
+* *Theorem 20.2.* Restated from Session 20; see [its notes](chapter-20/index.html#ch20-notes).

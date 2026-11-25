@@ -11,8 +11,8 @@ file := "chapter-05"
 
 * *Definitions.* Commands, guard values, store update and terminating execution (Sessions 1–2, Definitions 1.2–1.3 and 2.1). [IMP language card A.6](imp-card/index.html#imp-a6)
 * *New terms.* Configuration, transition, finite path, progress, infinite path. [Glossary](glossary/index.html)
-* *Lemma 5.3 (Progress) \[Checked\] and Example 5.5 \[This book\] \[Checked\].* For every command $`c` and store $`s`, either $`c=\mathsf{skip}` or there are $`d,t` with $`\langle c,s\rangle\to\langle d,t\rangle`. For every store $`s`, an infinite path starts at $`\langle\mathsf{while\ true\ do\ skip},s\rangle`.
-* *Source.* The six transition rules and progress statement are from Leroy’s IMP. \[Corresponding: CS Lemma 7.17\] In _Concrete Semantics_ a configuration has no successor exactly when its command is skip. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Lemma 5.3 (Progress of commands) and Example 5.5 (An infinite path indexed by the natural numbers).* For every command $`c` and store $`s`, either $`c=\mathsf{skip}` or there are $`d,t` with $`\langle c,s\rangle\to\langle d,t\rangle`. For every store $`s`, an infinite path starts at $`\langle\mathsf{while\ true\ do\ skip},s\rangle`.
+* *Source.* The six transition rules and progress statement are from Leroy’s IMP. In _Concrete Semantics_ a configuration has no successor exactly when its command is skip. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Progress for $`c_1;c_2`. Inspect the left command $`c_1`. Exhibit a successor both when $`c_1` is skip and when it takes a step.
 * *Proof outline.* Induct on the command, quantifying over its input store. To exhibit an infinite execution of `while true do skip`, give a configuration at every natural index and check both kinds of adjacent edge.
 * *From Session 4.* Sessions 2–4 described a computation by a finite tree, or computed its result by recursion on a finite tree. Here a computation is a sequence of configurations, and the sequence need not end. For `while true do skip`, the least-height argument of Session 2, §2.4 excluded a terminating derivation. Here two explicit transitions supply a witness for its infinite execution.
@@ -60,7 +60,7 @@ $$`\left\langle {a\ \text{;}\ d,s} \right\rangle\rightarrow\left\langle {\operat
 
 The middle step changes the remaining syntax and leaves the store unchanged. A finite prefix that stops at $`\left\langle {d,m} \right\rangle` has yet to execute the second assignment.
 
-*Lemma 5.3 (Progress of commands) \[Checked\].* For every command and store, either the command is skip or the configuration can step. In particular, a non-skip command always has a successor.
+*Lemma 5.3 (Progress of commands).* For every command and store, either the command is skip or the configuration can step. In particular, a non-skip command always has a successor.
 
 *Proof.* Use structural induction with the property
 
@@ -76,7 +76,7 @@ An irreducible configuration has no successor. An irreducible configuration with
 
 For a one-edge example, an assignment steps directly to skip. Its two endpoint configurations form a sequence with two entries. The following lemma relates the two path notations even when no length is given.
 
-*Lemma 5.4 (Length of a finite path) \[This book\] \[Checked\].* For all configurations $`p,q`, $`p\to^*q\iff\exists n\in\mathbb N,\ p\to^n q`.
+*Lemma 5.4 (Length of a finite path).* For all configurations $`p,q`, $`p\to^*q\iff\exists n\in\mathbb N,\ p\to^n q`.
 
 *Proof.* For the forward implication induct on the finite-path derivation $`D:p\to^*q`, with $`P(D)\coloneqq\exists n,\ p\to^n q`. In the zero-step case take $`n=0`. In the step case the tail hypothesis gives $`r\to^j q` for some $`j`. Put the first edge $`p\to r` before that sequence to obtain $`p\to^{j+1}q`. For the converse, induct on $`n` with property $`Q(n)\coloneqq\forall p,q,\ (p\to^n q)\Rightarrow(p\to^*q)`. At zero the endpoints agree. At $`j+1` remove the first edge. Apply $`Q(j)` to the remaining sequence from $`r` to $`q` and reattach $`p\to r` by the finite-path step rule. $`\square`
 
@@ -91,7 +91,7 @@ tag := "ch05-s3"
 
 An *infinite path* from $`p` is witnessed by a function $`f` from natural numbers to configurations with $`f(0)=p` and $`f(i)\to f(i+1)` for every $`i`. The coinductive presentation uses a predicate on configurations: the greatest predicate $`X`, under inclusion, satisfying $`X(p)\iff\exists q,\ p\to q\land X(q)`.
 
-*Example 5.5 (An infinite path indexed by the natural numbers) \[This book\] \[Checked\].* Fix any store $`s` and let $`W` be `while true do skip`. Put $`p=\langle W,s\rangle` and $`p'=\langle\mathsf{skip};W,s\rangle`. The small-step loop iteration rule gives $`p\to p'`. The rule discarding skip gives $`p'\to p`. Set $`f(2i)=p` and $`f(2i+1)=p'`. At an even index the required edge is $`p\to p'`; at an odd index the next index is $`2(i+1)`, giving $`p'\to p`. Thus the function supplies every required edge, starting at $`p`.
+*Example 5.5 (An infinite path indexed by the natural numbers).* Fix any store $`s` and let $`W` be `while true do skip`. Put $`p=\langle W,s\rangle` and $`p'=\langle\mathsf{skip};W,s\rangle`. The small-step loop iteration rule gives $`p\to p'`. The rule discarding skip gives $`p'\to p`. Set $`f(2i)=p` and $`f(2i+1)=p'`. At an even index the required edge is $`p\to p'`; at an odd index the next index is $`2(i+1)`, giving $`p'\to p`. Thus the function supplies every required edge, starting at $`p`.
 
 The function gives the configuration at an index of our choice. With the predicate presentation we can instead exhibit a set closed under taking some next step: each member of $`\{p,p'\}` has a successor in that set. To see why this suffices, take the union $`U` of all sets with this property. Every member of $`U` has a successor in $`U`. Conversely, if $`p` has a successor in $`U`, adjoining $`p` to $`U` preserves the property, so $`p` already belongs to $`U`. Thus $`U` satisfies the displayed equation and contains every other solution. In particular both configurations satisfy the coinductive predicate.
 
@@ -150,3 +150,13 @@ For deterministic IMP we can strengthen the connection between the two observati
 In the other direction assume an infinite sequence and a finite path to skip start at the same configuration. An induction on the finite length shows that both executions agree at every position up to its endpoint: the starts agree, and determinacy identifies their next configurations. The infinite sequence would consequently have to take a step from skip at the next index, contrary to the rules. This particular exclusion uses determinacy. In a nondeterministic language, the existence of an infinite execution can coexist with a different, terminating execution from the same input.
 
 An infinite path requires a successor even at its first index. Hence an irreducible configuration cannot start such a path.
+
+# Sources and Formalization
+%%%
+tag := "ch05-notes"
+number := false
+%%%
+
+* *Lemma 5.3.* Source: Leroy’s IMP, progress for commands. Corresponds to CS Lemma 7.17. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 5.4.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Example 5.5.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

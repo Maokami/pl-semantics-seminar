@@ -10,7 +10,7 @@ file := "chapter-38"
 
 * *Definitions.* PCF terms and typing, the evaluation rules B-Value to B-Fix with the convention that $`t\Downarrow v` relates closed terms of one type, the meaning $`\llbracket t\rrbracket\rho` and the fact $`\llbracket\overline{n}\rrbracket=n` ([Session 35, Definitions 35.1–35.5](chapter-35/index.html#ch35-s1)). Soundness of evaluation, Theorem 35.8 ([Session 35, §35.4](chapter-35/index.html#ch35-s4)). Computational adequacy, Theorem 36.2 ([Session 36, §36.1](chapter-36/index.html#ch36-s1)), proved in [Session 37, §37.4](chapter-37/index.html#ch37-s4), and the consequence proved there: a closed term of type Nat has meaning $`\bot` exactly when it has no evaluation. The flat domain $`\mathbb{N}_\bot` and the fixed-point equation $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)` ([Session 34, Proposition 34.4](chapter-34/index.html#ch34-s1)). Canonical forms ([C.8](lambda-card/index.html#lambda-c8), Row 1).
 * *New terms.* Full abstraction, named in §38.3 and used in no proof. [Glossary and label key](glossary/index.html)
-* *Corollary 38.2 \[This book\] \[Paper proof only: §38.2\].* Let $`t` and $`t'` be closed terms with $`\vdash t:\mathsf{Nat}`, $`\vdash t':\mathsf{Nat}` and $`\llbracket t\rrbracket=\llbracket t'\rrbracket`. Then for every natural number $`n`, $`t\Downarrow\overline{n}` if and only if $`t'\Downarrow\overline{n}`.
+* *Corollary 38.2 (Equal meanings at type Nat).* Let $`t` and $`t'` be closed terms with $`\vdash t:\mathsf{Nat}`, $`\vdash t':\mathsf{Nat}` and $`\llbracket t\rrbracket=\llbracket t'\rrbracket`. Then for every natural number $`n`, $`t\Downarrow\overline{n}` if and only if $`t'\Downarrow\overline{n}`.
 * *Source.* No new source. Theorem 36.2 is Theorem 31 of the Cambridge _Denotational Semantics_ lecture notes, 2025–26 edition. The addition term $`A`, Lemma 38.1 and Corollary 38.2 are this book’s. [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* Compute $`\llbracket A\ \overline{2}\ \overline{1}\rrbracket=3` and conclude $`A\ \overline{2}\ \overline{1}\Downarrow\overline{3}` (§38.1, six steps). Then prove Corollary 38.2 and apply it to $`A\ u\ w` and $`A\ w\ u` (§38.2).
 * *Proof outline.* Meanings are computed with the clauses of Definition 35.5 and the fixed-point equation. No evaluation derivation is built. Lemma 38.1 is an induction on the first argument of $`A`. Corollary 38.2 goes from evaluation to meaning by Theorem 35.8 and back by Theorem 36.2.
@@ -25,7 +25,7 @@ tag := "ch38-s1"
 
 Two theorems connect evaluation and meaning. Soundness (Session 35, Theorem 35.8) goes from evaluation to meaning: if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`. Adequacy goes back, at ground types only. For example, $`\llbracket K\ \overline{1}\rrbracket=0` by Session 35, Proposition 35.6, and adequacy alone gives $`K\ \overline{1}\Downarrow 0`.
 
-*Theorem 36.2 (Computational adequacy), restated \[Paper proof only: Session 37, §37.4\].* Let $`t` be a closed term. If $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket=n` for a natural number $`n`, then $`t\Downarrow\overline{n}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket=\mathrm{tt}`, then $`t\Downarrow\mathsf{true}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket=\mathrm{ff}`, then $`t\Downarrow\mathsf{false}`.
+*Theorem 36.2 (Computational adequacy), restated.* Let $`t` be a closed term. If $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket=n` for a natural number $`n`, then $`t\Downarrow\overline{n}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket=\mathrm{tt}`, then $`t\Downarrow\mathsf{true}`. If $`\vdash t:\mathsf{Bool}` and $`\llbracket t\rrbracket=\mathrm{ff}`, then $`t\Downarrow\mathsf{false}`.
 
 Every use of the theorem checks three premises. First, the term is closed: evaluation is defined only for closed terms (Definition 35.3), and a term with a free variable has a meaning only in an environment. Second, the term has a ground type, Nat or Bool: §38.3 shows that at a function type equal meanings do not give equal values. Third, the meaning is a number or a truth value. When the meaning is $`\bot`, adequacy concludes nothing, and Session 37, §37.4 uses soundness to show that the term has no evaluation. We apply the theorem to the following closed terms.
 
@@ -48,7 +48,7 @@ The arrow associates to the right and application to the left, so $`A\ \overline
 
 No derivation was built. A derivation of $`A\ \overline{2}\ \overline{1}\Downarrow\overline{3}` uses B-Fix once for each call of $`A`, three times in all, as the derivation for $`K\ \overline{1}` in Session 35, §35.2 used it twice. Adequacy says that such a derivation exists, not how large it is. Steps 2–4 used only the fixed-point equation, not the fact that $`a` is the least fixed point. Leastness matters when the equation does not fix the value: for $`\Omega=\mathsf{fix}\ (\lambda x{:}\mathsf{Nat}.x)` the equation holds for every element of $`\mathbb{N}_\bot`, and only leastness gives $`\llbracket\Omega\rrbracket=\bot`.
 
-*Lemma 38.1 (Meaning of the addition term) \[This book\] \[Paper proof only: this section\].* For all natural numbers $`m,n`, $`a(m)(n)=m+n`. For every $`d\in\mathbb{N}_\bot`, $`a(\bot)(d)=\bot` and $`a(d)(\bot)=\bot`.
+*Lemma 38.1 (Meaning of the addition term).* For all natural numbers $`m,n`, $`a(m)(n)=m+n`. For every $`d\in\mathbb{N}_\bot`, $`a(\bot)(d)=\bot` and $`a(d)(\bot)=\bot`.
 
 *Proof.* Case 1 and $`a=\Phi(a)` give $`a(\bot)(d)=\bot`. The rest is an induction on $`m` with
 
@@ -63,7 +63,7 @@ tag := "ch38-s2"
 
 Compare $`A\ \overline{2}\ \overline{1}` with $`A\ \overline{1}\ \overline{2}`. Lemma 38.1 gives both the meaning 3. A derivation for the first uses B-Fix three times, and its innermost call returns $`\overline{1}`. A derivation for the second uses B-Fix twice, and its innermost call returns $`\overline{2}`. The derivations differ, and both terms evaluate to $`\overline{3}`. The general fact uses both directions between evaluation and meaning.
 
-*Corollary 38.2 (Equal meanings at type Nat) \[This book\] \[Paper proof only: this section\].* Let $`t` and $`t'` be closed terms with $`\vdash t:\mathsf{Nat}`, $`\vdash t':\mathsf{Nat}` and $`\llbracket t\rrbracket=\llbracket t'\rrbracket`. Then for every natural number $`n`, $`t\Downarrow\overline{n}` if and only if $`t'\Downarrow\overline{n}`.
+*Corollary 38.2 (Equal meanings at type Nat).* Let $`t` and $`t'` be closed terms with $`\vdash t:\mathsf{Nat}`, $`\vdash t':\mathsf{Nat}` and $`\llbracket t\rrbracket=\llbracket t'\rrbracket`. Then for every natural number $`n`, $`t\Downarrow\overline{n}` if and only if $`t'\Downarrow\overline{n}`.
 
 *Proof.* Fix $`n` and assume $`t\Downarrow\overline{n}`. We must show $`t'\Downarrow\overline{n}`. (1) Theorem 35.8 gives $`\llbracket t\rrbracket=\llbracket\overline{n}\rrbracket=n`. (2) The premise $`\llbracket t\rrbracket=\llbracket t'\rrbracket` gives $`\llbracket t'\rrbracket=n`. (3) Theorem 36.2 at type Nat, applied to the closed term $`t'`, gives $`t'\Downarrow\overline{n}`. The converse is (1)–(3) with $`t` and $`t'` exchanged. $`\square`
 
@@ -117,3 +117,13 @@ number := false
 *Further problem.* Induct on $`n` with $`Q(n)\coloneqq\forall u,\ (u\Downarrow\overline{n})\Rightarrow A\ u\ \overline{0}\Downarrow\overline{n}`. Unfold $`A` with B-Fix and B-App as in lines 1–4 of Session 35, §35.2, and apply B-App twice. It remains to derive $`\mathsf{if}\ \mathsf{iszero}\ u\ \mathsf{then}\ \overline{0}\ \mathsf{else}\ \mathsf{succ}\ (A\ (\mathsf{pred}\ u)\ \overline{0})\Downarrow\overline{n}`. For $`n=0`, B-IszeroZero and B-IfTrue with $`\overline{0}\Downarrow\overline{0}` give it. For $`n+1`, B-IszeroSucc gives the guard $`\mathsf{false}` and B-PredSucc gives $`\mathsf{pred}\ u\Downarrow\overline{n}`. $`Q(n)` gives $`A\ (\mathsf{pred}\ u)\ \overline{0}\Downarrow\overline{n}`, and B-Succ and B-IfFalse give the result $`\overline{n+1}`. With Lemma 38.1, $`\llbracket A\ u\ \overline{0}\rrbracket=a(\llbracket u\rrbracket)(0)=\llbracket u\rrbracket`, and Corollary 38.2 gives both directions at once, with no strengthened induction. The operational proof gives one direction and builds the derivation.
 
 *Further reading.* G. D. Plotkin, “LCF considered as a programming language”, _Theoretical Computer Science_ 5 (1977), defines PCF, proves adequacy, and shows with parallel or that the semantics is not fully abstract. The same paper shows that adding a parallel conditional to the language makes the semantics fully abstract. The Cambridge notes treat the question in their chapter on full abstraction. Pierce, _Types and Programming Languages_, §12.1, proves that every well-typed term of the simply typed lambda calculus evaluates to a value. Its proof defines, by induction on types, a set of terms for each type, and the arrow clause quantifies over the arguments in the set at the argument type, as Definition 36.3 does for related pairs. PCF has no such theorem, because $`\Omega` has no evaluation.
+
+# Sources and Formalization
+%%%
+tag := "ch38-notes"
+number := false
+%%%
+
+* *Theorem 36.2.* Restated from Session 36; see [its notes](chapter-36/index.html#ch36-notes).
+* *Lemma 38.1.* Formulated in this book. Paper proof only ([§38.1](chapter-38/index.html#ch38-s1)).
+* *Corollary 38.2.* Formulated in this book. Paper proof only ([§38.2](chapter-38/index.html#ch38-s2)).

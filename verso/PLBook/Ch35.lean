@@ -10,7 +10,7 @@ file := "chapter-35"
 
 * *Definitions.* Types, terms, values, typing rules and the substitution $`[x\mapsto s]t` of the [Lambda language card C.2–C.3](lambda-card/index.html#lambda-c2), without Unit. Call by name ([C.1](lambda-card/index.html#lambda-c1)) and canonical forms ([C.8](lambda-card/index.html#lambda-c8), Row 1). The substitution and permutation lemmas for typing ([Session 25](chapter-25/index.html)). Derivations and their height ([Session 1, §1.4](chapter-01/index.html#ch01-s4); [Session 2, §2.4](chapter-02/index.html#ch02-s4)). Bottom $`\bot`, the order $`\sqsubseteq` and least upper bounds $`\bigsqcup` ([Session 8](chapter-08/index.html)). Domains, continuous functions, flat domains, function domains ordered pointwise, and the least fixed point $`\mathrm{lfp}(f)=\bigsqcup_{j}f^j(\bot)` of a continuous function $`f`, which satisfies $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)` ([Session 34](chapter-34/index.html)). PCF itself is defined in Definitions 35.1–35.5.
 * *New terms.* PCF, numeral, recursion operator, soundness of evaluation. [Glossary and label key](glossary/index.html)
-* *Theorem 35.8 \[Paper proof only: proof in this section\].* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
+* *Theorem 35.8 (Soundness of evaluation).* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
 * *Source.* Cambridge _Denotational Semantics_ lecture notes, §5.2 and chapter 6. They define PCF, its evaluation relation and its denotational semantics, and prove that evaluation is sound, which is Theorem 35.8. We use their rules and semantic clauses and write terms in the notation of the Lambda language card. The countdown example and Proposition 35.6 are this book’s. [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* B-Fix. First derive $`K\ \overline{1}\Downarrow 0` for the countdown $`K` (§35.2) and compute its approximations $`g_0,g_1,g_2` at the inputs 0 and 1 (§35.3). Then prove the B-Fix case and read it at line 4 of the derivation, where B-Fix is used.
 * *Proof outline.* Induct on the derivation $`D` of $`t\Downarrow v` with $`P(D)\coloneqq\llbracket t\rrbracket=\llbracket v\rrbracket`. In each case compute $`\llbracket t\rrbracket` by the clause of Definition 35.5 for the conclusion, and apply the induction hypotheses to the premises. B-App uses Lemma 35.7 (substitution). B-Fix uses the fixed-point equation $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)`.
@@ -130,7 +130,7 @@ $$`\begin{array}{c|cccc} j & g_j(\bot) & g_j(0) & g_j(1) & g_j(2)\\ \hline 0 & \
 
 The first answer at input 1 appears at stage 2. The derivation of $`K\ \overline{1}\Downarrow 0` in §35.2 used B-Fix twice.
 
-*Proposition 35.6 (Approximations of the countdown) \[This book\] \[Paper proof only: proof in this section\].* For every natural number $`j`, $`g_j(\bot)=\bot`, and for every natural number $`k`, $`g_j(k)=0` if $`k<j` and $`g_j(k)=\bot` if $`k\ge j`. Consequently $`\llbracket K\rrbracket(\bot)=\bot`, and $`\llbracket K\ \overline{k}\rrbracket=\llbracket K\rrbracket(k)=0` for every natural number $`k`.
+*Proposition 35.6 (Approximations of the countdown).* For every natural number $`j`, $`g_j(\bot)=\bot`, and for every natural number $`k`, $`g_j(k)=0` if $`k<j` and $`g_j(k)=\bot` if $`k\ge j`. Consequently $`\llbracket K\rrbracket(\bot)=\bot`, and $`\llbracket K\ \overline{k}\rrbracket=\llbracket K\rrbracket(k)=0` for every natural number $`k`.
 
 *Proof.* By induction on $`j` with the property
 
@@ -147,7 +147,7 @@ tag := "ch35-s4"
 
 Proposition 35.6 gives $`\llbracket K\ \overline{1}\rrbracket=0`, and §35.2 derives $`K\ \overline{1}\Downarrow 0`. The two computations agree. Theorem 35.8 says that they always agree. Its B-App case needs one lemma. For example, substituting $`\overline{2}` for $`x` in $`\mathsf{succ}\ x` gives $`\llbracket\mathsf{succ}\ \overline{2}\rrbracket=3`, and the meaning of $`\mathsf{succ}\ x` in an environment that maps $`x` to $`\llbracket\overline{2}\rrbracket=2` is also $`3`.
 
-*Lemma 35.7 (Substitution) \[Paper proof only: proof in this section\].* Let $`\Gamma,x{:}S\vdash t:T` and $`\vdash s:S`. Then for every environment $`\rho` for $`\Gamma`,
+*Lemma 35.7 (Substitution).* Let $`\Gamma,x{:}S\vdash t:T` and $`\vdash s:S`. Then for every environment $`\rho` for $`\Gamma`,
 
 $$`\llbracket[x\mapsto s]t\rrbracket\rho=\llbracket t\rrbracket(\rho[x\mapsto\llbracket s\rrbracket]).`
 
@@ -155,7 +155,7 @@ The left side is defined because $`\Gamma\vdash[x\mapsto s]t:T` by the substitut
 
 *Proof.* By induction on $`t`, with the property $`\forall\Gamma,T,\rho,\ (\Gamma,x{:}S\vdash t:T)\Rightarrow\llbracket[x\mapsto s]t\rrbracket\rho=\llbracket t\rrbracket(\rho[x\mapsto\llbracket s\rrbracket])`. If $`t=x`, both sides are $`\llbracket s\rrbracket`, because $`s` is closed. If $`t` is another variable $`y`, both sides are $`\rho(y)`. If $`t=\lambda y{:}T_1.t_2`, rename $`y` so that $`y\neq x`; since $`s` is closed, no other renaming is needed. At each $`d\in\llbracket T_1\rrbracket` the left side gives $`\llbracket[x\mapsto s]t_2\rrbracket(\rho[y\mapsto d])`. Apply the induction hypothesis for $`t_2` with the context $`\Gamma,y{:}T_1` (permuting the bindings, Session 25) and the environment $`\rho[y\mapsto d]`. It gives $`\llbracket t_2\rrbracket(\rho[y\mapsto d][x\mapsto\llbracket s\rrbracket])`. Updates at the distinct variables $`x` and $`y` commute, so this is the right side at $`d`. Every other form binds no variable. Substitution acts on each immediate subterm, and the clause for the form combines the meanings of the immediate subterms in the same environment. Apply the induction hypothesis to each immediate subterm. $`\square`
 
-*Theorem 35.8 (Soundness of evaluation) \[Paper proof only: proof in this section\].* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
+*Theorem 35.8 (Soundness of evaluation).* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
 
 We prove $`P(D)` for every derivation $`D`, by induction on $`D`. For $`D` with conclusion $`t\Downarrow v`, the induction property is
 
@@ -237,3 +237,13 @@ number := false
 *Further reading · Different approximations, the same limit.* Replace the conditional in $`G` by $`\mathsf{if}\ \mathsf{iszero}\ x\ \mathsf{then}\ 0\ \mathsf{else}\ 0`. The new functional ignores its argument $`g`, so its approximation at stage 1 is already its least fixed point, which equals $`\llbracket K\rrbracket`. The countdown first answers at input $`k` only at stage $`k+1`. Equal meanings can have different increasing sequences of approximations. In the other direction, $`\lambda y{:}\mathsf{Nat}.\Omega` evaluates to itself, yet its application to $`0` has no evaluation. An evaluation to an abstraction says nothing about its applications, which is why Sessions 36–37 describe a function term by the evaluations of its applications.
 
 *Further reading · Sources.* The Cambridge notes, chapter 6, also prove that meanings are compositional and use soundness to compare programs in all contexts. PCF comes from G. D. Plotkin, “LCF considered as a programming language”, _Theoretical Computer Science_ 5 (1977). Pierce, _Types and Programming Languages_, §11.11, adds $`\mathsf{fix}` to a call-by-value language with small-step rules. [Cambridge notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
+
+# Sources and Formalization
+%%%
+tag := "ch35-notes"
+number := false
+%%%
+
+* *Proposition 35.6.* Formulated in this book. Paper proof only (proof in [§35.3](chapter-35/index.html#ch35-s3)).
+* *Lemma 35.7.* Source: Cambridge notes, Proposition 27. Paper proof only (proof in [§35.4](chapter-35/index.html#ch35-s4)).
+* *Theorem 35.8.* Source: Cambridge notes, Theorem 28. Paper proof only (proof in [§35.4](chapter-35/index.html#ch35-s4)).

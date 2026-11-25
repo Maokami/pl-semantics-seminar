@@ -10,7 +10,7 @@ file := "chapter-31"
 
 * *Definitions.* The typed language of Session 31 ([Lambda language card](lambda-card/index.html)). This session uses Bool and Nat ([C.2](lambda-card/index.html#lambda-c2)), functions and Unit ([C.3](lambda-card/index.html#lambda-c3)), pairs and projections ([C.4](lambda-card/index.html#lambda-c4)), and everything in [C.7](lambda-card/index.html#lambda-c7): type variables in contexts, well-formed types, the substitution $`[X\mapsto S]T` and its action on terms, and the rules E-TApp, E-TappTabs, E-Pack, E-Unpack, E-UnpackPack, T-TAbs, T-TApp, T-Pack and T-Unpack. Inversion of typing ([Session 26, Lemma 26.1](chapter-26/index.html#ch26-s1)). The substitution lemma ([Session 25, Theorem 25.5](chapter-25/index.html#ch25-s3)). Store typings ([C.6](lambda-card/index.html#lambda-c6)). The safety table and its Rows 1–5 ([C.8](lambda-card/index.html#lambda-c8)).
 * *New terms.* Type abstraction, universal type, existential type, abstract type, escape condition. [Glossary and label key](glossary/index.html)
-* *Propositions 31.1–31.3 \[This book\] \[Paper proof only: derivations in §§31.1–31.3\].* Let $`\mathit{twice}=\lambda X.\lambda f{:}X\to X.\lambda x{:}X.f\ (f\ x)`, and let $`\mathit{counter}` and $`\mathit{Counter}` be as in §31.2. (31.1) $`\vdash\mathit{twice}:\forall X.(X\to X)\to X\to X`, $`\vdash\mathit{twice}\ [\mathsf{Nat}]:(\mathsf{Nat}\to\mathsf{Nat})\to\mathsf{Nat}\to\mathsf{Nat}`, and $`\mathit{twice}\ [\mathsf{Nat}]\to\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.\lambda x{:}\mathsf{Nat}.f\ (f\ x)`. (31.2) The client $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)` satisfies $`\vdash\mathit{client}:\mathsf{Nat}`, and its first step is by E-UnpackPack. (31.3) There is no type $`T` with $`\vdash\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1:T`.
+* *Proposition 31.1 (Typing and instantiating twice), Proposition 31.2 (Opening the counter) and Proposition 31.3 (The escape condition rejects a client).* Let $`\mathit{twice}=\lambda X.\lambda f{:}X\to X.\lambda x{:}X.f\ (f\ x)`, and let $`\mathit{counter}` and $`\mathit{Counter}` be as in §31.2. (31.1) $`\vdash\mathit{twice}:\forall X.(X\to X)\to X\to X`, $`\vdash\mathit{twice}\ [\mathsf{Nat}]:(\mathsf{Nat}\to\mathsf{Nat})\to\mathsf{Nat}\to\mathsf{Nat}`, and $`\mathit{twice}\ [\mathsf{Nat}]\to\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.\lambda x{:}\mathsf{Nat}.f\ (f\ x)`. (31.2) The client $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)` satisfies $`\vdash\mathit{client}:\mathsf{Nat}`, and its first step is by E-UnpackPack. (31.3) There is no type $`T` with $`\vdash\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1:T`.
 * *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL). The rules of C.7 for universal types are those of System F (§23.3), and §23.5 states progress and preservation for System F. The rules for existential types are those of §24.1, and §24.2 uses them to build a counter as an abstract data type. TAPL’s counter uses records. This book’s counter is written with pairs. TAPL’s examples in §23.4 include $`\mathit{twice}` under the name double. TAPL obtains the escape condition from the scope of $`X`, and C.7 writes it as a premise of T-Unpack. Theorem 31.5 states Row 6 of the safety table without proof. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Three computations. (1) Derive the type of $`\mathit{twice}` in seven numbered lines, instantiate it at Nat by T-TApp, and take the step by E-TappTabs (§31.1). (2) Type the counter by T-Pack, type the body of $`\mathit{client}` under the context $`X,\ c{:}X\times((X\to X)\times(X\to\mathsf{Nat}))`, close with T-Unpack, and take the step by E-UnpackPack (§31.2). (3) Show by inversion that the body $`c.1` has type $`X`, so the escape condition of T-Unpack fails (§31.3).
 * *Proof outline.* For each form of term exactly one typing rule has a conclusion of that form. A derivation is therefore built from the outermost form of the term inward, and inversion reads it back. Each step is one computation rule that substitutes a type for a type variable: E-TappTabs for a type application, E-UnpackPack for an unpacking. For Proposition 31.3, inversion forces the last rule to be T-Unpack and the type of the body to be $`X`. Lemma 31.4 (type substitution) and Theorem 31.5 (Row 6: canonical forms, progress, preservation) are stated without proof.
@@ -39,7 +39,7 @@ $$`\mathit{id}\ [\mathsf{Nat}]\ 0\ \to\ (\lambda x{:}\mathsf{Nat}.x)\ 0\ \to\ 0.
 
 The first step is E-TappTabs, lifted by E-App1. It replaces a type variable in an annotation. The second step is E-AppAbs. It replaces a term variable in the body.
 
-*Proposition 31.1 (Typing and instantiating twice) \[This book\] \[Paper proof only: derivation in this section\].*
+*Proposition 31.1 (Typing and instantiating twice).*
 
 * (a) $`\vdash\mathit{twice}:\forall X.(X\to X)\to X\to X`.
 * (b) $`\vdash\mathit{twice}\ [\mathsf{Nat}]:(\mathsf{Nat}\to\mathsf{Nat})\to\mathsf{Nat}\to\mathsf{Nat}`.
@@ -87,7 +87,7 @@ $$`T_{\mathrm c}=X\times((X\to X)\times(X\to\mathsf{Nat})),\qquad\mathit{Counter
 
 For a term $`c` of type $`T_{\mathrm c}`, the start value is $`c.1`, the increment is $`c.2.1` and the read operation is $`c.2.2`. Projections associate to the left, so $`c.2.1` is $`(c.2).1`. The representation type of $`\mathit{counter}` is Nat, and the type $`\mathit{Counter}` hides it.
 
-*Proposition 31.2 (Opening the counter) \[This book\] \[Paper proof only: derivation in this section\].* Let $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)`.
+*Proposition 31.2 (Opening the counter).* Let $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)`.
 
 * (a) $`\vdash\mathit{counter}:\mathit{Counter}`.
 * (b) $`\vdash\mathit{client}:\mathsf{Nat}`.
@@ -126,7 +126,7 @@ tag := "ch31-s3"
 
 Opening a package gives the client a name $`X` for the representation type, valid inside the body. The escape condition keeps this name from leaving the body in the type of the result.
 
-*Proposition 31.3 (The escape condition rejects a client) \[This book\] \[Paper proof only: proof in this section\].* Let $`\mathit{leak}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1`. There is no type $`T` with $`\vdash\mathit{leak}:T`.
+*Proposition 31.3 (The escape condition rejects a client).* Let $`\mathit{leak}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1`. There is no type $`T` with $`\vdash\mathit{leak}:T`.
 
 *Proof (board case).* We must show that no derivation $`D` of $`\vdash\mathit{leak}:T` exists, for any type $`T`. Suppose $`D` is such a derivation.
 
@@ -146,11 +146,11 @@ Drop the escape condition from T-Unpack. Then $`\mathsf{let}\ \{X,d\}=p_{\mathsf
 
 *The safety table.* The steps of Propositions 31.1 and 31.2 kept the type. In line 10 of Proposition 31.1, the derivation of the result came from the derivation of the body by putting Nat in place of $`X`. The next lemma does this in general. It carries the store typing $`\Sigma` of [C.6](lambda-card/index.html#lambda-c6), since the typed language of this session includes references.
 
-*Lemma 31.4 (Type substitution) \[This book\] \[Paper proof only: sketch in Solutions and Further Reading\].* For all contexts $`\Gamma`, sequences of bindings $`\Delta`, store typings $`\Sigma`, terms $`t`, types $`S,T` and type variables $`X`: if $`\Gamma,X,\Delta\mid\Sigma\vdash t:T` and $`S` is well formed in $`\Gamma`, then $`\Gamma,[X\mapsto S]\Delta\mid\Sigma\vdash[X\mapsto S]t:[X\mapsto S]T`. Here $`[X\mapsto S]\Delta` substitutes in the types of $`\Delta`.
+*Lemma 31.4 (Type substitution).* For all contexts $`\Gamma`, sequences of bindings $`\Delta`, store typings $`\Sigma`, terms $`t`, types $`S,T` and type variables $`X`: if $`\Gamma,X,\Delta\mid\Sigma\vdash t:T` and $`S` is well formed in $`\Gamma`, then $`\Gamma,[X\mapsto S]\Delta\mid\Sigma\vdash[X\mapsto S]t:[X\mapsto S]T`. Here $`[X\mapsto S]\Delta` substitutes in the types of $`\Delta`.
 
 In line 10 of Proposition 31.1, $`\Gamma` and $`\Delta` are empty, $`\Sigma=\varnothing`, $`S=\mathsf{Nat}`, and the premise is line 6. In an unpacking, $`\Delta` is the binding $`x{:}T_{12}` of the package’s term variable.
 
-*Theorem 31.5 (Row 6 · Universal and existential types) \[Corresponding: TAPL §§23.5, 24.1\] \[Paper proof only: TAPL §§23.5, 24.1\].* The entries are read as in [C.8](lambda-card/index.html#lambda-c8). This session states them without proof.
+*Theorem 31.5 (Row 6 · Universal and existential types).* The entries are read as in [C.8](lambda-card/index.html#lambda-c8). This session states them without proof.
 
 * *Canonical forms.* If $`v` is a value and $`\varnothing\mid\Sigma\vdash v:\forall X.T_{12}`, then $`v=\lambda X.t_{12}` for some $`t_{12}`. If $`v` is a value and $`\varnothing\mid\Sigma\vdash v:\{\exists X,T_{12}\}`, then $`v=\{{*}T_{11},v_{12}\}\ \mathsf{as}\ \{\exists X,T_{12}\}` for a type $`T_{11}` and a value $`v_{12}`.
 * *Progress.* T-TAbs: the term is a value. T-TApp: steps by E-TApp or E-TappTabs. T-Pack: the term is a value or steps by E-Pack. T-Unpack: steps by E-Unpack or E-UnpackPack.
@@ -235,3 +235,15 @@ where $`\Gamma_D`, $`\Sigma`, $`t` and $`T` are read from the conclusion of $`D`
 *Further reading · Church encodings.* System F can define Booleans and numbers from functions and type abstraction alone (TAPL §23.4). The values $`\lambda X.\lambda x{:}X.\lambda y{:}X.x` and $`\lambda X.\lambda x{:}X.\lambda y{:}X.y` of type $`\forall X.X\to X\to X` select the first or the second of two arguments and play the roles of true and false. The type $`\mathit{CNat}=\forall X.(X\to X)\to X\to X` encodes numbers: the number $`n` is $`\lambda X.\lambda f{:}X\to X.\lambda x{:}X.f\ (\cdots(f\ x))` with $`n` applications of $`f`. So $`\mathit{twice}` encodes 2, and Exercise 31.1(a) converts it to the numeric value $`\mathsf{succ}\ (\mathsf{succ}\ 0)`. The successor is $`\lambda n{:}\mathit{CNat}.\lambda X.\lambda f{:}X\to X.\lambda x{:}X.f\ (n\ [X]\ f\ x)`.
 
 *Further reading · Two implementations.* Two packages of type $`\mathit{Counter}` may use different representation types. [Session 33](chapter-33/index.html) asks when no client can tell two such packages apart. TAPL §24.2 develops abstract data types with existential types, using records.
+
+# Sources and Formalization
+%%%
+tag := "ch31-notes"
+number := false
+%%%
+
+* *Proposition 31.1.* Formulated in this book. Paper proof only (derivation in [§31.1](chapter-31/index.html#ch31-s1)).
+* *Proposition 31.2.* Formulated in this book. Paper proof only (derivation in [§31.2](chapter-31/index.html#ch31-s2)).
+* *Proposition 31.3.* Formulated in this book. Paper proof only (proof in [§31.3](chapter-31/index.html#ch31-s3)).
+* *Lemma 31.4.* Formulated in this book. Paper proof only (sketch in [Solutions and Further Reading](chapter-31/index.html#ch31-s6)).
+* *Theorem 31.5.* Corresponds to TAPL §§23.5, 24.1. Paper proof only (stated without proof here; see TAPL §§23.5, 24.1).

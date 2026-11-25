@@ -10,7 +10,7 @@ file := "chapter-22"
 
 * *Definitions.* Untyped lambda terms, free variables $`\mathrm{FV}`, closed terms, alpha-equivalence and the substitution $`[x\mapsto s]t` ([Lambda language card C.1](lambda-card/index.html#lambda-c1)). Occurrences, binders and their scope ([Session 1, §1.3](chapter-01/index.html#ch01-s3)).
 * *New terms.* Alpha-equivalence, capture, fresh variable, capture-avoiding substitution, size of a term. [Glossary and label key](glossary/index.html)
-* *Theorem 22.3 \[This book\] \[Paper proof only: §22.3\].* For all terms $`t,s` and every variable $`x`, if $`x\in\mathrm{FV}(t)` then $`\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`.
+* *Theorem 22.3 (Free variables after substitution).* For all terms $`t,s` and every variable $`x`, if $`x\in\mathrm{FV}(t)` then $`\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`.
 * *Source.* Terms, free variables and capture-avoiding substitution are those of Pierce, _Types and Programming Languages_ (TAPL), §5.3, as recorded in C.1. TAPL treats alpha-equivalent terms as interchangeable by convention. Lemmas 22.1 and 22.2, Theorem 22.3 and Corollary 22.4 are stated and proved here for these definitions. [Source sections](lambda-card/index.html#lambda-sources)
 * *Board case.* Abstraction with renaming: $`t=\lambda y.t_1` with $`y\in\mathrm{FV}(s)`. Rename $`y` to a fresh $`z`. Lemma 22.1 shows that the renamed body has the size of $`t_1` and the same free variables apart from $`y` and $`z`. Apply the induction hypothesis to the renamed body.
 * *Proof outline.* Fix $`x` and $`s`. Prove $`P(t)\coloneqq x\in\mathrm{FV}(t)\Rightarrow\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)` by induction on the size of $`t`. Variable: $`t=x`. Application: the induction hypothesis for each part that contains $`x`, and Lemma 22.2 for a part that does not. Abstraction $`\lambda y.t_1`: here $`y\neq x`. If $`y\notin\mathrm{FV}(s)`, apply the hypothesis to $`t_1`. Otherwise apply it to the renamed body, which is not a subterm but has the same size as $`t_1`.
@@ -39,7 +39,7 @@ $$`\mathrm{size}(x)=1\qquad\mathrm{size}(\lambda x.t_1)=1+\mathrm{size}(t_1)\qqu
 
 For example, $`\mathrm{size}(\lambda y.x\,y)=4`. Renaming $`y` to $`z` in this term gives $`\lambda z.x\,z`. The renamed body $`x\,z` has size 3, like $`x\,y`, and $`\mathrm{FV}(x\,z)\setminus\{z\}=\{x\}=\mathrm{FV}(x\,y)\setminus\{y\}`.
 
-*Lemma 22.1 (Renaming) \[This book\] \[Paper proof only: §22.1\].* Let $`t_1` be a term, let $`y` be a variable, and let $`z\neq y` be a variable that occurs nowhere in $`t_1`. Let $`t_1'` be $`t_1` with every free occurrence of $`y` replaced by $`z`. Then
+*Lemma 22.1 (Renaming).* Let $`t_1` be a term, let $`y` be a variable, and let $`z\neq y` be a variable that occurs nowhere in $`t_1`. Let $`t_1'` be $`t_1` with every free occurrence of $`y` replaced by $`z`. Then
 
 $$`\mathrm{size}(t_1')=\mathrm{size}(t_1)\qquad\text{and}\qquad\mathrm{FV}(t_1')\setminus\{z\}=\mathrm{FV}(t_1)\setminus\{y\}.`
 
@@ -92,11 +92,11 @@ tag := "ch22-s3"
 
 Compare the free variables before and after the opening substitution: $`\mathrm{FV}(\lambda y.x\,y)=\{x\}`, $`\mathrm{FV}(y)=\{y\}` and $`\mathrm{FV}(\lambda z.y\,z)=\{y\}`. The variable $`x` has gone, and the free variables of the inserted term have come in: $`\{y\}=(\{x\}\setminus\{x\})\cup\{y\}`. The longer example of §22.2 gives $`\mathrm{FV}(\lambda w.y\,(\lambda x.w))=\{y\}=(\{x\}\setminus\{x\})\cup\{y\}` in the same way. If $`x` is not free in $`t`, nothing comes in. For example, $`[x\mapsto y](\lambda x.x)=\lambda x.x` has no free variable, although $`\mathrm{FV}(y)=\{y\}`. The two situations give two statements.
 
-*Lemma 22.2 (Absent variable) \[This book\] \[Paper proof only: §22.3\].* For all terms $`t,s` and every variable $`x`, if $`x\notin\mathrm{FV}(t)` then $`[x\mapsto s]t=t`.
+*Lemma 22.2 (Absent variable).* For all terms $`t,s` and every variable $`x`, if $`x\notin\mathrm{FV}(t)` then $`[x\mapsto s]t=t`.
 
 *Proof.* Fix $`x` and $`s`. We prove $`Q(t)\coloneqq x\notin\mathrm{FV}(t)\Rightarrow[x\mapsto s]t=t` by induction on $`\mathrm{size}(t)`, assuming $`Q(t')` for every term $`t'` with $`\mathrm{size}(t')<\mathrm{size}(t)`. Suppose $`x\notin\mathrm{FV}(t)`. If $`t` is a variable, it is not $`x`, and the second equation gives $`t`. If $`t=t_1\,t_2`, then $`x` is free in neither part, and $`Q(t_1)`, $`Q(t_2)` and the fourth equation give $`t_1\,t_2`. Let $`t=\lambda y.t_1`. If $`y\neq x` and $`y\notin\mathrm{FV}(s)`, then $`x\notin\mathrm{FV}(t_1)\setminus\{y\}` and $`x\neq y` give $`x\notin\mathrm{FV}(t_1)`, and the third equation with $`Q(t_1)` gives $`\lambda y.t_1`. Otherwise $`y=x` or $`y\in\mathrm{FV}(s)`, and substitution renames $`y` to a variable $`z` fresh for $`s`, $`t_1` and $`x`. Then $`z\neq y`, so Lemma 22.1 applies. By Lemma 22.1, $`\mathrm{FV}(t_1')\setminus\{z\}=\mathrm{FV}(t_1)\setminus\{y\}=\mathrm{FV}(t)`, which does not contain $`x`. Since $`z\neq x`, also $`x\notin\mathrm{FV}(t_1')`. Lemma 22.1 also gives $`\mathrm{size}(t_1')<\mathrm{size}(t)`. So $`Q(t_1')` gives $`[x\mapsto s](\lambda y.t_1)=\lambda z.t_1'`, which is alpha-equivalent to $`\lambda y.t_1`. $`\square`
 
-*Theorem 22.3 (Free variables after substitution) \[This book\] \[Paper proof only: §22.3\].* For all terms $`t,s` and every variable $`x`, if $`x\in\mathrm{FV}(t)` then
+*Theorem 22.3 (Free variables after substitution).* For all terms $`t,s` and every variable $`x`, if $`x\in\mathrm{FV}(t)` then
 
 $$`\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s).`
 
@@ -136,7 +136,7 @@ The right side is $`(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`.
 
 Each condition on $`z` is used. The conditions $`z\neq x` and $`z\notin\mathrm{FV}(s)` make the third equation applicable in step 2, and $`z\notin\mathrm{FV}(s)` is used again in step 6. That $`z` occurs nowhere in $`t_1` is the hypothesis of Lemma 22.1 in step 3. This completes the induction, and $`P(t)` for every $`t` is Theorem 22.3. $`\square`
 
-*Corollary 22.4 (Closed terms) \[This book\] \[Paper proof only: §22.3\].* For all terms $`t,s` and every variable $`x`, $`\mathrm{FV}([x\mapsto s]t)\subseteq(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`. In particular, if $`\lambda x.t` and $`s` are closed, then $`[x\mapsto s]t` is closed.
+*Corollary 22.4 (Closed terms).* For all terms $`t,s` and every variable $`x`, $`\mathrm{FV}([x\mapsto s]t)\subseteq(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`. In particular, if $`\lambda x.t` and $`s` are closed, then $`[x\mapsto s]t` is closed.
 
 *Proof.* If $`x\in\mathrm{FV}(t)`, Theorem 22.3 gives equality. Otherwise Lemma 22.2 gives $`\mathrm{FV}([x\mapsto s]t)=\mathrm{FV}(t)=\mathrm{FV}(t)\setminus\{x\}`. For the second claim, $`\mathrm{FV}(t)\setminus\{x\}=\mathrm{FV}(\lambda x.t)=\varnothing` and $`\mathrm{FV}(s)=\varnothing`. $`\square`
 
@@ -197,3 +197,14 @@ number := false
 *Further reading · Testing alpha-equivalence.* Traverse two syntax trees in parallel. The constructors must match. Each bound occurrence must refer to the corresponding abstraction on its path, and the free occurrences must have the same names. Exercise 22.5 applies this test. A nameless representation, in which each bound occurrence records how many abstractions lie between it and its own abstraction, makes alpha-equivalent terms identical. Substitution then never renames, and the question of which fresh variable to choose disappears. Pierce develops it in TAPL, chapter 6.
 
 *Further reading · Sources.* TAPL §5.3 defines the terms, free variables and substitution of C.1, and states the convention on alpha-equivalent terms. Reynolds, _Theories of Programming Languages_, §1.4, meets the same issue under the quantifiers of predicate logic. [Session 11, further reading](chapter-11/index.html#ch11-s7) gives an example of it. [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
+
+# Sources and Formalization
+%%%
+tag := "ch22-notes"
+number := false
+%%%
+
+* *Lemma 22.1.* Formulated in this book. Paper proof only ([§22.1](chapter-22/index.html#ch22-s1)).
+* *Lemma 22.2.* Formulated in this book. Paper proof only ([§22.3](chapter-22/index.html#ch22-s3)).
+* *Theorem 22.3.* Formulated in this book. Paper proof only ([§22.3](chapter-22/index.html#ch22-s3)).
+* *Corollary 22.4.* Formulated in this book. Paper proof only ([§22.3](chapter-22/index.html#ch22-s3)).

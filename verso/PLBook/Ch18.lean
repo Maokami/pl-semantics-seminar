@@ -10,8 +10,8 @@ file := "chapter-18"
 
 * *Definitions.* Expressions, guards, commands, $`\mathrm{eval}(e,s)`, $`B(b,s)` and the six execution rules ([IMP language card A.1–A.5](imp-card/index.html#imp-a1); Session 2, Definition 2.1). Sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)) and the assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)). Abstract stores $`A`, the relation “$`A` describes $`s`”, written $`s\in\gamma(A)`, the abstract store $`\{\}` with no entries, the abstract transfer $`f^{\sharp}_{c}(A)`, the loop result $`f^{\sharp}_{W}(A)` with its entry and preservation inclusions ([Session 17, §17.2](chapter-17/index.html#ch17-s2)), and the soundness theorem ([Session 17, Theorem 17.8](chapter-17/index.html#ch17-s3)).
 * *New terms.* Program transformation, constant propagation, constant folding, simplifying constructor, loop-head store. [Glossary and label key](glossary/index.html)
-* *Theorem 18.4 \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, abstract store $`A` and stores $`s,t`, if $`s\in\gamma(A)` and $`s\vdash c\Downarrow t`, then $`s\vdash\mathrm{cp}(A,c)\Downarrow t`.
-* *Source.* Xavier Leroy’s _Compiler Verification_ course, constant propagation (§§8.1–8.3 of its Lean port). The simplifying constructors, the transformation $`\mathrm{cp}`, Lemmas 18.1–18.3 and Theorem 18.4 are taken from there. The abstract stores and the transfer $`f^{\sharp}_{c}(A)` come from the same chapter, as presented in Session 17. \[Corresponding: CS Lemma 10.12\] Nipkow and Klein prove, for a simpler analysis that forgets every variable assigned in a loop body and a transformation that leaves guards unchanged, that the original and the transformed command have the same terminating executions from every store that the table describes. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.2, p. 163](https://concrete-semantics.org/concrete-semantics.pdf#page=173)
+* *Theorem 18.4 (Preservation of terminating executions).* For every command $`c`, abstract store $`A` and stores $`s,t`, if $`s\in\gamma(A)` and $`s\vdash c\Downarrow t`, then $`s\vdash\mathrm{cp}(A,c)\Downarrow t`.
+* *Source.* Xavier Leroy’s _Compiler Verification_ course, constant propagation (§§8.1–8.3 of its Lean port). The simplifying constructors, the transformation $`\mathrm{cp}`, Lemmas 18.1–18.3 and Theorem 18.4 are taken from there. The abstract stores and the transfer $`f^{\sharp}_{c}(A)` come from the same chapter, as presented in Session 17. Nipkow and Klein prove, for a simpler analysis that forgets every variable assigned in a loop body and a transformation that leaves guards unchanged, that the original and the transformed command have the same terminating executions from every store that the table describes. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.2, p. 163](https://concrete-semantics.org/concrete-semantics.pdf#page=173)
 * *Board case.* Conditional. Invert the execution to find the selected branch. Apply that branch’s induction hypothesis at the same abstract store. Lemma 18.2 shows that the transformed guard selects the transformed branch, and Lemma 18.3(a) rebuilds the execution. Five steps.
 * *Proof outline.* Structural induction on $`c` with $`P(c)\coloneqq\forall A,s,t,\ (s\in\gamma(A)\land s\vdash c\Downarrow t)\Rightarrow s\vdash\mathrm{cp}(A,c)\Downarrow t`. The abstract store is quantified inside $`P(c)`, because the sequence case applies the hypothesis for $`c_2` at $`f^{\sharp}_{c_1}(A)` and the loop case applies the hypothesis for the body at the loop-head store. Session 17, Theorem 17.8, shows that the abstract store used to rewrite the rest of the program describes the intermediate store of a sequence and the store after each iteration of a loop. The loop case adds an inner induction on the loop execution.
 * *From Session 17.* Session 17 proved that $`f^{\sharp}_{c}(A)` describes every final store of $`c` from a store described by $`A`. No program was changed. Here the same theorem justifies changing a program. It is applied to the original execution, at the store where the transformed program continues.
@@ -29,7 +29,7 @@ Folding is done by functions that build an expression and simplify it at the sam
 
 *Definition 18.1 (Simplifying constructors).* Six functions build an expression or a guard from its parts: $`e_1\mathbin{\hat+}e_2`, $`e_1\mathbin{\hat-}e_2`, $`e_1\mathbin{\hat=}e_2`, $`e_1\mathbin{\hat\le}e_2`, $`\hat\neg\,b` and $`b_1\mathbin{\hat\land}b_2`. Each returns the plain constructor of A.1 or A.4 applied to its arguments, unless a simplifying equation applies. For literals $`n_1,n_2`, $`n_1\mathbin{\hat+}n_2` and $`n_1\mathbin{\hat-}n_2` are the literals with values $`n_1+n_2` and $`n_1-n_2`. The comparison $`n_1\mathbin{\hat=}n_2` is the guard $`\mathsf{true}` if $`n_1=n_2` and $`\mathsf{false}` otherwise, and $`n_1\mathbin{\hat\le}n_2` likewise. Further, $`\hat\neg\,\mathsf{true}=\mathsf{false}`, $`\hat\neg\,\mathsf{false}=\mathsf{true}`, $`\hat\neg\,\neg b=b`, $`\mathsf{true}\mathbin{\hat\land}b=b\mathbin{\hat\land}\mathsf{true}=b` and $`\mathsf{false}\mathbin{\hat\land}b=b\mathbin{\hat\land}\mathsf{false}=\mathsf{false}`. The arithmetic constructors also drop an added zero and regroup literals: $`e\mathbin{\hat+}0=e`, and $`(x+1)\mathbin{\hat-}(y+1)=x-y`. A function of this kind is a *simplifying constructor*. The complete equations are listed in Solutions and Further Reading. The proofs below use only Lemma 18.1.
 
-*Lemma 18.1 (Simplifying constructors keep values) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every store $`s`, all expressions $`e_1,e_2` and all guards $`b,b_1,b_2`,
+*Lemma 18.1 (Simplifying constructors keep values).* For every store $`s`, all expressions $`e_1,e_2` and all guards $`b,b_1,b_2`,
 
 $$`\begin{aligned}
 \mathrm{eval}(e_1\mathbin{\hat+}e_2,s)&=\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s), & \mathrm{eval}(e_1\mathbin{\hat-}e_2,s)&=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s),\\
@@ -51,7 +51,7 @@ $$`\begin{aligned}
 
 With $`A=\{x\mapsto4\}` this gives $`\mathrm{cp}(A,x+3)=4\mathbin{\hat+}3=7` and $`\mathrm{cp}(A,y+x)=y\mathbin{\hat+}4=y+4`. For guards, $`\mathrm{cp}(A,x\le5)=4\mathbin{\hat\le}5=\mathsf{true}`. With $`\{\}` in place of $`A`, no variable is replaced, and only the simplifying constructors change the expression.
 
-*Lemma 18.2 (Propagation keeps values) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every abstract store $`A` and every store $`s\in\gamma(A)`, $`\mathrm{eval}(\mathrm{cp}(A,e),s)=\mathrm{eval}(e,s)` for every expression $`e`, and $`B(\mathrm{cp}(A,b),s)=B(b,s)` for every guard $`b`.
+*Lemma 18.2 (Propagation keeps values).* For every abstract store $`A` and every store $`s\in\gamma(A)`, $`\mathrm{eval}(\mathrm{cp}(A,e),s)=\mathrm{eval}(e,s)` for every expression $`e`, and $`B(\mathrm{cp}(A,b),s)=B(b,s)` for every guard $`b`.
 
 *Proof.* Fix $`A` and $`s\in\gamma(A)`. Use structural induction on $`e` with $`Q(e)\coloneqq\mathrm{eval}(\mathrm{cp}(A,e),s)=\mathrm{eval}(e,s)`. For a literal, $`\mathrm{cp}(A,n)=n`. For a variable $`x` with an entry $`x\mapsto n` in $`A`, $`\mathrm{eval}(n,s)=n=s(x)`, because $`s` satisfies every entry of $`A`. For a variable without an entry, $`\mathrm{cp}(A,x)=x`. For a sum, the hypotheses are $`Q(e_1)` and $`Q(e_2)`, and
 
@@ -87,7 +87,7 @@ $$`\begin{aligned}
 
 The second command of a sequence is rewritten with the abstract store after the first. Both branches of a conditional are rewritten with the store before it. The guard and the body of a loop are rewritten with $`X`, the result of the transfer of Session 17 for the whole loop, not with the store at loop entry. By the entry and preservation inclusions of [Session 17, §17.2](chapter-17/index.html#ch17-s2) and Theorem 17.8 for the body, $`X` describes the store at every test of the guard on a run that starts in $`\gamma(A)`. We call $`X` the *loop-head store*.
 
-*Lemma 18.3 (Executions of the simplified conditional and loop) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every guard $`b`, all commands $`c,d` and all stores $`s,m,t`:
+*Lemma 18.3 (Executions of the simplified conditional and loop).* For every guard $`b`, all commands $`c,d` and all stores $`s,m,t`:
 
 * (a) Let $`k` be $`c` if $`B(b,s)=\mathsf{true}` and $`d` otherwise. If $`s\vdash k\Downarrow t`, then $`s\vdash\widehat{\mathsf{if}}(b,c,d)\Downarrow t`.
 * (b) If $`B(b,s)=\mathsf{false}`, then $`s\vdash\widehat{\mathsf{while}}(b,c)\Downarrow s`.
@@ -120,7 +120,7 @@ The proof uses Session 17, Theorem 17.8: for every command $`c`, abstract store 
 
 $$`\bigl(s\in\gamma(A)\land s\vdash c\Downarrow t\bigr)\Rightarrow t\in\gamma(f^{\sharp}_{c}(A)).`
 
-*Theorem 18.4 (Preservation of terminating executions) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c`, abstract store $`A` and stores $`s,t`, if $`s\in\gamma(A)` and $`s\vdash c\Downarrow t`, then $`s\vdash\mathrm{cp}(A,c)\Downarrow t`.
+*Theorem 18.4 (Preservation of terminating executions).* For every command $`c`, abstract store $`A` and stores $`s,t`, if $`s\in\gamma(A)` and $`s\vdash c\Downarrow t`, then $`s\vdash\mathrm{cp}(A,c)\Downarrow t`.
 
 We prove $`P(c)` for every command $`c` by structural induction on $`c` (A.4), with the induction property
 
@@ -230,3 +230,14 @@ number := false
 * $`\hat\neg` and $`\hat\land` are given completely in Definition 18.1.
 
 *A coarser analysis.* In _Concrete Semantics_, §10.2, the table after a loop is the table before it with every variable assigned in the body removed. Leroy’s loop-head store can keep more. For $`\mathsf{while}\ b\ \mathsf{do}\ (y:=2;\ x:=x+1)` entered with $`\{y\mapsto2\}`, the loop-head store is $`\{y\mapsto2\}`, because each iteration assigns the same constant to $`y`. The coarser table forgets $`y`. Nipkow and Klein also leave guards unchanged, and fold a sum only when both operands fold to literals. In return they prove that the two commands have the same terminating executions from stores that the table describes, using equivalence of commands under a precondition (CS §10.2.3).
+
+# Sources and Formalization
+%%%
+tag := "ch18-notes"
+number := false
+%%%
+
+* *Lemma 18.1.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 18.2.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 18.3.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 18.4.* Corresponds to CS Lemma 10.12. Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

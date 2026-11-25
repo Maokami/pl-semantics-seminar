@@ -10,8 +10,8 @@ file := "chapter-27"
 
 * *Definitions.* The typed language of Session 27: the terms, values, evaluation rules and typing rules of [C.2–C.4](lambda-card/index.html#lambda-c4). Closed terms, alpha-equivalence, free variables, substitution $`[x\mapsto s]t`, normal forms and $`\to^*` ([C.1](lambda-card/index.html#lambda-c1)). Stuck terms ([C.2](lambda-card/index.html#lambda-c2)). Typing contexts and $`\mathrm{dom}(\Gamma)` ([C.3](lambda-card/index.html#lambda-c3)). The safety statements, the form of the safety table and Rows 1–2 ([C.8](lambda-card/index.html#lambda-c8)). Lemmas 25.1–25.4 and the substitution lemma, Theorem 25.5 ([Session 25](chapter-25/index.html)). Inversion, canonical forms, progress and preservation, and safety for functions: Lemmas 26.1–26.2, Theorem 26.3 and Corollary 26.4 ([Session 26](chapter-26/index.html)). Induction on derivations and on height ([Session 1, §1.5](chapter-01/index.html#ch01-s5); [Session 3, §3.1](chapter-03/index.html#ch03-s1)).
 * *New terms.* Product type, sum type, summand, case term, Curry–Howard correspondence. [Glossary and label key](glossary/index.html)
-* *Theorem 27.3 \[Corresponding: TAPL §9.3\] \[Paper proof only: §§27.2–27.3\].* For the typed language of Session 27: (a) Progress: for every term $`t` and type $`T`, if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (b) Preservation: for every context $`\Gamma`, terms $`t,t'` and type $`T`, if $`\Gamma\vdash t:T` and $`t\to t'`, then $`\Gamma\vdash t':T`.
-* *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL). The rules for pairs are those of §11.6. The rules for sums are those of §11.9, in the form with type annotations. TAPL proves progress and preservation for functions with Booleans in §9.3. Theorem 27.3 has the same form for a language with products and sums, hence the label. §9.4 presents the Curry–Howard correspondence, the subject of §27.5. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+* *Theorem 27.3 (Progress and preservation for products and sums).* For the typed language of Session 27: (a) Progress: for every term $`t` and type $`T`, if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (b) Preservation: for every context $`\Gamma`, terms $`t,t'` and type $`T`, if $`\Gamma\vdash t:T` and $`t\to t'`, then $`\Gamma\vdash t':T`.
+* *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL). The rules for pairs are those of §11.6. The rules for sums are those of §11.9, in the form with type annotations. TAPL proves progress and preservation for functions with Booleans in §9.3. Theorem 27.3 has the same form for a language with products and sums. §9.4 presents the Curry–Howard correspondence, the subject of §27.5. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Preservation for a step by E-CaseInl. Invert T-Case and then T-Inl, compare the left summands, and apply the substitution lemma to the left branch and the injected value.
 * *Proof outline.* Progress: induction on the typing derivation $`D:\Gamma\vdash t:T` with $`P(D)\coloneqq(\Gamma=\varnothing)\Rightarrow\bigl(t\text{ is a value}\vee\exists t',\ t\to t'\bigr)`, as in Session 26. The cases T-Proj1, T-Proj2 and T-Case use the canonical forms of Lemma 27.2. Preservation: induction on the evaluation derivation $`E:t\to t'` with $`Q(E)\coloneqq\forall\Gamma\,\forall T,\ (\Gamma\vdash t:T)\Rightarrow(\Gamma\vdash t':T)`. The congruence cases apply the induction hypothesis at a component of a product, at a summand of a sum, at a product type or at a sum type. E-PairBeta1 and E-PairBeta2 use inversion only. E-CaseInl and E-CaseInr use the substitution lemma, extended to the new rules in Lemma 27.4.
 * *From Session 26.* Session 26 proved progress and preservation for functions and Unit. Here the typed language gains two type constructors, the product $`T_1\times T_2` and the sum $`T_1+T_2`, and six term forms. Each form adds cases to the proofs of Session 26 and entries to a new row of the safety table. The case term binds variables, as an abstraction does, so the lemmas of Session 25 gain a binder case.
@@ -68,7 +68,7 @@ The second premise follows by T-Pair from T-Var and T-IsZero, and the third by T
 
 A proof about all typed terms reads the premises off the conclusion by inversion, as in Session 26. Below the derivation above, $`\mathit{pick}` is a case term, so the last rule must be T-Case. Its first premise gives the injection a sum type. The conclusion of T-Inl writes the annotation and the type with the same $`T_1+T_2`, so the annotation $`\mathsf{Nat}+\mathsf{Bool}` is that sum type.
 
-*Lemma 27.1 (Inversion for products and sums) \[Corresponding: TAPL §9.3\] \[Paper proof only: proof in this section\].* For every context $`\Gamma`, type $`T` and terms $`t_0,t_1,t_2`:
+*Lemma 27.1 (Inversion for products and sums).* For every context $`\Gamma`, type $`T` and terms $`t_0,t_1,t_2`:
 
 1. If $`\Gamma\vdash\{t_1,t_2\}:T`, then $`T=T_1\times T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_1` and $`\Gamma\vdash t_2:T_2`.
 2. If $`\Gamma\vdash t_1.1:T`, then $`\Gamma\vdash t_1:T\times U` for some type $`U`. If $`\Gamma\vdash t_1.2:T`, then $`\Gamma\vdash t_1:U\times T` for some type $`U`.
@@ -86,7 +86,7 @@ tag := "ch27-s2"
 
 The closed term $`(\lambda z{:}\mathsf{Nat}.z).2` is stuck. E-PairBeta2 needs a pair of values, and E-Proj2 needs a step of the abstraction, which is a value. The term has no type: by Lemma 27.1(2) the abstraction would need a product type, but by Lemma 26.1(2) its type is a function type. The closed term $`\mathsf{case}\ \{0,0\}\ \mathsf{of}\ \mathsf{inl}\ x\Rightarrow x\mid\mathsf{inr}\ y\Rightarrow y` is stuck in the same way. E-CaseInl and E-CaseInr need an injection, and E-Case needs a step of the pair, which is a value. By Lemma 27.1(4) the pair would need a sum type, but by Lemma 27.1(1) its type is a product type. Progress must exclude these terms. Its new cases need to know that a value of a product type is a pair and that a value of a sum type is an injection.
 
-*Lemma 27.2 (Canonical forms for products and sums) \[Corresponding: TAPL §9.3\] \[Paper proof only: proof in this section\].* Let $`v` be a value.
+*Lemma 27.2 (Canonical forms for products and sums).* Let $`v` be a value.
 
 1. If $`\vdash v:T_1\times T_2`, then $`v=\{v_1,v_2\}` for values $`v_1,v_2`.
 2. If $`\vdash v:T_1+T_2`, then $`v=\mathsf{inl}\ v_1\ \mathsf{as}\ T_1+T_2` for a value $`v_1`, or $`v=\mathsf{inr}\ v_2\ \mathsf{as}\ T_1+T_2` for a value $`v_2`.
@@ -96,7 +96,7 @@ The closed term $`(\lambda z{:}\mathsf{Nat}.z).2` is stuck. E-PairBeta2 needs a 
 
 The hypothesis that $`v` is a value cannot be dropped: $`\vdash\mathit{pick}:\mathsf{Nat}\times\mathsf{Bool}`, and $`\mathit{pick}` is not a pair.
 
-*Theorem 27.3 (Progress and preservation for products and sums) \[Corresponding: TAPL §9.3\] \[Paper proof only: §§27.2–27.3\].* The following hold for the typed language of Session 27.
+*Theorem 27.3 (Progress and preservation for products and sums).* The following hold for the typed language of Session 27.
 
 * (a) Progress. For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`.
 * (b) Preservation. For every context $`\Gamma`, terms $`t,t'` and type $`T`: if $`\Gamma\vdash t:T` and $`t\to t'`, then $`\Gamma\vdash t':T`.
@@ -136,7 +136,7 @@ $$`\dfrac{\dfrac{x{:}\mathsf{Nat}\in x{:}\mathsf{Nat}}{x{:}\mathsf{Nat}\vdash x:
 
 The right derivation is the left one with each T-Var leaf for $`x` replaced by the derivation of $`\vdash 0:\mathsf{Nat}`, and with the binding $`x{:}\mathsf{Nat}` removed from every context. Session 25 proved that this rebuilding works for the rules of C.2 and C.3. The rules of C.4 need it too.
 
-*Lemma 27.4 (Typing lemmas for products and sums) \[Corresponding: TAPL §9.3\] \[Paper proof only: proof in this section\].* Permutation ([Lemma 25.2](chapter-25/index.html#ch25-s2)), weakening ([Lemma 25.4](chapter-25/index.html#ch25-s2)) and the substitution lemma ([Theorem 25.5](chapter-25/index.html#ch25-s3)) hold for the typed language of Session 27. In particular, for every context $`\Gamma`, variable $`x`, terms $`s,u` and types $`S,T`:
+*Lemma 27.4 (Typing lemmas for products and sums).* Permutation ([Lemma 25.2](chapter-25/index.html#ch25-s2)), weakening ([Lemma 25.4](chapter-25/index.html#ch25-s2)) and the substitution lemma ([Theorem 25.5](chapter-25/index.html#ch25-s3)) hold for the typed language of Session 27. In particular, for every context $`\Gamma`, variable $`x`, terms $`s,u` and types $`S,T`:
 
 $$`\text{if}\quad\Gamma,x{:}S\vdash u:T\quad\text{and}\quad\Gamma\vdash s:S,\quad\text{then}\quad\Gamma\vdash[x\mapsto s]u:T.`
 
@@ -287,3 +287,14 @@ Premise (ii), for the left branch, is not used.
 *More on the Curry–Howard correspondence.* The propositions that have a proof in the sense of §27.5 are those of intuitionistic propositional logic with implication, conjunction and disjunction. Some classical laws are missing. For example, Peirce’s law, “if ($`T` implies $`S`) implies $`T`, then $`T`”, holds in every truth table but has no such proof when $`T` and $`S` are arbitrary propositions. TAPL §9.4 presents the correspondence. Philip Wadler’s “Propositions as Types” (_Communications of the ACM_ 58(12), 2015) tells its history.
 
 TAPL §11.6 defines pairs, §11.9 defines sums, and §9.3 proves the safety theorems for functions. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+
+# Sources and Formalization
+%%%
+tag := "ch27-notes"
+number := false
+%%%
+
+* *Lemma 27.1.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.1](chapter-27/index.html#ch27-s1)).
+* *Lemma 27.2.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.2](chapter-27/index.html#ch27-s2)).
+* *Theorem 27.3.* Corresponds to TAPL §9.3. Paper proof only (§§27.2–27.3).
+* *Lemma 27.4.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.3](chapter-27/index.html#ch27-s3)).

@@ -11,8 +11,8 @@ file := "chapter-01"
 
 * *Definitions.* Arithmetic expressions, stores, the evaluation function and the evaluation judgment (Definitions 1.1–1.3 and 1.5; [IMP language card A.1–A.3](imp-card/index.html)).
 * *New terms.* Inference rule, derivation, inversion, structural induction, induction on derivations. [Glossary and label key](glossary/index.html)
-* *Theorem 1.3 \[This book\] \[Checked\].* For every expression $`e`, store $`s` and integer $`n`, $`s\vdash e\Downarrow n` if and only if $`\mathrm{eval}(e,s)=n`.
-* *Source.* The syntax, stores and evaluation function follow the arithmetic fragment of Leroy’s IMP. The four evaluation rules are formulated here on that syntax. \[Corresponding: Winskel Lemma 5.3\] Winskel identifies the graph of an expression’s meaning with the pairs of stores and integers justified by his rules. [Formalization](imp-card/index.html#imp-sources) · [Winskel, §5.3, pp. 61–62](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
+* *Theorem 1.3 (Correspondence).* For every expression $`e`, store $`s` and integer $`n`, $`s\vdash e\Downarrow n` if and only if $`\mathrm{eval}(e,s)=n`.
+* *Source.* The syntax, stores and evaluation function follow the arithmetic fragment of Leroy’s IMP. The four evaluation rules are formulated here on that syntax. Winskel identifies the graph of an expression’s meaning with the pairs of stores and integers justified by his rules. [Formalization](imp-card/index.html#imp-sources) · [Winskel, §5.3, pp. 61–62](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
 * *Board case.* Addition in both directions. In one direction the two children of a derivation give equalities. In the other the two children of an expression give derivations.
 * *Proof outline.* From a derivation with result $`n`, prove that the evaluator returns $`n` by induction on that derivation. For the converse, construct a derivation of the computed result by structural induction on the expression.
 * *Starting point.* We begin with a finite expression tree and a store that gives values to its variable names.
@@ -78,7 +78,7 @@ An occurrence is one leaf labelled with a variable name. A *binder* introduces a
 
 For $`x-3`, two stores that agree at $`x` give the same answer, whatever values they assign to other names.
 
-*Lemma 1.1 (Coincidence) \[This book\] \[Checked\].* For every $`e \in E` and $`s,t \in \Sigma`,
+*Lemma 1.1 (Coincidence).* For every $`e \in E` and $`s,t \in \Sigma`,
 
 $$`s \rvert_{\operatorname{FV}{(e)}} = t \rvert_{\operatorname{FV}{(e)}}\quad\Longrightarrow\quad\operatorname{eval}\left( {e,s} \right) = \operatorname{eval}\left( {e,t} \right).`
 
@@ -100,7 +100,7 @@ If $`e=e_1-e_2`, $`\mathrm{FV}(e)` is the same union, so the same two applicatio
 $$`\mathrm{eval}(e,s)=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s)
 =\mathrm{eval}(e_1,t)-\mathrm{eval}(e_2,t)=\mathrm{eval}(e,t).\quad\square`
 
-*Corollary 1.2 (Store update) \[This book\] \[Checked\].* For every $`e\in E`, $`s\in\Sigma`, $`x\in V` and $`n\in\mathbb Z` with $`x\notin\mathrm{FV}(e)`,
+*Corollary 1.2 (Store update).* For every $`e\in E`, $`s\in\Sigma`, $`x\in V` and $`n\in\mathbb Z` with $`x\notin\mathrm{FV}(e)`,
 
 $$`\operatorname{eval}\left( {e,s\left\lbrack {x\mapsto n} \right\rbrack} \right) = \operatorname{eval}\left( {e,s} \right).`
 
@@ -117,7 +117,7 @@ Definition 1.3 computes a value. We can also specify which triples of store, exp
 
 The turnstile $`\vdash` separates the input store from the expression being evaluated. In $`s\vdash e\Downarrow n` the result is an integer.
 
-*Definition 1.5 (Evaluation judgment) \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
+*Definition 1.5 (Evaluation judgment).* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
 
 $$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
 
@@ -141,7 +141,7 @@ tag := "ch01-s5"
 
 For fixed $`e` and $`s`, Definition 1.3 supplies an integer. Definition 1.5 gives a test of what can be justified by the rules. The following theorem identifies the set of justifiable results as the singleton containing the computed integer.
 
-*Theorem 1.3 (Correspondence) \[This book\] \[Checked\].* For every $`e \in E`, $`s \in \Sigma`, and $`n \in {\mathbb{Z}}`,
+*Theorem 1.3 (Correspondence).* For every $`e \in E`, $`s \in \Sigma`, and $`n \in {\mathbb{Z}}`,
 
 $$`s \vdash e \Downarrow n\quad\Longleftrightarrow\quad\operatorname{eval}\left( {e,s} \right) = n.`
 
@@ -163,7 +163,7 @@ For subtraction, use the subtraction rule on the same two child judgments. Its r
 
 The final sentence of the reverse proof matters. The induction on syntax produces a derivation whose result is *the computed integer*. The theorem was stated for *any* candidate integer. The given equality identifies the candidate with the result of the constructed derivation. This is where the result of the computation enters the reverse direction.
 
-*Corollary 1.4 (Unique result) \[This book\] \[Checked\].* For every $`e\in E` and $`s\in\Sigma` there is an integer $`n` with $`s\vdash e\Downarrow n`, and if also $`s\vdash e\Downarrow m` then $`n=m`. In words, the evaluation judgment is *total* (every expression has a result in every store) and *deterministic* (it has at most one result).
+*Corollary 1.4 (Unique result).* For every $`e\in E` and $`s\in\Sigma` there is an integer $`n` with $`s\vdash e\Downarrow n`, and if also $`s\vdash e\Downarrow m` then $`n=m`. In words, the evaluation judgment is *total* (every expression has a result in every store) and *deterministic* (it has at most one result).
 
 *Proof.* Take $`n=\mathrm{eval}(e,s)`. The reverse direction of Theorem 1.3 gives $`s\vdash e\Downarrow n`. If $`s\vdash e\Downarrow m`, the forward direction gives $`\mathrm{eval}(e,s)=m`, so $`n=m`. $`\square`
 
@@ -299,3 +299,15 @@ John C. Reynolds, [_Theories of Programming Languages_](https://www.cs.cmu.edu/~
 Benjamin C. Pierce, [_Types and Programming Languages_](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) (MIT Press, 2002), chapter 3, §§3.2–3.3, pp. 26–31. Optional for §1.1 here. Derive the induction cases from Pierce’s grammar, then do the same for Definition 1.1.
 
 Xavier Leroy’s _Compiler Verification_ course, Lean 4 port by Wojciech Różowski. [Arithmetic expressions and free variables](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L14-L60). Optional for §1.3 here. Compare the coincidence proof there with the agreement hypothesis of Lemma 1.1.
+
+# Sources and Formalization
+%%%
+tag := "ch01-notes"
+number := false
+%%%
+
+* *Lemma 1.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Corollary 1.2.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 1.3.* Formulated in this book. Corresponds to Winskel Lemma 5.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Corollary 1.4.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Definition 1.5.* Formulated in this book.

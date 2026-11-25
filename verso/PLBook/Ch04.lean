@@ -11,7 +11,7 @@ file := "chapter-04"
 
 * *Definitions.* The four constructors of IMP expressions and the evaluator of Session 1, Definitions 1.1–1.3. [IMP language card A.1–A.3](imp-card/index.html#imp-a1)
 * *New terms.* Fold, constructor equation. [Glossary](glossary/index.html)
-* *Theorem 4.1 \[This book\] \[Checked\].* For every set $`A` equipped with a literal operation, a variable operation, and two binary operations, exactly one function from expressions to $`A` satisfies the four constructor equations of §4.1.
+* *Theorem 4.1 (Existence and uniqueness of a fold).* For every set $`A` equipped with a literal operation, a variable operation, and two binary operations, exactly one function from expressions to $`A` satisfies the four constructor equations of §4.1.
 * *Source.* The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Sources and proof declarations](imp-card/index.html#imp-sources)
 * *Board case.* At an addition node, use the two induction hypotheses to compare the results of two functions satisfying the same equations.
 * *Proof outline.* Define one function by recursion on finite trees. For every competing function, prove pointwise equality by structural induction.
@@ -50,7 +50,7 @@ Now take the length of each word. Let both leaf operations on the natural number
 tag := "ch04-s2"
 %%%
 
-*Theorem 4.1 (Existence and uniqueness of a fold) \[This book\] \[Checked\].* For every set $`A` and choice of $`L,V_A,P,M` as in §4.1 there is exactly one function $`h:E\to A` satisfying all four constructor equations.
+*Theorem 4.1 (Existence and uniqueness of a fold).* For every set $`A` and choice of $`L,V_A,P,M` as in §4.1 there is exactly one function $`h:E\to A` satisfying all four constructor equations.
 
 *Existence.* Define $`h` by recursion on finite trees. At a literal return $`L(n)`, at a variable return $`V_A(x)`, at an addition apply $`P` to the two child results, and at a subtraction apply $`M` to them in left-to-right order. Each recursive call has smaller tree height, so a result is defined for every tree. The four defining clauses give precisely the four equations.
 
@@ -125,3 +125,11 @@ Swapping the two arguments only in the second coordinate would ask the second pr
 *Further reading.* The organizer’s special lecture [S1 (initial algebras)](static/slides/s1/index.html#/15) gives the categorical formulation of Theorem 4.1. For a comparison with compositional interpretation, see [Reynolds, §§1.1–1.2](https://www.cs.cmu.edu/~jcr/tpl-toc.html).
 
 In Session 14 the result set will consist of functions describing what a compiled instruction sequence does to a stack. Proving that compiled execution and expression evaluation satisfy the same four constructor equations will let us identify them by Theorem 4.1.
+
+# Sources and Formalization
+%%%
+tag := "ch04-notes"
+number := false
+%%%
+
+* *Theorem 4.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

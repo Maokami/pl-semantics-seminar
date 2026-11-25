@@ -10,8 +10,8 @@ file := "chapter-19"
 
 * *Definitions.* Expressions, guards, commands and big-step execution ([IMP language card A.1–A.5](imp-card/index.html)). Free variables $`\mathrm{FV}(e)`, the restriction $`s|_S` and Lemma 1.1 ([Session 1, §1.3](chapter-01/index.html#ch01-s3)). The unfolding $`U` of a loop ([Session 7, Theorem 7.3](chapter-07/index.html#ch07-s2)). Fixed points ([Session 9, §9.3](chapter-09/index.html#ch09-s3)).
 * *New terms.* Live variable, liveness transfer, loop head, post-fixed point, bounded iteration with its fuel and fallback set. [Glossary and label key](glossary/index.html)
-* *Theorem 19.6 \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every guard $`b`, command $`c` and set of names $`L`, let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and $`H=\mathrm{live}(W,L)`. Then (1) $`\mathrm{FV}(b)\subseteq H`, (2) $`L\subseteq H` and (3) $`\mathrm{live}(c,H)\subseteq H`.
-* *Source.* Xavier Leroy’s _Compiler Verification_ course, liveness analysis (§10.1 of the Lean port). Definitions 19.1–19.3 are its definitions, and Lemmas 19.4–19.5 and Theorem 19.6 are its results. The course’s Lean development takes one property of its finite sets as an axiom: a name is in a union exactly when it is in one of the two sets. \[Corresponding: CS §10.4\] Nipkow and Klein define the loop clause as a least fixed point and note that it satisfies the same three inclusions, their constraints (10.1). [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.4, p. 172](https://concrete-semantics.org/concrete-semantics.pdf#page=182)
+* *Theorem 19.6 (Loop-head inclusions).* For every guard $`b`, command $`c` and set of names $`L`, let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and $`H=\mathrm{live}(W,L)`. Then (1) $`\mathrm{FV}(b)\subseteq H`, (2) $`L\subseteq H` and (3) $`\mathrm{live}(c,H)\subseteq H`.
+* *Source.* Xavier Leroy’s _Compiler Verification_ course, liveness analysis (§10.1 of the Lean port). Definitions 19.1–19.3 are its definitions, and Lemmas 19.4–19.5 and Theorem 19.6 are its results. The course’s Lean development takes one property of its finite sets as an axiom: a name is in a union exactly when it is in one of the two sets. Nipkow and Klein define the loop clause as a least fixed point and note that it satisfies the same three inclusions, their constraints (10.1). [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.4, p. 172](https://concrete-semantics.org/concrete-semantics.pdf#page=182)
 * *Board case.* Inclusion (3), $`\mathrm{live}(c,H)\subseteq H`. Lemma 19.4(a) gives two alternatives: the iteration stopped at a post-fixed point of $`F`, or it returned the fallback set $`D`. Prove the inclusion in each.
 * *Proof outline.* Lemma 19.4(a), by induction on the fuel, says that the bounded iteration returns a post-fixed point of $`F` or the fallback set $`D`. At a post-fixed point, $`F(H)\subseteq H` contains all three inclusions, because $`F(H)` is the union of their left-hand sides. At the fallback, $`H=\mathrm{FV}(b)\cup\mathrm{RV}(c)\cup L` contains the first two left-hand sides by definition, and Lemma 19.5, $`\mathrm{live}(c,X)\subseteq\mathrm{RV}(c)\cup X` for every set $`X`, gives the third. Lemma 19.5 is proved by structural induction on the command, with the observed set quantified inside the induction property. Its loop case uses Lemma 19.4(b).
 * *From Session 18.* Sessions 17 and 18 analysed a command forwards: an abstract store before the command gave an abstract store after it. Liveness runs backwards: the names observed after a command give the names needed before it. A loop again needs a set that one more turn of the loop does not enlarge, and a bounded iteration again searches for it. When the fuel runs out, the fallback is now a finite set read off the loop’s syntax.
@@ -110,7 +110,7 @@ tag := "ch19-s3"
 
 In §19.2 the iteration ended with $`F(X_3)\subseteq X_3`. If the fuel had been 2, it would have computed $`X_1` and $`X_2` and then returned $`D` at fuel 0. The first lemma says that these are the only two outcomes.
 
-*Lemma 19.4 (Bounded iteration) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* Let $`F` be a function from sets of names to sets of names and $`D` a set of names. (a) For every natural number $`n` and set $`X`, the set $`R=\mathrm{iter}(F,D,n,X)` satisfies $`F(R)\subseteq R` or $`R=D`. (b) If $`F(X)\subseteq D` for every $`X\subseteq D`, then $`\mathrm{iter}(F,D,20,\varnothing)\subseteq D`.
+*Lemma 19.4 (Bounded iteration).* Let $`F` be a function from sets of names to sets of names and $`D` a set of names. (a) For every natural number $`n` and set $`X`, the set $`R=\mathrm{iter}(F,D,n,X)` satisfies $`F(R)\subseteq R` or $`R=D`. (b) If $`F(X)\subseteq D` for every $`X\subseteq D`, then $`\mathrm{iter}(F,D,20,\varnothing)\subseteq D`.
 
 *Proof.* (a) By induction on $`n`, with the property
 
@@ -126,7 +126,7 @@ For $`n=0` the result is $`D`. For $`n+1`, fix $`X\subseteq D`. If $`F(X)\subset
 
 For the body $`c` of §19.1 and $`L=\{g,y,z\}`, $`\mathrm{live}(c,L)=\{g,x,y\}`, while $`\mathrm{RV}(c)\cup L=\{g,x,y,z\}`. The transfer never invents a name: every name it returns is observed or read by the command.
 
-*Lemma 19.5 (Upper bound) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every command $`c` and every set $`L` of names, $`\mathrm{live}(c,L)\subseteq\mathrm{RV}(c)\cup L`.
+*Lemma 19.5 (Upper bound).* For every command $`c` and every set $`L` of names, $`\mathrm{live}(c,L)\subseteq\mathrm{RV}(c)\cup L`.
 
 *Proof.* By structural induction on $`c`, with the property
 
@@ -138,7 +138,7 @@ $$`P(c_1):\quad\forall X,\quad\mathrm{live}(c_1,X)\subseteq\mathrm{RV}(c_1)\cup 
 
 Let $`F` and $`D` be as in Definition 19.3, so $`D=\mathrm{FV}(b)\cup\mathrm{RV}(c_1)\cup L` is exactly the right-hand side of the claim. By Lemma 19.4(b) it suffices to show $`F(X)\subseteq D` for every $`X\subseteq D`. Fix such an $`X`. $`P(c_1)` at $`X` gives $`\mathrm{live}(c_1,X)\subseteq\mathrm{RV}(c_1)\cup X\subseteq D`. Also $`\mathrm{FV}(b)\subseteq D` and $`L\subseteq D`, so $`F(X)\subseteq D`. Here the hypothesis is used at $`X`, not at $`L`, which is why $`L` is quantified inside $`P(c)`. $`\square`
 
-*Theorem 19.6 (Loop-head inclusions) \[Externally checked: Leroy course, [IMP card references](imp-card/index.html#imp-sources)\].* For every guard $`b`, command $`c` and set $`L` of names, let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and $`H=\mathrm{live}(W,L)`. Then
+*Theorem 19.6 (Loop-head inclusions).* For every guard $`b`, command $`c` and set $`L` of names, let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and $`H=\mathrm{live}(W,L)`. Then
 
 $$`\text{(1)}\ \ \mathrm{FV}(b)\subseteq H,\qquad\text{(2)}\ \ L\subseteq H,\qquad\text{(3)}\ \ \mathrm{live}(c,H)\subseteq H.`
 
@@ -212,3 +212,13 @@ so $`F(X_2)=\{g,z\}\cup\{g,x\}=X_2` and the head set is $`\{g,x,z\}`. The old $`
 *Further reading · Widening.* For the names of a fixed program, a strictly increasing chain of sets can add only finitely many names. An interval analysis of an unbounded counter can instead produce $`[0,0]`, $`[0,1]`, $`[0,2]`, and so on without end. A widening replaces a growing upper endpoint by $`+\infty` to force the iteration to stop, while still covering every reachable value. It answers the convergence problem differently from the fallback set of Definition 19.3. See _Concrete Semantics_, §13.9.
 
 *Further reading · Sources.* Xavier Leroy’s _Compiler Verification_ course, Lean port, §10 (liveness analysis and dead code elimination) and §9.1 (computing fixed points). Nipkow and Klein, _Concrete Semantics_, §§10.3–10.4, pp. 164–177. [Liveness in Leroy’s course](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Deadcode.lean) · [Fixed points in Leroy’s course](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Fixpoints.lean) · [Concrete Semantics, §10.3, p. 164](https://concrete-semantics.org/concrete-semantics.pdf#page=174)
+
+# Sources and Formalization
+%%%
+tag := "ch19-notes"
+number := false
+%%%
+
+* *Lemma 19.4.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Lemma 19.5.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 19.6.* Corresponds to CS §10.4. Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

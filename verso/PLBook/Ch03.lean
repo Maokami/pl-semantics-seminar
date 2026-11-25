@@ -11,8 +11,8 @@ file := "chapter-03"
 
 * *Definitions.* [IMP language card A.1–A.5](imp-card/index.html), especially the six execution rules in A.5.
 * *New terms.* Command determinacy, partial function and its graph. [Glossary and label key](glossary/index.html)
-* *Theorem 3.2 \[This book\] \[Checked\].* For every command $`c` and stores $`s,t,u`, if $`s\vdash c\Downarrow t` and $`s\vdash c\Downarrow u`, then $`t=u`.
-* *Source.* The execution relation is defined by the six big-step rules for commands in Xavier Leroy’s compiler verification course (IMP, as presented in A.5). \[Corresponding: CS Lemma 7.9\] Nipkow and Klein prove the corresponding theorem for their IMP in _Concrete Semantics_, §7.2.5. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Theorem 3.2 (Determinacy).* For every command $`c` and stores $`s,t,u`, if $`s\vdash c\Downarrow t` and $`s\vdash c\Downarrow u`, then $`t=u`.
+* *Source.* The execution relation is defined by the six big-step rules for commands in Xavier Leroy’s compiler verification course (IMP, as presented in A.5). Nipkow and Klein prove the corresponding theorem for their IMP in _Concrete Semantics_, §7.2.5. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Sequencing. Invert the second derivation $`E` and identify the intermediate stores before comparing the final stores.
 * *Proof outline.* For $`D:s\vdash c\Downarrow t`, take $`P(D)\coloneqq\forall u,\ (s\vdash c\Downarrow u)\Rightarrow t=u`. Quantify $`u` inside the induction property so the first induction hypothesis can be applied at the intermediate store and the second at the final store.
 * *From Session 2.* Inverting one sequence derivation gave an intermediate store. Here each derivation supplies its own intermediate store. The first induction hypothesis proves that the two stores are equal.
@@ -53,11 +53,11 @@ Induction on height justifies this principle. For each natural number $`h`, prov
 tag := "ch03-s2"
 %%%
 
-*Lemma 3.1 (Assignment result) \[This book\] \[Checked\].* For all $`s,x,e,t`, if $`s\vdash x:=e\Downarrow t` then $`t=s[x\mapsto\mathrm{eval}(e,s)]`.
+*Lemma 3.1 (Assignment result).* For all $`s,x,e,t`, if $`s\vdash x:=e\Downarrow t` then $`t=s[x\mapsto\mathrm{eval}(e,s)]`.
 
 *Proof.* The assignment rule is the only rule of A.5 whose conclusion has an assignment. So a derivation of $`s\vdash x:=e\Downarrow t` consists of that rule alone, and its conclusion forces $`t=s[x\mapsto\mathrm{eval}(e,s)]`. $`\square`
 
-*Theorem 3.2 (Determinacy) \[This book\] \[Checked\].* For every $`c,s,t,u`, if $`s \vdash c \Downarrow t` and $`s \vdash c \Downarrow u` then $`t = u`.
+*Theorem 3.2 (Determinacy).* For every $`c,s,t,u`, if $`s \vdash c \Downarrow t` and $`s \vdash c \Downarrow u` then $`t = u`.
 
 We prove $`P(D)` for every derivation $`D` by induction on $`D`. The induction property is
 
@@ -163,3 +163,12 @@ The exact condition is that for every store $`s` where the guard is false and ev
 Compare the introduction and elimination of inductive predicates in _The Hitchhiker’s Guide to Logical Verification_, §9.4. When reading a mechanized proof, check which variables remain universally quantified after induction. [Lean course materials.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
 
 *Further reading · Bounded evaluation.* An evaluator that accepts a fuel bound limits the search for a derivation. Suppose it explores at most a specified derivation height and emits a result only upon constructing a complete tree. Increasing the bound can reveal a formerly unavailable result. Once a result has been certified by a tree, no larger successful run from the same inputs can certify a different store. Apply Theorem 3.2 to the two trees to obtain equality of the reported stores. To infer from a failed bounded search that no final store exists, one would also need to know that every possible successful tree fits within the given bound. A bound justified only by the size of the source command cannot supply this fact for loops whose iteration count depends on the input.
+
+# Sources and Formalization
+%%%
+tag := "ch03-notes"
+number := false
+%%%
+
+* *Lemma 3.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 3.2.* Formulated in this book. Corresponds to CS Lemma 7.9. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
