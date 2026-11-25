@@ -10,10 +10,10 @@ file := "chapter-28"
 
 * *Definitions.* Typing rules and typing contexts of [C.2](lambda-card/index.html#lambda-c2) and [C.3](lambda-card/index.html#lambda-c3). From [C.5](lambda-card/index.html#lambda-c5): unannotated terms, types with type variables, the unannotated rule T-Abs, type substitutions, their composition and the order $`\sqsubseteq`, constraint sets, unifiers and principal unifiers, constraint typing, solutions and principal types, the function $`\mathrm{unify}` and the occurs check. Structural induction and induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)).
 * *New terms.* Type substitution, constraint set, principal unifier, occurs check, principal type. [Glossary and label key](glossary/index.html)
-* *Theorem 28.4 (Unification).* For every constraint set $`C`: (a) the computation of $`\mathrm{unify}(C)` terminates; (b) if it returns $`\sigma`, then $`\sigma` unifies $`C`; (c) if $`\sigma'` unifies $`C`, then it returns some $`\sigma` with $`\sigma\sqsubseteq\sigma'`. Hence $`\mathrm{unify}(C)` fails exactly when $`C` has no unifier, and otherwise returns a principal unifier of $`C`.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL): constraint typing in §22.3, unification and its correctness in §22.4, principal types in §22.5, and CT-AbsInf for unannotated abstractions in §22.6. TAPL proves Theorem 28.4 for the same algorithm on the same types, built from type variables, Bool, Nat and $`\to`. TAPL proves the counterparts of Proposition 28.5 and Corollary 28.6 for annotated abstractions. Proposition 28.2 and Lemma 28.3 are this book’s. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-* *Board case.* Two parts. First, generate the constraints of $`u=\lambda f.\lambda x.f\,(f\,x)` and run $`\mathrm{unify}` on them (§28.2, steps 1–8). Second, the variable case of Theorem 28.4(c) (§28.3, steps 1–7): from $`\sigma'X=\sigma'T`, show that $`\sigma'` unifies $`[X\mapsto T]C'`, apply the induction hypothesis, and compare $`\gamma\circ\sigma_1\circ[X\mapsto T]` with $`\sigma'` on each type variable.
-* *Proof outline.* (a) Each recursive call lowers the number of type variables, or keeps it and lowers the total size of the types. (b) and (c) by induction on the number of calls $`k(C)`. For (c) the induction property is $`Q(C)\coloneqq\forall\sigma',\ (\sigma'\text{ unifies }C)\Rightarrow\mathrm{unify}(C)\text{ returns some }\sigma\text{ with }\sigma\sqsubseteq\sigma'`. The variable case uses Lemma 28.3. Failure cannot occur, because a substitution keeps outermost constructors and cannot make a type identical to a larger type containing it.
+* *Theorem 28.3 (Unification).* For every constraint set $`C`: (a) the computation of $`\mathrm{unify}(C)` terminates; (b) if it returns $`\sigma`, then $`\sigma` unifies $`C`; (c) if $`\sigma'` unifies $`C`, then it returns some $`\sigma` with $`\sigma\sqsubseteq\sigma'`. Hence $`\mathrm{unify}(C)` fails exactly when $`C` has no unifier, and otherwise returns a principal unifier of $`C`.
+* *Source.* Pierce, _Types and Programming Languages_ (TAPL): constraint typing in §22.3, unification and its correctness in §22.4, principal types in §22.5, and CT-AbsInf for unannotated abstractions in §22.6. TAPL proves Theorem 28.3 for the same algorithm on the same types, built from type variables, Bool, Nat and $`\to`. TAPL proves the counterparts of Proposition 28.5 and Corollary 28.6 for annotated abstractions. Proposition 28.2 and Lemma 28.4 are this book’s. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+* *Board case.* Two parts. First, generate the constraints of $`u=\lambda f.\lambda x.f\,(f\,x)` and run $`\mathrm{unify}` on them (§28.2, steps 1–8). Second, the variable case of Theorem 28.3(c) (§28.3, steps 1–7): from $`\sigma'X=\sigma'T`, show that $`\sigma'` unifies $`[X\mapsto T]C'`, apply the induction hypothesis, and compare $`\gamma\circ\sigma_1\circ[X\mapsto T]` with $`\sigma'` on each type variable.
+* *Proof outline.* (a) Each recursive call lowers the number of type variables, or keeps it and lowers the total size of the types. (b) and (c) by induction on the number of calls $`k(C)`. For (c) the induction property is $`Q(C)\coloneqq\forall\sigma',\ (\sigma'\text{ unifies }C)\Rightarrow\mathrm{unify}(C)\text{ returns some }\sigma\text{ with }\sigma\sqsubseteq\sigma'`. The variable case uses Lemma 28.4. Failure cannot occur, because a substitution keeps outermost constructors and cannot make a type identical to a larger type containing it.
 * *From Session 27.* Sessions 24–27 typed terms whose abstractions carry their parameter type, and proved that evaluation preserves types. This session asks how a type is found. With annotations, a function computes it (§28.1). Without them, types contain type variables, which stand for types not yet determined. Unit and sums are left out, and products appear only in Exercise 28.4.
 
 The annotation in $`\lambda x{:}\mathsf{Nat}.\mathsf{succ}\ x` tells a checker the type of $`x` before it looks at the body. Erase it. In $`(\lambda x.\mathsf{succ}\ x)\,0` the type of $`x` is still forced, because $`\mathsf{succ}` requires a number. In $`\lambda f.\lambda x.f\,(f\,x)` nothing requires Bool or Nat. The two uses of $`f` force only that the result type of $`f` be its parameter type. This session writes such requirements as equations between types and solves them by unification. The main theorem says that unification fails only when the equations have no unifier, and otherwise returns a unifier from which every other unifier is obtained.
@@ -78,7 +78,7 @@ Here $`C_s=\{X=\mathsf{Nat},\ X\to\mathsf{Nat}=\mathsf{Nat}\to Y\}`. The second 
 
 *Substitutions.* By C.5, $`(\sigma\circ\gamma)T=\sigma(\gamma T)`, so $`\gamma` acts first. Two substitutions are *equal* if they give identical results on every type. A substitution leaves Bool and Nat unchanged and acts on $`S\to T` by acting on $`S` and on $`T`. So, by structural induction on types, two substitutions that agree on every type variable are equal. For example, $`[Y\mapsto\mathsf{Nat}]\circ[X\mapsto\mathsf{Nat}]=[X\mapsto\mathsf{Nat},Y\mapsto\mathsf{Nat}]`. Hence $`[X\mapsto\mathsf{Nat}]\sqsubseteq[X\mapsto\mathsf{Nat},Y\mapsto\mathsf{Nat}]`.
 
-*Running unify.* The function $`\mathrm{unify}` of C.5 selects an equation $`S=T` of $`C`, and $`C'` is the set of the other equations. Any equation may be selected. Fix one rule for this choice, so that $`\mathrm{unify}` is a function. Theorem 28.4 holds for every such rule. On $`C_s`:
+*Running unify.* The function $`\mathrm{unify}` of C.5 selects an equation $`S=T` of $`C`, and $`C'` is the set of the other equations. Any equation may be selected. Fix one rule for this choice, so that $`\mathrm{unify}` is a function. Theorem 28.3 holds for every such rule. On $`C_s`:
 
 $$`\begin{aligned}
 \mathrm{unify}(C_s)&=\mathrm{unify}(\{\mathsf{Nat}\to\mathsf{Nat}=\mathsf{Nat}\to Y\})\circ[X\mapsto\mathsf{Nat}]&&\text{second case, on }X=\mathsf{Nat}\\
@@ -113,7 +113,7 @@ tag := "ch28-s3"
 
 The *size* of a type counts its nodes: $`\mathrm{size}(X)=\mathrm{size}(\mathsf{Bool})=\mathrm{size}(\mathsf{Nat})=1` and $`\mathrm{size}(S\to T)=1+\mathrm{size}(S)+\mathrm{size}(T)`. Let $`\mathrm{size}(C)` be the sum of the sizes of both sides of all equations of $`C`. The *degree* of $`C` is the pair $`(|\mathrm{FV}(C)|,\mathrm{size}(C))`. Pairs are compared lexicographically: one pair is smaller than another if its first component is smaller, or if the first components are equal and its second component is smaller. In the run on $`C_u` the degrees are $`(4,8)`, $`(3,6)`, $`(3,4)`, $`(2,2)` and $`(0,0)`, each smaller than the one before.
 
-*Theorem 28.4 (Unification).* For every constraint set $`C`:
+*Theorem 28.3 (Unification).* For every constraint set $`C`:
 (a) the computation of $`\mathrm{unify}(C)` terminates, by failing or by returning a substitution;
 (b) if $`\mathrm{unify}(C)` returns $`\sigma`, then $`\sigma` unifies $`C`;
 (c) if $`\sigma'` unifies $`C`, then $`\mathrm{unify}(C)` returns a substitution $`\sigma` with $`\sigma\sqsubseteq\sigma'`.
@@ -127,7 +127,7 @@ Let $`k(C)` be the number of calls of $`\mathrm{unify}` in the computation of $`
 
 In the run on $`C_u`, the selected equation $`X=Y\to Z_1` holds under $`\sigma'`: both sides become $`\mathsf{Nat}\to\mathsf{Nat}`. So replacing $`X` by $`Y\to Z_1` before applying $`\sigma'` changes nothing. For example, $`\sigma'([X\mapsto Y\to Z_1](X\to Z_2))=\sigma'((Y\to Z_1)\to Z_2)=(\mathsf{Nat}\to\mathsf{Nat})\to\mathsf{Nat}=\sigma'(X\to Z_2)`.
 
-*Lemma 28.3 (Solved variable).* For every substitution $`\sigma'`, type variable $`X` and types $`T,U`: if $`\sigma'X=\sigma'T`, then $`\sigma'([X\mapsto T]U)=\sigma'U`.
+*Lemma 28.4 (Solved variable).* For every substitution $`\sigma'`, type variable $`X` and types $`T,U`: if $`\sigma'X=\sigma'T`, then $`\sigma'([X\mapsto T]U)=\sigma'U`.
 
 *Proof.* By structural induction on $`U`. If $`U=X`, then $`\sigma'([X\mapsto T]X)=\sigma'T=\sigma'X`. If $`U` is another type variable, Bool or Nat, then $`[X\mapsto T]U=U`. If $`U=U_1\to U_2`, the induction hypotheses for $`U_1` and $`U_2` give $`\sigma'([X\mapsto T]U)=\sigma'([X\mapsto T]U_1)\to\sigma'([X\mapsto T]U_2)=\sigma'U_1\to\sigma'U_2=\sigma'U`. $`\square`
 
@@ -140,7 +140,7 @@ The induction hypothesis is $`Q(C'')` for the set $`C''` of the recursive call. 
 *Variable case.* Suppose $`\mathrm{unify}` selects $`X=T` with $`X\notin\mathrm{FV}(T)`, so the second case applies and $`C=\{X=T\}\cup C'`. We must show that $`\mathrm{unify}(C)` returns some $`\sigma` with $`\sigma\sqsubseteq\sigma'`.
 
 1. $`\sigma'` unifies the selected equation, so $`\sigma'X=\sigma'T`.
-2. Let $`U_1=U_2` be an equation of $`C'`. By Lemma 28.3 with step 1, and since $`\sigma'` unifies $`C'`, $`\sigma'([X\mapsto T]U_1)=\sigma'U_1=\sigma'U_2=\sigma'([X\mapsto T]U_2)`. So $`\sigma'` unifies $`[X\mapsto T]C'`.
+2. Let $`U_1=U_2` be an equation of $`C'`. By Lemma 28.4 with step 1, and since $`\sigma'` unifies $`C'`, $`\sigma'([X\mapsto T]U_1)=\sigma'U_1=\sigma'U_2=\sigma'([X\mapsto T]U_2)`. So $`\sigma'` unifies $`[X\mapsto T]C'`.
 3. The computation of $`\mathrm{unify}(C)` calls $`\mathrm{unify}([X\mapsto T]C')`. Apply the induction hypothesis $`Q([X\mapsto T]C')` to $`\sigma'` and step 2. It gives that $`\mathrm{unify}([X\mapsto T]C')` returns some $`\sigma_1`, and that $`\sigma'=\gamma\circ\sigma_1` for some substitution $`\gamma`.
 4. By the second case of $`\mathrm{unify}`, $`\mathrm{unify}(C)` returns $`\sigma=\sigma_1\circ[X\mapsto T]`. It remains to show $`\sigma'=\gamma\circ\sigma`. We compare both sides on each type variable.
 5. For a type variable $`Z\neq X`: $`(\gamma\circ\sigma)Z=\gamma(\sigma_1([X\mapsto T]Z))=\gamma(\sigma_1Z)=\sigma'Z`, by step 3.
@@ -170,9 +170,9 @@ Part (b) is stated without proof. Its proof gives each fresh type variable the t
 
 *Corollary 28.6 (Principal types).* Let $`\vdash t:S\mid_{\mathcal X}C`. If $`\mathrm{unify}(C)` fails, then $`t` has no type. If $`\mathrm{unify}(C)` returns $`\sigma`, then $`\vdash t:\sigma S`, and for every type $`T` with $`\vdash t:T` there is a substitution $`\gamma` with $`T=\gamma(\sigma S)`. Moreover $`\sigma S` is a principal type of $`t` (C.5).
 
-*Proof.* If $`\vdash t:T`, Proposition 28.5(b) gives a unifier $`\sigma'` of $`C` with $`\sigma'S=T`, so $`\mathrm{unify}(C)` does not fail by Theorem 28.4. If $`\mathrm{unify}(C)` returns $`\sigma`, then $`\sigma` unifies $`C` by Theorem 28.4(b), and $`\vdash t:\sigma S` by Proposition 28.5(a). Given $`\vdash t:T`, take $`\sigma'` as before. Theorem 28.4(c) gives $`\sigma'=\gamma\circ\sigma` for some $`\gamma`, so $`T=\sigma'S=\gamma(\sigma S)`. Finally, every solution $`(\sigma'',T'')` for $`(\varnothing,t,S,C)` has $`\sigma''` unifying $`C`, so $`\sigma\sqsubseteq\sigma''` by Theorem 28.4(c), and $`(\sigma,\sigma S)` is a principal solution. $`\square`
+*Proof.* If $`\vdash t:T`, Proposition 28.5(b) gives a unifier $`\sigma'` of $`C` with $`\sigma'S=T`, so $`\mathrm{unify}(C)` does not fail by Theorem 28.3. If $`\mathrm{unify}(C)` returns $`\sigma`, then $`\sigma` unifies $`C` by Theorem 28.3(b), and $`\vdash t:\sigma S` by Proposition 28.5(a). Given $`\vdash t:T`, take $`\sigma'` as before. Theorem 28.3(c) gives $`\sigma'=\gamma\circ\sigma` for some $`\gamma`, so $`T=\sigma'S=\gamma(\sigma S)`. Finally, every solution $`(\sigma'',T'')` for $`(\varnothing,t,S,C)` has $`\sigma''` unifying $`C`, so $`\sigma\sqsubseteq\sigma''` by Theorem 28.3(c), and $`(\sigma,\sigma S)` is a principal solution. $`\square`
 
-*What is proved and what is stated.* Theorem 28.4 is proved completely in §28.3, and Proposition 28.5(a) above. Proposition 28.5(b) is only stated. The corollary uses it for two claims: that $`t` has no type when $`\mathrm{unify}(C)` fails, and that every type of $`t` is some $`\gamma(\sigma S)`. Its other claims rest on proved results only.
+*What is proved and what is stated.* Theorem 28.3 is proved completely in §28.3, and Proposition 28.5(a) above. Proposition 28.5(b) is only stated. The corollary uses it for two claims: that $`t` has no type when $`\mathrm{unify}(C)` fails, and that every type of $`t` is some $`\gamma(\sigma S)`. Its other claims rest on proved results only.
 
 For annotated terms Proposition 28.2 gives at most one type. An unannotated term can have many: $`\lambda x.x` has types $`\mathsf{Nat}\to\mathsf{Nat}` and $`\mathsf{Bool}\to\mathsf{Bool}`. The principal type takes the place of the unique type, since every type of the term is obtained from it by a substitution.
 
@@ -188,7 +188,7 @@ number := false
 
 *28.3.* Generate the constraints of $`0\ \mathsf{true}` and of $`\lambda x.x\,x`. For each, explain why $`\mathrm{unify}` reaches fail, and name the subcase of “Failure cannot occur” in §28.3 that excludes a unifier.
 
-*28.4.* Add the types $`S\times T` and the product case of C.5 to $`\mathrm{unify}`. Extend the proofs of Lemma 28.3 and of parts (a), (b) and (c) of Theorem 28.4.
+*28.4.* Add the types $`S\times T` and the product case of C.5 to $`\mathrm{unify}`. Extend the proofs of Lemma 28.4 and of parts (a), (b) and (c) of Theorem 28.3.
 
 *Further problem.* Find the principal type of $`\lambda x.\lambda f.f\,(f\,x)`. Can the term have type $`\mathsf{Bool}\to(\mathsf{Bool}\to\mathsf{Nat})\to\mathsf{Nat}`? Locate the equation at which $`\mathrm{unify}` fails, and explain why typing the inner application $`f\,x` alone does not reveal the problem.
 
@@ -202,7 +202,7 @@ number := false
 
 *Joint proof · 30 minutes.* The board case. One person generates $`C_u` for $`u=\lambda f.\lambda x.f\,(f\,x)` and runs $`\mathrm{unify}` (steps 1–8 of §28.2), writing the result as one map. A second writes $`Q(C)` and steps 1–3 of the variable case. A third does steps 4–7, first on the first call of the run on $`C_u` with $`\sigma'` and $`\gamma=[X\mapsto\mathsf{Nat}\to\mathsf{Nat},Z_2\mapsto\mathsf{Nat}]`, then in general.
 
-*Proof review · 20 minutes.* Say which claims of Theorem 28.4, Proposition 28.5 and Corollary 28.6 are proved and which are only stated. Do Exercise 28.3 and match each failure with a subcase of the failure argument. Explain what goes wrong if the occurs check is dropped.
+*Proof review · 20 minutes.* Say which claims of Theorem 28.3, Proposition 28.5 and Corollary 28.6 are proved and which are only stated. Do Exercise 28.3 and match each failure with a subcase of the failure argument. Explain what goes wrong if the occurs check is dropped.
 
 *Facilitator’s hint.* In step 6 the substitution $`[X\mapsto T]` acts first and replaces $`X` by $`T`. Step 1 then turns $`\sigma'T` back into $`\sigma'X`.
 
@@ -218,7 +218,7 @@ number := false
 
 *28.3.* For $`0\ \mathsf{true}`, CT-App with a fresh $`Y` gives $`\{\mathsf{Nat}=\mathsf{Bool}\to Y\}`. Neither side is a type variable and the outermost constructors are Nat and $`\to`, so no case applies. This is subcase (iii). For $`\lambda x.x\,x`, $`x` receives $`X`, and CT-App with a fresh $`Y` gives $`\{X=X\to Y\}`. The occurs check blocks the second case, the third case needs a variable on the right, and the arrow case needs an arrow on the left. This is subcase (i): a unifier $`\sigma'` would need $`\sigma'X=\sigma'(X\to Y)`, whose size is at least $`\mathrm{size}(\sigma'X)+2`.
 
-*28.4.* Let $`\mathrm{size}(S\times T)=1+\mathrm{size}(S)+\mathrm{size}(T)`. Lemma 28.3 and part (b) gain a case written like the arrow case, with $`\times` for $`\to`. (a) The product case adds no type variable and removes two $`\times` nodes. (c) Two product types are identical only if their components are, so $`\sigma'` unifies the new set and the induction hypothesis applies. In the failure argument, $`\times` is one more outermost constructor that substitutions keep, and the size argument of (i) also covers a variable inside a product.
+*28.4.* Let $`\mathrm{size}(S\times T)=1+\mathrm{size}(S)+\mathrm{size}(T)`. Lemma 28.4 and part (b) gain a case written like the arrow case, with $`\times` for $`\to`. (a) The product case adds no type variable and removes two $`\times` nodes. (c) Two product types are identical only if their components are, so $`\sigma'` unifies the new set and the induction hypothesis applies. In the failure argument, $`\times` is one more outermost constructor that substitutions keep, and the size argument of (i) also covers a variable inside a product.
 
 *Further problem.* Give $`x` the type $`X`, $`f` the type $`Y`, and the two applications the fresh $`Z_1` and $`Z_2`. Then $`C=\{Y=X\to Z_1,\ Y=Z_1\to Z_2\}` and the term has type $`X\to Y\to Z_2`. Selecting from left to right, $`\mathrm{unify}` returns $`[Z_1\mapsto Z_2]\circ[X\mapsto Z_1]\circ[Y\mapsto X\to Z_1]`, and the principal type is $`Z_2\to(Z_2\to Z_2)\to Z_2`. By Corollary 28.6 every type of the term has the form $`U\to(U\to U)\to U`, and the demanded type would need $`U=\mathsf{Bool}` and $`U=\mathsf{Nat}`. To locate the failure, add $`X\to Y\to Z_2=\mathsf{Bool}\to(\mathsf{Bool}\to\mathsf{Nat})\to\mathsf{Nat}` to $`C`. The arrow case gives $`X=\mathsf{Bool}`, $`Y=\mathsf{Bool}\to\mathsf{Nat}` and $`Z_2=\mathsf{Nat}`, which turn the two equations for $`f` into $`\mathsf{Bool}\to\mathsf{Nat}=\mathsf{Bool}\to Z_1` and $`\mathsf{Bool}\to\mathsf{Nat}=Z_1\to\mathsf{Nat}`. The first gives $`Z_1=\mathsf{Nat}`, and the second then gives $`\mathsf{Bool}=\mathsf{Nat}`, where $`\mathrm{unify}` fails. The inner application $`f\,x` is well typed with $`x{:}\mathsf{Bool}` and $`f{:}\mathsf{Bool}\to\mathsf{Nat}`. The outer one passes a number to $`f`, whose domain is Bool.
 
@@ -230,7 +230,7 @@ number := false
 
 *Further reading · The occurs check and infinite types.* Subcase (i) of the failure argument rests on types being finite trees. If types could be infinite trees, $`X=X\to Y` would have a unifier mapping $`X` to the infinite tree $`((\cdots\to Y)\to Y)\to Y`. TAPL, chapters 20 and 21, studies such recursive types.
 
-*Further reading · Session 29.* The rule CT-LetGen of C.5 calls $`\mathrm{unify}` on the constraints of the right-hand side of a let, applies the result, and quantifies the type variables that are not free in the context. Session 29 relies on Theorem 28.4 at that step.
+*Further reading · Session 29.* The rule CT-LetGen of C.5 calls $`\mathrm{unify}` on the constraints of the right-hand side of a let, applies the result, and quantifies the type variables that are not free in the context. Session 29 relies on Theorem 28.3 at that step.
 
 # Sources and Formalization
 %%%
@@ -238,8 +238,8 @@ tag := "ch28-notes"
 number := false
 %%%
 
-* *Proposition 28.2.* Formulated in this book. Paper proof only (proof in [§28.1](chapter-28/index.html#ch28-s1)).
-* *Lemma 28.3.* Formulated in this book. Paper proof only (proof in [§28.3](chapter-28/index.html#ch28-s3)).
-* *Theorem 28.4.* Source: TAPL §22.4. Paper proof only (proof in [§28.3](chapter-28/index.html#ch28-s3)).
-* *Proposition 28.5.* Corresponds to TAPL §22.3. Paper proof only (part (a) in [§28.4](chapter-28/index.html#ch28-s4); part (b) for annotated abstractions in TAPL §22.3).
-* *Corollary 28.6.* Corresponds to TAPL §22.5. Paper proof only (proof in [§28.4](chapter-28/index.html#ch28-s4)).
+* *Proposition 28.2.* Formulated in this book. Paper proof only ([§28.1](chapter-28/index.html#ch28-s1)).
+* *Theorem 28.3.* Source: TAPL §22.4. Paper proof only ([§28.3](chapter-28/index.html#ch28-s3)).
+* *Lemma 28.4.* Formulated in this book. Paper proof only ([§28.3](chapter-28/index.html#ch28-s3)).
+* *Proposition 28.5.* Corresponds to TAPL §22.3. Part (a): Paper proof only ([§28.4](chapter-28/index.html#ch28-s4)). Part (b): Paper proof only (TAPL §22.3 for annotated abstractions; no proof in this book).
+* *Corollary 28.6.* Corresponds to TAPL §22.5. Paper proof only ([§28.4](chapter-28/index.html#ch28-s4)).

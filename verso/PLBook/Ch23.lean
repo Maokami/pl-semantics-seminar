@@ -23,7 +23,7 @@ A function may return without using its operand. The term $`(\lambda y.\lambda z
 tag := "ch23-s1"
 %%%
 
-In an application $`t_1\,t_2` we call $`t_1` the *operator* and $`t_2` the *operand*. Let $`\mathsf{id}=\lambda x.x`. The term
+In an application $`t_1\,t_2` we call $`t_1` the *operator* and $`t_2` the *operand*. This operator is a term; the operators of Session 9 are functions on state transformers. Let $`\mathsf{id}=\lambda x.x`. The term
 
 $$`\mathsf{id}\,(\mathsf{id}\,(\lambda z.\mathsf{id}\,z))`
 
@@ -187,6 +187,6 @@ tag := "ch23-notes"
 number := false
 %%%
 
-* *Theorem 23.1.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only (proof in [§23.2](chapter-23/index.html#ch23-s2)).
-* *Proposition 23.2.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only (proof in [§23.2](chapter-23/index.html#ch23-s2)).
-* *Theorem 23.4.* Formulated in this book. Paper proof only (proof in [§23.3](chapter-23/index.html#ch23-s3)).
+* *Theorem 23.1.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only ([§23.2](chapter-23/index.html#ch23-s2)).
+* *Proposition 23.2.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only ([§23.2](chapter-23/index.html#ch23-s2)).
+* *Theorem 23.4.* Formulated in this book. Paper proof only ([§23.3](chapter-23/index.html#ch23-s3)).

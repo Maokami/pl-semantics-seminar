@@ -3,16 +3,16 @@ import PLBook.IMP.Paths
 
 open Verso.Genre Manual
 
-#doc (Manual) "Equivalence of Terminating Evaluations" =>
+#doc (Manual) "Equivalence of Terminating Executions" =>
 %%%
 tag := "ch06"
 file := "chapter-06"
 %%%
 
 * *Definitions.* Terminating execution (Session 2, Definition 2.1), transitions and finite paths (Session 5, Definition 5.1 and Lemma 5.4). [IMP language card A.5–A.6](imp-card/index.html#imp-a5)
-* *New terms.* Sequence context, path lifting. [Glossary](glossary/index.html)
-* *Theorem 6.2 (Equivalence of terminating evaluations).* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
-* *Source.* Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
+* *New terms.* Sequence context, path lifting. [Glossary and label key](glossary/index.html)
+* *Theorem 6.2 (Equivalence of terminating executions).* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
+* *Source.* Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* From an execution tree for $`c_1;c_2`, lift the path for $`c_1` through the suffix $`c_2`, discard the leading skip, and join the path for $`c_2`.
 * *Proof outline.* From a tree, induct on the execution derivation. From a path ending at skip, induct on its length, using Lemma 6.3 to reconstruct the execution before the first edge.
 * *From Session 5.* There we characterized termination by reaching skip. Here we compare that endpoint with the final store certified by a Session 2 execution tree.
@@ -43,7 +43,7 @@ The construction respects concatenation. If a prefix computation has been split 
 tag := "ch06-s2"
 %%%
 
-*Theorem 6.2 (Equivalence of terminating evaluations).* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
+*Theorem 6.2 (Equivalence of terminating executions).* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
 
 For the forward direction, induct on the given execution derivation. For $`D:s\vdash c\Downarrow t` the induction property is
 
@@ -101,7 +101,7 @@ The two stores just mentioned are precisely why Lemma 6.3 is about configuration
 tag := "ch06-s4"
 %%%
 
-The theorem identifies the possible *terminating final stores*. It does not identify the height of a derivation with the length of a path. For two successive assignments, both leaves have height zero and the sequence tree has height one (Session 2, §2.4). The path has length three: the two writes and the disposal of skip. Nor does the theorem alone construct an infinite execution when there is no terminating one. Session 5 supplied an explicit infinite witness for a particular program.
+The theorem identifies the possible *terminating final stores*. It does not identify the height of a derivation with the length of a path. For two successive assignments, both leaves have height zero and the sequence tree has height one (Session 2, §2.4). The path has length three: the two writes and the disposal of skip. Nor does the theorem alone construct an infinite path when there is no terminating execution. Session 5 supplied an explicit infinite witness for a particular program.
 
 The endpoint theorem can transport facts that are stated solely in terms of endpoints. For example consider two small-step paths from the same initial configuration to skip, ending respectively in stores `t` and `u`. The backwards implication gives two derivations for the same command and initial store. Determinacy from Session 3 yields `t = u`. This is an alternative proof of uniqueness of *terminal results*. It does not by itself imply uniqueness of the first small step. An alternative transition system could split into two routes that later rejoin. Both routes could have the same terminal store while the initial configuration had two successors.
 

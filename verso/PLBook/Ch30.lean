@@ -27,7 +27,7 @@ the write goes through $`q` and the read through $`r`, and the read returns $`\m
 tag := "ch30-s1"
 %%%
 
-[C.6](lambda-card/index.html#lambda-c6) adds three forms of term: $`\mathsf{ref}\ t` allocates a new cell, $`{!}t` reads a cell, and $`t_1\mathrel{:=}t_2` writes one. A *location* $`l` names a cell. Locations are values that arise only during evaluation; a program contains none. A *store* $`\mu` is a finite map from locations to values, and $`\mu(l)` is the content of the cell at $`l`. A program starts in the empty store $`\varnothing`, and one step is now $`t\mid\mu\to t'\mid\mu'`. In Part 2 the word store means such a map $`\mu`, the memory of a running term, and not the IMP store of Part 1, which maps every variable name to an integer.
+[C.6](lambda-card/index.html#lambda-c6) adds three forms of term: $`\mathsf{ref}\ t` allocates a new cell, $`{!}t` reads a cell, and $`t_1\mathrel{:=}t_2` writes one. A *location* $`l` names a cell. Locations are values that arise only during evaluation; a program contains none. A *store* $`\mu` is a finite map from locations to values, and $`\mu(l)` is the content of the cell at $`l`. A program starts in the empty store $`\varnothing`, and one step is now $`t\mid\mu\to t'\mid\mu'`. This store is not the IMP store of Part 1. An IMP store is a total function $`\mathrm{Name}\to\mathbb Z`: every variable name has an integer from the start. A store $`\mu` is a partial map $`\mathrm{Location}\rightharpoonup\mathrm{Value}` with a finite domain. It is defined only at the locations allocated so far, it grows when $`\mathsf{ref}` allocates a cell, and a cell holds any value of the language, including a function or another location.
 
 The opening program takes six steps from $`\varnothing`. Its sequence abbreviates $`(\lambda y{:}\mathsf{Unit}.{!}r)\,(q\mathrel{:=}\mathsf{succ}\ 0)` ([C.3](lambda-card/index.html#lambda-c3)).
 
@@ -178,7 +178,7 @@ The store typing is quantified inside $`R(\pi)`, because each step may enlarge i
 tag := "ch30-s5"
 %%%
 
-In Session 29 the inference-form term $`\mathsf{let}\ \mathit{id}=\lambda x.x\ \mathsf{in}\ \mathsf{if}\ \mathit{id}\ \mathsf{true}\ \mathsf{then}\ \mathit{id}\ 0\ \mathsf{else}\ 0` gives $`\mathit{id}` the scheme $`\forall X.X\to X` and uses it at Bool and at Nat ([C.5](lambda-card/index.html#lambda-c5)). Theorems 30.5–30.6 concern the typed language, in which T-Let types let and nothing is generalized. The inference form types references by T-Ref, T-Deref and T-Assign (C.6). Drop for the moment the value restriction of C.6, so that T-LetGen may quantify type variables whatever the right-hand side is, and consider
+In Session 29 the inference-form term $`\mathsf{let}\ \mathit{id}=\lambda x.x\ \mathsf{in}\ \{\mathit{id}\ 0,\mathit{id}\ \mathsf{true}\}` gives $`\mathit{id}` the scheme $`\forall X.X\to X` and uses it at Nat and at Bool ([Session 29, §29.2](chapter-29/index.html#ch29-s2)). Theorems 30.5–30.6 concern the typed language, in which T-Let types let and nothing is generalized. The inference form types references by T-Ref, T-Deref and T-Assign (C.6). Drop for the moment the value restriction of C.6, so that T-LetGen may quantify type variables whatever the right-hand side is, and consider
 
 $$`u=\mathsf{let}\ r=\mathsf{ref}\ (\lambda x.x)\ \mathsf{in}\ (r\mathrel{:=}(\lambda x.\mathsf{succ}\ x);\ ({!}r)\ \mathsf{true}).`
 
@@ -220,7 +220,7 @@ number := false
 
 *30.4.* Under the value restriction, decide for each term of the inference form whether $`g` is generalized and whether the term has a type. (a) $`\mathsf{let}\ g=(\lambda z.z)\,(\lambda x.x)\ \mathsf{in}\ \{g\ 0,g\ \mathsf{true}\}`. (b) $`\mathsf{let}\ g=\lambda y.(\lambda z.z)\,(\lambda x.x)\,y\ \mathsf{in}\ \{g\ 0,g\ \mathsf{true}\}`. Is generalizing $`g` in (a) unsafe?
 
-*Further problem.* Renaming a fresh location. Suppose $`\mathsf{ref}\ v` can step in the same store $`\mu` by choosing either of two fresh locations $`l_1` or $`l_2`. Define the swap of $`l_1` and $`l_2` on terms, stores and store typings. Assume $`\varnothing\mid\Sigma\vdash\mathsf{ref}\ v:T` and $`\varnothing\mid\Sigma\vdash\mu`. Explain why the swap fixes the initial configuration and carries one result of the step, with its store typing, to the other, even when $`v` contains locations.
+*Further problem.* Renaming a fresh location. Suppose $`\mathsf{ref}\ v` can step in the same store $`\mu` by choosing either of two fresh locations $`l_1` or $`l_2`. Define the swap of $`l_1` and $`l_2` on terms, stores and store typings. Assume $`\varnothing\mid\Sigma\vdash\mathsf{ref}\ v:T` and $`\varnothing\mid\Sigma\vdash\mu`. Explain why the swap fixes the initial pair $`\mathsf{ref}\ v\mid\mu` and carries one result of the step, with its store typing, to the other, even when $`v` contains locations.
 
 # Reading for the Seminar
 %%%
@@ -273,10 +273,10 @@ tag := "ch30-notes"
 number := false
 %%%
 
-* *Lemma 30.1.* Formulated in this book. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
-* *Lemma 30.2.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
-* *Lemma 30.3.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.2](chapter-30/index.html#ch30-s2)).
-* *Lemma 30.4.* Formulated in this book. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
-* *Theorem 30.5.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
-* *Theorem 30.6.* Corresponds to TAPL §13.5. Paper proof only (proof in [§30.3](chapter-30/index.html#ch30-s3)).
-* *Proposition 30.7.* Corresponds to TAPL §22.7. Paper proof only (proof in [§30.5](chapter-30/index.html#ch30-s5)).
+* *Lemma 30.1.* Formulated in this book. Paper proof only ([§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.2.* Corresponds to TAPL §13.5. Paper proof only ([§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.3.* Corresponds to TAPL §13.5. Paper proof only ([§30.2](chapter-30/index.html#ch30-s2)).
+* *Lemma 30.4.* Formulated in this book. Paper proof only ([§30.3](chapter-30/index.html#ch30-s3)).
+* *Theorem 30.5.* Corresponds to TAPL §13.5. Paper proof only ([§30.3](chapter-30/index.html#ch30-s3)).
+* *Theorem 30.6.* Corresponds to TAPL §13.5. Paper proof only ([§30.3](chapter-30/index.html#ch30-s3)).
+* *Proposition 30.7.* Corresponds to TAPL §22.7. Paper proof only ([§30.5](chapter-30/index.html#ch30-s5)).

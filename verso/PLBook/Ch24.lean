@@ -37,7 +37,7 @@ Now consider $`\mathsf{pred}\ (\mathsf{succ}\ \mathsf{false})`. The syntax still
 2. E-PredSucc needs $`\mathsf{succ}\ nv_1`, and $`\mathsf{false}` is not a numeric value.
 3. E-Pred needs a step $`\mathsf{succ}\ \mathsf{false}\to t_1'`. The only rule whose conclusion starts with succ is E-Succ, and it needs a step from $`\mathsf{false}`. No rule has a conclusion that starts with $`\mathsf{false}`.
 
-So the term is a normal form. It is not a value, because no value starts with pred. A closed term that is a normal form but not a value is *stuck* (C.2). The opening term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` is stuck by the same kind of check. In both terms a value of one kind sits where every rule expects a value of the other kind.
+So the term is a normal form. It is not a value, because no value starts with pred. A closed term that is a normal form but not a value is *stuck* (C.2; compare stuck IMP configurations in [Session 5, §5.2](chapter-05/index.html#ch05-s2)). The opening term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` is stuck by the same kind of check. In both terms a value of one kind sits where every rule expects a value of the other kind.
 
 # Typing, inversion and canonical forms
 %%%
@@ -217,7 +217,7 @@ tag := "ch24-notes"
 number := false
 %%%
 
-* *Lemma 24.1.* Source: TAPL §8.2. Paper proof only (TAPL §8.2).
-* *Lemma 24.2.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).
-* *Theorem 24.3.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).
-* *Theorem 24.4.* Source: TAPL §8.3. Paper proof only (TAPL §8.3).
+* *Lemma 24.1.* Source: TAPL §8.2. Paper proof only ([§24.2](chapter-24/index.html#ch24-s2)).
+* *Lemma 24.2.* Source: TAPL §8.3. Paper proof only ([§24.2](chapter-24/index.html#ch24-s2)).
+* *Theorem 24.3.* Source: TAPL §8.3. Paper proof only ([§24.3](chapter-24/index.html#ch24-s3)).
+* *Theorem 24.4.* Source: TAPL §8.3. Paper proof only ([§24.3](chapter-24/index.html#ch24-s3)).

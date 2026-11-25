@@ -88,7 +88,7 @@ Compare two derivations. In the empty context, $`\vdash\lambda x.x:X\to X`. Repl
 
 *Substitution on schemes.* Two schemes that differ only in the names of their quantified variables are identified, as alpha-equivalent terms are in [C.1](lambda-card/index.html#lambda-c1). For example, $`\forall X.X\to X` and $`\forall Z.Z\to Z` have the same instances. A type substitution $`\sigma` *avoids* a type variable $`Z` if $`Z\notin\mathrm{dom}(\sigma)` and $`Z` occurs in no type $`\sigma W` with $`W\in\mathrm{dom}(\sigma)`. To apply $`\sigma` to a scheme, first rename its quantified variables to variables that $`\sigma` avoids. Then $`\sigma(\forall X_1\ldots X_n.T)=\forall X_1\ldots X_n.\sigma T`. For example, $`[Y\mapsto X](\forall X.X\to Y)=\forall Z.Z\to X`. Renaming first prevents capture, as in [Session 22, §22.2](chapter-22/index.html#ch22-s2). $`\sigma\Gamma` applies $`\sigma` to each scheme of $`\Gamma`. If no variable of $`\mathrm{dom}(\sigma)` is free in $`\Gamma`, then $`\sigma\Gamma=\Gamma`. Indeed, after renaming, $`\sigma` acts on each scheme $`\forall Y_1\ldots Y_m.U` of $`\Gamma` as on $`U`. A variable of $`\mathrm{dom}(\sigma)` that occurred in $`U` would be one of the $`Y_j`, which $`\sigma` avoids, or free in $`\Gamma`. So $`\sigma U=U`.
 
-*Lemma 29.2 (Type substitution).* For every context $`\Gamma`, term $`t`, type $`T` and type substitution $`\sigma`: if $`\Gamma\vdash t:T`, then $`\sigma\Gamma\vdash t:\sigma T`.
+*Lemma 29.2 (Typing under a type substitution).* For every context $`\Gamma`, term $`t`, type $`T` and type substitution $`\sigma`: if $`\Gamma\vdash t:T`, then $`\sigma\Gamma\vdash t:\sigma T`.
 
 *Proof.* By induction on the typing derivation $`D` of $`\Gamma\vdash t:T`, with
 
@@ -143,7 +143,7 @@ tag := "ch29-s4"
 Session 28 computes types by constraint typing. Two rules of C.5 handle schemes. CT-VarInst gives each occurrence of a let-bound variable fresh type variables in place of the quantified ones. CT-LetGen types $`\mathsf{let}\ x=t_1\ \mathsf{in}\ t_2` under $`\Gamma` in four steps.
 
 1. Compute $`\Gamma\vdash t_1:S_1\mid_{\mathcal X_1}C_1`.
-2. Compute $`\sigma=\mathrm{unify}(C_1)`. If unification fails, the let has no constraint typing.
+2. Compute $`\sigma=\mathrm{unify}(C_1)`. If unification fails, the let has no constraint typing. By [Session 28, Theorem 28.3](chapter-28/index.html#ch28-s3), unification fails exactly when $`C_1` has no unifier, and otherwise $`\sigma` is a principal unifier of $`C_1`.
 3. Quantify $`\{Y_1,\ldots,Y_n\}=\mathrm{FV}(\sigma S_1)\setminus\mathrm{FV}(\sigma\Gamma)`.
 4. Type $`t_2` under $`\sigma\Gamma,x{:}\forall Y_1\ldots Y_n.\sigma S_1`, and keep $`C_1\cup C_2` in the conclusion.
 

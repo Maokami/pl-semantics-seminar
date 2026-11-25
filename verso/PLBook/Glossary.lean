@@ -19,7 +19,9 @@ The Korean column gives the term to use when discussing the English text. The la
 * *Checked in Lean* (Lean으로 검사됨). The book build checks a proof of the stated result on the stated definitions.
 * *Selected cases checked in Lean* (일부 경우만 Lean으로 검사됨). The build checks the cases identified in the note.
 * *Externally checked* (외부에서 검사됨). The statement matches a checked declaration in the cited development. The linked card gives the repository, revision and declaration.
-* *Paper proof only* (종이 증명만). The note locates the argument in the chapter or its source and identifies a sketch or an omitted proof where applicable.
+* *Paper proof only* (종이 증명만). The note points to the section of this book that gives the proof and identifies any sketch. When the book omits the proof, the note names the source and says “no proof in this book.”
+
+*Numbering.* Sessions 1, 14, 18, 20 and 22 number definitions and results with separate counters (Session 1 also numbers examples separately), so that for example Definition 14.1 and Lemma 14.1 both exist. Every other session numbers all its items with one counter.
 
 *Order conventions.* In [§8.4](chapter-08/index.html#ch08-s4) and [§34.1](chapter-34/index.html#ch34-s1), moving upward in the information order can make an undefined result defined. In [§17.1](chapter-17/index.html#ch17-s1), moving upward in the precision order can replace a known integer by the unknown abstract value. For type substitutions in [C.5](lambda-card/index.html#lambda-c5), the more general substitution is on the left: the right substitution factors through it.
 
@@ -126,6 +128,11 @@ number := false
   * A string identifying a variable.
   * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
 *
+  * agreement on a set
+  * 집합 위의 일치 (X 위에서 일치한다)
+  * `s(y) = u(y)` for every `y ∈ X`; written `s|_X = u|_X`
+  * Session 1 · [§1.3](chapter-01/index.html#ch01-s3)
+*
   * big-step semantics
   * 큰걸음 의미론
   * Rules relating a complete computation to its result.
@@ -149,6 +156,11 @@ number := false
   * execution judgment
   * 실행 판단
   * The assertion that a command started in a given store terminates in a specified store.
+  * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
+*
+  * execution relation
+  * 실행 관계
+  * The relation s ⊢ c ⇓ t of Definition 2.1, as a set of triples. For one command c its pairs form Exec(c) (Session 7, Definition 7.1).
   * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
 *
   * guard
@@ -193,7 +205,7 @@ number := false
 *
   * configuration
   * 구성
-  * A pair consisting of a residual command and the current store.
+  * A pair consisting of a residual command and the current store. In Part 2, a pair `t | μ` of a term and a store (§32.3).
   * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
   * finite path
@@ -221,6 +233,11 @@ number := false
   * A single step between configurations allowed by the small-step rules.
   * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
+  * diverge / divergence
+  * 발산하다 / 발산
+  * An infinite path starts at the configuration (IMP, §5.3; the machine, B.9). For a term: no normal form is reachable under the given strategy (Definition 23.3).
+  * Session 5 · [§5.3](chapter-05/index.html#ch05-s3)
+*
   * path lifting
   * 경로 올리기
   * Placing every command on a path in the same sequence context while retaining its store and each edge.
@@ -230,11 +247,6 @@ number := false
   * 순차 합성 문맥
   * The operation of placing a command to the left of a fixed suffix in a sequence.
   * Session 6 · [§6.1](chapter-06/index.html#ch06-s1)
-*
-  * execution relation
-  * 실행 관계
-  * The set of initial–final store pairs for a command.
-  * Session 7 · [§7.1](chapter-07/index.html#ch07-s1)
 *
   * loop unfolding
   * 루프 펼침
@@ -346,7 +358,7 @@ number := false
   * An assertion φ(a\_1,…,a\_j) that reads the store only through the values of expressions
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
-  * expression substitution lemma
+  * substitution lemma (IMP expressions)
   * 식 치환 보조정리
   * eval(a\[e/x\], s) = eval(a, s\[x ↦ eval(e,s)\])
   * Session 11 · [§11.1](chapter-11/index.html#ch11-s1)
@@ -446,11 +458,6 @@ number := false
   * A relation with no infinite descending chain; it supports induction from all smaller elements
   * Session 13 · [Further reading](chapter-13/index.html#ch13-s6)
 *
-  * branch distance
-  * 상대 거리
-  * The signed offset measured from the instruction after the branch.
-  * Session 14 · [B.1](machine-card/index.html#machine-b1)
-*
   * branch-free code
   * 분기 없는 코드
   * Code using only push, load, plus and opp.
@@ -470,11 +477,6 @@ number := false
   * 위치에 놓인 코드
   * `at(C,pc,K)`: C splits as C1 ++ K ++ C2 with |C1| = pc.
   * Session 14 · [B.2](machine-card/index.html#machine-b2)
-*
-  * conditional branch
-  * 조건 분기 명령
-  * beq or ble.
-  * Session 14 · [B.1](machine-card/index.html#machine-b1)
 *
   * instruction
   * 기계 명령어
@@ -506,8 +508,18 @@ number := false
   * A finite list of integers with its top on the left.
   * Session 14 · [B.3](machine-card/index.html#machine-b3)
 *
+  * branch distance
+  * 상대 거리
+  * The signed offset measured from the instruction after the branch.
+  * Session 15 · [§15.1](chapter-15/index.html#ch15-s1)
+*
+  * conditional branch instruction
+  * 조건 분기 명령어
+  * beq or ble.
+  * Session 15 · [§15.1](chapter-15/index.html#ch15-s1)
+*
   * branch instruction
-  * 분기 명령
+  * 분기 명령어
   * `branch(d)`: moves the program counter from pc to pc+1+d, nothing else.
   * Session 15 · [§15.1](chapter-15/index.html#ch15-s1)
 *
@@ -621,6 +633,11 @@ number := false
   * A function that builds an expression, guard or command from its parts and simplifies constant parts, keeping the value at every store.
   * Session 18 · [§18.1](chapter-18/index.html#ch18-s1)
 *
+  * loop-head store
+  * 루프 머리 추상 상태
+  * The abstract store `f♯_W(A)`, which describes the store at every test of the loop's guard.
+  * Session 18 · [§18.2](chapter-18/index.html#ch18-s2)
+*
   * bounded iteration
   * 제한 반복
   * `iter(F,D,n,X)`: apply `F` until `F(X) ⊆ X`, or return the fallback set when the fuel is exhausted.
@@ -670,11 +687,6 @@ number := false
   * 읽는 변수
   * `RV(c)`: the names in the expressions and guards of a command. Assignment targets are excluded.
   * Session 19 · [§19.1](chapter-19/index.html#ch19-s1)
-*
-  * agreement on a set
-  * 집합 위의 일치 (X 위에서 일치한다)
-  * `s(y) = u(y)` for every `y ∈ X`; written `s|_X = u|_X`
-  * Session 20 · [§20.1](chapter-20/index.html#ch20-s1)
 *
   * dead assignment
   * 죽은 대입
@@ -785,11 +797,6 @@ number := false
   * Each term has at most one next term under the given strategy
   * Session 23 · [§23.2](chapter-23/index.html#ch23-s2)
 *
-  * diverge / divergence
-  * 발산하다 / 발산
-  * No normal form is reachable from the term under the given strategy
-  * Session 23 · [§23.3](chapter-23/index.html#ch23-s3)
-*
   * evaluation strategy
   * 평가 전략
   * A set of one-step rules that decides which redex is contracted next
@@ -875,7 +882,7 @@ number := false
   * A context with the same bindings in another order
   * Session 25 · [§25.2](chapter-25/index.html#ch25-s2)
 *
-  * type-preserving term substitution lemma
+  * substitution lemma (typing)
   * 타입 보존 항 치환 보조정리
   * Theorem 25.5: `Γ,x:S ⊢ t:T` and `Γ ⊢ s:S` give `Γ ⊢ [x↦s]t:T`
   * Session 25 · [§25.3](chapter-25/index.html#ch25-s3)
@@ -987,7 +994,7 @@ number := false
 *
   * type variable
   * 타입 변수
-  * `X, Y, Z`: in C.5 an unknown type to be determined by inference
+  * `X, Y, Z`: in C.5 an unknown type to be determined by inference. In C.7 (Session 31) a type variable is bound by ∀, ∃, type abstraction or unpacking.
   * Session 28 · [C.5](lambda-card/index.html#lambda-c5)
 *
   * unification
@@ -1030,11 +1037,6 @@ number := false
   * `∀X1…Xn.T`, occurring only in contexts
   * Session 29 · [§29.2](chapter-29/index.html#ch29-s2)
 *
-  * alias
-  * 별칭
-  * Two variables that name the same location
-  * Session 30 · [§30.1](chapter-30/index.html#ch30-s1)
-*
   * allocation
   * 할당
   * Creating a new cell at a fresh location (E-RefV)
@@ -1050,12 +1052,12 @@ number := false
   * A run-time name of a cell; a value that no program contains
   * Session 30 · [§30.1](chapter-30/index.html#ch30-s1)
 *
-  * run-time store
+  * store (of a running term)
   * 저장소
   * A finite map μ from locations to values.
   * Session 30 · [§30.1](chapter-30/index.html#ch30-s1)
 *
-  * run-time store update lemma
+  * store update lemma
   * 저장소 갱신 보조정리
   * Lemma 30.3: writing a value of the cell's type keeps the store well typed
   * Session 30 · [§30.2](chapter-30/index.html#ch30-s2)
@@ -1139,11 +1141,6 @@ number := false
   * 정형 타입
   * A type whose free type variables are bound in Γ
   * Session 31 · [C.7](lambda-card/index.html#lambda-c7)
-*
-  * term–store configuration
-  * 구성
-  * A pair `t | μ` of a term and a store; Part 2 reading of the IMP configuration of A.6
-  * Session 32 · [§32.3](chapter-32/index.html#ch32-s3)
 :::
 
 # Part 3 · Logical Relations and PCF
@@ -1186,7 +1183,7 @@ number := false
 *
   * fundamental theorem (of a logical relation)
   * 기본 정리
-  * Every well-typed term is related to itself in related environments.
+  * Every well-typed term is related to itself in related environments. Session 37, Theorem 37.2 is the fundamental theorem for the formal approximation relation (the Cambridge notes call it the fundamental property).
   * Session 33 · [§33.3](chapter-33/index.html#ch33-s3)
 *
   * logical relation
@@ -1196,7 +1193,7 @@ number := false
 *
   * meaning (of a type, of a term)
   * 의미
-  * `⟦T⟧_A`, the set of a type; `⟦t⟧_A ρ`, the element a typed term describes in an environment.
+  * `⟦T⟧_A`, the set of a type; `⟦t⟧_A ρ`, the element a typed term describes in an environment. From Session 35, ⟦T⟧ is a domain and ⟦t⟧ρ an element of it (Definitions 35.4–35.5).
   * Session 33 · [§33.2](chapter-33/index.html#ch33-s2)
 *
   * related environments
@@ -1246,7 +1243,7 @@ number := false
 *
   * Scott induction (fixed-point induction)
   * Scott 귀납 (고정점 귀납)
-  * An admissible property preserved by a continuous f holds at fix(f).
+  * An admissible property preserved by a continuous f holds at lfp(f).
   * Session 34 · [§34.3](chapter-34/index.html#ch34-s3)
 *
   * strict function
@@ -1256,7 +1253,7 @@ number := false
 *
   * numeral
   * 수 항
-  * The numeric value `\overline{n}`: `succ` applied `n` times to `0`.
+  * The numeric value n̄: `succ` applied n times to `0`.
   * Session 35 · [§35.1](chapter-35/index.html#ch35-s1)
 *
   * PCF
@@ -1291,7 +1288,7 @@ number := false
 *
   * formal approximation relation
   * 형식 근사 관계
-  * The relation `d ◁_T t` between elements of `[[T]]` and closed terms of type `T`, defined by induction on `T`.
+  * The relation `d ◁_T t` between elements of ⟦T⟧ and closed terms of type `T`, defined by induction on `T`.
   * Session 36 · [§36.2](chapter-36/index.html#ch36-s2)
 *
   * ground type
@@ -1304,19 +1301,9 @@ number := false
   * A pair `(d, u)` with `d ◁_T u`.
   * Session 36 · [§36.2](chapter-36/index.html#ch36-s2)
 *
-  * soundness (of the denotation)
-  * 건전성
-  * If a closed term evaluates to a value, the two have the same meaning.
-  * Session 36 · [§36.1](chapter-36/index.html#ch36-s1)
-*
   * closing substitution
   * 닫는 치환
   * One closed term of the declared type for each variable of a context.
-  * Session 37 · [§37.1](chapter-37/index.html#ch37-s1)
-*
-  * fundamental property
-  * 기본 성질
-  * The meaning of a well-typed term approximates each closed instance under a related environment and substitution.
   * Session 37 · [§37.1](chapter-37/index.html#ch37-s1)
 *
   * related environment and substitution

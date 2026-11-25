@@ -11,7 +11,7 @@ file := "chapter-35"
 * *Definitions.* Types, terms, values, typing rules and the substitution $`[x\mapsto s]t` of the [Lambda language card C.2–C.3](lambda-card/index.html#lambda-c2), without Unit. Call by name ([C.1](lambda-card/index.html#lambda-c1)) and canonical forms ([C.8](lambda-card/index.html#lambda-c8), Row 1). The substitution and permutation lemmas for typing ([Session 25](chapter-25/index.html)). Derivations and their height ([Session 1, §1.4](chapter-01/index.html#ch01-s4); [Session 2, §2.4](chapter-02/index.html#ch02-s4)). Bottom $`\bot`, the order $`\sqsubseteq` and least upper bounds $`\bigsqcup` ([Session 8](chapter-08/index.html)). Domains, continuous functions, flat domains, function domains ordered pointwise, and the least fixed point $`\mathrm{lfp}(f)=\bigsqcup_{j}f^j(\bot)` of a continuous function $`f`, which satisfies $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)` ([Session 34](chapter-34/index.html)). PCF itself is defined in Definitions 35.1–35.5.
 * *New terms.* PCF, numeral, recursion operator, soundness of evaluation. [Glossary and label key](glossary/index.html)
 * *Theorem 35.8 (Soundness of evaluation).* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes, §5.2 and chapter 6. They define PCF, its evaluation relation and its denotational semantics, and prove that evaluation is sound, which is Theorem 35.8. We use their rules and semantic clauses and write terms in the notation of the Lambda language card. The countdown example and Proposition 35.6 are this book’s. [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
+* *Source.* Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024), §§5.1–5.2 and chapter 6. They define PCF, its evaluation relation and its denotational semantics, and prove that evaluation is sound, which is Theorem 35.8. We use their rules and semantic clauses and write terms in the notation of the Lambda language card. The countdown example and Proposition 35.6 are this book’s. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* B-Fix. First derive $`K\ \overline{1}\Downarrow 0` for the countdown $`K` (§35.2) and compute its approximations $`g_0,g_1,g_2` at the inputs 0 and 1 (§35.3). Then prove the B-Fix case and read it at line 4 of the derivation, where B-Fix is used.
 * *Proof outline.* Induct on the derivation $`D` of $`t\Downarrow v` with $`P(D)\coloneqq\llbracket t\rrbracket=\llbracket v\rrbracket`. In each case compute $`\llbracket t\rrbracket` by the clause of Definition 35.5 for the conclusion, and apply the induction hypotheses to the premises. B-App uses Lemma 35.7 (substitution). B-Fix uses the fixed-point equation $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)`.
 * *From Session 34.* Session 34 obtained the least fixed point of a continuous function as the least upper bound of its approximations. Here the term $`\mathsf{fix}\ t` means the least fixed point of the meaning of $`t`, and an evaluation unfolds $`\mathsf{fix}\ t` once at each use of B-Fix.
@@ -59,7 +59,7 @@ Following the source, a judgment $`t\Downarrow v` is formed only when $`\vdash t
 
 B-App substitutes the operand $`t_2` without evaluating it, as in call by name. B-Fix unfolds the recursion once: to evaluate $`\mathsf{fix}\ t_1`, evaluate $`t_1` applied to $`\mathsf{fix}\ t_1`. No rule evaluates the body of an abstraction. There is no rule for $`\mathsf{pred}\ 0`, unlike E-PredZero in C.2. We follow the source: $`\mathsf{pred}\ 0` has no evaluation.
 
-For example, let $`\Omega=\mathsf{fix}\ (\lambda x{:}\mathsf{Nat}.x)`, so that $`\vdash\Omega:\mathsf{Nat}`. Then $`(\lambda y{:}\mathsf{Nat}.0)\ \Omega\Downarrow 0` by B-App. Its first premise is $`\lambda y{:}\mathsf{Nat}.0\Downarrow\lambda y{:}\mathsf{Nat}.0` by B-Value, and its second is $`[y\mapsto\Omega]0=0\Downarrow 0` by B-Value. The operand $`\Omega` is never evaluated. Indeed $`\Omega` has no evaluation. Suppose $`D` is a derivation of $`\Omega\Downarrow v` of least height, as in Session 2, §2.4. Since $`\Omega` is not a value, $`D` ends with B-Fix. Its premise $`(\lambda x{:}\mathsf{Nat}.x)\ \Omega\Downarrow v` ends with B-App, whose second premise is $`[x\mapsto\Omega]x=\Omega\Downarrow v`. That premise has a derivation of smaller height than $`D`, which contradicts the choice of $`D`.
+For example, let $`\Omega=\mathsf{fix}\ (\lambda x{:}\mathsf{Nat}.x)`, so that $`\vdash\Omega:\mathsf{Nat}`. From here on $`\Omega` names this typed term, not the untyped term $`(\lambda x.x\,x)\,(\lambda x.x\,x)` of [C.1](lambda-card/index.html#lambda-c1), which has no type. Then $`(\lambda y{:}\mathsf{Nat}.0)\ \Omega\Downarrow 0` by B-App. Its first premise is $`\lambda y{:}\mathsf{Nat}.0\Downarrow\lambda y{:}\mathsf{Nat}.0` by B-Value, and its second is $`[y\mapsto\Omega]0=0\Downarrow 0` by B-Value. The operand $`\Omega` is never evaluated. Indeed $`\Omega` has no evaluation. Suppose $`D` is a derivation of $`\Omega\Downarrow v` of least height, as in Session 2, §2.4. Since $`\Omega` is not a value, $`D` ends with B-Fix. Its premise $`(\lambda x{:}\mathsf{Nat}.x)\ \Omega\Downarrow v` ends with B-App, whose second premise is $`[x\mapsto\Omega]x=\Omega\Downarrow v`. That premise has a derivation of smaller height than $`D`, which contradicts the choice of $`D`.
 
 # Evaluating a recursive function
 %%%
@@ -93,13 +93,13 @@ Line 4 is a premise twice, at lines 11 and 13. Drawn as a tree, the derivation c
 tag := "ch35-s3"
 %%%
 
-*Definition 35.4 (Domains and environments).* $`\mathbb{N}_\bot` is the flat domain of natural numbers: the set $`\mathbb{N}` with a new least element $`\bot`, in which distinct numbers are incomparable. $`\mathbb{B}_\bot` is the flat domain on $`\mathbb{B}=\{\mathrm{tt},\mathrm{ff}\}`. Each type $`T` gives a domain $`\llbracket T\rrbracket`:
+*Definition 35.4 (Domains and environments).* $`\mathbb{N}_\bot` is the flat domain of natural numbers ([Session 34, §34.1](chapter-34/index.html#ch34-s1)): the set $`\mathbb{N}` with a new least element $`\bot`, in which distinct numbers are incomparable. $`\mathbb{B}_\bot` is the flat domain on $`\mathbb{B}=\{\mathrm{tt},\mathrm{ff}\}`. Each type $`T` gives a domain $`\llbracket T\rrbracket`:
 
 $$`\llbracket\mathsf{Nat}\rrbracket=\mathbb{N}_\bot,\qquad\llbracket\mathsf{Bool}\rrbracket=\mathbb{B}_\bot,\qquad\llbracket T_1\to T_2\rrbracket=\text{the continuous functions from }\llbracket T_1\rrbracket\text{ to }\llbracket T_2\rrbracket\text{, ordered pointwise.}`
 
 As in [Session 33, Definition 33.4](chapter-33/index.html#ch33-s2), an environment for a context $`\Gamma` is a function $`\rho` on $`\mathrm{dom}(\Gamma)` with $`\rho(x)\in\llbracket T\rrbracket` for each binding $`x{:}T` of $`\Gamma`. The empty context has one environment, the empty function $`\rho_\varnothing`. The environment $`\rho[x\mapsto d]` maps $`x` to $`d` and agrees with $`\rho` at every other variable. It updates an environment, whereas $`[x\mapsto s]t` substitutes in a term. The truth values $`\mathrm{tt},\mathrm{ff}` are distinct from the terms $`\mathsf{true},\mathsf{false}`, and the number $`n` is distinct from the numeral $`\overline{n}`.
 
-*Definition 35.5 (Meaning).* For $`\Gamma\vdash t:T` and an environment $`\rho` for $`\Gamma`, the *meaning* $`\llbracket t\rrbracket\rho\in\llbracket T\rrbracket` is defined by structural recursion on $`t`. Here $`n` ranges over $`\mathbb{N}`.
+*Definition 35.5 (Meaning).* For $`\Gamma\vdash t:T` and an environment $`\rho` for $`\Gamma`, the meaning $`\llbracket t\rrbracket\rho\in\llbracket T\rrbracket` (as in Session 33, now in domains) is defined by structural recursion on $`t`. Here $`n` ranges over $`\mathbb{N}`.
 
 $$`\begin{aligned}
 &\llbracket x\rrbracket\rho=\rho(x)\qquad\llbracket 0\rrbracket\rho=0\qquad\llbracket\mathsf{true}\rrbracket\rho=\mathrm{tt}\qquad\llbracket\mathsf{false}\rrbracket\rho=\mathrm{ff}\\
@@ -120,7 +120,7 @@ Now compute the meaning of $`G`. Let $`F=\llbracket G\rrbracket`. For $`g\in\llb
 2. $`F(g)(0)=\llbracket 0\rrbracket\rho=0`.
 3. $`F(g)(k+1)=\llbracket f\ (\mathsf{pred}\ x)\rrbracket\rho=g(\llbracket\mathsf{pred}\ x\rrbracket\rho)=g(k)`.
 
-By the fix clause, $`\llbracket K\rrbracket=\mathrm{lfp}(F)=\bigsqcup_j g_j`. Here $`g_0` is the least element of $`\llbracket\mathsf{Nat}\to\mathsf{Nat}\rrbracket`, the function with value $`\bot` everywhere, and $`g_{j+1}=F(g_j)`. We call $`g_j` the approximation of $`\llbracket K\rrbracket` at stage $`j`. The three cases above are the three clauses of the countdown operator of [Session 34, §34.2](chapter-34/index.html#ch34-s2), so $`g_j` is the function $`z_j` there, and the first part of Proposition 35.6 restates Lemma 34.6(3). At input 1, case 3 and then case 2 give
+By the fix clause, $`\llbracket K\rrbracket=\mathrm{lfp}(F)=\bigsqcup_j g_j`. Here $`g_0` is the least element of $`\llbracket\mathsf{Nat}\to\mathsf{Nat}\rrbracket`, the function with value $`\bot` everywhere, and $`g_{j+1}=F(g_j)`. We call $`g_j` the approximation of $`\llbracket K\rrbracket` at stage $`j`. The three cases above are the three clauses of the countdown operator of [Session 34, §34.2](chapter-34/index.html#ch34-s2), so $`g_j` is the function $`z_j` there, and the first part of Proposition 35.6 restates Lemma 34.6(c). At input 1, case 3 and then case 2 give
 
 $$`g_0(1)=\bot,\qquad g_1(1)=g_0(0)=\bot,\qquad g_2(1)=g_1(0)=F(g_0)(0)=0.`
 
@@ -244,6 +244,6 @@ tag := "ch35-notes"
 number := false
 %%%
 
-* *Proposition 35.6.* Formulated in this book. Paper proof only (proof in [§35.3](chapter-35/index.html#ch35-s3)).
-* *Lemma 35.7.* Source: Cambridge notes, Proposition 27. Paper proof only (proof in [§35.4](chapter-35/index.html#ch35-s4)).
-* *Theorem 35.8.* Source: Cambridge notes, Theorem 28. Paper proof only (proof in [§35.4](chapter-35/index.html#ch35-s4)).
+* *Proposition 35.6.* Formulated in this book. Paper proof only ([§35.3](chapter-35/index.html#ch35-s3)).
+* *Lemma 35.7.* Source: Cambridge notes, Proposition 27. Paper proof only ([§35.4](chapter-35/index.html#ch35-s4)).
+* *Theorem 35.8.* Source: Cambridge notes, Theorem 28. Paper proof only ([§35.4](chapter-35/index.html#ch35-s4)).

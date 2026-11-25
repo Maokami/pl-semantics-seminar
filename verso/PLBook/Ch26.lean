@@ -11,7 +11,7 @@ file := "chapter-26"
 * *Definitions.* The typed language of Session 26: the terms, values, evaluation rules and typing rules of the [Lambda language card C.2–C.3](lambda-card/index.html#lambda-c2). Closed terms, alpha-equivalence, substitution $`[x\mapsto s]t`, normal forms and $`\to^*` ([C.1](lambda-card/index.html#lambda-c1)). Stuck terms ([C.2](lambda-card/index.html#lambda-c2)). Typing contexts and $`\mathrm{dom}(\Gamma)` ([C.3](lambda-card/index.html#lambda-c3)). The counted path $`t\to^n t'`, read as in [A.6](imp-card/index.html#imp-a6). The safety statements, the form of the safety table and its Row 1 ([C.8](lambda-card/index.html#lambda-c8), Session 24). The substitution lemma ([Session 25](chapter-25/index.html)). Inversion and induction on derivations ([Session 1, §1.4](chapter-01/index.html#ch01-s4); [Session 3, §3.1](chapter-03/index.html#ch03-s1)).
 * *New terms.* Domain and codomain of a function type. [Glossary and label key](glossary/index.html)
 * *Theorem 26.3 (Progress and preservation).* (a) Progress: for every term $`t` and type $`T`, if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (b) Preservation: for every context $`\Gamma`, terms $`t,t'` and type $`T`, if $`\Gamma\vdash t:T` and $`t\to t'`, then $`\Gamma\vdash t':T`.
-* *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL), §9.3. Pierce proves inversion, canonical forms, progress and preservation for functions with Booleans. Our typed language also has the natural numbers, whose cases are those of TAPL §8.3 and Session 24, and Unit (TAPL §11.2), whose cases are immediate. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+* *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL), §9.3. Pierce proves inversion, canonical forms, progress and preservation for functions with Booleans. Our typed language also has the natural numbers, whose cases are those of TAPL §8.3 and Session 24, and Unit (TAPL §11.2), whose cases are immediate. Lemmas 26.1–26.2 and Theorem 26.3 have the same form for this larger language. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Preservation for a step by E-AppAbs. Invert T-App and then T-Abs, identify the argument type with the parameter type, and apply the substitution lemma of Session 25 to the body and the argument.
 * *Proof outline.* Progress: induction on the typing derivation $`D:\Gamma\vdash t:T` with $`P(D)\coloneqq(\Gamma=\varnothing)\Rightarrow\bigl(t\text{ is a value}\vee\exists t',\ t\to t'\bigr)`. The T-App case uses canonical forms (Lemma 26.2). Preservation: induction on the evaluation derivation $`E:t\to t'` with $`Q(E)\coloneqq\forall\Gamma\,\forall T,\ (\Gamma\vdash t:T)\Rightarrow(\Gamma\vdash t':T)`. The congruence cases apply the induction hypothesis at the function type or at its domain. The computation case E-AppAbs uses the substitution lemma.
 * *From Session 25.* Session 25 proved that substituting a term of type $`S` for a variable of type $`S` keeps the type. Here that lemma types the result of E-AppAbs. Session 24 proved progress and preservation for Booleans and natural numbers in the empty context. Here the language has functions and Unit, and preservation holds in every context.
@@ -49,12 +49,12 @@ A proof about all typed terms cannot look at one particular derivation. It reads
 
 *Lemma 26.1 (Inversion for functions).* For every context $`\Gamma` and type $`T`:
 
-1. If $`\Gamma\vdash x:T`, then $`x{:}T\in\Gamma`.
-2. If $`\Gamma\vdash\lambda x{:}T_1.t_2:T` and $`x\notin\mathrm{dom}(\Gamma)`, then $`T=T_1\to T_2` for some type $`T_2` with $`\Gamma,x{:}T_1\vdash t_2:T_2`.
-3. If $`\Gamma\vdash t_1\,t_2:T`, then there is a type $`U` with $`\Gamma\vdash t_1:U\to T` and $`\Gamma\vdash t_2:U`.
-4. If $`\Gamma\vdash\mathsf{unit}:T`, then $`T=\mathsf{Unit}`.
+* (a) If $`\Gamma\vdash x:T`, then $`x{:}T\in\Gamma`.
+* (b) If $`\Gamma\vdash\lambda x{:}T_1.t_2:T` and $`x\notin\mathrm{dom}(\Gamma)`, then $`T=T_1\to T_2` for some type $`T_2` with $`\Gamma,x{:}T_1\vdash t_2:T_2`.
+* (c) If $`\Gamma\vdash t_1\,t_2:T`, then there is a type $`U` with $`\Gamma\vdash t_1:U\to T` and $`\Gamma\vdash t_2:U`.
+* (d) If $`\Gamma\vdash\mathsf{unit}:T`, then $`T=\mathsf{Unit}`.
 
-*Proof.* Each of the four term forms is the conclusion form of exactly one typing rule of C.2–C.3: T-Var, T-Abs, T-App and T-Unit respectively. So a derivation of the judgment ends with that rule, and each claim reads off its premises and its conclusion. In (3), $`U` is the type $`T_{11}` of that instance of T-App. In (2), the convention of C.3 renames the parameter when necessary, so we may assume $`x\notin\mathrm{dom}(\Gamma)`. $`\square`
+*Proof.* Each of the four term forms is the conclusion form of exactly one typing rule of C.2–C.3: T-Var, T-Abs, T-App and T-Unit respectively. So a derivation of the judgment ends with that rule, and each claim reads off its premises and its conclusion. In (c), $`U` is the type $`T_{11}` of that instance of T-App. In (b), the convention of C.3 renames the parameter when necessary, so we may assume $`x\notin\mathrm{dom}(\Gamma)`. $`\square`
 
 For a function type $`T_1\to T_2`, call $`T_1` its *domain* and $`T_2` its *codomain*. Types are syntax trees. So $`T_1\to T_2=S_1\to S_2` holds only when $`T_1=S_1` and $`T_2=S_2`, and a function type is never Bool, Nat or Unit.
 
@@ -63,15 +63,15 @@ For a function type $`T_1\to T_2`, call $`T_1` its *domain* and $`T_2` its *codo
 tag := "ch26-s2"
 %%%
 
-The closed term $`(\mathsf{succ}\ 0)\ 0` is stuck. E-App1 and E-App2 do not apply, because both subterms are values and values do not step. E-AppAbs does not apply, because the operator is not an abstraction. The term has no type: by Lemma 26.1(3) its operator would need a type $`U\to T`, but the only rule for $`\mathsf{succ}` gives Nat. Progress must exclude terms like this one. Its application case needs to know that a value of a function type is an abstraction.
+The closed term $`(\mathsf{succ}\ 0)\ 0` is stuck. E-App1 and E-App2 do not apply, because both subterms are values and values do not step. E-AppAbs does not apply, because the operator is not an abstraction. The term has no type: by Lemma 26.1(c) its operator would need a type $`U\to T`, but the only rule for $`\mathsf{succ}` gives Nat. Progress must exclude terms like this one. Its application case needs to know that a value of a function type is an abstraction.
 
 *Lemma 26.2 (Canonical forms).* Let $`v` be a value.
 
-1. If $`\vdash v:T_1\to T_2`, then $`v=\lambda x{:}T_1.t_2` for some $`x` and $`t_2`.
-2. If $`\vdash v:\mathsf{Unit}`, then $`v=\mathsf{unit}`.
-3. If $`\vdash v:\mathsf{Bool}`, then $`v=\mathsf{true}` or $`v=\mathsf{false}`. If $`\vdash v:\mathsf{Nat}`, then $`v` is a numeric value.
+* (a) If $`\vdash v:T_1\to T_2`, then $`v=\lambda x{:}T_1.t_2` for some $`x` and $`t_2`.
+* (b) If $`\vdash v:\mathsf{Unit}`, then $`v=\mathsf{unit}`.
+* (c) If $`\vdash v:\mathsf{Bool}`, then $`v=\mathsf{true}` or $`v=\mathsf{false}`. If $`\vdash v:\mathsf{Nat}`, then $`v` is a numeric value.
 
-*Proof.* A value is $`\mathsf{true}`, $`\mathsf{false}`, a numeric value, an abstraction or $`\mathsf{unit}`. A derivation for one of these forms ends with T-True, T-False, T-Zero or T-Succ, T-Abs, or T-Unit, respectively. Their conclusions give the type Bool, Bool, Nat, a function type and Unit. These types are distinct. So a value of type $`T_1\to T_2` is an abstraction $`\lambda x{:}T_1'.t_2`, and by Lemma 26.1(2) its type is $`T_1'\to T_2'` for some $`T_2'`. Comparing domains gives $`T_1'=T_1`. A value of type Unit is $`\mathsf{unit}`. Part 3 is the canonical forms statement of Session 24. Its proof now also excludes an abstraction and $`\mathsf{unit}`, whose types are a function type and Unit. $`\square`
+*Proof.* A value is $`\mathsf{true}`, $`\mathsf{false}`, a numeric value, an abstraction or $`\mathsf{unit}`. A derivation for one of these forms ends with T-True, T-False, T-Zero or T-Succ, T-Abs, or T-Unit, respectively. Their conclusions give the type Bool, Bool, Nat, a function type and Unit. These types are distinct. So a value of type $`T_1\to T_2` is an abstraction $`\lambda x{:}T_1'.t_2`, and by Lemma 26.1(b) its type is $`T_1'\to T_2'` for some $`T_2'`. Comparing domains gives $`T_1'=T_1`. A value of type Unit is $`\mathsf{unit}`. Part (c) is the canonical forms statement of Session 24. Its proof now also excludes an abstraction and $`\mathsf{unit}`, whose types are a function type and Unit. $`\square`
 
 *Theorem 26.3 (Progress and preservation).*
 
@@ -99,9 +99,9 @@ Assume $`\Gamma=\varnothing`. Both premises have the context $`\Gamma`, so both 
 
 1. If $`t_1\to t_1'` for some $`t_1'`, then $`t_1\,t_2\to t_1'\,t_2` by E-App1.
 2. Otherwise $`t_1` is a value by $`P(D_1)`. If $`t_2\to t_2'` for some $`t_2'`, then $`t_1\,t_2\to t_1\,t_2'` by E-App2.
-3. Otherwise $`t_2` is a value by $`P(D_2)`. Lemma 26.2(1) applied to $`D_1` gives $`t_1=\lambda x{:}T_{11}.t_{12}` for some $`x` and $`t_{12}`. Then $`t_1\,t_2\to[x\mapsto t_2]t_{12}` by E-AppAbs.
+3. Otherwise $`t_2` is a value by $`P(D_2)`. Lemma 26.2(a) applied to $`D_1` gives $`t_1=\lambda x{:}T_{11}.t_{12}` for some $`x` and $`t_{12}`. Then $`t_1\,t_2\to[x\mapsto t_2]t_{12}` by E-AppAbs.
 
-*Rules of C.2.* These are the progress cases of Row 1 ([C.8](lambda-card/index.html#lambda-c8)), proved in Session 24. The guard of a conditional and the argument of $`\mathsf{succ}`, $`\mathsf{pred}` and $`\mathsf{iszero}` are typed in the same context $`\Gamma`, so their hypotheses apply. The canonical forms they use are Lemma 26.2(3). $`\square`
+*Rules of C.2.* These are the progress cases of Row 1 ([C.8](lambda-card/index.html#lambda-c8)), proved in Session 24. The guard of a conditional and the argument of $`\mathsf{succ}`, $`\mathsf{pred}` and $`\mathsf{iszero}` are typed in the same context $`\Gamma`, so their hypotheses apply. The canonical forms they use are Lemma 26.2(c). $`\square`
 
 Only the T-Var case needs the assumption $`\Gamma=\varnothing` to reach its conclusion. The other cases pass it on to premises with the same context, and the T-App case also uses it to apply Lemma 26.2, which is stated for the empty context. The assumption cannot be dropped. We have $`x{:}\mathsf{Nat}\to\mathsf{Nat}\vdash x\ 0:\mathsf{Nat}` by T-App, and $`x\ 0` is neither a value nor able to step. In its T-App case, the hypothesis for the operator $`x` has a false premise, so it does not say that $`x` is a value or steps.
 
@@ -126,8 +126,8 @@ $$`D:\quad\Gamma\vdash(\lambda x{:}T_{11}.t_{12})\,v_2:T.`
 
 Rename the parameter $`x` if necessary so that $`x\notin\mathrm{dom}(\Gamma)`. Up to alpha-equivalence this changes neither $`t` nor $`t'`. We must show $`\Gamma\vdash[x\mapsto v_2]t_{12}:T`.
 
-1. Apply Lemma 26.1(3) to $`D`. There is a type $`U` with (i) $`\Gamma\vdash\lambda x{:}T_{11}.t_{12}:U\to T` and (ii) $`\Gamma\vdash v_2:U`.
-2. Apply Lemma 26.1(2) to (i). There is a type $`T_{12}` with $`U\to T=T_{11}\to T_{12}` and (iii) $`\Gamma,x{:}T_{11}\vdash t_{12}:T_{12}`.
+1. Apply Lemma 26.1(c) to $`D`. There is a type $`U` with (i) $`\Gamma\vdash\lambda x{:}T_{11}.t_{12}:U\to T` and (ii) $`\Gamma\vdash v_2:U`.
+2. Apply Lemma 26.1(b) to (i). There is a type $`T_{12}` with $`U\to T=T_{11}\to T_{12}` and (iii) $`\Gamma,x{:}T_{11}\vdash t_{12}:T_{12}`.
 3. Compare the domains and the codomains in $`U\to T=T_{11}\to T_{12}`. This gives $`U=T_{11}` and $`T=T_{12}`. So (ii) is $`\Gamma\vdash v_2:T_{11}`, and (iii) is $`\Gamma,x{:}T_{11}\vdash t_{12}:T`.
 4. Apply the substitution lemma with $`S\coloneqq T_{11}`, $`u\coloneqq t_{12}` and $`s\coloneqq v_2`. Its premises are (iii) and (ii) in the form of step 3. Its conclusion is $`\Gamma\vdash[x\mapsto v_2]t_{12}:T`, the goal.
 
@@ -145,7 +145,7 @@ Here $`T_{11}=\mathsf{Nat}\to\mathsf{Nat}`, $`t_{12}=\lambda y{:}\mathsf{Nat}.f\
 
 $$`Q(E_1):\quad\forall\Gamma'\,\forall S,\ (\Gamma'\vdash t_1:S)\Rightarrow(\Gamma'\vdash t_1':S).`
 
-Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash t_1\,t_2:T`. Lemma 26.1(3) gives a type $`U` with $`\Gamma\vdash t_1:U\to T` and $`\Gamma\vdash t_2:U`. Apply $`Q(E_1)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq U\to T`. This gives $`\Gamma\vdash t_1':U\to T`. T-App gives $`\Gamma\vdash t_1'\,t_2:T`.
+Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash t_1\,t_2:T`. Lemma 26.1(c) gives a type $`U` with $`\Gamma\vdash t_1:U\to T` and $`\Gamma\vdash t_2:U`. Apply $`Q(E_1)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq U\to T`. This gives $`\Gamma\vdash t_1':U\to T`. T-App gives $`\Gamma\vdash t_1'\,t_2:T`.
 
 *E-App2.* As for E-App1, with the hypothesis applied at the domain $`U` (Exercise 26.2).
 
@@ -176,7 +176,7 @@ The cases proved in this session form Row 2 of the safety table. In the form of 
 * *Progress.* T-Var: no derivation of $`\vdash x:T` exists. T-Abs, T-Unit: the term is a value. T-App: steps by E-App1, E-App2 or E-AppAbs.
 * *Preservation.* E-AppAbs: uses the substitution lemma of Session 25. E-App1, E-App2: premise.
 
-“Premise” means that the case follows from the induction hypothesis for the evaluation premise, with Lemma 26.1(3) and T-App. Adding Row 2 changes Row 1 in two places. Its canonical forms for Bool and Nat must now exclude the new values $`\lambda x{:}T_1.t_2` and $`\mathsf{unit}`, as in the proof of Lemma 26.2. Its preservation cases are now read in an arbitrary context $`\Gamma`.
+“Premise” means that the case follows from the induction hypothesis for the evaluation premise, with Lemma 26.1(c) and T-App. Adding Row 2 changes Row 1 in two places. Its canonical forms for Bool and Nat must now exclude the new values $`\lambda x{:}T_1.t_2` and $`\mathsf{unit}`, as in the proof of Lemma 26.2. Its preservation cases are now read in an arbitrary context $`\Gamma`.
 
 # Exercises
 %%%
@@ -214,21 +214,21 @@ tag := "ch26-s7"
 number := false
 %%%
 
-*26.1.* T-Var and T-Unit give $`f{:}\mathsf{Unit}\to\mathsf{Unit}\vdash f\ \mathsf{unit}:\mathsf{Unit}` by T-App, and T-Abs gives the operator the type $`(\mathsf{Unit}\to\mathsf{Unit})\to\mathsf{Unit}`. T-Var and T-Abs give $`\vdash\lambda z{:}\mathsf{Unit}.z:\mathsf{Unit}\to\mathsf{Unit}`. T-App gives the whole term the type Unit. The first step is by E-AppAbs, to $`(\lambda z{:}\mathsf{Unit}.z)\ \mathsf{unit}`, of type Unit. The second step is by E-AppAbs, to $`\mathsf{unit}`, of type Unit. This value is $`\mathsf{unit}`, as Lemma 26.2(2) requires.
+*26.1.* T-Var and T-Unit give $`f{:}\mathsf{Unit}\to\mathsf{Unit}\vdash f\ \mathsf{unit}:\mathsf{Unit}` by T-App, and T-Abs gives the operator the type $`(\mathsf{Unit}\to\mathsf{Unit})\to\mathsf{Unit}`. T-Var and T-Abs give $`\vdash\lambda z{:}\mathsf{Unit}.z:\mathsf{Unit}\to\mathsf{Unit}`. T-App gives the whole term the type Unit. The first step is by E-AppAbs, to $`(\lambda z{:}\mathsf{Unit}.z)\ \mathsf{unit}`, of type Unit. The second step is by E-AppAbs, to $`\mathsf{unit}`, of type Unit. This value is $`\mathsf{unit}`, as Lemma 26.2(b) requires.
 
-*26.2.* Here $`t=v_1\,t_2`, $`t'=v_1\,t_2'`, and the premise is $`E_2:t_2\to t_2'` with $`Q(E_2):\forall\Gamma'\,\forall S,\ (\Gamma'\vdash t_2:S)\Rightarrow(\Gamma'\vdash t_2':S)`. Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash v_1\,t_2:T`. Lemma 26.1(3) gives $`U` with $`\Gamma\vdash v_1:U\to T` and $`\Gamma\vdash t_2:U`. Apply $`Q(E_2)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq U`, the domain. This gives $`\Gamma\vdash t_2':U`, and T-App gives $`\Gamma\vdash v_1\,t_2':T`. The fact that $`v_1` is a value is not used.
+*26.2.* Here $`t=v_1\,t_2`, $`t'=v_1\,t_2'`, and the premise is $`E_2:t_2\to t_2'` with $`Q(E_2):\forall\Gamma'\,\forall S,\ (\Gamma'\vdash t_2:S)\Rightarrow(\Gamma'\vdash t_2':S)`. Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash v_1\,t_2:T`. Lemma 26.1(c) gives $`U` with $`\Gamma\vdash v_1:U\to T` and $`\Gamma\vdash t_2:U`. Apply $`Q(E_2)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq U`, the domain. This gives $`\Gamma\vdash t_2':U`, and T-App gives $`\Gamma\vdash v_1\,t_2':T`. The fact that $`v_1` is a value is not used.
 
 *26.3.* In the context $`x{:}\mathsf{Nat}`, T-Var and T-Abs give $`\lambda y{:}\mathsf{Nat}.y` the type $`\mathsf{Nat}\to\mathsf{Nat}`, and T-Var and T-Succ give $`\mathsf{succ}\ x` the type Nat. T-App gives Nat. The term is an application, so it is not a value. E-App1 needs a step of the operator, which is a value. E-App2 needs a step of $`\mathsf{succ}\ x`, which needs a step of $`x` by E-Succ, and no rule steps a variable. E-AppAbs needs the operand to be a value, and $`\mathsf{succ}\ x` is not a numeric value. Without the assumption $`\Gamma=\varnothing`, the T-Var case would have to show that $`x` is a value or steps, and it is neither. In this term that case is reached through T-App, step 2, and then T-Succ.
 
-*26.4.* Lemma 26.2(1) becomes false: $`\mathsf{bad}` is a value of type $`\mathsf{Nat}\to\mathsf{Nat}` that is not an abstraction. Step 3 of the T-App case of progress fails with it. The term $`\mathsf{bad}\ 0` has type Nat, is not a value, and cannot step: both subterms are values, and its operator is not an abstraction. Preservation is unaffected, because no evaluation rule was added.
+*26.4.* Lemma 26.2(a) becomes false: $`\mathsf{bad}` is a value of type $`\mathsf{Nat}\to\mathsf{Nat}` that is not an abstraction. Step 3 of the T-App case of progress fails with it. The term $`\mathsf{bad}\ 0` has type Nat, is not a value, and cannot step: both subterms are values, and its operator is not an abstraction. Preservation is unaffected, because no evaluation rule was added.
 
 *Further problem.* Preservation gains the case $`\mathsf{loop}\to\mathsf{loop}`. The only typing rule for $`\mathsf{loop}` gives Unit, and the target is the same term, so the typing is reused. The congruence cases are unchanged. In the substitution lemma the constant is a new case with no variables, so substitution leaves it unchanged. Progress gains the case of the new typing rule, which supplies the step $`\mathsf{loop}\to\mathsf{loop}`. The constant is not a value, so canonical forms are unchanged. Take $`(\lambda u{:}\mathsf{Unit}.\mathsf{unit})\ \mathsf{loop}`, of type Unit. Its operand is not a value, so E-AppAbs does not apply. Its only step is by E-App2 and returns the same term. By induction on $`n`, every $`t'` with $`(\lambda u{:}\mathsf{Unit}.\mathsf{unit})\ \mathsf{loop}\to^n t'` is that term, which is not a value. Progress and preservation therefore hold for a language with a nonterminating term. They do not say that evaluation terminates.
 
-*Typing inspects code that evaluation never reaches.* The term $`(\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.0)\ (\lambda z{:}\mathsf{Nat}.z\ 0)` steps to $`0` by E-AppAbs and never gets stuck. It has no type. The operand needs $`z{:}\mathsf{Nat}\vdash z\ 0:T` for some $`T`, and Lemma 26.1(3) would require $`z` to have a function type, but T-Var gives Nat. With the operand $`\lambda z{:}\mathsf{Nat}.z` instead, the term has type Nat. Both terms take the same single step, and only the second is covered by Theorem 26.3. A well-typed closed term never reaches a stuck term. One run that does not get stuck is no evidence of a type.
+*Further reading · Typing inspects code that evaluation never reaches.* The term $`(\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.0)\ (\lambda z{:}\mathsf{Nat}.z\ 0)` steps to $`0` by E-AppAbs and never gets stuck. It has no type. The operand needs $`z{:}\mathsf{Nat}\vdash z\ 0:T` for some $`T`, and Lemma 26.1(c) would require $`z` to have a function type, but T-Var gives Nat. With the operand $`\lambda z{:}\mathsf{Nat}.z` instead, the term has type Nat. Both terms take the same single step, and only the second is covered by Theorem 26.3. A well-typed closed term never reaches a stuck term. One run that does not get stuck is no evidence of a type.
 
-*Closed instances of open terms.* Progress could also be stated for closed instances of open typed terms. The term $`x\ 0` with $`x{:}\mathsf{Nat}\to\mathsf{Nat}` cannot step, but its instance $`[x\mapsto\mathit{inc}](x\ 0)=\mathit{inc}\ 0` can. Such a statement needs, for each free variable, a closed value of its type to substitute.
+*Further reading · Closed instances of open terms.* Progress could also be stated for closed instances of open typed terms. The term $`x\ 0` with $`x{:}\mathsf{Nat}\to\mathsf{Nat}` cannot step, but its instance $`[x\mapsto\mathit{inc}](x\ 0)=\mathit{inc}\ 0` can. Such a statement needs, for each free variable, a closed value of its type to substitute.
 
-*Normalization.* In the typed language of this session every closed well-typed term evaluates to a value. This is a separate theorem, proved by a different method (TAPL §12.1). Progress and preservation do not bound the number of steps, as the Further problem shows. TAPL §11.11 adds a typed fixed-point operator, which keeps safety and loses termination.
+*Further reading · Normalization.* In the typed language of this session every closed well-typed term evaluates to a value. This is a separate theorem, proved by a different method (TAPL §12.1). Progress and preservation do not bound the number of steps, as the Further problem shows. TAPL §11.11 adds a typed fixed-point operator, which keeps safety and loses termination.
 
 TAPL §9.3 proves the theorems of this session for functions with Booleans. TAPL §11.2 adds Unit. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
@@ -238,7 +238,7 @@ tag := "ch26-notes"
 number := false
 %%%
 
-* *Lemma 26.1.* Source: TAPL §9.3 for functions, with §§8.3 and 11.2 for the other constructs. Paper proof only (proof in [§26.1](chapter-26/index.html#ch26-s1)).
-* *Lemma 26.2.* Source: TAPL §9.3 for functions, with §§8.3 and 11.2 for the other constructs. Paper proof only (proof in [§26.2](chapter-26/index.html#ch26-s2)).
-* *Theorem 26.3.* Source: TAPL §9.3 for functions, with §§8.3 and 11.2 for the other constructs. Paper proof only (§§26.2–26.3).
-* *Corollary 26.4.* Formulated in this book. Paper proof only (proof in [§26.4](chapter-26/index.html#ch26-s4)).
+* *Lemma 26.1.* Corresponds to TAPL §9.3 for functions. The other constructs follow §§8.3 and 11.2. Paper proof only ([§26.1](chapter-26/index.html#ch26-s1)).
+* *Lemma 26.2.* Corresponds to TAPL §9.3 for functions. The other constructs follow §§8.3 and 11.2. Paper proof only ([§26.2](chapter-26/index.html#ch26-s2)).
+* *Theorem 26.3.* Corresponds to TAPL §9.3 for functions. The other constructs follow §§8.3 and 11.2. Paper proof only ([§26.2](chapter-26/index.html#ch26-s2)–[§26.3](chapter-26/index.html#ch26-s3)).
+* *Corollary 26.4.* Formulated in this book. Paper proof only ([§26.4](chapter-26/index.html#ch26-s4)).

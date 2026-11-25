@@ -54,7 +54,7 @@ A renaming inside a larger term replaces one abstraction by another with the sam
 tag := "ch22-s2"
 %%%
 
-Session 1 wrote $`e[t/x]` for substitution into an IMP expression. Part 2 follows TAPL and writes $`[x\mapsto s]t` for the term obtained from $`t` by replacing the free occurrences of $`x` by $`s`. With binders, literal replacement can go wrong. Replace $`x` by $`y` in $`\lambda y.x\,y`, and the result $`\lambda y.y\,y` binds the inserted $`y`. The original term applies the outside $`x` to its argument. The result applies its argument to itself. A substitution $`[x\mapsto s]t` *captures* a variable when a free occurrence of that variable in $`s` becomes bound in the result by an abstraction of $`t`.
+[Session 11, Definition 11.1](chapter-11/index.html#ch11-s1) wrote $`a[e/x]` for substitution into an IMP expression. Part 2 follows TAPL and writes $`[x\mapsto s]t` for the term obtained from $`t` by replacing the free occurrences of $`x` by $`s`. With binders, literal replacement can go wrong. Replace $`x` by $`y` in $`\lambda y.x\,y`, and the result $`\lambda y.y\,y` binds the inserted $`y`. The original term applies the outside $`x` to its argument. The result applies its argument to itself. A substitution $`[x\mapsto s]t` *captures* a variable when a free occurrence of that variable in $`s` becomes bound in the result by an abstraction of $`t`.
 
 C.1 defines substitution so that it never captures:
 
@@ -140,7 +140,7 @@ Each condition on $`z` is used. The conditions $`z\neq x` and $`z\notin\mathrm{F
 
 *Proof.* If $`x\in\mathrm{FV}(t)`, Theorem 22.3 gives equality. Otherwise Lemma 22.2 gives $`\mathrm{FV}([x\mapsto s]t)=\mathrm{FV}(t)=\mathrm{FV}(t)\setminus\{x\}`. For the second claim, $`\mathrm{FV}(t)\setminus\{x\}=\mathrm{FV}(\lambda x.t)=\varnothing` and $`\mathrm{FV}(s)=\varnothing`. $`\square`
 
-In Session 23 the corollary applies to the rule E-AppAbs of C.1, which takes $`(\lambda x.t_{12})\,v_2` to $`[x\mapsto v_2]t_{12}`. If $`(\lambda x.t_{12})\,v_2` is closed, so are $`\lambda x.t_{12}` and $`v_2`, and the step gives a closed term. Theorem 22.3 speaks only about the set of free variables. It does not say that each occurrence is bound by the right abstraction. The faulty renaming at the end of §22.2 produces the right set $`\{y\}` and the wrong term.
+The corollary applies to the rule E-AppAbs of C.1, used from Session 23 on, which takes $`(\lambda x.t_{12})\,v_2` to $`[x\mapsto v_2]t_{12}`. If $`(\lambda x.t_{12})\,v_2` is closed, so are $`\lambda x.t_{12}` and $`v_2`, and the step gives a closed term. Theorem 22.3 speaks only about the set of free variables. It does not say that each occurrence is bound by the right abstraction. The faulty renaming at the end of §22.2 produces the right set $`\{y\}` and the wrong term.
 
 # Exercises
 %%%

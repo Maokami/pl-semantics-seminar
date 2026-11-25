@@ -39,7 +39,7 @@ theorem assignmentValid (Q : Assertion) (x : ident) (e : aexp) :
   intro s t pre run
   exact assignmentResult run ▸ pre
 
-/-- The second clause of Theorem 11.8, with any finite tuple of expressions. -/
+/-- The second clause of Theorem 11.7, with any finite tuple of expressions. -/
 theorem writtenAssignmentValid {j : Nat} (φ : (Fin j → Int) → Prop) (args : Fin j → aexp)
     (x : ident) (e : aexp) :
     Valid (written φ (fun i ↦ substExpr x e (args i))) (.ASSIGN x e) (written φ args) := by

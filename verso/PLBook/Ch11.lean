@@ -11,11 +11,11 @@ file := "chapter-11"
 
 * *Definitions.* Stores and update, expression evaluation, guard values and execution ([IMP language card A.2–A.5](imp-card/index.html#imp-a2)). Structural induction ([A.1](imp-card/index.html#imp-a1)). The assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)).
 * *New terms.* Substitution, assertion, Hoare triple, partial correctness, substituted assertion. [Glossary and label key](glossary/index.html)
-* *Theorem 11.8 (Validity of assignment triples).* For every assertion $`Q`, name $`x` and expression $`e`, $`\models\{Q[e/x]\}\,x:=e\,\{Q\}`. If $`Q` is written $`\varphi(a_1,\ldots,a_j)` with expressions $`a_1,\ldots,a_j`, then $`\models\{\varphi(a_1[e/x],\ldots,a_j[e/x])\}\,x:=e\,\{\varphi(a_1,\ldots,a_j)\}`.
-* *Source.* Triples and validity follow Nipkow and Klein, _Concrete Semantics_, §12.2.2 (assertions as predicates on stores), applied to the execution relation of A.5. The triple of Theorem 11.8 is the conclusion of their rule Assign (Fig. 12.3). Theorem 11.8 is the assignment case of their soundness proof (p. 204). Nipkow and Klein state Lemma 11.6 for Boolean expressions. Their Exercise 3.3 poses Lemma 11.3 for their arithmetic expressions. [Concrete Semantics, §§12.2–12.3, pp. 192–205](https://concrete-semantics.org/concrete-semantics.pdf)
-* *Board case.* Theorem 11.8 for a postcondition written with expressions (the four steps at the end of §11.3). Invert the execution, then apply the substitution lemma to each expression. Prepare the variable case of Lemma 11.3.
-* *Proof outline.* Lemma 11.3 is proved by structural induction on $`a` with $`e,x,s` fixed, for $`L(a)\coloneqq\mathrm{eval}(a[e/x],s)=\mathrm{eval}(a,s[x\mapsto\mathrm{eval}(e,s)])`. Theorem 11.8 needs no induction. Inversion gives the final store $`t=s[x\mapsto\mathrm{eval}(e,s)]`. The precondition at $`s` is then the postcondition at $`t`.
-* *From Session 10.* Session 10 related terminating executions to the denotation of a command. Hoare logic asks a different question about the same execution relation. It does not compute the final store. It states a property that every final store has.
+* *Theorem 11.7 (Validity of assignment triples).* For every assertion $`Q`, name $`x` and expression $`e`, $`\models\{Q[e/x]\}\,x:=e\,\{Q\}`. If $`Q` is written $`\varphi(a_1,\ldots,a_j)` with expressions $`a_1,\ldots,a_j`, then $`\models\{\varphi(a_1[e/x],\ldots,a_j[e/x])\}\,x:=e\,\{\varphi(a_1,\ldots,a_j)\}`.
+* *Source.* Triples and validity follow Nipkow and Klein, _Concrete Semantics_, §12.2.2 (assertions as predicates on stores), applied to the execution relation of A.5. The triple of Theorem 11.7 is the conclusion of their rule Assign (Fig. 12.3). Theorem 11.7 is the assignment case of their soundness proof (p. 204). Nipkow and Klein state Lemma 11.6 for Boolean expressions. Their Exercise 3.3 poses Lemma 11.3 for their arithmetic expressions. [Concrete Semantics, §§12.2–12.3, pp. 192–205](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Board case.* Theorem 11.7 for a postcondition written with expressions (the four steps at the end of §11.3). Invert the execution, then apply the substitution lemma to each expression. Prepare the variable case of Lemma 11.3.
+* *Proof outline.* Lemma 11.3 is proved by structural induction on $`a` with $`e,x,s` fixed, for $`L(a)\coloneqq\mathrm{eval}(a[e/x],s)=\mathrm{eval}(a,s[x\mapsto\mathrm{eval}(e,s)])`. Theorem 11.7 needs no induction. Inversion gives the final store $`t=s[x\mapsto\mathrm{eval}(e,s)]`. The precondition at $`s` is then the postcondition at $`t`.
+* *From Session 10.* Session 10 related terminating executions to the meaning of a command. Hoare logic asks a different question about the same execution relation. It does not compute the final store. It states a property that every final store has.
 
 A command increases $`x` by 3, and afterwards $`x` must equal 8. Which initial stores are acceptable? Exactly those with $`x=5`. The answer comes from replacing $`x` by $`x+3` in the requirement: $`x+3=8`. This session proves that such replacement is correct for every assignment and every requirement written with expressions.
 
@@ -111,9 +111,9 @@ The same assertion can be written in more than one way. For example, $`x\le y` i
 
 Substitution runs against the direction of execution. For the postcondition $`x=y+1` and the command `y := x`, Lemma 11.6 gives $`x=x+1`, which holds at no store. Indeed, after `y := x` the two names hold equal values.
 
-Session 12 introduces a proof system whose rules derive triples without mentioning executions, and proves every derived triple valid. Its rule for assignment has no premises and concludes $`\{Q[e/x]\}\,x:=e\,\{Q\}`. Theorem 11.8 below is the assignment case of that proof.
+Session 12 introduces a proof system whose rules derive triples without mentioning executions, and proves every derived triple valid. Its rule for assignment has no premises and concludes $`\{Q[e/x]\}\,x:=e\,\{Q\}`. Theorem 11.7 below is the assignment case of that proof.
 
-*Theorem 11.8 (Validity of assignment triples).* For every assertion $`Q`, name $`x` and expression $`e`,
+*Theorem 11.7 (Validity of assignment triples).* For every assertion $`Q`, name $`x` and expression $`e`,
 
 $$`\models\{Q[e/x]\}\,x:=e\,\{Q\}.`
 
@@ -138,11 +138,11 @@ Step 3 is the only step that uses the syntax of expressions. It is applied once 
 
 With the postcondition $`x=8`, Lemma 11.6 gives the precondition $`8=8` for `x := 8` and $`7=8` for `x := 7`. The first holds at every store. The second holds at none. The next proposition shows that, for `x := 7` and this postcondition, no precondition that holds at some store gives a valid triple.
 
-*Proposition 11.9 (Preconditions of an assignment).* For all assertions $`P,Q`, every name $`x` and expression $`e`,
+*Proposition 11.8 (Preconditions of an assignment).* For all assertions $`P,Q`, every name $`x` and expression $`e`,
 
 $$`\models\{P\}\,x:=e\,\{Q\}\quad\Longleftrightarrow\quad\forall s\in\Sigma,\ P(s)\Rightarrow Q[e/x](s).`
 
-*Proof.* (⇐) Fix $`s,t` with $`P(s)` and $`s\vdash x:=e\Downarrow t`. The assumption gives $`Q[e/x](s)`. Theorem 11.8 applied to $`s`, $`t` and this execution gives $`Q(t)`. (⇒) Fix $`s` with $`P(s)`. The assignment rule of A.5 derives $`s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]`. Validity gives $`Q(s[x\mapsto\mathrm{eval}(e,s)])`, which is $`Q[e/x](s)`. $`\square`
+*Proof.* (⇐) Fix $`s,t` with $`P(s)` and $`s\vdash x:=e\Downarrow t`. The assumption gives $`Q[e/x](s)`. Theorem 11.7 applied to $`s`, $`t` and this execution gives $`Q(t)`. (⇒) Fix $`s` with $`P(s)`. The assignment rule of A.5 derives $`s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]`. Validity gives $`Q(s[x\mapsto\mathrm{eval}(e,s)])`, which is $`Q[e/x](s)`. $`\square`
 
 The direction (⇒) needs an execution to exist, and every assignment terminates. So $`Q[e/x]` follows from every precondition that makes the triple valid.
 
@@ -151,18 +151,18 @@ The direction (⇒) needs an execution to exist, and every assignment terminates
 tag := "ch11-s4"
 %%%
 
-Let $`x,y` be distinct. Take the postcondition $`x+y=5` and the command `x := y; y := 1`. Theorem 11.8 for the second assignment gives $`\models\{x+1=5\}\,y:=1\,\{x+y=5\}`, since $`(x+y)[1/y]=x+1`. Theorem 11.8 for the first assignment, with postcondition $`x+1=5`, gives $`\models\{y+1=5\}\,x:=y\,\{x+1=5\}`. The next proposition joins the two triples. Check one store: from $`x=9`, $`y=4` the precondition $`y+1=5` holds, and the program ends with $`x=4`, $`y=1` and $`x+y=5`.
+Let $`x,y` be distinct. Take the postcondition $`x+y=5` and the command `x := y; y := 1`. Theorem 11.7 for the second assignment gives $`\models\{x+1=5\}\,y:=1\,\{x+y=5\}`, since $`(x+y)[1/y]=x+1`. Theorem 11.7 for the first assignment, with postcondition $`x+1=5`, gives $`\models\{y+1=5\}\,x:=y\,\{x+1=5\}`. The next proposition joins the two triples. Check one store: from $`x=9`, $`y=4` the precondition $`y+1=5` holds, and the program ends with $`x=4`, $`y=1` and $`x+y=5`.
 
-*Proposition 11.10 (Sequence and consequence).* For all assertions and commands,
+*Proposition 11.9 (Sequence and consequence).* For all assertions and commands,
 
-1. if $`\models\{P\}\,c\,\{Q\}` and $`\models\{Q\}\,d\,\{R\}`, then $`\models\{P\}\,c;d\,\{R\}`;
-2. if $`P'(s)\Rightarrow P(s)` for every $`s`, $`\models\{P\}\,c\,\{Q\}`, and $`Q(s)\Rightarrow Q'(s)` for every $`s`, then $`\models\{P'\}\,c\,\{Q'\}`.
+* (a) if $`\models\{P\}\,c\,\{Q\}` and $`\models\{Q\}\,d\,\{R\}`, then $`\models\{P\}\,c;d\,\{R\}`;
+* (b) if $`P'(s)\Rightarrow P(s)` for every $`s`, $`\models\{P\}\,c\,\{Q\}`, and $`Q(s)\Rightarrow Q'(s)` for every $`s`, then $`\models\{P'\}\,c\,\{Q'\}`.
 
-*Proof.* (1) Fix $`s,t` with $`P(s)` and $`s\vdash c;d\Downarrow t`. [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`. The first triple gives $`Q(m)`. The second triple, applied to $`m` and $`t`, gives $`R(t)`. (2) Fix $`s,t` with $`P'(s)` and $`s\vdash c\Downarrow t`. The first implication gives $`P(s)`, the triple gives $`Q(t)`, and the second implication gives $`Q'(t)`. $`\square`
+*Proof.* (a) Fix $`s,t` with $`P(s)` and $`s\vdash c;d\Downarrow t`. [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`. The first triple gives $`Q(m)`. The second triple, applied to $`m` and $`t`, gives $`R(t)`. (b) Fix $`s,t` with $`P'(s)` and $`s\vdash c\Downarrow t`. The first implication gives $`P(s)`, the triple gives $`Q(t)`, and the second implication gives $`Q'(t)`. $`\square`
 
 The example processed the later assignment first. Stores are updated in program order. A postcondition is carried back in the opposite order. Doing the two replacements in program order would first replace $`x` by $`y`, giving $`y+y=5`, and then $`y` by 1, giving $`1+1=5`, which holds at no store. That order loses the old value of $`y` read by the first assignment.
 
-For any sequence of assignments, repeated substitution from the end computes a precondition mechanically. What remains is one implication from the given precondition to the computed one. Proposition 11.10(2) turns that implication into a valid triple with the given precondition.
+For any sequence of assignments, repeated substitution from the end computes a precondition mechanically. What remains is one implication from the given precondition to the computed one. Proposition 11.9(b) turns that implication into a valid triple with the given precondition.
 
 # Exercises
 %%%
@@ -172,7 +172,7 @@ number := false
 
 *11.1.* For distinct names $`x,y`, take $`a=x+y` and $`e=y+1`. Compute $`a[e/x]` and $`a[x/y]` in a store with $`s(x)=4` and $`s(y)=2`. For each substitution, give the single store update that yields the same value on the original $`a`.
 
-*11.2.* For distinct names $`x,y`, compute the precondition given by Theorem 11.8 and Proposition 11.10 for `x := y + 2; y := x + 1` and the postcondition $`y=10`. Check it by executing forwards from one store.
+*11.2.* For distinct names $`x,y`, compute the precondition given by Theorem 11.7 and Proposition 11.9 for `x := y + 2; y := x + 1` and the postcondition $`y=10`. Check it by executing forwards from one store.
 
 *11.3.* A proposed forward rule concludes $`\{Q\}\,x:=e\,\{Q[e/x]\}`. Give an assertion $`Q`, an expression $`e` and a store that show this triple is not valid in general.
 
@@ -192,7 +192,7 @@ number := false
 
 *Definitions · 10 minutes.* Compute Example 11.2 in both orders: substitute and then evaluate; update and then evaluate. Draw the postcondition $`x=8` as a set of stores and an arrow from $`s` to $`s[x\mapsto s(x)+3]`.
 
-*Joint proof · 30 minutes.* One person proves the variable case of Lemma 11.3, both subcases. Then prove Theorem 11.8 by the four board steps. One person inverts the execution, another applies Lemma 11.3 to each expression, and a third rewrites the precondition. Finish with Proposition 11.9 and ask who supplies the execution in the direction (⇒).
+*Joint proof · 30 minutes.* One person proves the variable case of Lemma 11.3, both subcases. Then prove Theorem 11.7 by the four board steps. One person inverts the execution, another applies Lemma 11.3 to each expression, and a third rewrites the precondition. Finish with Proposition 11.8 and ask who supplies the execution in the direction (⇒).
 
 *Proof review · 20 minutes.* Work Exercise 11.2 backwards, then check the result by executing forwards from one store. Use Exercise 11.3 to test the direction of the rule.
 
@@ -210,7 +210,7 @@ number := false
 
 *11.3.* Take $`Q` to be $`x=0` and $`e=x+1`. By Lemma 11.6, $`Q[e/x]` is $`x+1=0`. Start in a store with $`x=0`, so $`Q` holds. The final store has $`x=1`, where $`x+1=0` fails.
 
-*11.4.* By structural induction on $`a`: a literal is unchanged; a variable leaf is a name $`y\neq x`, since $`x\notin\mathrm{FV}(y)=\{y\}`; at a binary node $`x` is in neither child’s set, and the two induction hypotheses give the result. Lemma 11.6 then gives $`Q[e/x]=\varphi(a_1,\ldots,a_j)=Q`, and Theorem 11.8 gives the triple. Without substitution, [Session 1, Corollary 1.2](chapter-01/index.html#ch01-s3) gives $`\mathrm{eval}(a_i,s[x\mapsto n])=\mathrm{eval}(a_i,s)` for every $`n`, so $`Q` holds at $`s` exactly when it holds at the updated store.
+*11.4.* By structural induction on $`a`: a literal is unchanged; a variable leaf is a name $`y\neq x`, since $`x\notin\mathrm{FV}(y)=\{y\}`; at a binary node $`x` is in neither child’s set, and the two induction hypotheses give the result. Lemma 11.6 then gives $`Q[e/x]=\varphi(a_1,\ldots,a_j)=Q`, and Theorem 11.7 gives the triple. Without substitution, [Session 1, Corollary 1.2](chapter-01/index.html#ch01-s3) gives $`\mathrm{eval}(a_i,s[x\mapsto n])=\mathrm{eval}(a_i,s)` for every $`n`, so $`Q` holds at $`s` exactly when it holds at the updated store.
 
 *11.5.* No store $`t` satisfies $`s\vdash W\Downarrow t`, so the premise of validity never holds. An execution $`s\vdash(W;c)\Downarrow t` would give, by [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3), a store $`m` with $`s\vdash W\Downarrow m`. There is none, so $`\{P\}\,(W;c)\,\{Q\}` is valid as well. Session 12, Exercise 12.4, derives $`\{P\}\,W\,\{Q\}` in the proof system of that session.
 
@@ -218,13 +218,13 @@ number := false
 
 *Further problem.* Through `y := x` the postcondition becomes $`x=x\land x\ge4`, that is $`x\ge4`. Through `x := y` this becomes $`y\ge4`. The simultaneous swap sends $`s` to a store whose value at $`x` is $`s(y)` and at $`y` is $`s(x)`. Its precondition is $`y=x\land x\ge4`. The two substitutions act on the original occurrences at once. Performing them one after the other on already substituted text would turn the equation into $`x=x`. The store with $`x=1`, $`y=5` separates the two preconditions: the sequence ends with two fives, the swap with five and one.
 
-*Syntactic and semantic assertions.* _Concrete Semantics_ §12.2.1 (pp. 193–199) first presents Hoare logic with assertions as formulas and the rule $`\{P[a/x]\}\ x ::= a\ \{P\}` (Fig. 12.1, p. 195). Section 12.2.2 (pp. 199–200) then treats assertions as predicates on stores and writes the precondition of assignment with the updated store, as in Definition 11.5. Its Lemma 12.1 connects the two presentations for Boolean expressions. Lemma 11.6 plays that role here.
+*Further reading · Syntactic and semantic assertions.* _Concrete Semantics_ §12.2.1 (pp. 193–199) first presents Hoare logic with assertions as formulas and the rule $`\{P[a/x]\}\ x ::= a\ \{P\}` (Fig. 12.1, p. 195). Section 12.2.2 (pp. 199–200) then treats assertions as predicates on stores and writes the precondition of assignment with the updated store, as in Definition 11.5. Its Lemma 12.1 connects the two presentations for Boolean expressions. Lemma 11.6 plays that role here.
 
-*Weakest preconditions.* _Concrete Semantics_ §12.3.1 (pp. 204–205) defines the weakest precondition of a command and a postcondition: it holds at $`s` when every terminating execution from $`s` ends in a store satisfying the postcondition. Fact 12.3 says a triple is valid exactly when its precondition implies the weakest precondition. For an assignment the weakest precondition is $`Q[e/x]`, which is Proposition 11.9. The same section uses weakest preconditions to prove completeness of Hoare logic.
+*Further reading · Weakest preconditions.* _Concrete Semantics_ §12.3.1 (pp. 204–205) defines the weakest precondition of a command and a postcondition: it holds at $`s` when every terminating execution from $`s` ends in a store satisfying the postcondition. Fact 12.3 says a triple is valid exactly when its precondition implies the weakest precondition. For an assignment the weakest precondition is $`Q[e/x]`, which is Proposition 11.8. The same section uses weakest preconditions to prove completeness of Hoare logic.
 
-*Names bound inside assertions.* In Definition 11.4 a quantifier inside $`\varphi` ranges over integers and binds no name, so substitution never meets a binder. Some assertion languages let a formula bind a name that the program also uses. Take the postcondition $`\exists y,\ x<y` and the command `x := y`. Blind replacement gives $`\exists y,\ y<y`, false at every store. Renaming the bound name first gives $`\exists z,\ x<z` and then $`\exists z,\ y<z`, true at every store. Under Definition 11.4 the postcondition is $`\varphi(x)` with $`\varphi(n_1)\coloneqq\exists k\in\mathbb Z,\ n_1<k`, and Lemma 11.6 gives $`\varphi(y)` directly. Session 22 treats substitution that avoids capture.
+*Further reading · Names bound inside assertions.* In Definition 11.4 a quantifier inside $`\varphi` ranges over integers and binds no name, so substitution never meets a binder. Some assertion languages let a formula bind a name that the program also uses. Take the postcondition $`\exists y,\ x<y` and the command `x := y`. Blind replacement gives $`\exists y,\ y<y`, false at every store. Renaming the bound name first gives $`\exists z,\ x<z` and then $`\exists z,\ y<z`, true at every store. Under Definition 11.4 the postcondition is $`\varphi(x)` with $`\varphi(n_1)\coloneqq\exists k\in\mathbb Z,\ n_1<k`, and Lemma 11.6 gives $`\varphi(y)` directly. Session 22 treats substitution that avoids capture.
 
-*Choosing an intermediate assertion.* For distinct $`x,y,z`, require $`z\ge2` after `x := y + 1; z := x + x`. Carrying the postcondition back gives $`x\ge1` before the second assignment and $`y\ge0` before the sequence. From the stronger precondition $`y\ge10`, the intermediate assertion $`x\ge11` also works. From $`y\ge0` it fails at $`y=0`. An intermediate assertion must lie between what the prefix guarantees and what the suffix requires. Substitution computes the latter exactly.
+*Further reading · Choosing an intermediate assertion.* For distinct $`x,y,z`, require $`z\ge2` after `x := y + 1; z := x + x`. Carrying the postcondition back gives $`x\ge1` before the second assignment and $`y\ge0` before the sequence. From the stronger precondition $`y\ge10`, the intermediate assertion $`x\ge11` also works. From $`y\ge0` it fails at $`y=0`. An intermediate assertion must lie between what the prefix guarantees and what the suffix requires. Substitution computes the latter exactly.
 
 # Sources and Formalization
 %%%
@@ -234,6 +234,6 @@ number := false
 
 * *Lemma 11.3.* Formulated in this book. Corresponds to CS Exercise 3.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 11.6.* Formulated in this book. Corresponds to CS Lemma 12.1. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
-* *Theorem 11.8.* Formulated in this book. Corresponds to CS Lemma 12.2, assignment case. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 11.7.* Formulated in this book. Corresponds to CS Lemma 12.2, assignment case. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Proposition 11.8.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Proposition 11.9.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
-* *Proposition 11.10.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

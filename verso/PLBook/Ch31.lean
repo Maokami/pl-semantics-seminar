@@ -8,7 +8,7 @@ tag := "ch31"
 file := "chapter-31"
 %%%
 
-* *Definitions.* The typed language of Session 31 ([Lambda language card](lambda-card/index.html)). This session uses Bool and Nat ([C.2](lambda-card/index.html#lambda-c2)), functions and Unit ([C.3](lambda-card/index.html#lambda-c3)), pairs and projections ([C.4](lambda-card/index.html#lambda-c4)), and everything in [C.7](lambda-card/index.html#lambda-c7): type variables in contexts, well-formed types, the substitution $`[X\mapsto S]T` and its action on terms, and the rules E-TApp, E-TappTabs, E-Pack, E-Unpack, E-UnpackPack, T-TAbs, T-TApp, T-Pack and T-Unpack. Inversion of typing ([Session 26, Lemma 26.1](chapter-26/index.html#ch26-s1)). The substitution lemma ([Session 25, Theorem 25.5](chapter-25/index.html#ch25-s3)). Store typings ([C.6](lambda-card/index.html#lambda-c6)). The safety table and its Rows 1–5 ([C.8](lambda-card/index.html#lambda-c8)).
+* *Definitions.* The typed language of Session 31 ([Lambda language card](lambda-card/index.html)). This session uses Bool and Nat ([C.2](lambda-card/index.html#lambda-c2)), functions and Unit ([C.3](lambda-card/index.html#lambda-c3)), pairs and projections ([C.4](lambda-card/index.html#lambda-c4)), and everything in [C.7](lambda-card/index.html#lambda-c7): type variables in contexts, well-formed types, the substitution $`[X\mapsto S]T` and its action on terms, and the rules E-TApp, E-TappTabs, E-Pack, E-Unpack, E-UnpackPack, T-TAbs, T-TApp, T-Pack and T-Unpack. Inversion of typing ([Session 26, Lemma 26.1](chapter-26/index.html#ch26-s1); [Session 27, Lemma 27.1](chapter-27/index.html#ch27-s1)). The substitution lemma ([Session 25, Theorem 25.5](chapter-25/index.html#ch25-s3)). Store typings ([C.6](lambda-card/index.html#lambda-c6)). The safety table and its Rows 1–5 ([C.8](lambda-card/index.html#lambda-c8)).
 * *New terms.* Type abstraction, universal type, existential type, abstract type, escape condition. [Glossary and label key](glossary/index.html)
 * *Proposition 31.1 (Typing and instantiating twice), Proposition 31.2 (Opening the counter) and Proposition 31.3 (The escape condition rejects a client).* Let $`\mathit{twice}=\lambda X.\lambda f{:}X\to X.\lambda x{:}X.f\ (f\ x)`, and let $`\mathit{counter}` and $`\mathit{Counter}` be as in §31.2. (31.1) $`\vdash\mathit{twice}:\forall X.(X\to X)\to X\to X`, $`\vdash\mathit{twice}\ [\mathsf{Nat}]:(\mathsf{Nat}\to\mathsf{Nat})\to\mathsf{Nat}\to\mathsf{Nat}`, and $`\mathit{twice}\ [\mathsf{Nat}]\to\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.\lambda x{:}\mathsf{Nat}.f\ (f\ x)`. (31.2) The client $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)` satisfies $`\vdash\mathit{client}:\mathsf{Nat}`, and its first step is by E-UnpackPack. (31.3) There is no type $`T` with $`\vdash\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1:T`.
 * *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL). The rules of C.7 for universal types are those of System F (§23.3), and §23.5 states progress and preservation for System F. The rules for existential types are those of §24.1, and §24.2 uses them to build a counter as an abstract data type. TAPL’s counter uses records. This book’s counter is written with pairs. TAPL’s examples in §23.4 include $`\mathit{twice}` under the name double. TAPL obtains the escape condition from the scope of $`X`, and C.7 writes it as a premise of T-Unpack. Theorem 31.5 states Row 6 of the safety table without proof. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
@@ -87,7 +87,7 @@ $$`T_{\mathrm c}=X\times((X\to X)\times(X\to\mathsf{Nat})),\qquad\mathit{Counter
 
 For a term $`c` of type $`T_{\mathrm c}`, the start value is $`c.1`, the increment is $`c.2.1` and the read operation is $`c.2.2`. Projections associate to the left, so $`c.2.1` is $`(c.2).1`. The representation type of $`\mathit{counter}` is Nat, and the type $`\mathit{Counter}` hides it.
 
-*Proposition 31.2 (Opening the counter).* Let $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)`.
+*Proposition 31.2 (Unpacking the counter).* Let $`\mathit{client}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.2.2\ (c.2.1\ c.1)`.
 
 * (a) $`\vdash\mathit{counter}:\mathit{Counter}`.
 * (b) $`\vdash\mathit{client}:\mathsf{Nat}`.
@@ -124,7 +124,7 @@ Inside the body the client cannot use what the package hides. The term $`\mathsf
 tag := "ch31-s3"
 %%%
 
-Opening a package gives the client a name $`X` for the representation type, valid inside the body. The escape condition keeps this name from leaving the body in the type of the result.
+Unpacking a package gives the client a name $`X` for the representation type, valid inside the body. The escape condition keeps this name from leaving the body in the type of the result.
 
 *Proposition 31.3 (The escape condition rejects a client).* Let $`\mathit{leak}=\mathsf{let}\ \{X,c\}=\mathit{counter}\ \mathsf{in}\ c.1`. There is no type $`T` with $`\vdash\mathit{leak}:T`.
 
@@ -242,8 +242,8 @@ tag := "ch31-notes"
 number := false
 %%%
 
-* *Proposition 31.1.* Formulated in this book. Paper proof only (derivation in [§31.1](chapter-31/index.html#ch31-s1)).
-* *Proposition 31.2.* Formulated in this book. Paper proof only (derivation in [§31.2](chapter-31/index.html#ch31-s2)).
-* *Proposition 31.3.* Formulated in this book. Paper proof only (proof in [§31.3](chapter-31/index.html#ch31-s3)).
-* *Lemma 31.4.* Formulated in this book. Paper proof only (sketch in [Solutions and Further Reading](chapter-31/index.html#ch31-s6)).
-* *Theorem 31.5.* Corresponds to TAPL §§23.5, 24.1. Paper proof only (stated without proof here; see TAPL §§23.5, 24.1).
+* *Proposition 31.1.* Formulated in this book. Paper proof only ([§31.1](chapter-31/index.html#ch31-s1)).
+* *Proposition 31.2.* Formulated in this book. Paper proof only ([§31.2](chapter-31/index.html#ch31-s2)).
+* *Proposition 31.3.* Formulated in this book. Paper proof only ([§31.3](chapter-31/index.html#ch31-s3)).
+* *Lemma 31.4.* Formulated in this book. The solutions give a proof sketch. Paper proof only ([Solutions and Further Reading](chapter-31/index.html#ch31-s6)).
+* *Theorem 31.5.* Corresponds to TAPL §§23.5, 24.1. Paper proof only (TAPL §§23.5, 24.1; no proof in this book).

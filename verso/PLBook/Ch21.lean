@@ -25,7 +25,7 @@ tag := "ch21-s1"
 
 [Session 7, §7.1](chapter-07/index.html#ch07-s1) calls what a notion of equivalence compares about a run its *observation*. Program equivalence (Definition 7.1) observes the whole final store. We use the word in the same sense for each theorem below. The four theorems are restated with all their quantifiers. Two paragraphs then name their observations and their premises.
 
-*Theorem 6.2 (Equivalence of terminating evaluations), restated.* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
+*Theorem 6.2 (Equivalence of terminating executions), restated.* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
 
 *Theorem 10.2 (Correspondence), restated.* For every command $`c` and stores $`s,t\in\Sigma`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
 
@@ -147,6 +147,8 @@ number := false
 *Further problem.* Every configuration $`p` with $`\langle c,s\rangle\to^*p` has a successor. Otherwise Lemma 5.3 gives $`p=\langle\mathsf{skip},t\rangle` for some $`t`, and the direction from paths to derivations of Theorem 6.2 gives $`s\vdash c\Downarrow t`, which was excluded. Put $`f(0)=\langle c,s\rangle` and let $`f(i+1)` be a successor of $`f(i)`. By induction on $`i`, each $`f(i)` is reached from $`\langle c,s\rangle` by a finite path, so the successor exists.
 
 *Further reading.* Nipkow and Klein prove the converse of their compiler theorem as Lemma 8.18 (p. 110) and combine both directions in Theorem 8.19 (p. 111). For their dead-code elimination they prove the converse as Lemma 10.20 (p. 170), and Corollary 10.21 (p. 171) observes every name and obtains equivalence in the sense of Session 7. The compiler chapter of Xavier Leroy’s _Compiler Verification_ course proves that the code of a diverging program diverges. It uses a small-step semantics with continuations and a measure on source configurations that decreases at every source step matched by no machine transition (Session 16, Further Reading). [Concrete Semantics, §8.4](https://concrete-semantics.org/concrete-semantics.pdf#page=120) · [Concrete Semantics, §10.3](https://concrete-semantics.org/concrete-semantics.pdf#page=180) · [Leroy’s course, compiler chapter](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Compil.lean)
+
+*Further reading · Special lecture S4.* The organizer’s special lecture [S4 (failure and composition)](static/slides/s4/index.html) adds a failing outcome to the state transformers of Session 8 and proves the laws of sequencing for it. These are the failing runs set aside in §21.3.
 
 # Sources and Formalization
 %%%

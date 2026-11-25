@@ -11,6 +11,8 @@ number := false
 
 A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-04/index.html). A.6 gives the step and path judgments for [Session 5](chapter-05/index.html) and [Session 6](chapter-06/index.html). [English–Korean glossary](glossary/index.html)
 
+*Letters.* $`x,y,z` range over variable names, $`n` over integers, $`e` over arithmetic expressions, $`b` over Boolean expressions and $`c,d` over commands. $`s,t,u` range over stores and $`m,n` name intermediate stores in derivations (when every letter is taken, a further store is $`v`). $`p,q,r` range over configurations.
+
 # A.1 Arithmetic expressions · Session 1
 %%%
 tag := "imp-a1"
@@ -51,10 +53,12 @@ $$`\begin{aligned}
 
 $$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
 
-$$`\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1+e_2\Downarrow m+n}
-\qquad\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1-e_2\Downarrow m-n}`
+$$`\frac{s\vdash e_1\Downarrow n_1\quad s\vdash e_2\Downarrow n_2}{s\vdash e_1+e_2\Downarrow n_1+n_2}
+\qquad\frac{s\vdash e_1\Downarrow n_1\quad s\vdash e_2\Downarrow n_2}{s\vdash e_1-e_2\Downarrow n_1-n_2}`
 
-For example, if $`s(x)=2`, lookup and the literal rule supply the premises for $`s\vdash x-3\Downarrow -1`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
+We refer to the four rules as the literal axiom, the variable axiom, the addition rule and the subtraction rule.
+
+For example, if $`s(x)=2`, the variable axiom and the literal axiom supply the premises for $`s\vdash x-3\Downarrow -1`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
 
 # A.4 Guards and commands · Session 2
 %%%
@@ -80,7 +84,7 @@ tag := "imp-a5"
 number := false
 %%%
 
-In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. Sequencing binds its two premises through the intermediate store $`m`.
+In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. *Sequencing* runs the second command from the final store of the first: the sequence rule binds its two premises through the intermediate store $`m`.
 
 $$`\frac{}{s\vdash\mathsf{skip}\Downarrow s}\qquad
 \frac{}{s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]}`
@@ -123,7 +127,7 @@ $$`\frac{}{\langle I,s\rangle\to\langle k,s\rangle}\qquad
 \frac{B(b,s)=\mathsf{false}}{\langle W,s\rangle\to\langle\mathsf{skip},s\rangle}\qquad
 \frac{B(b,s)=\mathsf{true}}{\langle W,s\rangle\to\langle c;W,s\rangle}`
 
-Skip itself has no outgoing step.
+Skip itself has no outgoing step. We refer to the six rules as the small-step assignment rule, the skip-discarding rule, the lifting rule, and the small-step conditional, loop exit and loop iteration rules.
 
 A finite path $`p\to^*q` either takes zero steps with $`p=q`, or has a first step $`p\to r` and a finite tail $`r\to^*q`. Write $`p\to^n q` when there are configurations $`p_0,\ldots,p_n` with $`p_0=p`, $`p_n=q` and $`p_i\to p_{i+1}` for every $`0\le i<n`. The natural number $`n` counts edges.
 
@@ -141,7 +145,7 @@ These references document the formalization. They are optional for seminar prepa
 
 * $`\mathrm{eval}(e,s)`, $`B(b,s)` and $`s[x\mapsto n]` correspond to `aeval s e`, `beval s b` and `update x n s`.
 * $`s\vdash c\Downarrow t` corresponds to `cexec s c t`. The conditional rule is `cexec_ifthenelse`.
-* One step is `red`. The finite closure is `star`. The two presentations of infinite execution are `infseq_with_function` and `infseq`.
+* One step is `red`. The finite closure is `star`. The two presentations of an infinite path are `infseq_with_function` and `infseq`.
 * Definition 1.5 is `PLBook.IMP.Evaluates`. In `PLBook.IMP.Arithmetic`, membership in the free-variable set is `occurs`. Lemma 1.1 is `coincidence`, Corollary 1.2 is `updateIrrelevant`, Theorem 1.3 is `correspondence`, and Corollary 1.4 is `uniqueValue`, all in the namespace `PLBook.IMP`. Expression substitution and its evaluation lemma are [Definition 11.1 and Lemma 11.3](chapter-11/index.html#ch11-s1).
 * Proposition 2.2 is `PLBook.IMP.sequenceExecution` on the shared execution relation.
 * The proof module `PLBook.IMP.Determinacy` checks Lemma 3.1 with `PLBook.IMP.assignmentResult` and Theorem 3.2 with `PLBook.IMP.deterministic` on the shared execution relation. The two derived conditional rules are `PLBook.IMP.ifTrue` and `PLBook.IMP.ifFalse`.
@@ -154,7 +158,7 @@ These references document the formalization. They are optional for seminar prepa
 * In `PLBook.IMP.Denotation`, an outcome is an optional IMP store. The strict extension, flat order, pointwise order and finite approximations adapt the definitions in the seminar’s `Lecture/S02Order.lean` to arbitrary IMP guards and body meanings. Theorem 8.5 is `sequencingAssoc`, Corollary 8.6 is `commandSequencingAssoc`, Proposition 8.8 is `sequencingMono`, Lemma 8.10 is `outcomeChainCases` and Proposition 8.11 is `chainSup_isLub`.
 * In the same module, Lemmas 9.2 and 9.3 are `unfoldMono` and `approxIncreasing`. Theorem 9.5 is `whileDenotationLeastFixed`. Its loop denotation is the pointwise supremum of the finite approximations.
 * Lemma 10.1 is `intermediateStore` in `PLBook.IMP.Denotation`. In `PLBook.IMP.Correspondence`, Theorem 10.2 is `executionIffDenotation` and Corollary 10.3 is `graphAndDivergence`.
-* In `PLBook.IMP.Hoare`, Lemmas 11.3 and 11.6 are `evalSubst` and `writtenSubst`. The two clauses of Theorem 11.8 are `assignmentValid` and `writtenAssignmentValid`. Proposition 11.9 is `assignmentPrecondition`. The two rules of Proposition 11.10 are `validSequence` and `validConsequence`.
+* In `PLBook.IMP.Hoare`, Lemmas 11.3 and 11.6 are `evalSubst` and `writtenSubst`. The two clauses of Theorem 11.7 are `assignmentValid` and `writtenAssignmentValid`. Proposition 11.8 is `assignmentPrecondition`. The two rules of Proposition 11.9 are `validSequence` and `validConsequence`.
 * Theorem 12.3 is `hoareSound` for the six rules of `Hoare`. Theorem 13.3 is `totalHoareSound` for `TotalHoare`, whose loop rule has a premise for each natural-number value of the variant. Both declarations are in `PLBook.IMP.Hoare`.
 * Sessions 17–18 follow the constant propagation chapter of the course. An abstract store is a `Store`. The relation $`s\in\gamma(A)` is `matches' s A`. The order, the join and $`\{\}` are `Le`, `Join` and `Top`. $`\mathrm{eval}^{\sharp}` and $`B^{\sharp}` are `Aeval` and `Beval`, the update $`A[x\mapsto a]` is `Update`, and $`f^{\sharp}_{c}(A)` is `Cexec A c`, whose loop clause iterates at most `num_iter = 20` times. Lemma 17.3 is `matches_Le`, `Le_Join_l`, `Le_Join_r` and `Le_Top`. Lemma 17.5 is `Aeval_sound` and `Beval_sound`. Lemma 17.7 is `fixpoint_sound`. Theorem 17.8 is `Cexec_sound`. [Constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean)
 * The simplifying constructors of Definition 18.1 are `mk_PLUS`, `mk_MINUS`, `mk_EQUAL`, `mk_LESSEQUAL`, `mk_NOT` and `mk_AND`, with the auxiliary `mk_PLUS_CONST`. Definitions 18.2–18.3 are `cp_aexp`, `cp_bexp`, `mk_IFTHENELSE`, `mk_WHILE` and `cp_com`. Lemma 18.1 is `mk_PLUS_sound`, `mk_MINUS_sound`, `mk_EQUAL_sound`, `mk_LESSEQUAL_sound`, `mk_NOT_sound` and `mk_AND_sound`. Lemma 18.2 is `cp_aexp_sound` and `cp_bexp_sound`. Lemma 18.3 is `cexec_mk_IFTHENELSE`, `cexec_mk_WHILE_done` and `cexec_mk_WHILE_loop`. Theorem 18.4 is `cp_com_correct_terminating`.

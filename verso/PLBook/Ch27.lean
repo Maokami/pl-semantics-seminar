@@ -70,12 +70,12 @@ A proof about all typed terms reads the premises off the conclusion by inversion
 
 *Lemma 27.1 (Inversion for products and sums).* For every context $`\Gamma`, type $`T` and terms $`t_0,t_1,t_2`:
 
-1. If $`\Gamma\vdash\{t_1,t_2\}:T`, then $`T=T_1\times T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_1` and $`\Gamma\vdash t_2:T_2`.
-2. If $`\Gamma\vdash t_1.1:T`, then $`\Gamma\vdash t_1:T\times U` for some type $`U`. If $`\Gamma\vdash t_1.2:T`, then $`\Gamma\vdash t_1:U\times T` for some type $`U`.
-3. If $`\Gamma\vdash\mathsf{inl}\ t_1\ \mathsf{as}\ U:T`, then $`U=T`, and $`T=T_1+T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_1`. If $`\Gamma\vdash\mathsf{inr}\ t_1\ \mathsf{as}\ U:T`, then $`U=T`, and $`T=T_1+T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_2`.
-4. If $`\Gamma\vdash\mathsf{case}\ t_0\ \mathsf{of}\ \mathsf{inl}\ x_1\Rightarrow t_1\mid\mathsf{inr}\ x_2\Rightarrow t_2:T` and $`x_1,x_2\notin\mathrm{dom}(\Gamma)`, then there are types $`T_1,T_2` with $`\Gamma\vdash t_0:T_1+T_2`, $`\Gamma,x_1{:}T_1\vdash t_1:T` and $`\Gamma,x_2{:}T_2\vdash t_2:T`.
+* (a) If $`\Gamma\vdash\{t_1,t_2\}:T`, then $`T=T_1\times T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_1` and $`\Gamma\vdash t_2:T_2`.
+* (b) If $`\Gamma\vdash t_1.1:T`, then $`\Gamma\vdash t_1:T\times U` for some type $`U`. If $`\Gamma\vdash t_1.2:T`, then $`\Gamma\vdash t_1:U\times T` for some type $`U`.
+* (c) If $`\Gamma\vdash\mathsf{inl}\ t_1\ \mathsf{as}\ U:T`, then $`U=T`, and $`T=T_1+T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_1`. If $`\Gamma\vdash\mathsf{inr}\ t_1\ \mathsf{as}\ U:T`, then $`U=T`, and $`T=T_1+T_2` for some types $`T_1,T_2` with $`\Gamma\vdash t_1:T_2`.
+* (d) If $`\Gamma\vdash\mathsf{case}\ t_0\ \mathsf{of}\ \mathsf{inl}\ x_1\Rightarrow t_1\mid\mathsf{inr}\ x_2\Rightarrow t_2:T` and $`x_1,x_2\notin\mathrm{dom}(\Gamma)`, then there are types $`T_1,T_2` with $`\Gamma\vdash t_0:T_1+T_2`, $`\Gamma,x_1{:}T_1\vdash t_1:T` and $`\Gamma,x_2{:}T_2\vdash t_2:T`.
 
-*Proof.* Each of the six term forms is the conclusion form of exactly one typing rule: T-Pair, T-Proj1, T-Proj2, T-Inl, T-Inr and T-Case respectively. So a derivation of the judgment ends with that rule, and each claim reads off its premises and its conclusion. In (4), the convention of C.3 renames the bound variables when necessary, so we may assume $`x_1,x_2\notin\mathrm{dom}(\Gamma)`. $`\square`
+*Proof.* Each of the six term forms is the conclusion form of exactly one typing rule: T-Pair, T-Proj1, T-Proj2, T-Inl, T-Inr and T-Case respectively. So a derivation of the judgment ends with that rule, and each claim reads off its premises and its conclusion. In (d), the convention of C.3 renames the bound variables when necessary, so we may assume $`x_1,x_2\notin\mathrm{dom}(\Gamma)`. $`\square`
 
 The rules of C.4 conclude only the new forms, so [Session 26, Lemma 26.1](chapter-26/index.html#ch26-s1) still holds for the typed language of this session. Types are syntax trees. So $`T_1\times T_2=S_1\times S_2` holds only when $`T_1=S_1` and $`T_2=S_2`, and $`T_1+T_2=S_1+S_2` holds only when the left summands are equal and the right summands are equal. A product type is never a sum type, and neither is Bool, Nat, Unit or a function type.
 
@@ -84,15 +84,15 @@ The rules of C.4 conclude only the new forms, so [Session 26, Lemma 26.1](chapte
 tag := "ch27-s2"
 %%%
 
-The closed term $`(\lambda z{:}\mathsf{Nat}.z).2` is stuck. E-PairBeta2 needs a pair of values, and E-Proj2 needs a step of the abstraction, which is a value. The term has no type: by Lemma 27.1(2) the abstraction would need a product type, but by Lemma 26.1(2) its type is a function type. The closed term $`\mathsf{case}\ \{0,0\}\ \mathsf{of}\ \mathsf{inl}\ x\Rightarrow x\mid\mathsf{inr}\ y\Rightarrow y` is stuck in the same way. E-CaseInl and E-CaseInr need an injection, and E-Case needs a step of the pair, which is a value. By Lemma 27.1(4) the pair would need a sum type, but by Lemma 27.1(1) its type is a product type. Progress must exclude these terms. Its new cases need to know that a value of a product type is a pair and that a value of a sum type is an injection.
+The closed term $`(\lambda z{:}\mathsf{Nat}.z).2` is stuck. E-PairBeta2 needs a pair of values, and E-Proj2 needs a step of the abstraction, which is a value. The term has no type: by Lemma 27.1(b) the abstraction would need a product type, but by Lemma 26.1(b) its type is a function type. The closed term $`\mathsf{case}\ \{0,0\}\ \mathsf{of}\ \mathsf{inl}\ x\Rightarrow x\mid\mathsf{inr}\ y\Rightarrow y` is stuck in the same way. E-CaseInl and E-CaseInr need an injection, and E-Case needs a step of the pair, which is a value. By Lemma 27.1(d) the pair would need a sum type, but by Lemma 27.1(a) its type is a product type. Progress must exclude these terms. Its new cases need to know that a value of a product type is a pair and that a value of a sum type is an injection.
 
 *Lemma 27.2 (Canonical forms for products and sums).* Let $`v` be a value.
 
-1. If $`\vdash v:T_1\times T_2`, then $`v=\{v_1,v_2\}` for values $`v_1,v_2`.
-2. If $`\vdash v:T_1+T_2`, then $`v=\mathsf{inl}\ v_1\ \mathsf{as}\ T_1+T_2` for a value $`v_1`, or $`v=\mathsf{inr}\ v_2\ \mathsf{as}\ T_1+T_2` for a value $`v_2`.
-3. [Session 26, Lemma 26.2](chapter-26/index.html#ch26-s2) holds for the typed language of this session.
+* (a) If $`\vdash v:T_1\times T_2`, then $`v=\{v_1,v_2\}` for values $`v_1,v_2`.
+* (b) If $`\vdash v:T_1+T_2`, then $`v=\mathsf{inl}\ v_1\ \mathsf{as}\ T_1+T_2` for a value $`v_1`, or $`v=\mathsf{inr}\ v_2\ \mathsf{as}\ T_1+T_2` for a value $`v_2`.
+* (c) [Session 26, Lemma 26.2](chapter-26/index.html#ch26-s2) holds for the typed language of this session.
 
-*Proof.* A value is $`\mathsf{true}`, $`\mathsf{false}`, a numeric value, an abstraction, $`\mathsf{unit}`, a pair of values, or an injection of a value. A derivation for one of these forms ends with T-True, T-False, T-Zero or T-Succ, T-Abs, T-Unit, T-Pair, or T-Inl or T-Inr, respectively. Their conclusions give the type Bool, Bool, Nat, a function type, Unit, a product type and a sum type. A product type and a sum type differ from each other and from the other types. (1) So a value of type $`T_1\times T_2` is a pair. By the grammar of values its components are values. (2) A value of type $`T_1+T_2` is $`\mathsf{inl}\ v_1\ \mathsf{as}\ U` or $`\mathsf{inr}\ v_2\ \mathsf{as}\ U`, where $`v_1` or $`v_2` is a value by the grammar. Lemma 27.1(3) gives $`U=T_1+T_2`. (3) The proof of Lemma 26.2 now also excludes pairs and injections, whose types are product and sum types. $`\square`
+*Proof.* A value is $`\mathsf{true}`, $`\mathsf{false}`, a numeric value, an abstraction, $`\mathsf{unit}`, a pair of values, or an injection of a value. A derivation for one of these forms ends with T-True, T-False, T-Zero or T-Succ, T-Abs, T-Unit, T-Pair, or T-Inl or T-Inr, respectively. Their conclusions give the type Bool, Bool, Nat, a function type, Unit, a product type and a sum type. A product type and a sum type differ from each other and from the other types. (a) So a value of type $`T_1\times T_2` is a pair. By the grammar of values its components are values. (b) A value of type $`T_1+T_2` is $`\mathsf{inl}\ v_1\ \mathsf{as}\ U` or $`\mathsf{inr}\ v_2\ \mathsf{as}\ U`, where $`v_1` or $`v_2` is a value by the grammar. Lemma 27.1(c) gives $`U=T_1+T_2`. (c) The proof of Lemma 26.2 now also excludes pairs and injections, whose types are product and sum types. $`\square`
 
 The hypothesis that $`v` is a value cannot be dropped: $`\vdash\mathit{pick}:\mathsf{Nat}\times\mathsf{Bool}`, and $`\mathit{pick}` is not a pair.
 
@@ -105,7 +105,7 @@ The hypothesis that $`v` is a value cannot be dropped: $`\vdash\mathit{pick}:\ma
 
 $$`P(D)\coloneqq(\Gamma=\varnothing)\Rightarrow\bigl(t\text{ is a value}\ \vee\ \exists t',\ t\to t'\bigr).`
 
-The cases of the rules of C.2 and C.3 are those of the proof of [Theorem 26.3(a)](chapter-26/index.html#ch26-s2). Their canonical forms now come from Lemma 27.2(3).
+The cases of the rules of C.2 and C.3 are those of the proof of [Theorem 26.3(a)](chapter-26/index.html#ch26-s2). Their canonical forms now come from Lemma 27.2(c).
 
 *T-Case.* Suppose $`D` ends with T-Case. Then $`t=\mathsf{case}\ t_0\ \mathsf{of}\ \mathsf{inl}\ x_1\Rightarrow t_1\mid\mathsf{inr}\ x_2\Rightarrow t_2`, and the first premise is $`D_0:\Gamma\vdash t_0:T_1+T_2`. Its induction hypothesis is
 
@@ -114,12 +114,12 @@ $$`P(D_0):\quad(\Gamma=\varnothing)\Rightarrow\bigl(t_0\text{ is a value}\ \vee\
 Assume $`\Gamma=\varnothing`. No value is a case term, so we must find a step.
 
 1. If $`t_0\to t_0'` for some $`t_0'`, then E-Case gives $`t\to\mathsf{case}\ t_0'\ \mathsf{of}\ \mathsf{inl}\ x_1\Rightarrow t_1\mid\mathsf{inr}\ x_2\Rightarrow t_2`.
-2. Otherwise $`t_0` is a value by $`P(D_0)`. Lemma 27.2(2) applied to $`D_0` gives $`t_0=\mathsf{inl}\ v_1\ \mathsf{as}\ T_1+T_2` for a value $`v_1`, or $`t_0=\mathsf{inr}\ v_2\ \mathsf{as}\ T_1+T_2` for a value $`v_2`.
+2. Otherwise $`t_0` is a value by $`P(D_0)`. Lemma 27.2(b) applied to $`D_0` gives $`t_0=\mathsf{inl}\ v_1\ \mathsf{as}\ T_1+T_2` for a value $`v_1`, or $`t_0=\mathsf{inr}\ v_2\ \mathsf{as}\ T_1+T_2` for a value $`v_2`.
 3. In the first case E-CaseInl gives $`t\to[x_1\mapsto v_1]t_1`. In the second case E-CaseInr gives $`t\to[x_2\mapsto v_2]t_2`.
 
 The premises for the branches have the contexts $`\Gamma,x_1{:}T_1` and $`\Gamma,x_2{:}T_2`, which are not empty. Their hypotheses are not used.
 
-*T-Proj1, T-Proj2.* Suppose $`D` ends with T-Proj1. Then $`t=t_1.1` and $`T=T_{11}`, with premise $`D_1:\Gamma\vdash t_1:T_{11}\times T_{12}`. Assume $`\Gamma=\varnothing`. If $`t_1\to t_1'`, then E-Proj1 gives $`t\to t_1'.1`. Otherwise $`t_1` is a value by $`P(D_1)`, Lemma 27.2(1) gives $`t_1=\{v_1,v_2\}`, and E-PairBeta1 gives $`t\to v_1`. T-Proj2 is the same with E-Proj2 and E-PairBeta2.
+*T-Proj1, T-Proj2.* Suppose $`D` ends with T-Proj1. Then $`t=t_1.1` and $`T=T_{11}`, with premise $`D_1:\Gamma\vdash t_1:T_{11}\times T_{12}`. Assume $`\Gamma=\varnothing`. If $`t_1\to t_1'`, then E-Proj1 gives $`t\to t_1'.1`. Otherwise $`t_1` is a value by $`P(D_1)`, Lemma 27.2(a) gives $`t_1=\{v_1,v_2\}`, and E-PairBeta1 gives $`t\to v_1`. T-Proj2 is the same with E-Proj2 and E-PairBeta2.
 
 *T-Pair.* Then $`t=\{t_1,t_2\}`, with premises $`D_1:\Gamma\vdash t_1:T_1` and $`D_2:\Gamma\vdash t_2:T_2`. Assume $`\Gamma=\varnothing`. If $`t_1` steps, E-Pair1 applies. Otherwise $`t_1` is a value by $`P(D_1)`, and if $`t_2` steps, E-Pair2 applies. Otherwise $`t_2` is a value by $`P(D_2)`, and $`\{t_1,t_2\}` is a value.
 
@@ -160,8 +160,8 @@ $$`t=\mathsf{case}\ (\mathsf{inl}\ v_0\ \mathsf{as}\ T_0)\ \mathsf{of}\ \mathsf{
 
 The rule has no evaluation premise, so there is no induction hypothesis. Fix $`\Gamma` and $`T` and assume $`D:\Gamma\vdash t:T`. Rename the bound variables $`x_1` and $`x_2` if necessary so that $`x_1,x_2\notin\mathrm{dom}(\Gamma)`. Up to alpha-equivalence this changes neither $`t` nor $`t'`. We must show $`\Gamma\vdash[x_1\mapsto v_0]t_1:T`.
 
-1. Apply Lemma 27.1(4) to $`D`. There are types $`T_1,T_2` with (i) $`\Gamma\vdash\mathsf{inl}\ v_0\ \mathsf{as}\ T_0:T_1+T_2`, (ii) $`\Gamma,x_1{:}T_1\vdash t_1:T` and (iii) $`\Gamma,x_2{:}T_2\vdash t_2:T`.
-2. Apply Lemma 27.1(3) to (i). The annotation is the type, $`T_0=T_1+T_2`, and there are types $`U_1,U_2` with $`T_1+T_2=U_1+U_2` and (iv) $`\Gamma\vdash v_0:U_1`.
+1. Apply Lemma 27.1(d) to $`D`. There are types $`T_1,T_2` with (i) $`\Gamma\vdash\mathsf{inl}\ v_0\ \mathsf{as}\ T_0:T_1+T_2`, (ii) $`\Gamma,x_1{:}T_1\vdash t_1:T` and (iii) $`\Gamma,x_2{:}T_2\vdash t_2:T`.
+2. Apply Lemma 27.1(c) to (i). The annotation is the type, $`T_0=T_1+T_2`, and there are types $`U_1,U_2` with $`T_1+T_2=U_1+U_2` and (iv) $`\Gamma\vdash v_0:U_1`.
 3. Compare the left summands in $`T_1+T_2=U_1+U_2`. This gives $`U_1=T_1`, so (iv) is $`\Gamma\vdash v_0:T_1`.
 4. Apply Lemma 27.4 with $`x\coloneqq x_1`, $`S\coloneqq T_1`, $`u\coloneqq t_1` and $`s\coloneqq v_0`. Its premises are (ii) and (iv) in the form of step 3. Its conclusion is $`\Gamma\vdash[x_1\mapsto v_0]t_1:T`, the goal.
 
@@ -169,17 +169,17 @@ The type $`T` of the result is read directly from premise (ii) of T-Case. What m
 
 In step 2 of §27.1, the case reads $`\Gamma=\varnothing`, $`T_0=\mathsf{Nat}+\mathsf{Bool}`, $`v_0=0`, $`x_1=x`, $`t_1=\{x,\mathsf{iszero}\ x\}`, $`x_2=y`, $`t_2=\{0,y\}` and $`T=\mathsf{Nat}\times\mathsf{Bool}`. Step 1 gives $`T_1=\mathsf{Nat}` and $`T_2=\mathsf{Bool}`, step 3 gives $`\vdash 0:\mathsf{Nat}`, and step 4 gives the right derivation displayed above.
 
-*E-CaseInr.* As for E-CaseInl, with the second part of Lemma 27.1(3), the right summands, and premise (iii) (Exercise 27.2).
+*E-CaseInr.* As for E-CaseInl, with the second part of Lemma 27.1(c), the right summands, and premise (iii) (Exercise 27.2).
 
-*E-PairBeta1, E-PairBeta2.* For E-PairBeta1, $`t=\{v_1,v_2\}.1` and $`t'=v_1`. Assume $`\Gamma\vdash t:T`. Lemma 27.1(2) gives a type $`U` with $`\Gamma\vdash\{v_1,v_2\}:T\times U`. Lemma 27.1(1) gives $`T\times U=T_1\times T_2` with $`\Gamma\vdash v_1:T_1`. Comparing first components gives $`T_1=T`, so $`\Gamma\vdash v_1:T`. E-PairBeta2 is the same with second components.
+*E-PairBeta1, E-PairBeta2.* For E-PairBeta1, $`t=\{v_1,v_2\}.1` and $`t'=v_1`. Assume $`\Gamma\vdash t:T`. Lemma 27.1(b) gives a type $`U` with $`\Gamma\vdash\{v_1,v_2\}:T\times U`. Lemma 27.1(a) gives $`T\times U=T_1\times T_2` with $`\Gamma\vdash v_1:T_1`. Comparing first components gives $`T_1=T`, so $`\Gamma\vdash v_1:T`. E-PairBeta2 is the same with second components.
 
-*E-Proj1, E-Proj2.* For E-Proj1, $`t=t_1.1` and $`t'=t_1'.1`. Assume $`\Gamma\vdash t:T`. Lemma 27.1(2) gives $`U` with $`\Gamma\vdash t_1:T\times U`. $`Q(E_1)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq T\times U` gives $`\Gamma\vdash t_1':T\times U`, and T-Proj1 gives $`\Gamma\vdash t':T`. E-Proj2 is the same at $`U\times T`.
+*E-Proj1, E-Proj2.* For E-Proj1, $`t=t_1.1` and $`t'=t_1'.1`. Assume $`\Gamma\vdash t:T`. Lemma 27.1(b) gives $`U` with $`\Gamma\vdash t_1:T\times U`. $`Q(E_1)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq T\times U` gives $`\Gamma\vdash t_1':T\times U`, and T-Proj1 gives $`\Gamma\vdash t':T`. E-Proj2 is the same at $`U\times T`.
 
-*E-Pair1, E-Pair2.* Lemma 27.1(1) gives $`T=T_1\times T_2` with $`\Gamma\vdash t_1:T_1` and $`\Gamma\vdash t_2:T_2`. Apply $`Q(E_1)` at $`S\coloneqq T_1` for E-Pair1, or $`Q(E_2)` at $`S\coloneqq T_2` for E-Pair2, and use T-Pair.
+*E-Pair1, E-Pair2.* Lemma 27.1(a) gives $`T=T_1\times T_2` with $`\Gamma\vdash t_1:T_1` and $`\Gamma\vdash t_2:T_2`. Apply $`Q(E_1)` at $`S\coloneqq T_1` for E-Pair1, or $`Q(E_2)` at $`S\coloneqq T_2` for E-Pair2, and use T-Pair.
 
-*E-Inl, E-Inr.* For E-Inl, $`t=\mathsf{inl}\ t_1\ \mathsf{as}\ U` and $`t'=\mathsf{inl}\ t_1'\ \mathsf{as}\ U`. Lemma 27.1(3) gives $`U=T=T_1+T_2` with $`\Gamma\vdash t_1:T_1`. $`Q(E_1)` at $`T_1` gives $`\Gamma\vdash t_1':T_1`, and T-Inl gives $`\Gamma\vdash\mathsf{inl}\ t_1'\ \mathsf{as}\ T_1+T_2:T_1+T_2`, which is $`\Gamma\vdash t':T`. E-Inr is the same with $`T_2`.
+*E-Inl, E-Inr.* For E-Inl, $`t=\mathsf{inl}\ t_1\ \mathsf{as}\ U` and $`t'=\mathsf{inl}\ t_1'\ \mathsf{as}\ U`. Lemma 27.1(c) gives $`U=T=T_1+T_2` with $`\Gamma\vdash t_1:T_1`. $`Q(E_1)` at $`T_1` gives $`\Gamma\vdash t_1':T_1`, and T-Inl gives $`\Gamma\vdash\mathsf{inl}\ t_1'\ \mathsf{as}\ T_1+T_2:T_1+T_2`, which is $`\Gamma\vdash t':T`. E-Inr is the same with $`T_2`.
 
-*E-Case.* Rename the bound variables as in the board case. Lemma 27.1(4) gives $`\Gamma\vdash t_0:T_1+T_2` and the two branch typings. $`Q(E_0)` at $`T_1+T_2` gives $`\Gamma\vdash t_0':T_1+T_2`, and T-Case gives $`\Gamma\vdash t':T`.
+*E-Case.* Rename the bound variables as in the board case. Lemma 27.1(d) gives $`\Gamma\vdash t_0:T_1+T_2` and the two branch typings. $`Q(E_0)` at $`T_1+T_2` gives $`\Gamma\vdash t_0':T_1+T_2`, and T-Case gives $`\Gamma\vdash t':T`.
 
 *Rules of C.2 and C.3.* These are the cases of the proof of [Theorem 26.3(b)](chapter-26/index.html#ch26-s3). In the case E-AppAbs the substitution lemma is now Lemma 27.4, because the body and the argument may contain the new forms. $`\square`
 
@@ -198,7 +198,7 @@ The cases proved in this session form Row 3 of the safety table. In the form of 
 * *Progress.* T-Pair: $`\{t_1,t_2\}` is a value or steps by E-Pair1 or E-Pair2. T-Proj1: steps by E-Proj1 or E-PairBeta1. T-Proj2: steps by E-Proj2 or E-PairBeta2. T-Inl, T-Inr: the term is a value or steps by E-Inl, respectively E-Inr. T-Case: steps by E-Case, E-CaseInl or E-CaseInr.
 * *Preservation.* E-PairBeta1, E-PairBeta2: no lemma. E-CaseInl, E-CaseInr: uses the substitution lemma (Lemma 27.4). E-Pair1, E-Pair2, E-Proj1, E-Proj2, E-Inl, E-Inr, E-Case: premise.
 
-“No lemma” and “premise” are read as in Sessions 24 and 26. Adding Row 3 changes the earlier rows in two places. The canonical-forms entries of Rows 1 and 2 must now exclude pairs and injections, as in the proof of Lemma 27.2(3). The E-AppAbs entry of Row 2 uses the substitution lemma for the larger language, Lemma 27.4.
+“No lemma” and “premise” are read as in Sessions 24 and 26. Adding Row 3 changes the earlier rows in two places. The canonical-forms entries of Rows 1 and 2 must now exclude pairs and injections, as in the proof of Lemma 27.2(c). The E-AppAbs entry of Row 2 uses the substitution lemma for the larger language, Lemma 27.4.
 
 # Types as propositions
 %%%
@@ -269,8 +269,8 @@ Every term has type Nat. The first is typed by T-Case from $`\vdash\mathsf{inr}\
 
 *27.2.* Suppose $`E` ends with E-CaseInr. Then $`t=\mathsf{case}\ (\mathsf{inr}\ v_0\ \mathsf{as}\ T_0)\ \mathsf{of}\ \mathsf{inl}\ x_1\Rightarrow t_1\mid\mathsf{inr}\ x_2\Rightarrow t_2` and $`t'=[x_2\mapsto v_0]t_2`. Fix $`\Gamma` and $`T`, assume $`D:\Gamma\vdash t:T`, and rename so that $`x_1,x_2\notin\mathrm{dom}(\Gamma)`. We must show $`\Gamma\vdash[x_2\mapsto v_0]t_2:T`.
 
-1. Lemma 27.1(4) applied to $`D` gives $`T_1,T_2` with (i) $`\Gamma\vdash\mathsf{inr}\ v_0\ \mathsf{as}\ T_0:T_1+T_2`, (ii) $`\Gamma,x_1{:}T_1\vdash t_1:T` and (iii) $`\Gamma,x_2{:}T_2\vdash t_2:T`.
-2. The second part of Lemma 27.1(3) applied to (i) gives $`T_0=T_1+T_2`, and types $`U_1,U_2` with $`T_1+T_2=U_1+U_2` and (iv) $`\Gamma\vdash v_0:U_2`.
+1. Lemma 27.1(d) applied to $`D` gives $`T_1,T_2` with (i) $`\Gamma\vdash\mathsf{inr}\ v_0\ \mathsf{as}\ T_0:T_1+T_2`, (ii) $`\Gamma,x_1{:}T_1\vdash t_1:T` and (iii) $`\Gamma,x_2{:}T_2\vdash t_2:T`.
+2. The second part of Lemma 27.1(c) applied to (i) gives $`T_0=T_1+T_2`, and types $`U_1,U_2` with $`T_1+T_2=U_1+U_2` and (iv) $`\Gamma\vdash v_0:U_2`.
 3. Comparing the right summands gives $`U_2=T_2`, so (iv) is $`\Gamma\vdash v_0:T_2`.
 4. Lemma 27.4 with $`x\coloneqq x_2`, $`S\coloneqq T_2`, $`u\coloneqq t_2` and $`s\coloneqq v_0`, applied to (iii) and (iv), gives $`\Gamma\vdash[x_2\mapsto v_0]t_2:T`.
 
@@ -280,11 +280,11 @@ Premise (ii), for the left branch, is not used.
 
 *27.4.* Take $`\lambda z{:}T\times S.\{z.2,z.1\}`. T-Var gives $`z{:}T\times S\vdash z:T\times S`. Read: assume $`T` and $`S`. T-Proj2 and T-Proj1 give $`z.2:S` and $`z.1:T` in that context. Read: so $`S`, and so $`T`. T-Pair gives $`\{z.2,z.1\}:S\times T`. Read: so $`S` and $`T`. T-Abs gives $`\vdash\lambda z{:}T\times S.\{z.2,z.1\}:T\times S\to S\times T`. Read: $`T` and $`S` implies $`S` and $`T`.
 
-*Further problem.* The canonical form of a product type is now $`\{t_1,t_2\}` for terms $`t_1,t_2`. Progress: T-Pair gives a value. T-Proj1 steps by E-Proj1 or by the new first projection rule, T-Proj2 likewise. The other entries are unchanged. Preservation: the new projection rules use no lemma, since Lemma 27.1(2) and then 27.1(1) give $`\Gamma\vdash t_1:T` directly. E-Proj1 and E-Proj2 use the premise. Both properties still hold. The eager language takes two steps, $`\{0,\mathsf{pred}\ 0\}.1\to\{0,0\}.1\to 0`, by E-Proj1 above E-Pair2 above E-PredZero, and then E-PairBeta1. The new language takes one step to $`0` and never evaluates $`\mathsf{pred}\ 0`. Progress and preservation constrain how each rule relates to typing. They do not fix an evaluation order.
+*Further problem.* The canonical form of a product type is now $`\{t_1,t_2\}` for terms $`t_1,t_2`. Progress: T-Pair gives a value. T-Proj1 steps by E-Proj1 or by the new first projection rule, T-Proj2 likewise. The other entries are unchanged. Preservation: the new projection rules use no lemma, since Lemma 27.1(b) and then 27.1(a) give $`\Gamma\vdash t_1:T` directly. E-Proj1 and E-Proj2 use the premise. Both properties still hold. The eager language takes two steps, $`\{0,\mathsf{pred}\ 0\}.1\to\{0,0\}.1\to 0`, by E-Proj1 above E-Pair2 above E-PredZero, and then E-PairBeta1. The new language takes one step to $`0` and never evaluates $`\mathsf{pred}\ 0`. Progress and preservation constrain how each rule relates to typing. They do not fix an evaluation order.
 
-*Annotations and uniqueness of types.* TAPL §11.9 first presents sums without annotations, with a rule that types $`\mathsf{inl}\ t_1` at $`T_1+T_2` for every $`T_2`. Then $`\mathsf{inl}\ 0` has type $`\mathsf{Nat}+\mathsf{Bool}` and also $`\mathsf{Nat}+\mathsf{Unit}`. Progress and preservation still hold, with the same proofs. The annotation restores the uniqueness of types of Session 24's further reading, so a type checker can compute the type from the term. The inference form of [C.5](lambda-card/index.html#lambda-c5) omits sums for this reason.
+*Further reading · Annotations and uniqueness of types.* TAPL §11.9 first presents sums without annotations, with a rule that types $`\mathsf{inl}\ t_1` at $`T_1+T_2` for every $`T_2`. Then $`\mathsf{inl}\ 0` has type $`\mathsf{Nat}+\mathsf{Bool}` and also $`\mathsf{Nat}+\mathsf{Unit}`. Progress and preservation still hold, with the same proofs. The annotation restores the uniqueness of types of Session 24's further reading, so a type checker can compute the type from the term. The inference form of [C.5](lambda-card/index.html#lambda-c5) omits sums for this reason.
 
-*More on the Curry–Howard correspondence.* The propositions that have a proof in the sense of §27.5 are those of intuitionistic propositional logic with implication, conjunction and disjunction. Some classical laws are missing. For example, Peirce’s law, “if ($`T` implies $`S`) implies $`T`, then $`T`”, holds in every truth table but has no such proof when $`T` and $`S` are arbitrary propositions. TAPL §9.4 presents the correspondence. Philip Wadler’s “Propositions as Types” (_Communications of the ACM_ 58(12), 2015) tells its history.
+*Further reading · More on the Curry–Howard correspondence.* The propositions that have a proof in the sense of §27.5 are those of intuitionistic propositional logic with implication, conjunction and disjunction. Some classical laws are missing. For example, Peirce’s law, “if ($`T` implies $`S`) implies $`T`, then $`T`”, holds in every truth table but has no such proof when $`T` and $`S` are arbitrary propositions. TAPL §9.4 presents the correspondence. Philip Wadler’s “Propositions as Types” (_Communications of the ACM_ 58(12), 2015) tells its history.
 
 TAPL §11.6 defines pairs, §11.9 defines sums, and §9.3 proves the safety theorems for functions. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
@@ -294,7 +294,7 @@ tag := "ch27-notes"
 number := false
 %%%
 
-* *Lemma 27.1.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.1](chapter-27/index.html#ch27-s1)).
-* *Lemma 27.2.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.2](chapter-27/index.html#ch27-s2)).
-* *Theorem 27.3.* Corresponds to TAPL §9.3. Paper proof only (§§27.2–27.3).
-* *Lemma 27.4.* Corresponds to TAPL §9.3. Paper proof only (proof in [§27.3](chapter-27/index.html#ch27-s3)).
+* *Lemma 27.1.* Corresponds to TAPL §9.3. Paper proof only ([§27.1](chapter-27/index.html#ch27-s1)).
+* *Lemma 27.2.* Corresponds to TAPL §9.3. Paper proof only ([§27.2](chapter-27/index.html#ch27-s2)).
+* *Theorem 27.3.* Corresponds to TAPL §9.3. Paper proof only ([§27.2](chapter-27/index.html#ch27-s2)–[§27.3](chapter-27/index.html#ch27-s3)).
+* *Lemma 27.4.* Corresponds to TAPL §9.3. Paper proof only ([§27.3](chapter-27/index.html#ch27-s3)).

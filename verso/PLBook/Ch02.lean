@@ -12,7 +12,7 @@ file := "chapter-02"
 * *Definitions.* Stores, update and expression evaluation (Session 1, Definitions 1.2–1.3). Guard evaluation and command execution use [IMP language card A.4–A.5](imp-card/index.html#imp-a4).
 * *New terms.* Guard, execution judgment, sequencing, derived rule, height of a derivation. [Glossary and label key](glossary/index.html)
 * *Proposition 2.2 (Sequence inversion).* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`m` satisfies both $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`.
-* *Source.* The guards, commands and six execution rules follow Leroy’s IMP. Nipkow and Klein derive the sequence equivalence for their execution relation. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Source.* The guards, commands and six execution rules follow Leroy’s IMP. Nipkow and Klein derive the sequence equivalence for their execution relation. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Derive `x := 1; y := x + 3`, name the intermediate store, and recover it from the completed tree.
 * *Proof outline.* Invert the last rule of a sequence derivation to obtain a witness and two premises. Conversely, join the given premise trees with the sequence rule.
 * *From Session 1.* Both operands of a sum are evaluated in the same store. The second command in a sequence starts in the store produced by the first.
@@ -47,7 +47,7 @@ tag := "ch02-s2"
 
 Session 1 wrote $`s\vdash e\Downarrow n` for evaluation. For a command $`c`, the *execution judgment* $`s\vdash c\Downarrow t` asserts that $`c`, started in store $`s`, terminates in store $`t`.
 
-*Definition 2.1 (Execution judgment).* In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. Sequencing binds its two premises through the intermediate store $`m`.
+*Definition 2.1 (Execution judgment).* In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. *Sequencing* runs the second command from the final store of the first: the sequence rule binds its two premises through the intermediate store $`m`.
 
 $$`\frac{}{s\vdash\mathsf{skip}\Downarrow s}\qquad
 \frac{}{s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]}`
@@ -81,7 +81,7 @@ A rule can be read as a method for checking a proposed result. Consider `if x < 
 
 Reading the rules from the bottom upwards does not always give an immediately terminating procedure. To construct a tree for a loop in a known input store, the guard determines which last rule could apply. A true guard still leaves a new loop judgment as a premise. Selecting the correct rule again and again may generate an infinite list of outstanding obligations. An execution judgment demands a finite tree in which all such branches close. By contrast, given a *completed* candidate tree, every node can be checked against its constructor and local guard conditions in a finite traversal.
 
-# Sequential composition
+# Sequencing
 %%%
 tag := "ch02-s3"
 %%%
@@ -117,7 +117,7 @@ Take `while x < 1 do x := x + 1` with $`s(x) = 0`. By [A.4](imp-card/index.html#
 
 The *height of an execution derivation* is zero when its last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation. In the example the derivations ending with the assignment and loop exit rules each have height zero. The derivation joining them by the loop iteration rule has height one. The Boolean tests are side conditions in Definition 2.1.
 
-The relation gives information about terminating executions. Write $`W=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. No finite tree has a conclusion of the form $`s\vdash W\Downarrow t`. Suppose there were such a tree, and choose one of least height for those endpoints $`s,t`. Only the loop exit rule and the loop iteration rule conclude a loop judgment. The loop exit rule needs $`B(\mathsf{true},s)=\mathsf{false}`, but the constant has value true, so the last rule is the loop iteration rule. Its body premise is $`s\vdash\mathsf{skip}\Downarrow m` for some store $`m`. Only the skip rule concludes a skip judgment, so inversion gives $`m=s`. Its loop premise is therefore $`s\vdash W\Downarrow t`, the very same judgment, and by the definition of height its subderivation has smaller height. This contradicts the choice of a tree of least height. Session 5 gives a positive account of the infinite execution.
+The relation gives information about terminating executions. Write $`W=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. No finite tree has a conclusion of the form $`s\vdash W\Downarrow t`. Suppose there were such a tree, and choose one of least height for those endpoints $`s,t`. Only the loop exit rule and the loop iteration rule conclude a loop judgment. The loop exit rule needs $`B(\mathsf{true},s)=\mathsf{false}`, but the constant has value true, so the last rule is the loop iteration rule. Its body premise is $`s\vdash\mathsf{skip}\Downarrow m` for some store $`m`. Only the skip rule concludes a skip judgment, so inversion gives $`m=s`. Its loop premise is therefore $`s\vdash W\Downarrow t`, the very same judgment, and by the definition of height its subderivation has smaller height. This contradicts the choice of a tree of least height. Session 5 gives a positive account of the infinite path.
 
 # Exercises
 %%%
@@ -181,9 +181,9 @@ Theorem 1.3 also allows an assignment rule with an explicit expression premise.
 
 $$`\frac{s \vdash e \Downarrow n}{s \vdash x \mathrel{:=} e \Downarrow s[x\mapsto n]}`
 
-For example, if $`s(x)=3`, the premise for `x := x + 4` yields $`n=7`. The conclusion updates the old store only after obtaining that integer. Either form derives the same final stores. Given an expression derivation, Theorem 1.3 identifies its result with the value in the assignment rule. Conversely, the theorem supplies a derivation for that computed value. The assignment rule displayed in Definition 2.1 is the one used to count command derivations in Chapter 3. Recording the expression premise adds a subtree to the full derivation.
+For example, if $`s(x)=3`, the premise for `x := x + 4` yields $`n=7`. The conclusion updates the old store only after obtaining that integer. Either form derives the same final stores. Given an expression derivation, Theorem 1.3 identifies its result with the value in the assignment rule. Conversely, the theorem supplies a derivation for that computed value. The assignment rule displayed in Definition 2.1 is the one used to count command derivations in Session 3. Recording the expression premise adds a subtree to the full derivation.
 
-Winskel obtains the value of the right-hand side from an expression premise in his assignment rule (p. 20). Nipkow and Klein write $`(c,s)\Rightarrow t` for command execution and use their evaluator `aval a s` directly in the conclusion of the assignment rule (p. 78). [Winskel, §2.4](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf#page=41) · [Concrete Semantics, §7.2.1, Fig. 7.1](https://concrete-semantics.org/concrete-semantics.pdf#page=88)
+Winskel obtains the value of the right-hand side from an expression premise in his assignment rule (p. 20). Nipkow and Klein write $`(c,s)\Rightarrow t` for command execution and use their evaluator `aval a s` directly in the conclusion of the assignment rule (p. 78). [Winskel, §2.4](https://doi.org/10.7551/mitpress/3054.001.0001) · [Concrete Semantics, §7.2.1, Fig. 7.1](https://concrete-semantics.org/concrete-semantics.pdf#page=88)
 
 *Further reading · Counting loop iterations.*
 
