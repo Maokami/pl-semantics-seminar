@@ -376,6 +376,8 @@ tag := "lambda-c8"
 number := false
 %%%
 
+*Values are normal forms.* In C.2–C.7 a value cannot take a step, in any store when the semantics uses stores. To prove this, induct on the structure of the value: no computation rule has a value on the left of its conclusion. The only congruence rules that could step from a value are E-Succ, E-Pair1, E-Pair2, E-Inl, E-Inr and E-Pack; each requires a step of an immediate component that is itself a value, which the induction hypothesis excludes.
+
 *General statements.* The statements quantify over the typed language of the session. Before Session 30 they read as follows.
 
 * *Progress.* For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`.
@@ -444,7 +446,7 @@ number := false
 
 Section numbers refer to Benjamin C. Pierce, _Types and Programming Languages_, MIT Press, 2002. The presentations of typing unannotated terms, the constraint rules for Unit and pairs, and the generalization rules in [C.5](lambda-card/index.html#lambda-c5) are formulated in this book, as are the constraint rules for references in [C.6](lambda-card/index.html#lambda-c6). The names N-App1, N-AppAbs, T-VarInst, T-LetGen, CT-VarInst and CT-LetGen are also local to this book. Other rule names follow TAPL. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-* C.1: §5.3 (syntax, free variables, substitution and the call-by-value rules); §5.1 (evaluation strategies, including call by name); §3.5 (computation and congruence rules, normal forms, multi-step evaluation).
+* C.1: §5.3 (syntax, free variables, substitution and the call-by-value rules); §5.1 (evaluation strategies, including call by name); §5.2 (the term $`\Omega`); §3.5 (computation and congruence rules, normal forms, multi-step evaluation).
 * C.2: §§3.2 and 3.5 (terms, values and evaluation, stuck terms); §§8.1–8.2 (types and typing rules).
 * C.3: §§9.1–9.2 (function types, typing contexts and the typing rules); §11.2 (Unit); §11.3 (sequencing as a derived form).
 * C.4: §11.6 (pairs); §11.9 (sums with type annotations); §9.4 (the Curry–Howard correspondence, read in Session 27).

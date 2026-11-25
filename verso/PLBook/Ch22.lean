@@ -148,11 +148,11 @@ tag := "ch22-s4"
 number := false
 %%%
 
-*22.1.* Compute $`[x\mapsto y](\lambda y.(\lambda y.y)\,x)` and mark the free occurrences in the result. Check the result against Theorem 22.3. The outer parameter has no occurrence in its body. Why must it still be renamed?
+*22.1.* Compute $`[x\mapsto y](\lambda y.(\lambda y.y)\,x)` and mark the free occurrences in the result. Check the result against Theorem 22.3. The outer parameter has no free occurrence in its body. Why must it still be renamed?
 
 *22.2.* Give a term with two occurrences of $`x` such that $`[x\mapsto s]` replaces only one of them, for every $`s`.
 
-*22.3.* Would the equation of Theorem 22.3 hold for all $`t` if the hypothesis $`x\in\mathrm{FV}(t)` were dropped? Give a counterexample, and name the case of the proof that uses the hypothesis.
+*22.3.* Would the equation of Theorem 22.3 hold for all $`t` if the hypothesis $`x\in\mathrm{FV}(t)` were dropped? Give a counterexample, and identify the cases of the proof that use the hypothesis.
 
 *22.4.* Let $`t=\lambda y.x\,y` and $`s=y\,z`. Suppose step 2 of the board case chose $`z` as the new parameter, although $`z\in\mathrm{FV}(s)`. Compute the result, compare its free variables with Theorem 22.3, and name the steps of the board case that use $`z\notin\mathrm{FV}(s)`.
 
@@ -184,7 +184,7 @@ number := false
 
 *22.2.* Take $`x\,(\lambda x.x)`. Then $`[x\mapsto s](x\,(\lambda x.x))=s\,(\lambda x.x)`. The inner abstraction binds its own occurrence of $`x`.
 
-*22.3.* No. Take distinct $`x,y,z`, $`t=z` and $`s=y`. Then $`[x\mapsto y]z=z` has free variables $`\{z\}`, while the right side is $`\{z\}\cup\{y\}`. The variable case uses the hypothesis: $`x\in\mathrm{FV}(y)` forces $`y=x`. The application case also uses it, to know that at least one part contributes $`\mathrm{FV}(s)`.
+*22.3.* No. Take distinct $`x,y,z`, $`t=z` and $`s=y`. Then $`[x\mapsto y]z=z` has free variables $`\{z\}`, while the right side is $`\{z\}\cup\{y\}`. The variable case uses the hypothesis: $`x\in\mathrm{FV}(y)` forces $`y=x`. The application case also uses it, to know that at least one part contributes $`\mathrm{FV}(s)`, and both abstraction cases use it to obtain $`y\neq x` and $`x\in\mathrm{FV}(t_1)`.
 
 *22.4.* Renaming $`y` to $`z` gives $`\lambda z.x\,z`, and the third equation without its side condition gives $`\lambda z.(y\,z)\,z`. Its free variables are $`\{y\}`. Theorem 22.3 predicts $`(\{x\}\setminus\{x\})\cup\{y,z\}=\{y,z\}`. The $`z` of $`s` has been captured. Steps 2 and 6 use $`z\notin\mathrm{FV}(s)`. In step 2 the third equation does not apply. In step 6, removing $`z` changes $`\mathrm{FV}(s)` from $`\{y,z\}` to $`\{y\}`, and this is exactly the lost variable. A fresh $`w` gives the correct $`\lambda w.(y\,z)\,w`.
 

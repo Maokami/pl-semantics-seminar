@@ -88,7 +88,7 @@ Most assertions in this book read the store only through expressions. Let $`a_1,
 
 An invalid triple has a witness: stores $`s,t` with $`P(s)`, $`s\vdash c\Downarrow t` and not $`Q(t)`. The two stores in the opening example of this section are such a witness. Partial correctness asks nothing of a store from which no execution terminates. Let $`W=\mathsf{while\ true\ do\ skip}`. By [Session 2, §2.4](chapter-02/index.html#ch02-s4), no store has a terminating execution of $`W`. Hence $`\models\{P\}\,W\,\{Q\}` for all assertions $`P,Q`, even when $`Q` holds at no store. Session 13 adds termination to the specification.
 
-# The assignment rule
+# Validity of assignment triples
 %%%
 tag := "ch11-s3"
 %%%

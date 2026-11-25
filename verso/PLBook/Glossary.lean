@@ -1278,7 +1278,7 @@ number := false
 *
   * closure under evaluation
   * 평가에 대한 닫힘
-  * If every value of `t` is a value of `t'`, every element approximating `t` approximates `t'`.
+  * If every value of `t` is a value of `t'`, every element that formally approximates `t` also formally approximates `t'`.
   * Session 36 · [§36.3](chapter-36/index.html#ch36-s3)
 *
   * computational adequacy
@@ -1288,7 +1288,7 @@ number := false
 *
   * formal approximation relation
   * 형식 근사 관계
-  * The relation `d ◁_T t` between elements of ⟦T⟧ and closed terms of type `T`, defined by induction on `T`.
+  * Read `d ◁_T t` as “`d` formally approximates `t`.” It is a relation between elements of ⟦T⟧ and closed terms of type `T`, defined by recursion on `T`.
   * Session 36 · [§36.2](chapter-36/index.html#ch36-s2)
 *
   * ground type

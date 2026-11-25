@@ -30,7 +30,7 @@ A Boolean expression has one of six forms:
 
 $$`b ::= \mathsf{true}\mid\mathsf{false}\mid(e_1=e_2)\mid(e_1\le e_2)\mid\neg b\mid(b_1\land b_2).`
 
-Its value $`B(b,s)` is a Boolean. Constants give their own values. Comparisons test the integer values of both operands in $`s`. Negation exchanges true and false. Conjunction returns true exactly when both operands return true. In programs, $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, $`e_1\ne e_2` abbreviates $`\neg(e_1=e_2)`, and $`p\lor q` abbreviates $`\neg(\neg p\land\neg q)`.
+Its value $`B(b,s)` is a Boolean. Constants give their own values. Comparisons test the integer values of both operands in $`s`. Negation exchanges true and false. Conjunction returns true exactly when both operands return true. In programs, $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, $`e_1\ne e_2` abbreviates $`\neg(e_1=e_2)`, and $`b_1\lor b_2` abbreviates $`\neg(\neg b_1\land\neg b_2)`.
 
 $$`c ::= \mathsf{skip}\mid x:=e\mid(c_1;c_2)\mid
 \mathsf{if}\ b\ \mathsf{then}\ c_1\ \mathsf{else}\ c_2\mid

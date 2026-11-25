@@ -100,7 +100,7 @@ $$`P(D_1):\quad t_1\ \text{is a value}\ \lor\ \exists t_1',\ t_1\to t_1'.`
 4. Suppose $`t_1` is a value. The premise $`D_1` gives $`\vdash t_1:\mathsf{Bool}`. Lemma 24.2(a), applied to the value $`t_1`, gives $`t_1=\mathsf{true}` or $`t_1=\mathsf{false}`.
 5. If $`t_1=\mathsf{true}`, E-IfTrue gives $`t\to t_2`. If $`t_1=\mathsf{false}`, E-IfFalse gives $`t\to t_3`.
 
-In every case $`t` steps. Step 4 is the only place where the typing premise $`D_1` is used. The hypotheses $`P(D_2)` and $`P(D_3)` are not used: a branch need not be a value, and need not step, for the conditional to step.
+In every case $`t` steps. Step 4 is the only place where the conclusion $`\vdash t_1:\mathsf{Bool}` of $`D_1` is used; step 2 uses $`D_1` only through its induction hypothesis. The hypotheses $`P(D_2)` and $`P(D_3)` are not used: a branch need not be a value, and need not step, for the conditional to step.
 
 *Other cases.* T-True, T-False and T-Zero: $`t` is $`\mathsf{true}`, $`\mathsf{false}` or $`0`, a value. T-Succ: $`t=\mathsf{succ}\ t_1` with $`D_1:\ \vdash t_1:\mathsf{Nat}`. If $`t_1\to t_1'`, E-Succ gives $`t\to\mathsf{succ}\ t_1'`. If $`t_1` is a value, Lemma 24.2(b) makes it a numeric value $`nv_1`. Then $`t=\mathsf{succ}\ nv_1` is a numeric value, so $`t` is a value. T-Pred: $`t=\mathsf{pred}\ t_1` with $`D_1:\ \vdash t_1:\mathsf{Nat}`. If $`t_1\to t_1'`, E-Pred applies. If $`t_1` is a value, Lemma 24.2(b) gives $`t_1=0` or $`t_1=\mathsf{succ}\ nv_1`, and E-PredZero or E-PredSucc applies. T-IsZero: as for T-Pred, with E-IsZero, E-IszeroZero and E-IszeroSucc. This proves $`P(D)` for every $`D`. $`\square`
 
@@ -145,7 +145,7 @@ For the proof, fix $`T` and show $`\vdash t':T` by induction on the path $`\pi:t
 * *Progress.* T-True, T-False, T-Zero: the term is a value. T-Succ: $`\mathsf{succ}\ t_1` is a value or steps by E-Succ. T-If: steps by E-If, E-IfTrue or E-IfFalse. T-Pred: steps by E-Pred, E-PredZero or E-PredSucc. T-IsZero: steps by E-IsZero, E-IszeroZero or E-IszeroSucc.
 * *Preservation.* E-IfTrue, E-IfFalse, E-PredZero, E-PredSucc, E-IszeroZero, E-IszeroSucc: no lemma. E-If, E-Succ, E-Pred, E-IsZero: premise.
 
-In the preservation entry, “no lemma” means that the case uses only Lemma 24.1 and a typing rule. “Premise” means that the case applies the induction hypothesis to the evaluation premise and rebuilds the typing with the same rule. From Session 30 every preservation entry also names a store typing, and C.8 lists Row 1 in that form.
+In the preservation entry, “no lemma” means that the case uses only inversion of typing (here Lemma 24.1) and a typing rule. “Premise” means that the case applies the induction hypothesis to the evaluation premise and rebuilds the typing with the same rule. From Session 30 every preservation entry also names a store typing, and C.8 lists Row 1 in that form.
 
 Later sessions add rows: functions and Unit (Session 26), products and sums (Session 27), let (Session 29), references (Session 30), and universal and existential types (Session 31, statements only). A new row can add forms of value. Each earlier canonical-forms statement then gains a case. For example, from Session 26 an abstraction is a value, and the proof of Lemma 24.2(a) must also show that no abstraction has type Bool. C.8 states preservation for every typing context $`\Gamma` ([C.3](lambda-card/index.html#lambda-c3)). The rules of C.2 do not inspect $`\Gamma`, so the proof of Theorem 24.4 works for every $`\Gamma` without change.
 

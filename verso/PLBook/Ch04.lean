@@ -32,7 +32,7 @@ Write $`E` for the expressions of Session 1, Definition 1.1, and $`V` for the se
 
 $$`L:\mathbb Z\to A,\qquad V_A:V\to A,\qquad P,M:A\times A\to A.`
 
-No associativity, commutativity or identity equations are assumed. A *constructor equation* specifies the result of a function on trees whose root is one particular constructor. For $`h:E\to A` the four equations are
+Here $`P` and $`M` are operations, not induction properties; the induction property of §4.2 is called $`Q`. No associativity, commutativity or identity equations are assumed. A *constructor equation* specifies the result of a function on trees whose root is one particular constructor. For $`h:E\to A` the four equations are
 
 $$`\begin{aligned}
 h(n)&=L(n) & h(x)&=V_A(x)\\

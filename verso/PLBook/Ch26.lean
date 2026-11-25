@@ -56,14 +56,14 @@ A proof about all typed terms cannot look at one particular derivation. It reads
 
 *Proof.* Each of the four term forms is the conclusion form of exactly one typing rule of C.2–C.3: T-Var, T-Abs, T-App and T-Unit respectively. So a derivation of the judgment ends with that rule, and each claim reads off its premises and its conclusion. In (c), $`U` is the type $`T_{11}` of that instance of T-App. In (b), the convention of C.3 renames the parameter when necessary, so we may assume $`x\notin\mathrm{dom}(\Gamma)`. $`\square`
 
-For a function type $`T_1\to T_2`, call $`T_1` its *domain* and $`T_2` its *codomain*. Types are syntax trees. So $`T_1\to T_2=S_1\to S_2` holds only when $`T_1=S_1` and $`T_2=S_2`, and a function type is never Bool, Nat or Unit.
+For a function type $`T_1\to T_2`, call $`T_1` its *domain* and $`T_2` its *codomain*. This domain is a type; $`\mathrm{dom}(\Gamma)` of C.3 is a set of variables. Types are syntax trees. So $`T_1\to T_2=S_1\to S_2` holds only when $`T_1=S_1` and $`T_2=S_2`, and a function type is never Bool, Nat or Unit.
 
 # Canonical forms and progress
 %%%
 tag := "ch26-s2"
 %%%
 
-The closed term $`(\mathsf{succ}\ 0)\ 0` is stuck. E-App1 and E-App2 do not apply, because both subterms are values and values do not step. E-AppAbs does not apply, because the operator is not an abstraction. The term has no type: by Lemma 26.1(c) its operator would need a type $`U\to T`, but the only rule for $`\mathsf{succ}` gives Nat. Progress must exclude terms like this one. Its application case needs to know that a value of a function type is an abstraction.
+The closed term $`(\mathsf{succ}\ 0)\ 0` is stuck. E-App1 and E-App2 do not apply, because both subterms are values and values do not step ([C.8](lambda-card/index.html#lambda-c8)). E-AppAbs does not apply, because the operator is not an abstraction. The term has no type: by Lemma 26.1(c) its operator would need a type $`U\to T`, but the only rule for $`\mathsf{succ}` gives Nat. Progress must exclude terms like this one. Its application case needs to know that a value of a function type is an abstraction.
 
 *Lemma 26.2 (Canonical forms).* Let $`v` be a value.
 
@@ -156,7 +156,7 @@ Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash t_1\,t_2:T`. Lemma 26.1(c) give
 tag := "ch26-s4"
 %%%
 
-The run of $`t_0` in §26.1 never met a stuck term. Theorem 26.3 says that no run of a closed well-typed term does.
+The run of $`t_0` in §26.1 never met a stuck term. Theorem 26.3 says that no run of a closed well-typed term does. [Session 24, §24.4](chapter-24/index.html#ch24-s4) derived type safety from Theorems 24.3–24.4; the same argument, written as an induction on the number of steps, gives the following.
 
 *Corollary 26.4 (Safety).* For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to^*t'`, then $`\vdash t':T`, and $`t'` is a value or there is a term $`t''` with $`t'\to t''`.
 
@@ -218,7 +218,7 @@ number := false
 
 *26.2.* Here $`t=v_1\,t_2`, $`t'=v_1\,t_2'`, and the premise is $`E_2:t_2\to t_2'` with $`Q(E_2):\forall\Gamma'\,\forall S,\ (\Gamma'\vdash t_2:S)\Rightarrow(\Gamma'\vdash t_2':S)`. Fix $`\Gamma` and $`T` and assume $`\Gamma\vdash v_1\,t_2:T`. Lemma 26.1(c) gives $`U` with $`\Gamma\vdash v_1:U\to T` and $`\Gamma\vdash t_2:U`. Apply $`Q(E_2)` with $`\Gamma'\coloneqq\Gamma` and $`S\coloneqq U`, the domain. This gives $`\Gamma\vdash t_2':U`, and T-App gives $`\Gamma\vdash v_1\,t_2':T`. The fact that $`v_1` is a value is not used.
 
-*26.3.* In the context $`x{:}\mathsf{Nat}`, T-Var and T-Abs give $`\lambda y{:}\mathsf{Nat}.y` the type $`\mathsf{Nat}\to\mathsf{Nat}`, and T-Var and T-Succ give $`\mathsf{succ}\ x` the type Nat. T-App gives Nat. The term is an application, so it is not a value. E-App1 needs a step of the operator, which is a value. E-App2 needs a step of $`\mathsf{succ}\ x`, which needs a step of $`x` by E-Succ, and no rule steps a variable. E-AppAbs needs the operand to be a value, and $`\mathsf{succ}\ x` is not a numeric value. Without the assumption $`\Gamma=\varnothing`, the T-Var case would have to show that $`x` is a value or steps, and it is neither. In this term that case is reached through T-App, step 2, and then T-Succ.
+*26.3.* In the context $`x{:}\mathsf{Nat}`, T-Var and T-Abs give $`\lambda y{:}\mathsf{Nat}.y` the type $`\mathsf{Nat}\to\mathsf{Nat}`, and T-Var and T-Succ give $`\mathsf{succ}\ x` the type Nat. T-App gives Nat. The term is an application, so it is not a value. E-App1 needs a step of the operator, which is a value and cannot step ([C.8](lambda-card/index.html#lambda-c8)). E-App2 needs a step of $`\mathsf{succ}\ x`, which needs a step of $`x` by E-Succ, and no rule steps a variable. E-AppAbs needs the operand to be a value, and $`\mathsf{succ}\ x` is not a numeric value. Without the assumption $`\Gamma=\varnothing`, the T-Var case would have to show that $`x` is a value or steps, and it is neither. In this term that case is reached through T-App, step 2, and then T-Succ.
 
 *26.4.* Lemma 26.2(a) becomes false: $`\mathsf{bad}` is a value of type $`\mathsf{Nat}\to\mathsf{Nat}` that is not an abstraction. Step 3 of the T-App case of progress fails with it. The term $`\mathsf{bad}\ 0` has type Nat, is not a value, and cannot step: both subterms are values, and its operator is not an abstraction. Preservation is unaffected, because no evaluation rule was added.
 

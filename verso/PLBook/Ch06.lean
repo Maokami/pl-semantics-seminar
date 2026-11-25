@@ -24,7 +24,7 @@ Session 2 represents a terminating execution by a tree. Session 5 represents it 
 tag := "ch06-s1"
 %%%
 
-Use the judgments of Session 2, Definition 2.1 and Session 5, §5.2. A *sequence context* with suffix $`k` is the operation sending a residual $`c` to $`c;k`. The suffix stays fixed, including when $`c` changes. Applying this operation to every command along a path, with the stores unchanged, is called *path lifting*.
+Use the judgments of Session 2, Definition 2.1 and Session 5, §5.2. A *sequence context* with suffix $`k` is the operation sending a residual $`c` to $`c;k`. The suffix stays fixed, including when $`c` changes. In this session $`k` is an arbitrary command, not the branch selected by a guard as in A.5. Applying this operation to every command along a path, with the stores unchanged, is called *path lifting*.
 
 For a particularly small trace take the assignment `x := 2` from store `s` to skip at `m = s[x ↦ 2]`. Fix the suffix `y := x`. Lifting produces one transition of the combined command whose target is `skip; y := x` in store `m`. For distinct names `x` and `y`, at this point the proof still knows that `y` has its *old* value. No transition of the suffix was used in the lifted path. Only after the skip is removed does the next assignment read the already updated `x`.
 
@@ -34,7 +34,7 @@ $$`\left\langle {c\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {c'\
 
 *Proof.* For each configuration along the path replace its command by the sequence with suffix $`k`. Each original edge becomes exactly one edge by the lifting rule of Session 5, Definition 5.1. For $`n = 0` the transformed endpoints agree. The construction preserves every intermediate store. $`\square`
 
-In particular, when $`c' = \operatorname{skip}` the final configuration in the lifted path *still contains the suffix*. One further step goes from $`\left\langle {\operatorname{skip}\text{;}\ k,t} \right\rangle` to $`\left\langle {k,t} \right\rangle`. Forgetting this step gives path segments whose endpoints cannot be joined.
+In particular, when $`c' = \mathsf{skip}` the final configuration in the lifted path *still contains the suffix*. One further step goes from $`\left\langle {\mathsf{skip}\text{;}\ k,t} \right\rangle` to $`\left\langle {k,t} \right\rangle`. Forgetting this step gives path segments whose endpoints cannot be joined.
 
 The construction respects concatenation. If a prefix computation has been split into two paths at some residual `c'` and store `m`, lifting the paths separately yields the same cut point `c'; k` at `m`. Concatenate there to obtain the lifted full path. This observation permits a reader to group steps at any convenient intermediate computation without having to rediscover the behavior of the suffix for each group. It also explains an asymmetry of the rules: Session 5, Definition 5.1 has no rule that lifts a step of the right command while the left command is unfinished, so the command that changes in a sequence context is always the left one.
 
@@ -43,7 +43,7 @@ The construction respects concatenation. If a prefix computation has been split 
 tag := "ch06-s2"
 %%%
 
-*Theorem 6.2 (Equivalence of terminating executions).* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\operatorname{skip},t} \right\rangle`.
+*Theorem 6.2 (Equivalence of terminating executions).* For all $`c,s,t`, $`s \vdash c \Downarrow t` holds if and only if $`\left\langle {c,s} \right\rangle\rightarrow^{*}\left\langle {\mathsf{skip},t} \right\rangle`.
 
 For the forward direction, induct on the given execution derivation. For $`D:s\vdash c\Downarrow t` the induction property is
 
@@ -115,7 +115,7 @@ number := false
 
 *6.2.* In Lemma 6.3’s true loop case, write the three premises needed by the big-step rule, with their stores.
 
-*6.3.* A proposed lifting lemma claims that $`\left\langle {a,s} \right\rangle\rightarrow^{n}\left\langle {\operatorname{skip},t} \right\rangle` implies $`\left\langle {a\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {k,t} \right\rangle`. Refute it at $`n = 0` and repair its statement.
+*6.3.* A proposed lifting lemma claims that $`\left\langle {a,s} \right\rangle\rightarrow^{n}\left\langle {\mathsf{skip},t} \right\rangle` implies $`\left\langle {a\ \text{;}\ k,s} \right\rangle\rightarrow^{n}\left\langle {k,t} \right\rangle`. Refute it at $`n = 0` and repair its statement.
 
 *Further problem.* Replace the assignment transition by two transitions through a fresh residual command `pending(x,v)`. The first evaluates the expression in the current store and records its integer value `v`; the second writes `v` and goes to skip. For loop-free source commands, justify that this refinement preserves terminating final stores and calculate the change in path length.
 
@@ -143,7 +143,7 @@ number := false
 
 *6.2.* At $`s` the guard holds, the body runs from $`s` to $`m`, and the loop runs from $`m` to $`t`. The guard comes from the step. Both execution derivations and $`m` come from inversion of the residual sequence.
 
-*6.3.* Set $`a = \operatorname{skip}` and $`s = t`. A zero-edge path leaves $`\operatorname{skip}\text{;}\ k` syntactically unchanged. The valid conclusion reaches $`\operatorname{skip}\text{;}\ k` in $`n` edges or $`k` in $`n + 1` edges.
+*6.3.* Set $`a = \mathsf{skip}` and $`s = t`. A zero-edge path leaves $`\mathsf{skip}\text{;}\ k` syntactically unchanged. The valid conclusion reaches $`\mathsf{skip}\text{;}\ k` in $`n` edges or $`k` in $`n + 1` edges.
 
 *Further problem.* An old assignment edge from `⟨x := e,s⟩` to skip with updated store is replaced by an edge to `⟨pending(x,eval(e,s)),s⟩` and another to the original endpoint. The new syntax is unavailable in source programs, and its only rule performs the pending update. Inside a sequence, lift the first edge and then the second through the same left-operand context. No rule permits an unrelated suffix to execute between them. Conditional selection and discarding skip retain their original edges.
 

@@ -21,9 +21,9 @@ Let $`n` and $`d` range over integers and $`x` over variable names. The machine 
 
 $$`i ::= \mathsf{push}(n)\mid\mathsf{load}(x)\mid\mathsf{setvar}(x)\mid\mathsf{plus}\mid\mathsf{opp}\mid\mathsf{branch}(d)\mid\mathsf{beq}(d_1,d_0)\mid\mathsf{ble}(d_1,d_0)\mid\mathsf{halt}.`
 
-Informally, $`\mathsf{push}(n)` pushes the integer $`n` on the stack, and $`\mathsf{load}(x)` pushes the current value of the variable $`x`. $`\mathsf{setvar}(x)` pops an integer and assigns it to $`x`. $`\mathsf{plus}` pops two integers and pushes their sum. $`\mathsf{opp}` pops one integer and pushes its opposite. $`\mathsf{branch}(d)` skips $`d` instructions, forward if $`d>0` and backward if $`d<0`. The *conditional branch instruction* $`\mathsf{beq}(d_1,d_0)` pops two integers and skips $`d_1` instructions if they are equal and $`d_0` instructions otherwise. $`\mathsf{ble}(d_1,d_0)` does the same with the test “the lower integer is less than or equal to the top integer”. $`\mathsf{halt}` stops the machine. B.4 makes each sentence exact.
+Informally, $`\mathsf{push}(n)` pushes the integer $`n` on the stack, and $`\mathsf{load}(x)` pushes the current value of the variable $`x`. $`\mathsf{setvar}(x)` pops an integer and assigns it to $`x`. $`\mathsf{plus}` pops two integers and pushes their sum. $`\mathsf{opp}` pops one integer and pushes its opposite. $`\mathsf{branch}(d)` skips $`d` instructions, forward if $`d>0` and backward if $`d<0`. The conditional branch instruction $`\mathsf{beq}(d_1,d_0)` pops two integers and skips $`d_1` instructions if they are equal and $`d_0` instructions otherwise. $`\mathsf{ble}(d_1,d_0)` does the same with the test “the lower integer is less than or equal to the top integer”. $`\mathsf{halt}` stops the machine. B.4 makes each sentence exact.
 
-There is no subtraction instruction. A *branch distance* is counted from the instruction that follows the branch. Thus $`\mathsf{branch}(0)` continues with the next instruction.
+There is no subtraction instruction. A branch distance (Session 15) is counted from the instruction that follows the branch. Thus $`\mathsf{branch}(0)` continues with the next instruction.
 
 # B.2 Code and positions · Session 14
 %%%

@@ -17,7 +17,7 @@ file := "chapter-05"
 * *Proof outline.* Induct on the command, quantifying over its input store. To exhibit an infinite path from `while true do skip`, give a configuration at every natural index and check both kinds of adjacent edge.
 * *From Session 4.* Sessions 2–4 described a computation by a finite tree, or computed its result by recursion on a finite tree. Here a computation is a sequence of configurations, and the sequence need not end. For `while true do skip`, the least-height argument of Session 2, §2.4 excluded a terminating derivation. Here two explicit transitions supply a witness for its infinite path.
 
-A debugger can stop between the two assignments of a sequence. At the stopping point there is a current store and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final store.
+A debugger can stop between the two assignments of a sequence. At the stopping point there is a current store and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final store. Rules of this kind form a small-step semantics, in contrast with the big-step semantics of Session 2, Definition 2.1, whose judgment relates a command directly to its final store.
 
 # The step relation
 %%%
@@ -56,7 +56,7 @@ Length zero gives reflexivity. Concatenation adds path lengths and gives transit
 
 *Example 5.2.* Let $`a` abbreviate `x := 2`, $`d` abbreviate `y := x`, with $`x \neq y`, and put $`m = s\left\lbrack {x\mapsto 2} \right\rbrack`, $`t = m\left\lbrack {y\mapsto 2} \right\rbrack`. The complete path is
 
-$$`\left\langle {a\ \text{;}\ d,s} \right\rangle\rightarrow\left\langle {\operatorname{skip}\text{;}\ d,m} \right\rangle\rightarrow\left\langle {d,m} \right\rangle\rightarrow\left\langle {\operatorname{skip},t} \right\rangle.`
+$$`\left\langle {a\ \text{;}\ d,s} \right\rangle\rightarrow\left\langle {\mathsf{skip}\text{;}\ d,m} \right\rangle\rightarrow\left\langle {d,m} \right\rangle\rightarrow\left\langle {\mathsf{skip},t} \right\rangle.`
 
 The middle step changes the remaining syntax and leaves the store unchanged. A finite prefix that stops at $`\left\langle {d,m} \right\rangle` has yet to execute the second assignment.
 
@@ -82,7 +82,7 @@ For a one-edge example, an assignment steps directly to skip. Its two endpoint c
 
 There are two different closures in common use. Allowing zero steps means that skip terminates from every store even though it has no successor. Requiring at least one step would omit precisely such zero-length runs. A nonempty path may also return to its starting point if the transition system has a cycle. Therefore testing whether endpoints differ cannot decide which closure a given piece of evidence inhabits. One must retain the length or at least a first edge.
 
-For a concrete use of concatenation, suppose a path takes a conditional with a true guard to its then branch in one step, and a second path evaluates that branch to skip in three steps. Their join is valid only when the first store and residual at the cut match the starting store and residual of the second path. Removing one of the two copies of the cut configuration leaves five configurations and four edges. Cutting the resulting path after its second edge is equally legitimate, but the new cut point might fall *inside* an assignment sequence. Path decomposition is determined by a chosen position; decomposing a big-step derivation instead follows its last rule.
+For a concrete use of concatenation, suppose a path takes a conditional with a true guard to its then branch in one step, and a second path runs that branch to skip in three steps. Their join is valid only when the first store and residual at the cut match the starting store and residual of the second path. Removing one of the two copies of the cut configuration leaves five configurations and four edges. Cutting the resulting path after its second edge is equally legitimate, but the new cut point might fall *inside* an assignment sequence. Path decomposition is determined by a chosen position; decomposing a big-step derivation instead follows its last rule.
 
 # Infinite paths
 %%%
@@ -105,7 +105,7 @@ number := false
 
 *5.1.* How many steps does `if true then skip else x := 1` take to terminate? Compare with skip using our definition of termination.
 
-*5.2.* Show that a positive-length path starting at $`\left\langle {\operatorname{skip},s} \right\rangle` is impossible. Decide whether the finite-path relation $`\to^*` nevertheless relates that configuration to itself.
+*5.2.* Show that a positive-length path starting at $`\left\langle {\mathsf{skip},s} \right\rangle` is impossible. Decide whether the finite-path relation $`\to^*` nevertheless relates that configuration to itself.
 
 *5.3.* For the always-incrementing loop starting at $`s(x)=0`, write its configuration at times $`3i`, $`3i + 1`, and $`3i + 2` to construct an infinite path.
 
@@ -131,11 +131,11 @@ tag := "ch05-s6"
 number := false
 %%%
 
-*5.1.* The conditional takes one step to $`\left\langle {\operatorname{skip},s} \right\rangle`, while skip already terminates by a zero-length path. Both have final store $`s`.
+*5.1.* The conditional takes one step to $`\left\langle {\mathsf{skip},s} \right\rangle`, while skip already terminates by a zero-length path. Both have final store $`s`.
 
 *5.2.* A positive-length path has a first edge. No conclusion of Definition 5.1 starts with skip. The zero-edge path still proves reflexivity.
 
-*5.3.* Define $`s_{i}` by $`s_{i}(x) = i` and let it agree with the initial store elsewhere. With body $`a` and loop $`W`, the three configurations are $`\left\langle {W,s_{i}} \right\rangle`, $`\left\langle {a\ \text{;}\ W,s_{i}} \right\rangle`, and $`\left\langle {\operatorname{skip}\text{;}\ W,s_{i + 1}} \right\rangle`. Discarding skip returns to $`\left\langle {W,s_{i + 1}} \right\rangle`. These edges justify the witness at every index.
+*5.3.* Define $`s_{i}` by $`s_{i}(x) = i` and let it agree with the initial store elsewhere. With body $`a` and loop $`W`, the three configurations are $`\left\langle {W,s_{i}} \right\rangle`, $`\left\langle {a\ \text{;}\ W,s_{i}} \right\rangle`, and $`\left\langle {\mathsf{skip}\text{;}\ W,s_{i + 1}} \right\rangle`. Discarding skip returns to $`\left\langle {W,s_{i + 1}} \right\rangle`. These edges justify the witness at every index.
 
 See Reynolds, §6.2, for a comparison of transition rules. [Reynolds, chapter 6](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 

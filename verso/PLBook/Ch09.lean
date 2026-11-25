@@ -57,7 +57,7 @@ tag := "ch09-s2"
 
 Read each row of the table from left to right. Each entry is $`\bot` or equal to the entry on its right. In the information order of Session 8, Definition 8.7, this says $`w_0\sqsubseteq w_1\sqsubseteq w_2\sqsubseteq w_3` at these three stores. A later stage never revises a result found at an earlier stage. It can only add results. The next two lemmas prove this for every loop.
 
-*Lemma 9.2 (Monotonicity of unfolding).* For all state transformers $`h,h'`, if $`h\sqsubseteq h'` then $`F(h)\sqsubseteq F(h')`.
+*Lemma 9.2 (Monotonicity of the unfolding operator).* For all state transformers $`h,h'`, if $`h\sqsubseteq h'` then $`F(h)\sqsubseteq F(h')`.
 
 *Proof.* Fix a store $`s` and use the three cases of Definition 9.1. In case 1 both sides equal $`s`. In case 2 both sides equal $`\bot`. In case 3 we have $`F(h)(s)=h(m)` and $`F(h')(s)=h'(m)`, and $`h(m)\sqsubseteq h'(m)` is the assumption $`h\sqsubseteq h'` at the store $`m`. $`\square`
 
