@@ -63,7 +63,7 @@ $$`\langle a;b,s\rangle\to^i\langle\mathsf{skip};b,m\rangle
 
 Its length is $`i+1+j`. Lemma 5.4 gives the required finite path. If $`a` is already skip, $`i=0` and the single administrative edge remains necessary.
 
-*Loop cases.* For a false guard take the exit edge to skip. For a true guard, write $`W` for the loop, $`a` for its body, and $`m` for the body’s result. The small-step loop rule first goes to $`\left\langle {a\ \text{;}\ W,s} \right\rangle`. Lift the body hypothesis to that context, discard skip at $`m`, then append the recursive loop hypothesis from $`m`. The two hypotheses are $`\langle a,s\rangle\to^*\langle\mathsf{skip},m\rangle` and $`\langle W,m\rangle\to^*\langle\mathsf{skip},t\rangle`. Induction is legitimate because both hypotheses concern child derivations. This proves the forward direction.
+*Loop cases.* For a false guard take the exit edge to skip. For a true guard, write $`W` for the loop, $`a` for its body, and $`m` for the body’s result. The small-step loop iteration rule first goes to $`\left\langle {a\ \text{;}\ W,s} \right\rangle`. Lift the body hypothesis to that context, discard skip at $`m`, then append the recursive loop hypothesis from $`m`. The two hypotheses are $`\langle a,s\rangle\to^*\langle\mathsf{skip},m\rangle` and $`\langle W,m\rangle\to^*\langle\mathsf{skip},t\rangle`. Induction is legitimate because both hypotheses concern child derivations. This proves the forward direction.
 
 For example use `while x < 1 do x := x + 1` at a store with `x = 0`. Write $`W` for this loop, $`a` for the assignment and $`m=s[x\mapsto1]`. The four edges are
 
@@ -82,19 +82,19 @@ $$`Q(j)\coloneqq\forall c,s,t,\quad
 
 To apply the hypothesis to a shorter path we need to extend its reconstructed execution backwards by one edge.
 
-*Lemma 6.3 (Execution before one step) \[Checked\].* If $`\left\langle {c,s} \right\rangle\rightarrow\left\langle {d,u} \right\rangle` and $`u \vdash d \Downarrow t` then $`s \vdash c \Downarrow t`.
+*Lemma 6.3 (Execution before one step) \[Checked\].* If $`\left\langle {c,s} \right\rangle\rightarrow\left\langle {d,s'} \right\rangle` and $`s' \vdash d \Downarrow t` then $`s \vdash c \Downarrow t`.
 
-*Proof.* Induct on the derivation of the step, allowing an arbitrary final store $`t`. For an edge from $`\langle c,s\rangle` to $`\langle d,u\rangle` the property is $`\forall t,\ (u\vdash d\Downarrow t)\Rightarrow(s\vdash c\Downarrow t)`. For assignment the residual command is skip, so inversion gives $`t = u`. The assignment axiom supplies the result. When a completed left skip is discarded, prepend a skip derivation by the sequence rule. At a conditional use the known test and branch derivation. At a false loop exit use inversion on skip and the loop exit rule.
+*Proof.* Induct on the derivation of the step, allowing an arbitrary final store $`t`. For an edge from $`\langle c,s\rangle` to $`\langle d,s'\rangle` the property is $`\forall t,\ (s'\vdash d\Downarrow t)\Rightarrow(s\vdash c\Downarrow t)`. For assignment the residual command is skip, so inversion gives $`t = s'`. The assignment rule supplies the result. When a completed left skip is discarded, prepend a skip derivation by the sequence rule. At a conditional use the known test and branch derivation. At a false loop exit use inversion on skip and the loop exit rule.
 
-At a true loop step the residual is body followed by loop. Invert its big-step sequence to recover the intermediate store, body derivation and loop derivation. Use exactly these as premises of the true loop big-step rule.
+At a true loop step the residual is body followed by loop. Invert its big-step sequence to recover the intermediate store, body derivation and loop derivation. Use exactly these as premises of the loop iteration rule.
 
-Finally suppose the step was lifted from $`\left\langle {a,s} \right\rangle\rightarrow\left\langle {b,u} \right\rangle` inside a suffix $`k`. Invert the given execution of $`b\ \text{;}\ k` to get $`u \vdash b \Downarrow m` and $`m \vdash k \Downarrow t` for some $`m`. The premise hypothesis is $`\forall t,\ (u\vdash b\Downarrow t)\Rightarrow(s\vdash a\Downarrow t)`. Apply it at $`m` to obtain $`s \vdash a \Downarrow m`. Join that execution to the suffix at $`m`. These cases exhaust the small-step rules. $`\square`
+Finally suppose the step was lifted from $`\left\langle {a,s} \right\rangle\rightarrow\left\langle {b,s'} \right\rangle` inside a suffix $`k`. Invert the given execution of $`b\ \text{;}\ k` to get $`s' \vdash b \Downarrow m` and $`m \vdash k \Downarrow t` for some $`m`. The premise hypothesis is $`\forall t,\ (s'\vdash b\Downarrow t)\Rightarrow(s\vdash a\Downarrow t)`. Apply it at $`m` to obtain $`s \vdash a \Downarrow m`. Join that execution to the suffix at $`m`. These cases exhaust the small-step rules. $`\square`
 
-To finish Theorem 6.2, at length zero the endpoints agree: $`c=\mathsf{skip}` and $`s=t`. The skip axiom gives the required execution. At length $`j+1`, let the first edge reach $`\langle d,u\rangle`. The tail has length $`j` and ends at $`\langle\mathsf{skip},t\rangle`. Apply $`Q(j)` to $`d,u,t` to obtain $`u\vdash d\Downarrow t`. Lemma 6.3 then gives $`s\vdash c\Downarrow t`. $`\square`
+To finish Theorem 6.2, at length zero the endpoints agree: $`c=\mathsf{skip}` and $`s=t`. The skip rule gives the required execution. At length $`j+1`, let the first edge reach $`\langle d,s'\rangle`. The tail has length $`j` and ends at $`\langle\mathsf{skip},t\rangle`. Apply $`Q(j)` to $`d,s',t` to obtain $`s'\vdash d\Downarrow t`. Lemma 6.3 then gives $`s\vdash c\Downarrow t`. $`\square`
 
-Work backwards through the path just computed. At the last configuration the skip axiom proves execution to the final store. The previous step came from a loop with a false guard. Inverting the execution of skip identifies its starting and final stores, so the false loop rule proves the predecessor's execution. The preceding disposal of skip is reversed by building a sequence execution with the skip axiom as its left child. At this stage we have a big-step tree for `skip; W` in the updated store. Reversing the lifted assignment step must convert this into a tree for `(x := x + 1); W` in the old store.
+Work backwards through the path just computed. At the last configuration the skip rule proves execution to the final store. The previous step came from a loop with a false guard. Inverting the execution of skip identifies its starting and final stores, so the loop exit rule proves the predecessor's execution. The preceding disposal of skip is reversed by building a sequence execution with the skip rule as its left child. At this stage we have a big-step tree for `skip; W` in the updated store. Reversing the lifted assignment step must convert this into a tree for `(x := x + 1); W` in the old store.
 
-The two stores just mentioned are precisely why Lemma 6.3 is about configurations and an arbitrary *common* final store. Inverting the existing sequence tree gives a particular middle store. In this example its left skip forces that middle store to be the updated one. Attach the assignment axiom ending there, preserve the right subtree, and rebuild the sequence. Finally use the initial true guard to reconstruct the iteration rule. Each backwards move constructs a new derivation with the same final target, and none requires an inverse to the store update performed by assignment.
+The two stores just mentioned are precisely why Lemma 6.3 is about configurations and an arbitrary *common* final store. Inverting the existing sequence tree gives a particular middle store. In this example its left skip forces that middle store to be the updated one. Attach the assignment rule ending there, preserve the right subtree, and rebuild the sequence. Finally use the initial true guard to reconstruct the loop iteration rule. Each backwards move constructs a new derivation with the same final target, and none requires an inverse to the store update performed by assignment.
 
 # What the endpoints record
 %%%
@@ -139,7 +139,7 @@ tag := "ch05-s7"
 number := false
 %%%
 
-*6.1.* Each assignment takes one edge. One more discards skip between them, giving three edges. The tree has two assignment axioms and one sequence inference. Here both counts are three. For `skip; skip`, one edge suffices although the execution tree still has three rule applications.
+*6.1.* Each assignment takes one edge. One more discards skip between them, giving three edges. The tree has two applications of the assignment rule and one of the sequence rule. Here both counts are three. For `skip; skip`, one edge suffices although the execution tree still has three rule applications.
 
 *6.2.* At $`s` the guard holds, the body runs from $`s` to $`m`, and the loop runs from $`m` to $`t`. The guard comes from the step. Both execution derivations and $`m` come from inversion of the residual sequence.
 

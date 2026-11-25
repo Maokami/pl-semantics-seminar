@@ -10,7 +10,7 @@ file := "chapter-01"
 %%%
 
 * *Definitions.* Arithmetic expressions, stores, the evaluation function and the evaluation judgment (Definitions 1.1–1.3 and 1.5; [IMP language card A.1–A.3](imp-card/index.html)).
-* *New terms.* Constructor, structural recursion, structural induction, derivation, inversion. [Glossary and label key](glossary/index.html)
+* *New terms.* Inference rule, derivation, inversion, structural induction, induction on derivations. [Glossary and label key](glossary/index.html)
 * *Theorem 1.3 \[This book\] \[Checked\].* For every expression $`e`, store $`s` and integer $`n`, $`s\vdash e\Downarrow n` if and only if $`\mathrm{eval}(e,s)=n`.
 * *Source.* The syntax, stores and evaluation function follow the arithmetic fragment of Leroy’s IMP. The four evaluation rules are formulated here on that syntax. \[Corresponding: Winskel Lemma 5.3\] Winskel identifies the graph of an expression’s meaning with the pairs of stores and integers justified by his rules. [Formalization](imp-card/index.html#imp-sources) · [Winskel, §5.3, pp. 61–62](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
 * *Board case.* Addition in both directions. In one direction the two children of a derivation give equalities. In the other the two children of an expression give derivations.
@@ -30,7 +30,7 @@ $$`e ::= n \mid x \mid (e_1+e_2) \mid (e_1-e_2).`
 
 A minus sign at an internal node denotes binary subtraction. A negative integer at a leaf is a literal.
 
-The symbol $`::=` introduces alternatives, separated by vertical bars. A *constructor* builds a tree. We write $`\operatorname{lit}(n)`, $`\operatorname{var}(x)`, $`\operatorname{add}(e_1,e_2)` and $`\operatorname{sub}(e_1,e_2)` when we want to name the constructors explicitly. The two binary constructors each have two ordered children. We use $`x + 4` as a concrete notation for $`\operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right)`. Write $`V=\mathrm{Name}` for the set of strings and $`E` for the set of expression trees.
+The symbol $`::=` introduces alternatives, separated by vertical bars. A *constructor* builds a tree. We write $`\operatorname{lit}(n)`, $`\operatorname{var}(x)`, $`\operatorname{add}(e_1,e_2)` and $`\operatorname{sub}(e_1,e_2)` when we want to name the constructors explicitly. Every expression has exactly one outermost constructor, and the children of a binary node are uniquely determined and ordered. We use $`x + 4` as a concrete notation for $`\operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right)`. Write $`V=\mathrm{Name}` for the set of strings and $`E` for the set of expression trees.
 
 *Structural induction* proves a property $`P(e)` by considering each constructor. At a binary node, the claims $`P(e_1)` and $`P(e_2)` for its two immediate children are the *induction hypotheses*.
 
@@ -82,25 +82,25 @@ For $`x-3`, two stores that agree at $`x` give the same answer, whatever values 
 
 $$`s \rvert_{\operatorname{FV}{(e)}} = t \rvert_{\operatorname{FV}{(e)}}\quad\Longrightarrow\quad\operatorname{eval}\left( {e,s} \right) = \operatorname{eval}\left( {e,t} \right).`
 
-*Proof.* For each expression prove the following statement
+*Proof.* By structural induction on $`e` we prove
 
 $$`P(e)\ \coloneqq\ \forall s,t\in\Sigma,\quad s|_{\mathrm{FV}(e)}=t|_{\mathrm{FV}(e)}
 \ \Longrightarrow\ \mathrm{eval}(e,s)=\mathrm{eval}(e,t).`
 
 Fix $`s` and $`t` that agree on $`\mathrm{FV}(e)`.
 
-If $`e = \operatorname{lit}(n)`, both evaluations give $`n`. If $`e = \operatorname{var}(x)`, then $`\operatorname{FV}(e) = \left\{ x \right\}`, so $`s(x) = t(x)` gives the required equality.
+If $`e=n`, both evaluations give $`n`. If $`e=x`, then $`\mathrm{FV}(e)=\{x\}`, so $`s(x)=t(x)` gives the required equality.
 
-If $`e = \operatorname{add}\left( {e_{1},e_{2}} \right)`, agreement on $`\operatorname{FV}\left( e_{1} \right) \cup \operatorname{FV}\left( e_{2} \right)` implies agreement on each of the two sets. By the induction hypotheses, $`\operatorname{eval}\left( {e_{i},s} \right) = \operatorname{eval}\left( {e_{i},t} \right)` for $`i = 1,2`. Therefore
+If $`e=e_1+e_2`, the induction hypotheses are $`P(e_1)` and $`P(e_2)`. Since $`\mathrm{FV}(e)=\mathrm{FV}(e_1)\cup\mathrm{FV}(e_2)`, the stores $`s,t` agree on $`\mathrm{FV}(e_1)` and on $`\mathrm{FV}(e_2)`. Applying $`P(e_1)` and $`P(e_2)` at $`s,t` gives $`\mathrm{eval}(e_i,s)=\mathrm{eval}(e_i,t)` for $`i=1,2`. Therefore
 
-$$`\begin{matrix} {\operatorname{eval}\left( {e,s} \right)} & {= \operatorname{eval}\left( {e_{1},s} \right) + \operatorname{eval}\left( {e_{2},s} \right)} \\ & {= \operatorname{eval}\left( {e_{1},t} \right) + \operatorname{eval}\left( {e_{2},t} \right)} \\ & {= \operatorname{eval}\left( {e,t} \right).} \end{matrix}`
+$$`\begin{aligned}\mathrm{eval}(e_1+e_2,s)&=\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s)\\ &=\mathrm{eval}(e_1,t)+\mathrm{eval}(e_2,t)\\ &=\mathrm{eval}(e_1+e_2,t).\end{aligned}`
 
-For $`e=e_1-e_2`, the same union gives the same two hypotheses $`P(e_1),P(e_2)` at $`s,t`. Subtract the equal operand values in their original order to obtain
+If $`e=e_1-e_2`, $`\mathrm{FV}(e)` is the same union, so the same two applications of $`P(e_1)` and $`P(e_2)` give equal operand values. Subtract them in their original order to obtain
 
 $$`\mathrm{eval}(e,s)=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s)
 =\mathrm{eval}(e_1,t)-\mathrm{eval}(e_2,t)=\mathrm{eval}(e,t).\quad\square`
 
-*Corollary 1.2 (Store update) \[This book\] \[Checked\].* For every $`s\in\Sigma`, $`n\in\mathbb Z` and $`x\notin\mathrm{FV}(e)`,
+*Corollary 1.2 (Store update) \[This book\] \[Checked\].* For every $`e\in E`, $`s\in\Sigma`, $`x\in V` and $`n\in\mathbb Z` with $`x\notin\mathrm{FV}(e)`,
 
 $$`\operatorname{eval}\left( {e,s\left\lbrack {x\mapsto n} \right\rbrack} \right) = \operatorname{eval}\left( {e,s} \right).`
 
@@ -117,14 +117,14 @@ Definition 1.3 computes a value. We can also specify which triples of store, exp
 
 The turnstile $`\vdash` separates the input store from the expression being evaluated. In $`s\vdash e\Downarrow n` the result is an integer.
 
-*Definition 1.5 (Evaluation relation) \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments.
+*Definition 1.5 (Evaluation judgment) \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
 
 $$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
 
 $$`\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1+e_2\Downarrow m+n}
 \qquad\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1-e_2\Downarrow m-n}`
 
-Equivalently, these triples form the least subset of $`\Sigma\times E\times\mathbb Z` closed under the four rules. A set is closed under a rule if it contains the conclusion whenever it contains all the premises. “Least” refers to inclusion. Indeed, the triples with finite derivations are closed under the rules by adjoining a root. Every closed relation contains all such triples, by induction from the leaves to the root.
+Equivalently, these triples form the least subset of $`\Sigma\times E\times\mathbb Z` closed under the four rules. A subset is closed under a rule if it contains the conclusion whenever it contains all the premises. “Least” refers to inclusion. Indeed, the triples with finite derivations are closed under the rules by adjoining a root. Every closed subset contains all such triples, by induction from the leaves to the root.
 
 *Example 1.2.* Take a store $`s` with $`s(x) = 3`. The two leaves justify the premises of the addition rule.
 
@@ -132,7 +132,7 @@ $$`\frac{\frac{}{s \vdash \operatorname{var}(x) \Downarrow 3}\quad\frac{}{s \vda
 
 Conversely, suppose the same addition evaluates to $`n`. Only the addition rule has that outer constructor in its conclusion. Its premises require the values $`3` and $`4`, so $`n = 7`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
 
-Closure alone would admit additional judgments. For example, the set of all triples is closed under every rule above. In that set $`s \vdash \operatorname{lit}(4) \Downarrow 9` would also hold. No finite derivation can have that conclusion. Its last rule would have to be the literal axiom, whose result for this leaf is $`4`. Taking the least closed relation makes inversion valid. For an arbitrary sum, inspecting its last rule yields two particular integers together with derivations for them. Those witnesses come from the supplied derivation.
+Closure alone would admit additional judgments. For example, the set of all triples is closed under every rule above. In that set $`s \vdash \operatorname{lit}(4) \Downarrow 9` would also hold. No finite derivation can have that conclusion. Its last rule would have to be the literal axiom, whose result for this leaf is $`4`. Taking the least closed subset makes inversion valid. For an arbitrary sum, inspecting its last rule yields two particular integers together with derivations for them. Those witnesses come from the supplied derivation.
 
 # Correspondence and Determinacy
 %%%
@@ -147,27 +147,27 @@ $$`s \vdash e \Downarrow n\quad\Longleftrightarrow\quad\operatorname{eval}\left(
 
 *Proof (from a derivation to a value).* Use *induction on derivations*: for each possible last rule assume the claim for its immediate premise derivations and prove it for the conclusion. For $`D:s\vdash e\Downarrow n`, the statement to be proved (the *induction property*) is $`P(D)\coloneqq\mathrm{eval}(e,s)=n`. In the literal and variable cases the conclusion agrees with the corresponding equation of Definition 1.3. For addition:
 
-1. The last rule has two premises $`D_1:s\vdash e_1\Downarrow a` and $`D_2:s\vdash e_2\Downarrow b`. Its conclusion fixes $`n=a+b`.
+1. The last rule is the addition rule with $`m:=a` and $`n:=b`. Its premises are $`D_1:s\vdash e_1\Downarrow a` and $`D_2:s\vdash e_2\Downarrow b`. Its conclusion is $`s\vdash e_1+e_2\Downarrow a+b`, so $`e=e_1+e_2` and $`n=a+b`. Here $`a` and $`b` name the operand values, and $`n` names the result at the root.
 2. The two induction hypotheses are $`P(D_1):\mathrm{eval}(e_1,s)=a` and $`P(D_2):\mathrm{eval}(e_2,s)=b`.
-3. Substitute them in the addition equation of Definition 1.3 to obtain $`\mathrm{eval}(e_1+e_2,s)=a+b=n`.
+3. By the addition equation of Definition 1.3 and the two hypotheses, $`\mathrm{eval}(e_1+e_2,s)=\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s)=a+b=n`.
 
 For subtraction, the last rule fixes $`n=a-b`. Applying the two induction hypotheses in the subtraction equation gives $`\mathrm{eval}(e_1-e_2,s)=a-b=n`.
 
 *Proof (from a value to a derivation).* Fix a store $`s`. By structural induction on $`e` we prove $`Q(e)\coloneqq s\vdash e\Downarrow\mathrm{eval}(e,s)`. For a literal use the literal axiom. For a variable use the variable axiom. For addition:
 
 1. The hypotheses are $`Q(e_1):s\vdash e_1\Downarrow\mathrm{eval}(e_1,s)` and $`Q(e_2):s\vdash e_2\Downarrow\mathrm{eval}(e_2,s)`.
-2. Adjoin the addition rule at the root of these two derivations. Its result is $`\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s)`.
+2. Adjoin the addition rule with $`m:=\mathrm{eval}(e_1,s)` and $`n:=\mathrm{eval}(e_2,s)` at the root of these two derivations. Its result is $`\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s)`.
 3. By Definition 1.3 this integer is $`\mathrm{eval}(e_1+e_2,s)`, as required.
 
 For subtraction, use the subtraction rule on the same two child judgments. Its result is $`\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s)=\mathrm{eval}(e_1-e_2,s)`. Finally, if $`\mathrm{eval}(e,s)=n`, the derivation just constructed has the required result $`n`. $`\square`
 
-*Corollary 1.4 \[This book\] \[Checked\].* Evaluation is *total*, meaning each expression and store have a result, and *deterministic*, meaning they have at most one result.
+The final sentence of the reverse proof matters. The induction on syntax produces a derivation whose result is *the computed integer*. The theorem was stated for *any* candidate integer. The given equality identifies the candidate with the result of the constructed derivation. This is where the result of the computation enters the reverse direction.
 
-*Proof.* Existence follows by constructing the derivation for $`\operatorname{eval}\left( {e,s} \right)`. If two derivations yield $`n` and $`m` for the same inputs, Theorem 1.3 gives $`n = \operatorname{eval}\left( {e,s} \right) = m`.$`\square`
+*Corollary 1.4 (Unique result) \[This book\] \[Checked\].* For every $`e\in E` and $`s\in\Sigma` there is an integer $`n` with $`s\vdash e\Downarrow n`, and if also $`s\vdash e\Downarrow m` then $`n=m`. In words, the evaluation judgment is *total* (every expression has a result in every store) and *deterministic* (it has at most one result).
+
+*Proof.* Take $`n=\mathrm{eval}(e,s)`. The reverse direction of Theorem 1.3 gives $`s\vdash e\Downarrow n`. If $`s\vdash e\Downarrow m`, the forward direction gives $`\mathrm{eval}(e,s)=m`, so $`n=m`. $`\square`
 
 The forward proof begins with evidence of evaluation and examines its last rule. The reverse proof begins with syntax and constructs that evidence. In this language an addition has exactly one premise per child. For a command that repeats its body, one premise may concern the very same command in a new store. It is then a smaller premise derivation even though the command itself has the same syntax.
-
-The last rewriting step matters. The induction on syntax produces a derivation whose result is *the computed integer*. The theorem was stated for *any* candidate integer. The given equality identifies the candidate with the result of the constructed derivation. This is where the result of the computation enters the reverse direction.
 
 # Substitution · Session 11 reading
 %%%

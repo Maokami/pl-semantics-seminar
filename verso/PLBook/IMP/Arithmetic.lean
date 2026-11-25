@@ -2,7 +2,7 @@ import PLBook.IMP.Language
 
 namespace PLBook.IMP
 
-/-- The expression judgment of Definition 1.5, on the shared IMP syntax. -/
+/-- The evaluation judgment of Definition 1.5, on the shared IMP syntax. -/
 inductive Evaluates (s : store) : aexp → Int → Prop where
   | literal (n) : Evaluates s (.CONST n) n
   | lookup (x) : Evaluates s (.VAR x) (s x)

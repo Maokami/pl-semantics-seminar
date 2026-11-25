@@ -11,7 +11,7 @@ file := "chapter-02"
 
 * *Definitions.* Stores, update and expression evaluation (Session 1, Definitions 1.2–1.3). Guard evaluation and command execution use [IMP language card A.4–A.5](imp-card/index.html#imp-a4).
 * *New terms.* Guard, execution judgment, sequencing, derived rule, height of a derivation. [Glossary and label key](glossary/index.html)
-* *Proposition 2.2 \[This book\] \[Checked\].* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`u` satisfies both $`s\vdash c\Downarrow u` and $`u\vdash d\Downarrow t`.
+* *Proposition 2.2 \[This book\] \[Checked\].* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`m` satisfies both $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`.
 * *Source.* The guards, commands and six execution rules follow Leroy’s IMP. \[Corresponding: CS §7.2.3\] Nipkow and Klein derive the sequence equivalence for their execution relation. [Formalization](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Derive `x := 1; y := x + 3`, name the intermediate store, and recover it from the completed tree.
 * *Proof outline.* Invert the last rule of a sequence derivation to obtain a witness and two premises. Conversely, join the given premise trees with the sequence rule.
@@ -24,7 +24,7 @@ A command can change the values available to a later expression. If $`x` initial
 tag := "ch02-s1"
 %%%
 
-Use $`\mathrm{eval}(e,s)` and $`s[x\mapsto n]` as in Session 1, Definitions 1.2–1.3. For instance, the guard $`x\le2` evaluates to true in a store where $`s(x)=1`.
+Use $`\mathrm{eval}(e,s)` and $`s[x\mapsto n]` as in Session 1, Definitions 1.2–1.3. For instance, the test $`x\le2` is true in a store where $`s(x)=1`.
 
 A Boolean expression has one of six forms:
 
@@ -45,6 +45,8 @@ Parentheses fix the parse of nested commands. A store records the values of *all
 tag := "ch02-s2"
 %%%
 
+Session 1 wrote $`s\vdash e\Downarrow n` for evaluation. For a command $`c`, the *execution judgment* $`s\vdash c\Downarrow t` asserts that $`c`, started in store $`s`, terminates in store $`t`.
+
 *Definition 2.1 (Execution judgment).* In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. Sequencing binds its two premises through the intermediate store $`m`.
 
 $$`\frac{}{s\vdash\mathsf{skip}\Downarrow s}\qquad
@@ -56,14 +58,16 @@ For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` denote $`c
 
 $$`\frac{s\vdash k\Downarrow t}{s\vdash I\Downarrow t}`
 
-Substituting either Boolean value for the guard gives a *derived rule*: every instance follows by applying the defining rule with that value.
+Fixing the value of $`B(b,s)`, as true or as false, gives a *derived rule*: each of its instances follows by one application of the defining rule. The guard $`b` itself is not replaced.
 
-Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only a premise of the form $`s\vdash c\Downarrow t` requires an execution subderivation. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final store.
+Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only the execution judgments above a line, the rule's execution premises, require subderivations. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final store.
 
 $$`\frac{B(b,s)=\mathsf{false}}{s\vdash W\Downarrow s}\qquad
 \frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow m\quad m\vdash W\Downarrow t}{s\vdash W\Downarrow t}`
 
-In the true loop rule, executing the body supplies $`m`. The recursive premise tests the guard anew in $`m`. The command in that premise is syntactically identical to the command at the root. A finite derivation may therefore have several nodes labelled with the same command.
+We refer to the six rules as the skip, assignment, sequence, conditional, loop exit and loop iteration rules.
+
+In the loop iteration rule, executing the body supplies $`m`. The recursive premise tests the guard anew in $`m`. The command in that premise is syntactically identical to the command at the root. A finite derivation may therefore have several nodes labelled with the same command.
 
 *Conditional, true and false cases \[This book\] \[Corresponding: CS IfTrue, IfFalse\] \[Checked\].* The single conditional rule specializes to the following two derived rules.
 
@@ -71,9 +75,9 @@ $$`\frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow t}{s\vdash I\Downarrow t}
 \qquad
 \frac{B(b,s)=\mathsf{false}\quad s\vdash d\Downarrow t}{s\vdash I\Downarrow t}`
 
-For the left rule the selected command is $`c`, so its given derivation supplies the premise of the conditional rule. The right rule follows by the same calculation with $`d`. Inverting a conditional execution therefore gives a derivation for the selected branch even before we distinguish the two Boolean values.
+For the left rule the selected command is $`c`, so its given derivation supplies the premise of the conditional rule. The right rule follows by the same calculation with $`d`. Conversely, the single conditional rule is the only rule whose conclusion is a conditional. Inverting a derivation of $`s\vdash I\Downarrow t` therefore gives a derivation of $`s\vdash k\Downarrow t` for the selected command $`k`, before we distinguish the two Boolean values.
 
-A rule can be read as a method for checking a proposed result. Consider `if x < y then x := y else y := x` in a store with coordinates $`(s(x),s(y))=(2,5)` for distinct names $`x,y`. Here the guard is true, so the single defining rule requires a derivation of `x := y`. Its final store is forced by the assignment axiom, with coordinates `(5,5)` and all other names preserved. This reasoning eliminates an incorrect candidate such as `(5,2)` even though that candidate contains the two original integers.
+A rule can be read as a method for checking a proposed result. Consider `if x < y then x := y else y := x` in a store with $`(s(x),s(y))=(2,5)` for distinct names $`x,y`. By A.4 the guard $`x<y` abbreviates $`\neg(y\le x)`. Since $`5\le2` is false, the guard is true, so $`k` is `x := y` and the single conditional rule requires a derivation of $`s\vdash x:=y\Downarrow t`. Its final store is forced by the assignment rule, with coordinates `(5,5)` and all other names preserved. This reasoning eliminates an incorrect candidate such as `(5,2)` even though that candidate contains the two original integers.
 
 Reading the rules from the bottom upwards does not always give an immediately terminating procedure. To construct a tree for a loop in a known input store, the guard determines which last rule could apply. A true guard still leaves a new loop judgment as a premise. Selecting the correct rule again and again may generate an infinite list of outstanding obligations. An execution judgment demands a finite tree in which all such branches close. By contrast, given a *completed* candidate tree, every node can be checked against its constructor and local guard conditions in a finite traversal.
 
@@ -82,23 +86,25 @@ Reading the rules from the bottom upwards does not always give an immediately te
 tag := "ch02-s3"
 %%%
 
-*Proposition 2.2 (Sequence inversion) \[This book\] \[Checked\].* For all commands $`c,d` and stores $`s,t`,
+*Worked derivation.* Let $`x \neq y`, let $`s(x) = 8`, and put $`m = s\left\lbrack {x\mapsto 1} \right\rbrack` and $`t = m\left\lbrack {y\mapsto 4} \right\rbrack`. The assignment rule gives $`s \vdash x \mathrel{:=} 1 \Downarrow m`. Since $`m(x) = 1`, the equation for addition gives $`\operatorname{eval}\left( {x + 3,m} \right) = 4` and the assignment rule gives $`m \vdash y \mathrel{:=} x + 3 \Downarrow t`. The sequence rule combines these derivations. In particular $`t(x) = 1`, $`t(y) = 4`, and $`t(z) = s(z)` for any other name $`z`. Replacing $`m` with $`s` in the second calculation yields 11, a useful way to detect a disconnected pair of premise trees.
 
-$$`s \vdash c\ \text{;}\ d \Downarrow t\Longleftrightarrow\exists u \in \Sigma,\; (s \vdash c \Downarrow u) \land (u \vdash d \Downarrow t).`
-
-*Proof.* Given the derivation on the left, examine its final rule.
-
-1. Its conclusion has sequence at the root, so it must have arisen by the sequence rule.
-2. Read the store $`u` from the conclusion of its left premise $`s\vdash c\Downarrow u`. Its right premise is $`u\vdash d\Downarrow t`. These two derivations and their shared store witness the right side.
-3. Conversely choose the store and the two derivations supplied on the right. Place them under a new application of the sequence rule. The tree is finite because both of its subtrees are finite. $`\square`
-
-*Worked derivation.* Let $`x \neq y`, let $`s(x) = 8`, and put $`u = s\left\lbrack {x\mapsto 1} \right\rbrack` and $`t = u\left\lbrack {y\mapsto 4} \right\rbrack`. The assignment axiom gives $`s \vdash x \mathrel{:=} 1 \Downarrow u`. Since $`u(x) = 1`, the equation for addition gives $`\operatorname{eval}\left( {x + 3,u} \right) = 4` and the assignment axiom gives $`u \vdash y \mathrel{:=} x + 3 \Downarrow t`. Proposition 2.2 combines these derivations. In particular $`t(x) = 1`, $`t(y) = 4`, and $`t(z) = s(z)` for any other name $`z`. Replacing $`u` with $`s` in the second calculation yields 11, a useful way to detect a disconnected pair of premise trees.
-
-$$`\frac{\dfrac{}{s\vdash x:=1\Downarrow u}\qquad
-\dfrac{}{u\vdash y:=x+3\Downarrow t}}
+$$`\frac{\dfrac{}{s\vdash x:=1\Downarrow m}\qquad
+\dfrac{}{m\vdash y:=x+3\Downarrow t}}
 {s\vdash(x:=1\,;\,y:=x+3)\Downarrow t}`
 
-Reading upwards from the root recovers this very $`u` as the witness. Proposition 2.2 asserts the existence of such a store. Comparing the witnesses of two different trees is the subject of Session 3.
+Reading upwards from the root recovers this very $`m` as the witness.
+
+*Proposition 2.2 (Sequence inversion) \[This book\] \[Checked\].* For all commands $`c,d` and stores $`s,t`,
+
+$$`s \vdash c\ \text{;}\ d \Downarrow t\Longleftrightarrow\exists m \in \Sigma,\; (s \vdash c \Downarrow m) \land (m \vdash d \Downarrow t).`
+
+*Proof.* Suppose $`D` is a derivation of $`s\vdash(c;d)\Downarrow t`. Examine its last rule.
+
+1. The command in the conclusion of $`D` is a sequence. Among the six rules of Definition 2.1, only the sequence rule has a sequence in its conclusion. By inversion (Session 1, §1.4), $`D` ends with the sequence rule applied to the commands $`c,d` and the stores $`s,t`.
+2. That rule has premises $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t` for some store $`m`. The two premise derivations witness the right side.
+3. Conversely, take the store $`m` and the derivations of $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t` supplied on the right. Apply the sequence rule. The tree is finite because both of its subtrees are finite. $`\square`
+
+Proposition 2.2 states that every derivation of a sequence contains such a store. Comparing the witnesses of two different trees is the subject of Session 3.
 
 An intermediate store is hidden by the conclusion even when it contains information absent at both endpoints. For an explicit instance, initialize `x` to zero and execute `x := 1; x := 0`. Both the initial and the final store have zero at `x`. Neither can be used as the witness required by the sequence rule: the conclusion of the first assignment forces one at that coordinate. The hidden store contains exactly the information the second premise must receive.
 
@@ -107,11 +113,11 @@ An intermediate store is hidden by the conclusion even when it contains informat
 tag := "ch02-s4"
 %%%
 
-Take `while x < 1 do x := x + 1` with $`s(x) = 0`. By [A.4](imp-card/index.html#imp-a4), $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, so this guard tests $`\neg(1\le x)`. Write $`u = s\left\lbrack {x\mapsto 1} \right\rbrack`. In $`s` the guard is true and the body has an assignment derivation ending in $`u`. In $`u` the guard is false, so the exit rule gives $`u \vdash W \Downarrow u`. These are exactly the premises of the true loop rule for $`s \vdash W \Downarrow u`. The proof contains one execution of the body and two tests of the guard.
+Take `while x < 1 do x := x + 1` with $`s(x) = 0`. By [A.4](imp-card/index.html#imp-a4), $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, so this guard tests $`\neg(1\le x)`. Write $`m = s\left\lbrack {x\mapsto 1} \right\rbrack`. In $`s` the guard is true and the body has an assignment derivation ending in $`m`. In $`m` the guard is false, so the loop exit rule gives $`m \vdash W \Downarrow m`. These are exactly the premises of the loop iteration rule for $`s \vdash W \Downarrow m`. The proof contains one execution of the body and two tests of the guard.
 
-The *height of an execution derivation* is zero when its last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation. In the example the assignment and exit each have height zero. The iteration that joins them has height one. The Boolean tests are side conditions in Definition 2.1.
+The *height of an execution derivation* is zero when its last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation. In the example the derivations ending with the assignment and loop exit rules each have height zero. The derivation joining them by the loop iteration rule has height one. The Boolean tests are side conditions in Definition 2.1.
 
-The relation gives information about terminating executions. For `while true do skip` no finite tree exists. Suppose there were such a tree from $`s` to $`t` and choose one of least height for those endpoints. Its last rule must be iteration. Its first premise executes skip and therefore ends in $`s`. Its second premise derives the very same loop judgment from $`s` to $`t` at smaller height, a contradiction. Chapter 5 gives a positive account of the infinite execution.
+The relation gives information about terminating executions. Write $`W=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. No finite tree has a conclusion of the form $`s\vdash W\Downarrow t`. Suppose there were such a tree, and choose one of least height for those endpoints $`s,t`. Only the loop exit rule and the loop iteration rule conclude a loop judgment. The loop exit rule needs $`B(\mathsf{true},s)=\mathsf{false}`, but the constant has value true, so the last rule is the loop iteration rule. Its body premise is $`s\vdash\mathsf{skip}\Downarrow m` for some store $`m`. Only the skip rule concludes a skip judgment, so inversion gives $`m=s`. Its loop premise is therefore $`s\vdash W\Downarrow t`, the very same judgment, and by the definition of height its subderivation has smaller height. This contradicts the choice of a tree of least height. Session 5 gives a positive account of the infinite execution.
 
 # Exercises
 %%%
@@ -147,15 +153,15 @@ tag := "ch02-s7"
 number := false
 %%%
 
-*2.1.* The middle store is $`u = s\left\lbrack {y\mapsto 2} \right\rbrack`. Both $`u(x)` and $`u(y)` equal 2, so the final store is $`u\left\lbrack {x\mapsto 4} \right\rbrack`. All names outside the two updated coordinates retain their original values.
+*2.1.* The middle store is $`m = s\left\lbrack {y\mapsto 2} \right\rbrack`. Both $`m(x)` and $`m(y)` equal 2, so the final store is $`m\left\lbrack {x\mapsto 4} \right\rbrack`. All names outside the two updated coordinates retain their original values.
 
-*2.2.* Proposition 2.2 yields a witness $`u`. Inverting the skip axiom forces $`u = s`, leaving $`s \vdash d \Downarrow t`. In the reverse direction choose $`u = s`, use skip and the given derivation for $`d`, and apply sequence.
+*2.2.* Proposition 2.2 yields a witness $`m`. Inverting the skip rule forces $`m = s`, leaving $`s \vdash d \Downarrow t`. In the reverse direction choose $`m = s`, use the skip rule and the given derivation for $`d`, and apply the sequence rule.
 
-*2.3.* The first body execution sets $`x` to 0 and the second sets it to 1. Build the proof from the final store upwards with one exit rule and two true rules. Each true rule also needs its own body derivation.
+*2.3.* The first body execution sets $`x` to 0 and the second sets it to 1. Build the proof from the final store upwards with one application of the loop exit rule and two applications of the loop iteration rule. Each loop iteration also needs its own body derivation.
 
-*Further problem.* Let `m = eval(e,s)` and `n = eval(f,s)`. The new rule concludes that the command executes from `s` to `s[x ↦ m][y ↦ n]`. There are no command premises. Both expressions have already been evaluated in `s`, and distinctness of the destination names ensures that either order of the two updates gives the same store. For a swap substitute `e = y` and `f = x`. At the two names the resulting store has values `s(y)` and `s(x)` respectively; all other names keep their old values.
+*Further problem.* Let `a = eval(e,s)` and `b = eval(f,s)`. The new rule concludes that the command executes from `s` to `s[x ↦ a][y ↦ b]`. There are no command premises. Both expressions have already been evaluated in `s`, and distinctness of the destination names ensures that either order of the two updates gives the same store. For a swap substitute `e = y` and `f = x`. At the two names the resulting store has values `s(y)` and `s(x)` respectively; all other names keep their old values.
 
-For the sequence, the first assignment produces `u = s[x ↦ s(y)]`. The second reads `u(x) = s(y)` and writes that value to `y`. Its result thus has `s(y)` in both positions. Equality at `y` with the simultaneous result forces `s(x) = s(y)`. Conversely, if this equality holds, comparison at each of the two destinations and every other name proves equality of the full stores. Commutation of updates at distinct destinations alone does not justify sequential evaluation of the expressions.
+For the sequence, the first assignment produces `m = s[x ↦ s(y)]`. The second reads `m(x) = s(y)` and writes that value to `y`. Its result thus has `s(y)` in both positions. Equality at `y` with the simultaneous result forces `s(x) = s(y)`. Conversely, if this equality holds, comparison at each of the two destinations and every other name proves equality of the full stores. Commutation of updates at distinct destinations alone does not justify sequential evaluation of the expressions.
 
 *Further reading · Reordering and regrouping commands.*
 
@@ -163,7 +169,7 @@ Store updates give a short calculation for detecting when two writes can be reor
 
 The corresponding claim about commands requires more. Run `x := 1; y := x` from a store where `x` holds zero. The writes address distinct names, yet the second right-hand side obtains its integer from the first updated store. In the reverse order `y` receives zero. A proof of commutation for command syntax therefore has to justify that each right-hand side yields the same integer after the other write. The coincidence lemma (Session 1, Lemma 1.1) supplies this fact when neither command writes a free variable of the other expression. This separates two questions that are easy to collapse: which coordinate receives an update, and which coordinates determine the integer to be written.
 
-This observation permits a useful proof of reassociation. Invert a derivation of `(a; b); c` twice to expose stores `u` and `v` such that `a` runs from the initial store to `u`, `b` runs from `u` to `v`, and `c` runs from `v` to the final store. Assemble the last two derivations first, producing a derivation of `b; c` from `u`. Combine that with the first derivation to obtain an execution of `a; (b; c)`. The converse reassembles the same three pieces in the opposite grouping. This argument changes the internal tree shape while preserving its intermediate *stores* and the order of the constituent computations.
+Proposition 2.2 permits a short proof of reassociation. Invert a derivation of `(c₁; c₂); c₃` twice to expose stores `m₁` and `m₂` such that `c₁` runs from the initial store to `m₁`, `c₂` runs from `m₁` to `m₂`, and `c₃` runs from `m₂` to the final store. Assemble the last two derivations first, producing a derivation of `c₂; c₃` from `m₁`. Combine that with the first derivation to obtain an execution of `c₁; (c₂; c₃)`. The converse reassembles the same three pieces in the opposite grouping. This argument changes the internal tree shape while preserving its intermediate *stores* and the order of the constituent computations.
 
 Here is the intermediate-store calculation on two integer coordinates. The first command copies the left coordinate to the right; the second adds the two current values into the left coordinate. Giving the second function the original input would instead leave the original right coordinate in the sum.
 
@@ -175,13 +181,13 @@ Theorem 1.3 also allows an assignment rule with an explicit expression premise.
 
 $$`\frac{s \vdash e \Downarrow n}{s \vdash x \mathrel{:=} e \Downarrow s[x\mapsto n]}`
 
-For example, if $`s(x)=3`, the premise for `x := x + 4` yields $`n=7`. The conclusion updates the old store only after obtaining that integer. Either form derives the same final stores. Given an expression derivation, Theorem 1.3 identifies its result with the value in the assignment axiom. Conversely, the theorem supplies a derivation for that computed value. The axiom displayed in Definition 2.1 is the one used to count command derivations in Chapter 3. Recording the expression premise adds a subtree to the full derivation.
+For example, if $`s(x)=3`, the premise for `x := x + 4` yields $`n=7`. The conclusion updates the old store only after obtaining that integer. Either form derives the same final stores. Given an expression derivation, Theorem 1.3 identifies its result with the value in the assignment rule. Conversely, the theorem supplies a derivation for that computed value. The assignment rule displayed in Definition 2.1 is the one used to count command derivations in Chapter 3. Recording the expression premise adds a subtree to the full derivation.
 
-Winskel obtains the value of the right-hand side from an expression premise in his assignment rule (p. 20). Nipkow and Klein write $`(c,s)\Rightarrow t` for command execution and use their evaluator `aval a s` directly in the conclusion of the assignment axiom (p. 78). [Winskel, §2.4](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf#page=41) · [Concrete Semantics, §7.2.1, Fig. 7.1](https://concrete-semantics.org/concrete-semantics.pdf#page=88)
+Winskel obtains the value of the right-hand side from an expression premise in his assignment rule (p. 20). Nipkow and Klein write $`(c,s)\Rightarrow t` for command execution and use their evaluator `aval a s` directly in the conclusion of the assignment rule (p. 78). [Winskel, §2.4](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf#page=41) · [Concrete Semantics, §7.2.1, Fig. 7.1](https://concrete-semantics.org/concrete-semantics.pdf#page=88)
 
 *Further reading · Counting loop iterations.*
 
-For the incrementing loop above, one can count the necessary rule uses without fixing the values of any unrelated variables. If the initial value of `x` is an integer `j ≤ 1`, the number of body executions is `1 − j`. Prove this by induction on that natural number. At zero the old value is already one. The guard is false, so the exit rule gives a derivation with no assignments. At a positive distance the old value is below one. The assignment rule increases it by one, preserving all other lookups, and the new distance is the previous distance minus one. The induction hypothesis supplies a complete loop derivation from that intermediate store. Place the assignment and recursive derivations beneath the true rule. This constructs a tree and counts its body executions at the same time.
+For the incrementing loop above, one can count the necessary rule uses without fixing the values of any unrelated variables. If the initial value of `x` is an integer `j ≤ 1`, the number of body executions is `1 − j`. Prove this by induction on that natural number. At zero the old value is already one. The guard is false, so the loop exit rule gives a derivation with no assignments. At a positive distance the old value is below one. The assignment rule increases it by one, preserving all other lookups, and the new distance is the previous distance minus one. The induction hypothesis supplies a complete loop derivation from that intermediate store. Place the assignment and recursive derivations beneath the loop iteration rule. This constructs a tree and counts its body executions at the same time.
 
 For initial values larger than one, the guard is also false and the final value is the initial one. Thus the postcondition `x = 1` needs an input hypothesis even though the loop terminates for every integer. The result for arbitrary inputs is `x = max(j,1)` with the unchanged coordinates inherited from the original store. A single worked trace would not reveal the distinction between those two specifications.
 

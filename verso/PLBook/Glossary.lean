@@ -11,14 +11,14 @@ number := false
 
 The Korean column gives the term to use when discussing the English text. The last column links to the definition and identifies the session that introduces it.
 
-*Source labels.* \[This book\] marks a statement or a connection formulated here for the book’s definitions. \[Corresponding: source reference\] identifies a rule or theorem of the same form on another source’s definitions. For example, CS denotes Nipkow and Klein’s _Concrete Semantics_.
+*Source labels.* \[This book\] (자체) marks a statement or a connection formulated here for the book’s definitions. \[Corresponding: source reference\] (대응) identifies a rule or theorem of the same form on another source’s definitions. For example, CS denotes Nipkow and Klein’s _Concrete Semantics_.
 
 *Proof labels.* Each numbered result has one proof label.
 
-* \[Checked\] The book build checks a proof of the stated result on the stated definitions.
-* \[Selected cases checked\] The build checks only the cases identified in the text.
-* \[Externally checked: appendix reference\] The cited external declaration matches the statement. The appendix identifies the repository, revision and declaration.
-* \[Paper proof only: source reference\] The proof is given on paper. The reference locates it in the cited source or, for a result of this book, in the text.
+* \[Checked\] (검사됨) The book build checks a proof of the stated result on the stated definitions.
+* \[Selected cases checked\] (일부 경우만) The build checks only the cases identified in the text.
+* \[Externally checked: appendix reference\] (외부 검사) The cited external declaration matches the statement. The appendix identifies the repository, revision and declaration.
+* \[Paper proof only: source reference\] (종이 전용) The proof is given on paper. The reference locates it in the cited source or, for a result of this book, in the text.
 
 :::table +header
 *
@@ -167,9 +167,9 @@ The Korean column gives the term to use when discussing the English text. The la
   * A proof by the last rule, assuming the property for each immediate premise derivation.
   * Session 1 · [§1.5](chapter-01/index.html#ch01-s5)
 *
-  * partial function
-  * 부분 함수
-  * A function defined on a subset of its inputs, with one output at each input where it is defined.
+  * partial function and its graph
+  * 부분 함수와 그 그래프
+  * A function defined on a subset of its inputs, with one output at each input where it is defined. Its graph is the set of its input–output pairs.
   * Session 3 · [§3.3](chapter-03/index.html#ch03-s3)
 *
   * fold

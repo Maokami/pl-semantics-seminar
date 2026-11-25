@@ -47,7 +47,7 @@ $$`\begin{aligned}
 \mathrm{eval}(e_1-e_2,s)&=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s).
 \end{aligned}`
 
-*Evaluation judgment \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments.
+*Evaluation judgment \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
 
 $$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
 
@@ -91,12 +91,14 @@ For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` denote $`c
 
 $$`\frac{s\vdash k\Downarrow t}{s\vdash I\Downarrow t}`
 
-Substituting either Boolean value for the guard gives a *derived rule*: every instance follows by applying the defining rule with that value.
+Fixing the value of $`B(b,s)`, as true or as false, gives a *derived rule*: each of its instances follows by one application of the defining rule. The guard $`b` itself is not replaced.
 
-Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only a premise of the form $`s\vdash c\Downarrow t` requires an execution subderivation. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final store.
+Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only the execution judgments above a line, the rule's execution premises, require subderivations. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final store.
 
 $$`\frac{B(b,s)=\mathsf{false}}{s\vdash W\Downarrow s}\qquad
 \frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow m\quad m\vdash W\Downarrow t}{s\vdash W\Downarrow t}`
+
+We refer to the six rules as the skip, assignment, sequence, conditional, loop exit and loop iteration rules.
 
 The *height of an execution derivation* is zero when its last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation.
 
@@ -135,7 +137,7 @@ number := false
 
 These references document the formalization. They are optional for seminar preparation.
 
-*Source.* The shared definitions follow the Lean port of Xavier Leroy’s _Compiler Verification_ course at revision `a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01`. A.3 adds the book’s expression judgment on the same syntax. [IMP definitions](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean) · [Paths](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Sequences.lean)
+*Source.* The shared definitions follow the Lean port of Xavier Leroy’s _Compiler Verification_ course at revision `a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01`. A.3 adds the book’s evaluation judgment on the same syntax. [IMP definitions](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean) · [Paths](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Sequences.lean)
 
 * $`\mathrm{eval}(e,s)`, $`B(b,s)` and $`s[x\mapsto n]` correspond to `aeval s e`, `beval s b` and `update x n s`.
 * $`s\vdash c\Downarrow t` corresponds to `cexec s c t`. The conditional rule is `cexec_ifthenelse`.
