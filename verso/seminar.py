@@ -12,10 +12,14 @@ def study_groups():
 
 
 @lru_cache(maxsize=None)
-def chapter_slug(number):
-    """Use the permanent Verso file identifier for a numbered chapter."""
-    source = (ROOT / "PLBook" / f"Ch{number:02}.lean").read_text()
-    return re.search(r'^file := "(chapter-[0-9]+)"$', source, re.M)[1]
+def chapter_slug(number, ko=False):
+    """Return the chapter address in the requested edition."""
+    folder = ROOT / ("PLBook/Ko" if ko else "PLBook")
+    source = (folder / f"Ch{number:02}.lean").read_text()
+    slug = re.search(r'^file := "(chapter-[0-9]+)"$', source, re.M)[1]
+    if not ko and number == 7 and slug == "chapter-06":
+        return "chapter-06-legacy"  # Main.lean disambiguates the earlier English chapter.
+    return slug
 
 
 def section_target(span):
@@ -25,7 +29,10 @@ def section_target(span):
     sections = re.findall(r'^# [^\n]+\n%%%\n(.*?)^%%%$', source, re.M | re.S)
     tags = [re.search(r'^tag := "([^"]+)"$', meta, re.M)[1]
             for meta in sections if 'number := false' not in meta]
-    return f"{slug}/index.html#{tags[section - 1]}"
+    tag = tags[section - 1]
+    if slug == "chapter-06-legacy":
+        tag = tag.replace("ch06-", "ch06-legacy-", 1)
+    return f"{slug}/index.html#{tag}"
 
 
 def render_guide():

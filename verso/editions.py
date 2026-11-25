@@ -33,11 +33,11 @@ def titles(ko):
             for p in folder.glob('Ch*.lean')}
 
 
-def chapter_link(n):
-    return f'{chapter_slug(n)}/index.html'
+def chapter_link(n, ko=False):
+    return f'{chapter_slug(n, ko)}/index.html'
 
 
-def reader_buttons(page, current, order, names):
+def reader_buttons(page, current, order, names, ko):
     position = order.index(current) if current is not None else -1
     buttons = []
     for rel, offset in [('prev', -1), ('next', 1)]:
@@ -47,7 +47,7 @@ def reader_buttons(page, current, order, names):
             where = f'<span class="where">{n}. {html.escape(names[n])}</span>'
             arrow = '<span class="arrow">←</span>' if offset < 0 else '<span class="arrow">→</span>'
             body = arrow + where if offset < 0 else where + arrow
-            buttons.append(f'<a class="local-button active" rel="{rel}" href="{chapter_link(n)}">{body}</a>')
+            buttons.append(f'<a class="local-button active" rel="{rel}" href="{chapter_link(n, ko)}">{body}</a>')
     return re.sub(r'<nav class="prev-next-buttons">.*?</nav>',
                   lambda _: '<nav class="prev-next-buttons">' + ''.join(buttons) + '</nav>',
                   page, flags=re.S)
@@ -63,7 +63,7 @@ def course_nav(groups, names, ko, current, sidebar):
             else:
                 meeting = ('Session ' if len(weeks) == 1 else 'Sessions ') + '–'.join(map(str, weeks))
             active = ' aria-current="page"' if current == n else ''
-            rows.append(f'<li><a{active} href="{chapter_link(n)}"><span class="meeting-no">{meeting}</span>'
+            rows.append(f'<li><a{active} href="{chapter_link(n, ko)}"><span class="meeting-no">{meeting}</span>'
                         f' <span>{n}. {html.escape(names[n])}</span></a></li>')
         listing = '<ul>' + ''.join(rows) + '</ul>'
         if sidebar:
@@ -78,7 +78,7 @@ def update_pages(site, ko=False):
     groups = list(units(ko))
     names = titles(ko)
     order = [n for *_, chapters in groups for n in chapters]
-    by_slug = {chapter_slug(n): n for n in order}
+    by_slug = {chapter_slug(n, ko): n for n in order}
     for p in [site/'index.html', *site.glob('*/index.html')]:
         if p.parent.parent == site and p.parent.name == 'ko':
             continue
@@ -86,12 +86,19 @@ def update_pages(site, ko=False):
         if 'split-toc book' not in s:
             continue
         ch = by_slug.get(p.parent.name)
+        if not ko and p.parent.name in {"chapter-04", "chapter-05", "chapter-06", "chapter-06-legacy"}:
+            # Verso links to the part tag in its sidebar but omits the ID on a page's own heading.
+            tag = p.parent.name.replace("chapter-", "ch", 1)
+            s = re.sub(r'(<section>\s*)<h1>', rf'\1<h1 id="{tag}">', s, count=1)
         guide = '../seminar/index.html' if ko else 'seminar/index.html'
         guide_label = '이전 판 42회 읽기 일정' if ko else 'Reading schedule (Korean)'
         more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'
         if ko:
             more += '<a class="guide-link" href="imp-card/index.html">IMP 언어 카드</a>'
             more += '<a class="guide-link" href="../glossary/index.html">영어–한국어 용어집</a>'
+            if ch:
+                # Korean chapters link to their English counterparts using the earlier addresses.
+                s = s.replace(f'href="../{chapter_link(ch, True)}"', f'href="../{chapter_link(ch)}"')
             langlink = '../' + (chapter_link(ch) if ch else 'index.html')
             more += f'<a class="guide-link" href="{langlink}">English edition</a>'
         else:
@@ -105,7 +112,7 @@ def update_pages(site, ko=False):
             s, k = re.subn(r'<ol class="section-toc">.*?</ol>',lambda m: course_nav(groups,names,ko,ch,False),s,count=1,flags=re.S)
             if k != 1: raise ValueError(f'Root navigation missing in {p}')
         if ch or p == site/'index.html':
-            s = reader_buttons(s, ch, order, names)
+            s = reader_buttons(s, ch, order, names, ko)
         s=s.replace('<html>', '<html lang="ko">' if ko else '<html lang="en">',1)
         if ko:
             s=s.replace('<html lang="en"','<html lang="ko"').replace('>Table of Contents<','>차례<')

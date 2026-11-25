@@ -5,23 +5,23 @@ open Verso.Genre Manual
 
 #doc (Manual) "Expression Folds and Their Uniqueness" =>
 %%%
-tag := "ch25"
-file := "chapter-25"
+tag := "ch04"
+file := "chapter-04"
 %%%
 
 * *Definitions.* The four constructors of IMP expressions and the evaluator of Session 1, Definitions 1.1–1.3. [IMP language card A.1–A.3](imp-card/index.html#imp-a1)
 * *New terms.* Fold, constructor equation. [Glossary](glossary/index.html)
 * *Theorem 4.1 \[This book\] \[Checked\].* For every set $`A` equipped with a literal operation, a variable operation, and two binary operations, exactly one function from expressions to $`A` satisfies the four constructor equations of §4.1.
-* *Source.* The organizer’s S1 seminar develops the uniqueness argument. Here it applies to the string names and four expression constructors of Leroy’s IMP. [Sources and proof declarations](imp-card/index.html#imp-sources)
+* *Source.* The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Sources and proof declarations](imp-card/index.html#imp-sources)
 * *Board case.* At an addition node, use the two induction hypotheses to compare the results of two functions satisfying the same equations.
 * *Proof outline.* Define one function by recursion on finite trees. For every competing function, prove pointwise equality by structural induction.
-* *From Session 1.* Evaluation in a fixed store returns an integer. The same recursion can count nodes or record the order of leaves by changing the operations performed at the nodes.
+* *From Session 3.* Session 3 proved that two execution derivations for the same command from the same initial store end in the same final store. Here two functions that satisfy the same constructor equations are proved equal, by structural induction on expressions (Session 1, §1.1). The evaluator of Session 1 becomes one choice of operations; counting nodes and recording the order of leaves are others.
 
 The evaluator in Session 1 specifies a result at each leaf and combines two results at an addition. Counting nodes uses the same recursion with different operations. We can characterize the expression datatype by what it allows us to do for *every* choice of such operations.
 
 # Four operations on a set
 %%%
-tag := "ch25-s1"
+tag := "ch04-s1"
 %%%
 
 Fix a store $`s` with $`s(x)=3`. To evaluate $`x+4`, interpret the variable by lookup, the literal by its integer, and the root by integer addition. The result is seven. At the root of $`x-4` use subtraction instead, giving minus one. This interpretation takes values in $`\mathbb Z`.
@@ -41,13 +41,13 @@ h(e_1+e_2)&=P(h(e_1),h(e_2)) & h(e_1-e_2)&=M(h(e_1),h(e_2)).
 
 They hold for every integer $`n`, name $`x` and pair of expressions $`e_1,e_2`. A *fold* computes its result by these equations, replacing each constructor by its specified operation.
 
-To see how much information the four operations can express, take the set of results to be finite words over the two symbols L and V. Send every literal to the one-letter word L, every variable to V, and either binary node to the concatenation of its two child words in their given order. The trees `add(var(x),lit(7))` and `add(lit(7),var(x))` then receive the words VL and LV. For the integer interpretation the values of these trees agree in every store, by commutativity of addition. The word interpretation records the order of the leaves.
+To see how much information the four operations can express, take the set of results to be finite words over the two letters `N` and `X`. Send every literal to the one-letter word `N`, every variable to `X`, and either binary node to the concatenation of its two child words in their given order. The trees `add(var(x),lit(7))` and `add(lit(7),var(x))` then receive the words `XN` and `NX`. For the integer interpretation the values of these trees agree in every store, by commutativity of addition. The word interpretation records the order of the leaves.
 
-Now take the length of the resulting word. On natural numbers, let both leaf operations return one and let both binary operations be ordinary addition. Check the length equation at arbitrary words `u` and `v`. The length of their concatenation counts each position of `u` followed by each position of `v`, giving the sum of the two lengths. The two leaf laws hold because each letter has length one. Consequently, interpreting a tree as a word and taking its length counts leaves, even though the intermediate interpretation records their order.
+Now take the length of each word. Let both leaf operations on the natural numbers return one and let both binary operations be ordinary addition; the fold with these operations counts leaves. Each one-letter word has length one, and the length of a concatenation is the sum of the two lengths. So the function sending a tree to the length of its word satisfies the four constructor equations of the leaf-counting operations. By the uniqueness part of Theorem 4.1 in §4.2 it equals the leaf-counting fold, even though the word itself records the order of the leaves.
 
 # Existence and uniqueness
 %%%
-tag := "ch25-s2"
+tag := "ch04-s2"
 %%%
 
 *Theorem 4.1 (Existence and uniqueness of a fold) \[This book\] \[Checked\].* For every set $`A` and choice of $`L,V_A,P,M` as in §4.1 there is exactly one function $`h:E\to A` satisfying all four constructor equations.
@@ -67,10 +67,10 @@ Consider the tree `add(add(var(x),lit(1)),lit(2))`. To show that two candidate f
 
 # Evaluation as a fold
 %%%
-tag := "ch25-s3"
+tag := "ch04-s3"
 %%%
 
-Now allow the store to vary. Choose $`A=\Sigma\to\mathbb Z`, where $`\Sigma` is the set of stores of Session 1, Definition 1.2. A literal produces the constant function at its integer. A variable produces the function taking $`s` to $`s(x)`. For two functions $`f,g`, their sum takes $`s` to $`f(s)+g(s)` and their difference takes $`s` to $`f(s)-g(s)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a store with $`s(x)=3` gives $`3+4=7`. By Definition 1.3, the function sending $`e` to $`(s\mapsto\mathrm{eval}(e,s))` satisfies all four equations. Theorem 4.1 identifies it with this fold on every tree.
+Now allow the store to vary. Choose $`A=\Sigma\to\mathbb Z`, where $`\Sigma` is the set of stores of Session 1, Definition 1.2. A literal produces the constant function at its integer. A variable produces the function taking $`s` to $`s(x)`. For two functions $`q,r`, their sum takes $`s` to $`q(s)+r(s)` and their difference takes $`s` to $`q(s)-r(s)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a store with $`s(x)=3` gives $`3+4=7`. By Definition 1.3, the function sending $`e` to $`(s\mapsto\mathrm{eval}(e,s))` satisfies all four equations. Theorem 4.1 identifies it with this fold on every tree.
 
 The tree `add(lit(1),lit(2))` and `lit(3)` receive the same evaluation function. The node counts are three and one. Imposing integer arithmetic identities on trees themselves would remove the possibility of counting their nodes in this way.
 
@@ -80,19 +80,21 @@ This argument also explains when a variable can be interpreted by a fixed intege
 
 # Exercises
 %%%
-tag := "ch25-s4"
+tag := "ch04-s4"
 number := false
 %%%
 
-1. Give the operations for a fold that returns the set of variable names occurring in a tree.
-2. Suppose $`A,B` each have four operations as in §4.1, and $`u:A\to B` commutes with them. For instance, $`u(P_A(a,b))=P_B(u(a),u(b))`, and similarly for the other three operations. Prove that composing the fold into $`A` with $`u` gives the fold into $`B`.
-3. If the expression set were enlarged by a cyclic object $`q=\operatorname{add}(q,q)`, show that the node-counting equations could have no solution on that enlarged set.
+*4.1.* Give the operations for a fold that returns the set of variable names occurring in a tree.
+
+*4.2.* Suppose $`A,B` each have four operations as in §4.1, and $`\varphi:A\to B` commutes with them. For instance, $`\varphi(P_A(a,b))=P_B(\varphi(a),\varphi(b))`, and similarly for the other three operations. Prove that composing the fold into $`A` with $`\varphi` gives the fold into $`B`.
+
+*4.3.* If the expression set were enlarged by a cyclic object $`q=\operatorname{add}(q,q)`, show that the node-counting equations could have no solution on that enlarged set.
 
 *Further problem.* Simultaneous folds. Let $`A` and $`B` be any two sets with four operations as in §4.1. Give operations on $`A\times B` so that folding once produces, at each tree, both of the original folds. Prove the result by uniqueness. Why does the same argument fail if the product's addition swaps its left and right children in its second coordinate?
 
 # Reading for the Seminar
 %%%
-tag := "ch25-s5"
+tag := "ch04-s5"
 number := false
 %%%
 
@@ -100,26 +102,26 @@ number := false
 
 *Joint proof · 30 minutes.* Prove existence by constructing a fold into an arbitrary set with four operations. Write the same four equations for a second function. Use them to prove that the two functions agree on every tree.
 
-*Proof review · 20 minutes.* At the addition node compare any competing function with the fold. Use the two child equalities to justify the root equality. Exercise 2 extends this calculation.
+*Proof review · 20 minutes.* At the addition node compare any competing function with the fold. Use the two child equalities to justify the root equality. Exercise 4.2 extends this calculation.
 
 *Facilitator’s hint.* For uniqueness, leave the set of results arbitrary. Fix a competing function and apply its own constructor equation before invoking a child induction hypothesis.
 
-# Solutions
+# Solutions and Further Reading
 %%%
-tag := "ch25-s6"
+tag := "ch04-s6"
 number := false
 %%%
 
-*1.* Use subsets of $`V` as results. A literal gives the empty set, a variable its singleton, and both binary operations take the union of the two child sets.
+*4.1.* Use subsets of $`V` as results. A literal gives the empty set, a variable its singleton, and both binary operations take the union of the two child sets.
 
-*2.* Write $`h` for the fold into $`A`. At an addition, $`u(h(e_1+e_2))=u(P_A(h(e_1),h(e_2)))=P_B(u(h(e_1)),u(h(e_2)))`. The other three equations for the composite follow by applying the corresponding hypothesis on $`u`. Uniqueness identifies the composite with the fold into $`B`.
+*4.2.* Write $`h` for the fold into $`A`. At an addition, $`\varphi(h(e_1+e_2))=\varphi(P_A(h(e_1),h(e_2)))=P_B(\varphi(h(e_1)),\varphi(h(e_2)))`. The other three equations for the composite follow by applying the corresponding hypothesis on $`\varphi`. Uniqueness identifies the composite with the fold into $`B`.
 
-*3.* Its image $`k` would be a natural number satisfying $`k = 1 + 2k`, impossible since the right side is larger. The theorem used the strictly smaller heights of children of finite trees.
+*4.3.* Its image $`k` would be a natural number satisfying $`k = 1 + 2k`, impossible since the right side is larger. The theorem used the strictly smaller heights of children of finite trees.
 
-*Further problem.* Interpret a literal as `(lA(n), lB(n))` and a variable as `(vA(x), vB(x))`. On two pairs `(a,b)` and `(a′,b′)` define addition to give `(pA(a,a′), pB(b,b′))`. Define subtraction componentwise in the same order. Projection onto either coordinate now preserves all four operations: the projection of a literal or variable is its interpretation in that component, and projection of a combined pair gives the combination of the projections in the same order. Compose each projection with the fold into the product. Each composite satisfies the four equations for its component, so by uniqueness it is the corresponding component fold. Equality in a Cartesian product is componentwise, proving the claimed result for every expression.
+*Further problem.* Write $`L_A,V_A,P_A,M_A` and $`L_B,V_B,P_B,M_B` for the operations of $`A` and $`B`. Interpret a literal as $`(L_A(n),L_B(n))` and a variable as $`(V_A(x),V_B(x))`. On two pairs $`(a,b)` and $`(a',b')` define addition to give $`(P_A(a,a'),P_B(b,b'))`. Define subtraction componentwise in the same order with $`M_A` and $`M_B`. Projection onto either coordinate now preserves all four operations: the projection of a literal or variable is its interpretation in that component, and projection of a combined pair gives the combination of the projections in the same order. Compose each projection with the fold into the product. Each composite satisfies the four equations for its component, so by uniqueness it is the corresponding component fold. Equality in a Cartesian product is componentwise, proving the claimed result for every expression.
 
-Swapping the two arguments only in the second coordinate would ask the second projection to preserve addition by the equation `pB(b′,b) = pB(b,b′)`. The constructor equations impose no such law. Choose `B` to be strings, interpret a literal by its decimal representation, and use concatenation for both binary operations; variables may give the empty word. At the sum of literals one and two the usual fold returns `"12"`, whereas the swapped component returns `"21"`.
+Swapping the two arguments only in the second coordinate would ask the second projection to preserve addition by the equation $`P_B(b',b)=P_B(b,b')`. The constructor equations impose no such law. Choose $`B` to be strings, interpret a literal by its decimal representation, and use concatenation for both binary operations; variables may give the empty word. At the sum of literals one and two the usual fold returns `"12"`, whereas the swapped component returns `"21"`.
 
-*Further reading.* The organizer’s [S1 seminar](static/slides/s1/index.html#/15) gives the categorical formulation of Theorem 4.1. For a comparison with compositional interpretation, see [Reynolds, §§1.1–1.2](https://www.cs.cmu.edu/~jcr/tpl-toc.html).
+*Further reading.* The organizer’s special lecture [S1 (initial algebras)](static/slides/s1/index.html#/15) gives the categorical formulation of Theorem 4.1. For a comparison with compositional interpretation, see [Reynolds, §§1.1–1.2](https://www.cs.cmu.edu/~jcr/tpl-toc.html).
 
 In Session 14 the result set will consist of functions describing what a compiled instruction sequence does to a stack. Proving that compiled execution and expression evaluation satisfy the same four constructor equations will let us identify them by Theorem 4.1.

@@ -5,23 +5,23 @@ open Verso.Genre Manual
 
 #doc (Manual) "Transitions and Infinite Executions" =>
 %%%
-tag := "ch04"
-file := "chapter-04"
+tag := "ch05"
+file := "chapter-05"
 %%%
 
 * *Definitions.* Commands, guard values, store update and terminating execution (Sessions 1–2, Definitions 1.2–1.3 and 2.1). [IMP language card A.6](imp-card/index.html#imp-a6)
 * *New terms.* Configuration, transition, finite path, progress, infinite path. [Glossary](glossary/index.html)
-* *Lemma 5.3 (Progress) \[Checked\].* For every command $`c` and store $`s`, either $`c=\mathsf{skip}` or there are $`d,t` with $`\langle c,s\rangle\to\langle d,t\rangle`.
+* *Lemma 5.3 (Progress) \[Checked\] and Example 5.5 \[This book\] \[Checked\].* For every command $`c` and store $`s`, either $`c=\mathsf{skip}` or there are $`d,t` with $`\langle c,s\rangle\to\langle d,t\rangle`. For every store $`s`, an infinite path starts at $`\langle\mathsf{while\ true\ do\ skip},s\rangle`.
 * *Source.* The six transition rules and progress statement are from Leroy’s IMP. \[Corresponding: CS Lemma 7.17\] In _Concrete Semantics_ a configuration has no successor exactly when its command is skip. [Sources and proof declarations](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3](https://concrete-semantics.org/concrete-semantics.pdf)
-* *Board case.* Progress for $`a;b`. Inspect the left command. Exhibit a successor both when it is skip and when it takes a step.
+* *Board case.* Progress for $`c_1;c_2`. Inspect the left command $`c_1`. Exhibit a successor both when $`c_1` is skip and when it takes a step.
 * *Proof outline.* Induct on the command, quantifying over its input store. To exhibit an infinite execution of `while true do skip`, give a configuration at every natural index and check both kinds of adjacent edge.
-* *From Session 2.* The least-height argument in §2.4 excluded a terminating derivation for this loop. Here two explicit transitions supply a witness for its infinite execution.
+* *From Session 4.* Sessions 2–4 described a computation by a finite tree, or computed its result by recursion on a finite tree. Here a computation is a sequence of configurations, and the sequence need not end. For `while true do skip`, the least-height argument of Session 2, §2.4 excluded a terminating derivation. Here two explicit transitions supply a witness for its infinite execution.
 
 A debugger can stop between the two assignments of a sequence. At the stopping point there is a current store and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final store.
 
 # The step relation
 %%%
-tag := "ch04-s1"
+tag := "ch05-s1"
 %%%
 
 *Definition 5.1 (The step relation).* A *configuration* $`\langle c,s\rangle` consists of a residual command $`c` (the work still to do) and the current store $`s`. Write $`p\to q` for one transition. Assignment evaluates its right-hand side in the current store and steps to skip with the updated store.
@@ -43,11 +43,11 @@ Skip itself has no outgoing step.
 
 The sequence rule with a premise lifts a step of the left operand into a sequence. There is no rule taking an arbitrary step of the right operand while the left operand is pending. The small-step loop iteration rule installs a fresh copy of the body before the next guard test. Some textbooks instead unfold the loop to a conditional in one unconditional step. The choice changes trace lengths, so a proof that counts steps must use one convention consistently.
 
-The syntax of a residual command determines where to search for its next instruction. For `(a; b); d`, inspect the left child `a; b`. If `a` can step, its step is first lifted through the inner sequence and then through the outer one. These two applications of the lifting rule derive a *single* transition of the whole command. If `a` is skip, the inner sequence may instead discard it. The enclosing sequence lifts that transition once. In neither case is the rightmost command inspected. The number of rule applications used to *justify* a step can therefore exceed one even when the number of executed steps is exactly one.
+The syntax of a residual command determines where to search for its next instruction. For `(c1; c2); d`, inspect the left child `c1; c2`. If `c1` can step, its step is first lifted through the inner sequence and then through the outer one. These two applications of the lifting rule derive a *single* transition of the whole command. If `c1` is skip, the inner sequence may instead discard it. The enclosing sequence lifts that transition once. In neither case is the rightmost command inspected. The number of rule applications used to *justify* a step can therefore exceed one even when the number of executed steps is exactly one.
 
 # Finite paths and termination
 %%%
-tag := "ch04-s2"
+tag := "ch05-s2"
 %%%
 
 A finite path $`p\to^*q` either takes zero steps with $`p=q`, or has a first step $`p\to r` and a finite tail $`r\to^*q`. Write $`p\to^n q` when there are configurations $`p_0,\ldots,p_n` with $`p_0=p`, $`p_n=q` and $`p_i\to p_{i+1}` for every $`0\le i<n`. The natural number $`n` counts edges.
@@ -66,9 +66,9 @@ The middle step changes the remaining syntax and leaves the store unchanged. A f
 
 $$`P(c)\coloneqq\forall s,\quad c=\mathsf{skip}\ \lor\ \exists d,t,\ \langle c,s\rangle\to\langle d,t\rangle.`
 
-1. Suppose $`c=a;b` and fix $`s`. The two child hypotheses are $`P(a)` and $`P(b)`. Use $`P(a)` at $`s`.
-2. If $`a=\mathsf{skip}`, the rule discarding skip gives $`\langle\mathsf{skip};b,s\rangle\to\langle b,s\rangle`. Take $`b,s` as the witnesses.
-3. Otherwise the hypothesis supplies $`a',t` with $`\langle a,s\rangle\to\langle a',t\rangle`. Lift this edge to $`\langle a;b,s\rangle\to\langle a';b,t\rangle`. Take $`a';b,t` as the witnesses. Neither case requires a step of $`b`.
+1. Suppose $`c=c_1;c_2` and fix $`s`. Since $`c_1;c_2\neq\mathsf{skip}`, we must show the second alternative: $`\exists d,t,\ \langle c_1;c_2,s\rangle\to\langle d,t\rangle`. The two child hypotheses are $`P(c_1)` and $`P(c_2)`. Use $`P(c_1)` at $`s`.
+2. If $`c_1=\mathsf{skip}`, the rule discarding skip gives $`\langle\mathsf{skip};c_2,s\rangle\to\langle c_2,s\rangle`. Take $`c_2,s` as the witnesses.
+3. Otherwise $`P(c_1)` at $`s` supplies $`c_1',t` with $`\langle c_1,s\rangle\to\langle c_1',t\rangle`. The lifting rule gives $`\langle c_1;c_2,s\rangle\to\langle c_1';c_2,t\rangle`. Take $`c_1';c_2,t` as the witnesses. Neither case requires a step of $`c_2`.
 
 For skip the equality in the first alternative holds. An assignment can step by the first rule. For a conditional, the single rule steps to the selected branch. For a loop, evaluation of the guard gives either the exit edge or the edge exposing the body. This completes the cases. $`\square`
 
@@ -86,26 +86,26 @@ For a concrete use of concatenation, suppose a path takes a conditional with a t
 
 # Infinite paths
 %%%
-tag := "ch04-s3"
+tag := "ch05-s3"
 %%%
 
 An *infinite path* from $`p` is witnessed by a function $`f` from natural numbers to configurations with $`f(0)=p` and $`f(i)\to f(i+1)` for every $`i`. The coinductive presentation uses a predicate on configurations: the greatest predicate $`X`, under inclusion, satisfying $`X(p)\iff\exists q,\ p\to q\land X(q)`.
 
-*Example 5.5 (An infinite path indexed by the natural numbers) \[This book\] \[Checked\].* Fix any store $`s` and let $`W` be `while true do skip`. Put $`A=\langle W,s\rangle` and $`C=\langle\mathsf{skip};W,s\rangle`. The small-step loop iteration rule gives $`A\to C`. The rule discarding skip gives $`C\to A`. Set $`f(2i)=A` and $`f(2i+1)=C`. At an even index the required edge is $`A\to C`; at an odd index the next index is $`2(i+1)`, giving $`C\to A`. Thus the function supplies every required edge, starting at $`A`.
+*Example 5.5 (An infinite path indexed by the natural numbers) \[This book\] \[Checked\].* Fix any store $`s` and let $`W` be `while true do skip`. Put $`p=\langle W,s\rangle` and $`p'=\langle\mathsf{skip};W,s\rangle`. The small-step loop iteration rule gives $`p\to p'`. The rule discarding skip gives $`p'\to p`. Set $`f(2i)=p` and $`f(2i+1)=p'`. At an even index the required edge is $`p\to p'`; at an odd index the next index is $`2(i+1)`, giving $`p'\to p`. Thus the function supplies every required edge, starting at $`p`.
 
-The function gives the configuration at an index of our choice. With the predicate presentation we can instead exhibit a set closed under taking some next step: each member of $`\{A,C\}` has a successor in that set. To see why this suffices, take the union $`U` of all sets with this property. Every member of $`U` has a successor in $`U`. Conversely, if $`p` has a successor in $`U`, adjoining $`p` to $`U` preserves the property, so $`p` already belongs to $`U`. Thus $`U` satisfies the displayed equation and contains every other solution. In particular both configurations satisfy the coinductive predicate.
+The function gives the configuration at an index of our choice. With the predicate presentation we can instead exhibit a set closed under taking some next step: each member of $`\{p,p'\}` has a successor in that set. To see why this suffices, take the union $`U` of all sets with this property. Every member of $`U` has a successor in $`U`. Conversely, if $`p` has a successor in $`U`, adjoining $`p` to $`U` preserves the property, so $`p` already belongs to $`U`. Thus $`U` satisfies the displayed equation and contains every other solution. In particular both configurations satisfy the coinductive predicate.
 
 A run can also be infinite without repeating a configuration. In `while true do x := x + 1`, start with $`s(x)=0`. Each return to the loop head has a larger value of $`x`. Divergence means the availability of a successor along an entire infinite execution. Revisiting an identical configuration is a sufficient witness here, and is unnecessary in the definition.
 
 # Exercises
 %%%
-tag := "ch04-s4"
+tag := "ch05-s4"
 number := false
 %%%
 
 *5.1.* How many steps does `if true then skip else x := 1` take to terminate? Compare with skip using our definition of termination.
 
-*5.2.* Show that a positive-length path starting at $`\left\langle {\operatorname{skip},s} \right\rangle` is impossible. Decide whether the star relation nevertheless relates that configuration to itself.
+*5.2.* Show that a positive-length path starting at $`\left\langle {\operatorname{skip},s} \right\rangle` is impossible. Decide whether the finite-path relation $`\to^*` nevertheless relates that configuration to itself.
 
 *5.3.* For the always-incrementing loop starting at $`s(x)=0`, write its configuration at times $`3i`, $`3i + 1`, and $`3i + 2` to construct an infinite execution.
 
@@ -113,7 +113,7 @@ number := false
 
 # Reading for the Seminar
 %%%
-tag := "ch04-s5"
+tag := "ch05-s5"
 number := false
 %%%
 
@@ -121,13 +121,13 @@ number := false
 
 *Joint proof · 30 minutes.* Prove the sequence case of progress, then construct the infinite execution in §5.3. Have participants state the domain of the witness function and justify every even and odd edge.
 
-*Proof review · 20 minutes.* Try the construction on the incrementing loop. Use progress to explain why a stuck term and an infinite run would represent distinct phenomena in an extended language.
+*Proof review · 20 minutes.* Try the construction on the incrementing loop. Use progress to explain why a stuck configuration and an infinite path would represent distinct phenomena in an extended language.
 
 *Facilitator’s hint.* After one true loop step the residual command is a sequence. Consult the leftmost command before choosing the next rule.
 
 # Solutions and Further Reading
 %%%
-tag := "ch04-s6"
+tag := "ch05-s6"
 number := false
 %%%
 
@@ -145,7 +145,7 @@ The progress lemma fails already at `⟨abort,s⟩`, which is neither at skip no
 
 *Further reading · Determinacy of a step.* The rules also give uniqueness of the successor for the given grammar. Induct on the command with property $`\forall s,p,q,\ (\langle c,s\rangle\to p)\land(\langle c,s\rangle\to q)\Rightarrow p=q`. Assignment has exactly the prescribed result. In a conditional the guard selects one branch. In a loop it determines which of the two rules applies. In a sequence with left skip, lifting would require an impossible step from skip. In a sequence with any other left command, discarding is impossible and the induction hypothesis identifies the lifted successor when one exists. Together with progress this gives one successor at every nonterminal configuration, a fact that will help relate negative and positive accounts of divergence.
 
-For deterministic IMP we can strengthen the connection between the two observations. Suppose there is no finite path from a given configuration to skip. That configuration cannot already contain skip, since a path of length zero would suffice. Progress supplies its next configuration. A finite path to skip from the successor would extend backwards across the chosen edge to give one from the initial configuration. Hence the same absence property holds at the successor. Iterating this argument defines the configuration at each natural index. Uniqueness of the successor makes the resulting infinite sequence independent of any selection among alternatives.
+For deterministic IMP we can strengthen the connection between the two observations. Suppose there is no finite path from a given configuration to skip. Its command cannot be skip, since a path of length zero would suffice. Progress supplies its next configuration. A finite path to skip from the successor would extend backwards across the chosen edge to give one from the initial configuration. Hence the same absence property holds at the successor. Iterating this argument defines the configuration at each natural index. Uniqueness of the successor makes the resulting infinite sequence independent of any selection among alternatives.
 
 In the other direction assume an infinite sequence and a finite path to skip start at the same configuration. An induction on the finite length shows that both executions agree at every position up to its endpoint: the starts agree, and determinacy identifies their next configurations. The infinite sequence would consequently have to take a step from skip at the next index, contrary to the rules. This particular exclusion uses determinacy. In a nondeterministic language, the existence of an infinite execution can coexist with a different, terminating execution from the same input.
 

@@ -9,7 +9,7 @@ file := "imp-card"
 number := false
 %%%
 
-A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-25/index.html). A.6 gives the step and path judgments for [Session 5](chapter-04/index.html) and [Session 6](chapter-05/index.html). [English–Korean glossary](glossary/index.html)
+A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-04/index.html). A.6 gives the step and path judgments for [Session 5](chapter-05/index.html) and [Session 6](chapter-06/index.html). [English–Korean glossary](glossary/index.html)
 
 # A.1 Arithmetic expressions · Session 1
 %%%

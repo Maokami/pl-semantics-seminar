@@ -70,7 +70,7 @@ tag := "week-04"
 number := false
 %%%
 
-*함께 읽을 절*　[§4.1–4.3](chapter-25/index.html#ch25-s1)
+*함께 읽을 절*　[§4.1–4.3](chapter-04/index.html#ch04-s1)
 
 임의의 식 대수에서 접기를 구성하고 구조적 귀납으로 유일성을 증명한다. 두 대수 사이의 준동형을 접기 뒤에 합성하면 도착 대수의 접기가 된다는 것을 유일성으로 도출한다.
 
@@ -82,7 +82,7 @@ tag := "week-05"
 number := false
 %%%
 
-*함께 읽을 절*　[§5.1–5.3](chapter-04/index.html#ch04-s1)
+*함께 읽을 절*　[§5.1–5.3](chapter-05/index.html#ch05-s1)
 
 while true do skip의 무한 전이열을 구성한다. 그런 다음 abort를 추가해 다음 단계가 없는 유한 실행을 만든다. 두 실행 모두 정상 종료 유도가 없는데 무엇이 다른가?
 
@@ -94,7 +94,7 @@ tag := "week-06"
 number := false
 %%%
 
-*함께 읽을 절*　[§6.1–6.3](chapter-05/index.html#ch05-s1)
+*함께 읽을 절*　[§6.1–6.3](chapter-06/index.html#ch06-s1)
 
 순차 합성의 두 경로 길이가 m과 n일 때 전체 길이가 m+1+n임을 보인다. 역방향은 보조정리 6.3을 써서 마지막 skip 유도에서 출발해 한 전이씩 거슬러 복원한다.
 
@@ -106,7 +106,7 @@ tag := "week-07"
 number := false
 %%%
 
-*함께 읽을 절*　[§7.1–7.3](chapter-06/index.html#ch06-s1)
+*함께 읽을 절*　[§7.1–7.3](chapter-06-legacy/index.html#ch06-legacy-s1)
 
 루프 펼침 동치를 순차 문맥 안에서 사용한다. out := y를 뒤에 붙여 각 변수의 최종값을 검사하는 실험들로 전체 최종 상태 동치를 복원할 때 결정성이 왜 필요한지 증명한다.
 

@@ -175,50 +175,50 @@ The Korean column gives the term to use when discussing the English text. The la
   * fold
   * 접기
   * A function on expressions computed by replacing each constructor with its specified operation.
-  * Session 4 · [§4.1](chapter-25/index.html#ch25-s1)
+  * Session 4 · [§4.1](chapter-04/index.html#ch04-s1)
 *
   * constructor equation
   * 생성자 등식
   * An equation giving the result at one constructor in terms of its fields and the results at its children.
-  * Session 4 · [§4.1](chapter-25/index.html#ch25-s1)
+  * Session 4 · [§4.1](chapter-04/index.html#ch04-s1)
 *
   * configuration
   * 구성
   * A pair consisting of a residual command and the current store.
-  * Session 5 · [§5.1](chapter-04/index.html#ch04-s1)
+  * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
   * residual command
   * 잔여 명령
   * The command describing the work still to do.
-  * Session 5 · [§5.1](chapter-04/index.html#ch04-s1)
+  * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
   * transition
   * 전이
   * A single step between configurations allowed by the small-step rules.
-  * Session 5 · [§5.1](chapter-04/index.html#ch04-s1)
+  * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
   * finite path
   * 유한 경로
   * Zero or more consecutive transitions from one configuration to another.
-  * Session 5 · [§5.2](chapter-04/index.html#ch04-s2)
+  * Session 5 · [§5.2](chapter-05/index.html#ch05-s2)
 *
   * progress
   * 진행
   * Every configuration whose command is different from skip has a successor.
-  * Session 5 · [§5.2](chapter-04/index.html#ch04-s2)
+  * Session 5 · [§5.2](chapter-05/index.html#ch05-s2)
 *
   * infinite path
   * 무한 경로
   * A sequence of configurations indexed by the natural numbers, with a transition at each successive pair.
-  * Session 5 · [§5.3](chapter-04/index.html#ch04-s3)
+  * Session 5 · [§5.3](chapter-05/index.html#ch05-s3)
 *
   * sequence context
   * 순차 합성 문맥
   * The operation of placing a command to the left of a fixed suffix in a sequence.
-  * Session 6 · [§6.1](chapter-05/index.html#ch05-s1)
+  * Session 6 · [§6.1](chapter-06/index.html#ch06-s1)
 *
   * path lifting
   * 경로 올리기
   * Placing every command on a path in the same sequence context while retaining its store and each edge.
-  * Session 6 · [§6.1](chapter-05/index.html#ch05-s1)
+  * Session 6 · [§6.1](chapter-06/index.html#ch06-s1)
 :::
