@@ -9,7 +9,7 @@ file := "imp-card"
 number := false
 %%%
 
-For [Inversion and Determinacy](chapter-03/index.html), read A.1–A.5. In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. A.6 introduces a second judgment for individual steps. [English–Korean glossary](glossary/index.html)
+A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. A.6 introduces a second judgment for individual steps. [English–Korean glossary](glossary/index.html)
 
 # A.1 Arithmetic expressions · Session 1
 %%%
@@ -22,6 +22,8 @@ Let $`x` range over variable names (strings) and $`n` over mathematical integers
 $$`e ::= n \mid x \mid (e_1+e_2) \mid (e_1-e_2).`
 
 A minus sign at an internal node denotes binary subtraction. A negative integer at a leaf is a literal.
+
+*Structural induction* proves a property $`P(e)` by considering each constructor. At a binary node, the claims $`P(e_1)` and $`P(e_2)` for its two immediate children are the *induction hypotheses*.
 
 # A.2 Stores and update · Session 1
 %%%
@@ -37,7 +39,7 @@ tag := "imp-a3"
 number := false
 %%%
 
-The evaluation function is defined by structural recursion. At each binary node it first obtains the two operand values in the same store.
+The evaluation function is defined by *structural recursion*. There is one equation per constructor, and recursive calls are made only on immediate children. At each binary node it obtains the two operand values in the same store.
 
 $$`\begin{aligned}
 \mathrm{eval}(n,s)&=n & \mathrm{eval}(x,s)&=s(x)\\
@@ -45,14 +47,14 @@ $$`\begin{aligned}
 \mathrm{eval}(e_1-e_2,s)&=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s).
 \end{aligned}`
 
-*Evaluation judgment \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An inference rule puts its premises above the line and its conclusion below. Each premise receives its own derivation. A rule with no premises can be used at a leaf.
+*Evaluation judgment \[This book\].* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments.
 
 $$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
 
 $$`\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1+e_2\Downarrow m+n}
 \qquad\frac{s\vdash e_1\Downarrow m\quad s\vdash e_2\Downarrow n}{s\vdash e_1-e_2\Downarrow m-n}`
 
-For example, if $`s(x)=2`, lookup and the literal rule supply the premises for $`s\vdash x-3\Downarrow -1`. Going from a conclusion to its possible last rules and their premises is *inversion*. Structural induction on an expression instead follows its constructors, with one *induction hypothesis* for each immediate subexpression: the claim is assumed for that subexpression when proving it for the whole expression.
+For example, if $`s(x)=2`, lookup and the literal rule supply the premises for $`s\vdash x-3\Downarrow -1`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
 
 # A.4 Guards and commands · Session 2
 %%%
@@ -78,7 +80,7 @@ tag := "imp-a5"
 number := false
 %%%
 
-The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. Sequencing binds its two premises through the intermediate store $`m`.
+In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. Sequencing binds its two premises through the intermediate store $`m`.
 
 $$`\frac{}{s\vdash\mathsf{skip}\Downarrow s}\qquad
 \frac{}{s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]}`
@@ -95,6 +97,8 @@ Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines be
 
 $$`\frac{B(b,s)=\mathsf{false}}{s\vdash W\Downarrow s}\qquad
 \frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow m\quad m\vdash W\Downarrow t}{s\vdash W\Downarrow t}`
+
+The *height of an execution derivation* is zero when its last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation.
 
 # A.6 Transitions and paths · Sessions 5–6
 %%%
@@ -119,4 +123,6 @@ These references document the formalization. They are optional for seminar prepa
 * $`\mathrm{eval}(e,s)`, $`B(b,s)` and $`s[x\mapsto n]` correspond to `aeval s e`, `beval s b` and `update x n s`.
 * $`s\vdash c\Downarrow t` corresponds to `cexec s c t`. The conditional rule is `cexec_ifthenelse`.
 * One step is `red`. The finite closure is `star`. The two presentations of infinite execution are `infseq_with_function` and `infseq`.
+* Definition 1.5 is `PLBook.IMP.Evaluates`. In `PLBook.IMP.Arithmetic`, membership in the free-variable set is `occurs`. Lemma 1.1 is `coincidence`, Corollary 1.2 is `updateIrrelevant`, Theorem 1.3 is `correspondence`, and Corollary 1.4 is `uniqueValue`, all in the namespace `PLBook.IMP`. Theorem 1.5 has a paper proof in the Session 11 reading.
+* Proposition 2.2 is `PLBook.IMP.sequenceExecution` on the shared execution relation.
 * The proof module `PLBook.IMP.Determinacy` checks Lemma 3.1 with `PLBook.IMP.assignmentResult` and Theorem 3.2 with `PLBook.IMP.deterministic` on the shared execution relation. The two derived conditional rules are `PLBook.IMP.ifTrue` and `PLBook.IMP.ifFalse`.

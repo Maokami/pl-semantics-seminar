@@ -9,8 +9,6 @@ tag := "ch03"
 file := "chapter-03"
 %%%
 
-*3회 · 회차 카드*　읽을 절 §3.1–3.3 · 담당 ＿＿＿＿ · 준비 시간 ＿＿＿＿시간
-
 * *쓰는 정의.* [IMP 언어 카드 A.1–A.5](imp-card/index.html). 상태와 갱신, 식의 평가 함수, 명령의 큰걸음 실행 규칙 여섯 개를 사용한다.
 * *새 용어(3).* 결정성(determinacy), 유도에 대한 귀납법(induction on derivations), 귀납가정(induction hypothesis). [용어집](glossary/index.html)
 * *정리 3.2 \[자체\] \[검사됨\].* 모든 명령 $`c`와 상태 $`\sigma,\tau,\tau'`에 대해, $`\sigma\vdash c\Downarrow\tau`이고 $`\sigma\vdash c\Downarrow\tau'`이면 $`\tau=\tau'`이다.

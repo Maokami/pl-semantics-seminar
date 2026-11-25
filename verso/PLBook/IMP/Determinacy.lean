@@ -2,6 +2,15 @@ import PLBook.IMP.Language
 
 namespace PLBook.IMP
 
+/-- Inversion and introduction for a sequence (Proposition 2.2). -/
+theorem sequenceExecution : cexec s (.SEQ c d) t ↔ ∃ u, cexec s c u ∧ cexec u d t := by
+  constructor
+  · intro run
+    cases run with
+    | cexec_seq first second => exact ⟨_, first, second⟩
+  · rintro ⟨_, first, second⟩
+    exact .cexec_seq first second
+
 /-- The true specialization of the single conditional execution rule. -/
 theorem ifTrue (guard : beval s b = true) (branch : cexec s c t) :
     cexec s (.IFTHENELSE b c d) t :=

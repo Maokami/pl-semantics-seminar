@@ -9,10 +9,8 @@ tag := "ch03"
 file := "chapter-03"
 %%%
 
-*Session 3 · Inversion and Determinacy*　Read §§3.1–3.3 · Presenter ＿＿＿＿ · Preparation time ＿＿＿＿
-
 * *Definitions.* [IMP language card A.1–A.5](imp-card/index.html), especially the six execution rules in A.5.
-* *New terms.* Determinacy, height of a derivation, induction on derivations, induction property, partial function. [Glossary and label key](glossary/index.html)
+* *New terms.* Command determinacy, partial function. [Glossary and label key](glossary/index.html)
 * *Theorem 3.2 \[This book\] \[Checked\].* For every command $`c` and stores $`s,t,u`, if $`s\vdash c\Downarrow t` and $`s\vdash c\Downarrow u`, then $`t=u`.
 * *Source.* The execution relation is defined by the six big-step rules for commands in Xavier Leroy’s compiler verification course (IMP, as presented in A.5). \[Corresponding: CS Lemma 7.9\] Nipkow and Klein prove the corresponding theorem for their IMP in _Concrete Semantics_, §7.2.5. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Sequencing. Invert the second derivation $`E` and identify the intermediate stores before comparing the final stores.
@@ -34,19 +32,11 @@ $$`E:\quad\frac{\dfrac{}{s\vdash x:=1\Downarrow n}\qquad\dfrac{}{n\vdash x:=2\Do
 
 To compare the executions of the second assignment from the same store, we first need $`m=n`. Here both left leaves give $`s[x\mapsto1]`. The right leaves give $`t=m[x\mapsto2]` and $`u=n[x\mapsto2]`. In §3.2 the first command can itself be a loop, so identifying the intermediate stores will require an induction hypothesis.
 
-A derivation of $`s\vdash c\Downarrow t` is a finite tree of applications of the execution rules. Its *height* is zero when the last rule has no execution premises. Otherwise it is one plus the greatest height of an immediate execution subderivation. A guard test is a side condition checked by calculation ([A.5](imp-card/index.html#imp-a5)). Thus even the false loop rule has height zero.
+Use derivations as in [Session 1, Definition 1.5](chapter-01/index.html#ch01-s4) and their heights as in [Session 2, §2.4](chapter-02/index.html#ch02-s4). Each assignment leaf above has height zero, and each sequence root has height one.
 
-An *induction property* $`P` assigns a statement to each derivation $`D`. To prove $`\forall D,\ P(D)` by *induction on derivations*, show for each possible last rule that $`P(D)` follows from the induction hypotheses for its immediate execution subderivations. A loop premise may concern exactly the command at the root, yet the premise tree has smaller height. Induction on syntax alone would give a hypothesis for the body and none for the next execution of the loop.
+Apply [Session 1, §1.5](chapter-01/index.html#ch01-s5) to execution trees. To prove $`\forall D,\ P(D)`, the induction hypotheses now concern the immediate execution premises of Definition 2.1. A loop premise may concern exactly the command at the root, yet the premise tree has smaller height. Induction on syntax alone would give a hypothesis for the body and none for the next execution of the loop.
 
-*Inversion* works in the opposite direction to rule application. If $`s \vdash c\ \text{;}\ d \Downarrow t` is derivable, its last rule must be sequence, so there exists $`u` with derivations of $`s \vdash c \Downarrow u` and $`u \vdash d \Downarrow t`. Each inversion recovers an intermediate store from one particular tree.
-
-The conditional has one rule. Put $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`. Its premise is an execution of whichever command the Boolean value $`B(b,s)` selects. Evaluating this selection gives two derived rules \[This book\] \[Corresponding: CS IfTrue, IfFalse\] \[Checked\].
-
-$$`\frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow t}{s\vdash I\Downarrow t}
-\qquad
-\frac{B(b,s)=\mathsf{false}\quad s\vdash d\Downarrow t}{s\vdash I\Downarrow t}`
-
-For the left rule the selected command is $`c`, so its given derivation supplies the premise of the conditional rule. The right rule follows by the same calculation with $`d`. Inverting a conditional execution therefore gives a derivation for the selected branch even before we distinguish the two Boolean values.
+By [Proposition 2.2](chapter-02/index.html#ch02-s3), inverting a sequence execution recovers an intermediate store from that particular tree. For a conditional, [Session 2, Definition 2.1 and its derived rules](chapter-02/index.html#ch02-s2) identify which branch execution its tree contains.
 
 For the sequence rule, let $`D` be the derivation formed from the two premises shown below. The induction step has the following form.
 
@@ -117,7 +107,7 @@ tag := "ch03-s3"
 
 Consider $`x \neq y` and the command `x := y; y := x + 1`. If two derivations both start in a store with $`y = 5`, the result at $`x` must be 5 and at $`y` must be 6. If their initial stores differ at a third variable $`z`, their final stores can differ at $`z`. The premise “same initial store” is equality of the complete functions in Theorem 3.2.
 
-Determinacy states that there is *at most one* final store. For example, let $`W=\mathsf{while\ true\ do\ skip}`. If $`s\vdash W\Downarrow t` had a derivation, choose one of least height. Its last rule must be iteration, and skip leaves $`s` unchanged. The second premise would therefore derive the very same judgment at smaller height, a contradiction. The empty set of final stores satisfies the uniqueness claim.
+Determinacy states that there is *at most one* final store. For example, let $`W=\mathsf{while\ true\ do\ skip}`. The least-height argument in [Session 2, §2.4](chapter-02/index.html#ch02-s4) proves that this loop has no terminating derivation. The empty set of final stores satisfies the uniqueness claim.
 
 For a fixed command, a *partial function* on stores assigns a unique output to each input at which it is defined. Its *graph* is the set of those input–output pairs. Theorem 3.2 makes the terminating execution relation such a graph. For each input store the set of final stores is either empty or a singleton. In the latter case take its unique member as the output; in the former leave the function undefined.
 
