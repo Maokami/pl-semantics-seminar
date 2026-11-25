@@ -27,7 +27,7 @@ tag := "ch21-s1"
 
 *Theorem 6.2 (Equivalence of terminating evaluations), restated \[Checked\].* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
 
-*Theorem 10.2 (Correspondence), restated \[This book\] \[Paper proof only: Session 10, §§10.2–10.3\].* For every command $`c` and stores $`s,t\in\Sigma`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
+*Theorem 10.2 (Correspondence), restated \[This book\] \[Checked\].* For every command $`c` and stores $`s,t\in\Sigma`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
 
 *Theorem 16.2 (Compiled commands meet the contract), restated \[Externally checked: Leroy course, [machine-card references](machine-card/index.html#machine-sources)\].* For every command $`c` and stores $`s,t`, if $`s\vdash c\Downarrow t`, then for every code $`C`, position $`\mathit{pc}` and stack $`S` with $`\mathrm{at}(C,\mathit{pc},\mathrm{ccom}(c))`, $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{ccom}(c)|,S,t\rangle`.
 

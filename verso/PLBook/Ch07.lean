@@ -1,4 +1,5 @@
 import VersoManual
+import PLBook.IMP.Equivalence
 
 open Verso.Genre Manual
 
@@ -10,7 +11,7 @@ file := "chapter-07"
 
 * *Definitions.* The six execution rules: skip, assignment, sequence, conditional, loop exit and loop iteration ([IMP language card A.5](imp-card/index.html#imp-a5); Session 2, Definition 2.1). The derived rules for a true guard and for a false guard ([Session 2, §2.2](chapter-02/index.html#ch02-s2)). Inversion ([Session 1, §1.4](chapter-01/index.html#ch01-s4)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)). Determinacy ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)).
 * *New terms.* Program equivalence, observation, loop unfolding. [Glossary and label key](glossary/index.html)
-* *Theorem 7.3 \[This book\] \[Paper proof only: proof in this section\].* For every guard $`b`, command $`c` and stores $`s,t`, $`s\vdash\mathsf{while}\ b\ \mathsf{do}\ c\Downarrow t` if and only if $`s\vdash\mathsf{if}\ b\ \mathsf{then}\ (c;\mathsf{while}\ b\ \mathsf{do}\ c)\ \mathsf{else}\ \mathsf{skip}\Downarrow t`.
+* *Theorem 7.3 \[This book\] \[Checked\].* For every guard $`b`, command $`c` and stores $`s,t`, $`s\vdash\mathsf{while}\ b\ \mathsf{do}\ c\Downarrow t` if and only if $`s\vdash\mathsf{if}\ b\ \mathsf{then}\ (c;\mathsf{while}\ b\ \mathsf{do}\ c)\ \mathsf{else}\ \mathsf{skip}\Downarrow t`.
 * *Source.* The execution rules follow Leroy’s IMP, as presented in A.5. \[Corresponding: CS Lemma 7.3\] Nipkow and Klein state the same unfolding for their IMP, whose conditional has two rules, with the same definition of equivalence. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.2.4, p. 82](https://concrete-semantics.org/concrete-semantics.pdf#page=92)
 * *Board case.* The direction from the loop to its unfolding, when the loop derivation ends with the loop iteration rule. Then the short case of the loop exit rule.
 * *Proof outline.* Case analysis on the last rule, with no induction. In each direction, invert the last rule of the given derivation and place its premises under other rules. The loop derivation from the intermediate store $`m` is reused unchanged.
@@ -75,7 +76,7 @@ Inversion ([Session 1, §1.4](chapter-01/index.html#ch01-s4)) gives four facts.
 3. From a derivation of $`s\vdash(c;W)\Downarrow t`, [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash W\Downarrow t`.
 4. A derivation of $`s\vdash\mathsf{skip}\Downarrow t` ends with the skip rule, so $`t=s`.
 
-*Theorem 7.3 (Loop unfolding) \[This book\] \[Corresponding: CS Lemma 7.3\] \[Paper proof only: proof in this section\].* For every guard $`b`, command $`c` and stores $`s,t`,
+*Theorem 7.3 (Loop unfolding) \[This book\] \[Corresponding: CS Lemma 7.3\] \[Checked\].* For every guard $`b`, command $`c` and stores $`s,t`,
 
 $$`s\vdash W\Downarrow t\quad\Longleftrightarrow\quad s\vdash U\Downarrow t.`
 
@@ -118,7 +119,7 @@ tag := "ch07-s3"
 
 An unfolded loop usually sits inside a larger program. Take the loop of §7.2 followed by `y := x`, for a name $`y\neq x`. From $`s(x)=0` the loop ends in $`m=s[x\mapsto1]`, and the suffix ends in $`m[y\mapsto1]`. By Theorem 7.3 the unfolding $`U` also ends in $`m` from $`s`. The same suffix derivation from $`m` then completes a run of $`U` followed by `y := x`. The next proposition does this for every initial store and every suffix.
 
-*Proposition 7.4 (Replacement before a suffix) \[This book\] \[Paper proof only: proof in this section\].* For all commands $`c,d,a`, if $`c\equiv d` then $`(c;a)\equiv(d;a)`.
+*Proposition 7.4 (Replacement before a suffix) \[This book\] \[Checked\].* For all commands $`c,d,a`, if $`c\equiv d` then $`(c;a)\equiv(d;a)`.
 
 *Proof.* Fix $`s,t` and suppose $`s\vdash(c;a)\Downarrow t`. [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash a\Downarrow t`. Since $`c\equiv d`, also $`s\vdash d\Downarrow m`. The sequence rule, applied to this derivation and the given derivation of $`m\vdash a\Downarrow t`, gives $`s\vdash(d;a)\Downarrow t`. The converse is the same argument with $`c` and $`d` exchanged, which is allowed because $`\equiv` is symmetric. $`\square`
 

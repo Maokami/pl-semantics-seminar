@@ -1,4 +1,5 @@
 import VersoManual
+import PLBook.IMP.Hoare
 
 open Verso.Genre Manual
 
@@ -10,7 +11,7 @@ file := "chapter-12"
 
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notation $`e_1<e_2` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Assertions, triples $`\{P\}\,c\,\{Q\}`, validity $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` and the validity of assignment triples ([Session 11, Definition 11.5 and Theorem 11.8](chapter-11/index.html#ch11-s3)).
 * *New terms.* Guard assertion, loop invariant, Hoare proof system, derivable triple, soundness. [Glossary and label key](glossary/index.html)
-* *Theorem 12.3 \[Corresponding: CS Lemma 12.2\] \[Paper proof only: proof in this section\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+* *Theorem 12.3 \[Corresponding: CS Lemma 12.2\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
 * *Source.* The six proof rules are those of _Concrete Semantics_, Fig. 12.3, where assertions are predicates on stores. They are written here for the guards of A.4. Nipkow and Klein prove soundness as Lemma 12.2 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §§12.2–12.3, pp. 192–204](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* The while rule. Take the hypothesis $`V(H_1)` for the body and prove $`L(D)` by induction on the loop execution $`D:s\vdash W\Downarrow t`. The iteration case takes four steps.
 * *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` with $`V(H)\coloneqq\forall s,t,\ (P(s)\land s\vdash c\Downarrow t)\Rightarrow Q(t)`. Most cases invert the execution of $`c` and apply the hypotheses of the premises. In the while case a second induction, on the height of $`D:s\vdash W\Downarrow t`, proves $`L(D)\coloneqq P(s)\Rightarrow(P(t)\land B(b,t)=\mathsf{false})`.
@@ -112,7 +113,7 @@ tag := "ch12-s3"
 
 Line 11 of §12.2 should mean the following. From every store with $`s(n)\ge0`, every terminating execution of the summation program ends in a store $`t` with $`2t(a)=t(n)\bigl(t(n)+1\bigr)`. That is the validity of the triple. The theorem below gives validity for every derivation at once.
 
-*Theorem 12.3 (Soundness) \[Corresponding: CS Lemma 12.2\] \[Paper proof only: proof in this section\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+*Theorem 12.3 (Soundness) \[Corresponding: CS Lemma 12.2\] \[Checked\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
 
 We prove $`V(H)` for every derivation $`H` by induction on $`H`, as in [Session 1, §1.5](chapter-01/index.html#ch01-s5). For $`H` with conclusion $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` the induction property is
 

@@ -266,7 +266,7 @@ def generate(site, chrome, ko=False):
             if dest is None or reader.get_destination_page_number(dest) != start - 1:
                 raise ValueError(f"Chapter {number} did not begin on its contents page {start}.")
         writer = PdfWriter(clone_from=reader)
-        writer.add_metadata({"/Title": book_title, "/Author": "PL Study Group"})
+        writer.add_metadata({"/Title": book_title, "/Author": "HyperAccel PL Study Group"})
         entries = {n: (title, page_no) for n, title, page_no in chapters}
         for first, last, korean, english, weeks in groups:
             part = korean if ko else english

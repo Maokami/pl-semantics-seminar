@@ -1,4 +1,5 @@
 import VersoManual
+import PLBook.IMP.Hoare
 
 open Verso.Genre Manual
 
@@ -10,7 +11,7 @@ file := "chapter-11"
 
 * *Definitions.* Stores and update, expression evaluation, guard values and execution ([IMP language card A.2–A.5](imp-card/index.html#imp-a2)). Structural induction ([A.1](imp-card/index.html#imp-a1)). The assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)).
 * *New terms.* Substitution, assertion, Hoare triple, partial correctness, substituted assertion. [Glossary and label key](glossary/index.html)
-* *Theorem 11.8 \[This book\] \[Paper proof only: proof in §11.3\].* For every assertion $`Q`, name $`x` and expression $`e`, $`\models\{Q[e/x]\}\,x:=e\,\{Q\}`. If $`Q` is written $`\varphi(a_1,\ldots,a_j)` with expressions $`a_1,\ldots,a_j`, then $`\models\{\varphi(a_1[e/x],\ldots,a_j[e/x])\}\,x:=e\,\{\varphi(a_1,\ldots,a_j)\}`.
+* *Theorem 11.8 \[This book\] \[Checked\].* For every assertion $`Q`, name $`x` and expression $`e`, $`\models\{Q[e/x]\}\,x:=e\,\{Q\}`. If $`Q` is written $`\varphi(a_1,\ldots,a_j)` with expressions $`a_1,\ldots,a_j`, then $`\models\{\varphi(a_1[e/x],\ldots,a_j[e/x])\}\,x:=e\,\{\varphi(a_1,\ldots,a_j)\}`.
 * *Source.* Triples and validity follow Nipkow and Klein, _Concrete Semantics_, §12.2.2 (assertions as predicates on stores), applied to the execution relation of A.5. The triple of Theorem 11.8 is the conclusion of their rule Assign (Fig. 12.3). \[Corresponding: CS Lemma 12.2, assignment case\] Theorem 11.8 is the assignment case of their soundness proof (p. 204). \[Corresponding: CS Lemma 12.1\] Nipkow and Klein state Lemma 11.6 for Boolean expressions. Their Exercise 3.3 poses Lemma 11.3 for their arithmetic expressions. [Concrete Semantics, §§12.2–12.3, pp. 192–205](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Theorem 11.8 for a postcondition written with expressions (the four steps at the end of §11.3). Invert the execution, then apply the substitution lemma to each expression. Prepare the variable case of Lemma 11.3.
 * *Proof outline.* Lemma 11.3 is proved by structural induction on $`a` with $`e,x,s` fixed, for $`L(a)\coloneqq\mathrm{eval}(a[e/x],s)=\mathrm{eval}(a,s[x\mapsto\mathrm{eval}(e,s)])`. Theorem 11.8 needs no induction. Inversion gives the final store $`t=s[x\mapsto\mathrm{eval}(e,s)]`. The precondition at $`s` is then the postcondition at $`t`.
@@ -37,7 +38,7 @@ Read $`a[e/x]` as “$`a` with $`e` for $`x`”. The replacement is simultaneous
 
 *Example 11.2.* Substitute $`x+1` for $`x` in $`x+x`. The result is $`(x+1)+(x+1)`. If $`s(x)=2`, it evaluates to 6. Now evaluate the original $`x+x` in the updated store $`s[x\mapsto3]`. The result is again 6. The value 3 stored at $`x` is $`\mathrm{eval}(x+1,s)`, computed in the original store.
 
-*Lemma 11.3 (Substitution lemma) \[This book\] \[Paper proof only: proof in this section\].* For all expressions $`a,e`, every name $`x` and every store $`s`,
+*Lemma 11.3 (Substitution lemma) \[This book\] \[Checked\].* For all expressions $`a,e`, every name $`x` and every store $`s`,
 
 $$`\mathrm{eval}(a[e/x],s)=\mathrm{eval}\bigl(a,\,s[x\mapsto\mathrm{eval}(e,s)]\bigr).`
 
@@ -100,7 +101,7 @@ $$`Q[e/x](s)\quad\Longleftrightarrow\quad Q\bigl(s[x\mapsto\mathrm{eval}(e,s)]\b
 
 Definition 11.5 uses the store update, not text. For an assertion written with expressions, text suffices. Take distinct $`x,y`, the postcondition $`y\ge0\land x\ge4` and the command `x := y + 1`. The postcondition is written with $`a_1=y` and $`a_2=x`. Substitution gives $`a_1[(y+1)/x]=y` and $`a_2[(y+1)/x]=y+1`, hence the candidate $`y\ge0\land y+1\ge4`. Check it against Definition 11.5. The updated store $`u=s[x\mapsto s(y)+1]` has $`u(y)=s(y)` and $`u(x)=s(y)+1`, so the postcondition at $`u` is the candidate at $`s`.
 
-*Lemma 11.6 (Substitution in an assertion) \[This book\] \[Paper proof only: proof in this section\].* Let $`Q` be written $`\varphi(a_1,\ldots,a_j)`. For every name $`x` and expression $`e`,
+*Lemma 11.6 (Substitution in an assertion) \[This book\] \[Checked\].* Let $`Q` be written $`\varphi(a_1,\ldots,a_j)`. For every name $`x` and expression $`e`,
 
 $$`Q[e/x]=\varphi\bigl(a_1[e/x],\ldots,a_j[e/x]\bigr).`
 
@@ -112,7 +113,7 @@ Substitution runs against the direction of execution. For the postcondition $`x=
 
 Session 12 introduces a proof system whose rules derive triples without mentioning executions, and proves every derived triple valid. Its rule for assignment has no premises and concludes $`\{Q[e/x]\}\,x:=e\,\{Q\}`. Theorem 11.8 below is the assignment case of that proof.
 
-*Theorem 11.8 (Validity of assignment triples) \[This book\] \[Paper proof only: proof in this section\].* For every assertion $`Q`, name $`x` and expression $`e`,
+*Theorem 11.8 (Validity of assignment triples) \[This book\] \[Checked\].* For every assertion $`Q`, name $`x` and expression $`e`,
 
 $$`\models\{Q[e/x]\}\,x:=e\,\{Q\}.`
 
@@ -137,7 +138,7 @@ Step 3 is the only step that uses the syntax of expressions. It is applied once 
 
 With the postcondition $`x=8`, Lemma 11.6 gives the precondition $`8=8` for `x := 8` and $`7=8` for `x := 7`. The first holds at every store. The second holds at none. The next proposition shows that, for `x := 7` and this postcondition, no precondition that holds at some store gives a valid triple.
 
-*Proposition 11.9 (Preconditions of an assignment) \[This book\] \[Paper proof only: proof in this section\].* For all assertions $`P,Q`, every name $`x` and expression $`e`,
+*Proposition 11.9 (Preconditions of an assignment) \[This book\] \[Checked\].* For all assertions $`P,Q`, every name $`x` and expression $`e`,
 
 $$`\models\{P\}\,x:=e\,\{Q\}\quad\Longleftrightarrow\quad\forall s\in\Sigma,\ P(s)\Rightarrow Q[e/x](s).`
 
@@ -152,7 +153,7 @@ tag := "ch11-s4"
 
 Let $`x,y` be distinct. Take the postcondition $`x+y=5` and the command `x := y; y := 1`. Theorem 11.8 for the second assignment gives $`\models\{x+1=5\}\,y:=1\,\{x+y=5\}`, since $`(x+y)[1/y]=x+1`. Theorem 11.8 for the first assignment, with postcondition $`x+1=5`, gives $`\models\{y+1=5\}\,x:=y\,\{x+1=5\}`. The next proposition joins the two triples. Check one store: from $`x=9`, $`y=4` the precondition $`y+1=5` holds, and the program ends with $`x=4`, $`y=1` and $`x+y=5`.
 
-*Proposition 11.10 (Sequence and consequence) \[This book\] \[Paper proof only: proof in this section\].* For all assertions and commands,
+*Proposition 11.10 (Sequence and consequence) \[This book\] \[Checked\].* For all assertions and commands,
 
 1. if $`\models\{P\}\,c\,\{Q\}` and $`\models\{Q\}\,d\,\{R\}`, then $`\models\{P\}\,c;d\,\{R\}`;
 2. if $`P'(s)\Rightarrow P(s)` for every $`s`, $`\models\{P\}\,c\,\{Q\}`, and $`Q(s)\Rightarrow Q'(s)` for every $`s`, then $`\models\{P'\}\,c\,\{Q'\}`.

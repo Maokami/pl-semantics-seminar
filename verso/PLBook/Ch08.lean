@@ -1,4 +1,5 @@
 import VersoManual
+import PLBook.IMP.Denotation
 
 open Verso.Genre Manual
 
@@ -10,7 +11,7 @@ file := "chapter-08"
 
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)), expression evaluation ([A.3](imp-card/index.html#imp-a3)), commands and guard values ([A.4](imp-card/index.html#imp-a4)), the branch selected by a guard ([A.5](imp-card/index.html#imp-a5)), partial functions and their graphs ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). This session adds Definitions 8.1–8.4, 8.7 and 8.9.
 * *New terms.* Bottom, state transformer, strict extension, information order, least upper bound. [Glossary and label key](glossary/index.html)
-* *Theorem 8.5 \[Paper proof only: §8.3\].* For all state transformers $`f,g,h`, $`h^{\dagger}\circ(g^{\dagger}\circ f)=(h^{\dagger}\circ g)^{\dagger}\circ f`. Running $`f`, then $`g`, then $`h` gives the same state transformer under either grouping.
+* *Theorem 8.5 \[Checked\].* For all state transformers $`f,g,h`, $`h^{\dagger}\circ(g^{\dagger}\circ f)=(h^{\dagger}\circ g)^{\dagger}\circ f`. Running $`f`, then $`g`, then $`h` gives the same state transformer under either grouping.
 * *Source.* The outcomes, strict extension, command meanings and information order follow John C. Reynolds, _Theories of Programming Languages_, §§2.2–2.3. Here they are applied to the commands of [A.4](imp-card/index.html#imp-a4). [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 * *Board case.* Theorem 8.5 at one store $`s`, in both cases of the first state transformer: it does not terminate ($`f(s)=\bot`), and it terminates in an intermediate store ($`f(s)=m`).
 * *Proof outline.* Two state transformers are equal when they agree at every store. Fix $`s` and split on the outcome $`f(s)`. In each case apply the two equations of strict extension until both sides become the same expression. No induction is needed.
@@ -66,7 +67,7 @@ tag := "ch08-s3"
 
 Let $`f=\ell`, let $`g` be the meaning of `y := 7`, and let $`h` be the meaning of `x := x - 1`. At a store with $`s(x)=0`, the grouping $`h^{\dagger}\circ(g^{\dagger}\circ f)` first forms $`g^{\dagger}(s)=s[y\mapsto7]` and then returns $`s[y\mapsto7][x\mapsto-1]`. The grouping $`(h^{\dagger}\circ g)^{\dagger}\circ f` applies $`(h^{\dagger}\circ g)^{\dagger}` to the store $`s` and returns $`h^{\dagger}(g(s))`, the same store. At a store with $`s(x)=1`, $`f(s)=\bot`, and both groupings return $`\bot` without consulting $`g` or $`h`.
 
-*Theorem 8.5 (Associativity of sequencing) \[Paper proof only: §8.3\].* For all state transformers $`f,g,h`,
+*Theorem 8.5 (Associativity of sequencing) \[Checked\].* For all state transformers $`f,g,h`,
 
 $$`h^{\dagger}\circ(g^{\dagger}\circ f)=(h^{\dagger}\circ g)^{\dagger}\circ f.`
 
@@ -98,7 +99,7 @@ Case 2 never asks whether $`g(m)` is a store or $`\bot`. Both sides have become 
 
 The two cases check the equation $`(h^{\dagger}\circ g)^{\dagger}(r)=h^{\dagger}(g^{\dagger}(r))` for both kinds of outcome $`r`. So $`(h^{\dagger}\circ g)^{\dagger}=h^{\dagger}\circ g^{\dagger}` as functions on $`\Sigma_{\bot}`. Since ordinary composition is associative, this identity is the whole content of Theorem 8.5.
 
-*Corollary 8.6 (Associativity of command sequencing) \[Paper proof only: §8.3\].* For all commands $`c_1,c_2,c_3` without loops, $`f_{(c_1;c_2);c_3}=f_{c_1;(c_2;c_3)}`.
+*Corollary 8.6 (Associativity of command sequencing) \[Checked\].* For all commands $`c_1,c_2,c_3` without loops, $`f_{(c_1;c_2);c_3}=f_{c_1;(c_2;c_3)}`.
 
 *Proof.* The sequencing clause of Definition 8.4, applied twice on each side, gives
 
@@ -130,7 +131,7 @@ Information grows upward. A more defined state transformer may replace $`\bot` b
 
 For example, with $`f\sqsubseteq f'` as above and $`g` the meaning of `y := 7`, the sequencing $`g^{\dagger}\circ f` returns $`s[y\mapsto7]` at the stores with $`s(x)=0`. The sequencing $`g^{\dagger}\circ f'` returns the same store there, and returns a store at the stores with $`s(x)=1` as well.
 
-*Proposition 8.8 (Sequencing preserves the order) \[This book\] \[Paper proof only: §8.4\].* If $`f\sqsubseteq f'` and $`g\sqsubseteq g'`, then $`g^{\dagger}\circ f\sqsubseteq {g'}^{\dagger}\circ f'`.
+*Proposition 8.8 (Sequencing preserves the order) \[This book\] \[Checked\].* If $`f\sqsubseteq f'` and $`g\sqsubseteq g'`, then $`g^{\dagger}\circ f\sqsubseteq {g'}^{\dagger}\circ f'`.
 
 *Proof.* Fix $`s`. If $`g^{\dagger}(f(s))=\bot`, it lies below every outcome. Otherwise it is a store $`t`. Then $`f(s)` is a store $`m`, because $`g^{\dagger}(\bot)=\bot`, and $`g(m)=t`. From $`f\sqsubseteq f'` and $`f(s)=m\ne\bot` we get $`f'(s)=m`. From $`g\sqsubseteq g'` and $`g(m)=t\ne\bot` we get $`g'(m)=t`. Hence $`{g'}^{\dagger}(f'(s))=g'(m)=t`. $`\square`
 
@@ -140,13 +141,13 @@ A store result already produced by a sequencing survives when either part become
 
 For a store $`t`, the sequence $`\bot,\bot,t,t,t,\ldots` is increasing and its least upper bound is $`t`. For different stores $`t,t'`, the sequence $`\bot,t,t',\ldots` is not increasing, because $`t\not\sqsubseteq t'`.
 
-*Lemma 8.10 (Increasing sequences of outcomes) \[This book\] \[Paper proof only: §8.4\].* Let $`r_0\sqsubseteq r_1\sqsubseteq\cdots` be an increasing sequence of outcomes. Either $`r_n=\bot` for every $`n`, and then $`\bigsqcup_n r_n=\bot`. Or there are an index $`k` and a store $`t` with $`r_n=\bot` for $`n<k` and $`r_n=t` for $`n\ge k`, and then $`\bigsqcup_n r_n=t`.
+*Lemma 8.10 (Increasing sequences of outcomes) \[This book\] \[Checked\].* Let $`r_0\sqsubseteq r_1\sqsubseteq\cdots` be an increasing sequence of outcomes. Either $`r_n=\bot` for every $`n`, and then $`\bigsqcup_n r_n=\bot`. Or there are an index $`k` and a store $`t` with $`r_n=\bot` for $`n<k` and $`r_n=t` for $`n\ge k`, and then $`\bigsqcup_n r_n=t`.
 
 *Proof.* If every $`r_n` is $`\bot`, then $`\bot` is an upper bound and lies below every outcome. Otherwise let $`k` be the least index at which $`r_k` is a store, and put $`t=r_k`. Then $`r_n=\bot` for $`n<k`. For $`n\ge k` prove $`P(n)\coloneqq(r_n=t)` by induction on $`n`, starting at $`k`. $`P(k)` holds by the choice of $`t`. If $`P(n)` holds, then $`t=r_n\sqsubseteq r_{n+1}` and $`t\ne\bot` give $`r_{n+1}=t`. So every $`r_n` is $`\bot` or $`t`, and $`t` is an upper bound. Any upper bound $`r'` satisfies $`t=r_k\sqsubseteq r'`. Hence $`t` is the least upper bound. $`\square`
 
 For state transformers the index $`k` can depend on the store. For each natural number $`n` let $`g_n(s)=s` when $`\lvert s(x)\rvert<n` and $`g_n(s)=\bot` otherwise. Then $`g_0` is the least state transformer and $`g_n\sqsubseteq g_{n+1}`. At a fixed store the outcomes $`g_n(s)` are $`\bot` for $`n\le\lvert s(x)\rvert` and $`s` from $`n=\lvert s(x)\rvert+1` on. By Lemma 8.10 their least upper bound is $`s`. Store by store, the least upper bound is the identity $`s\mapsto s`. No single $`g_n` equals it: at a store with $`s(x)=n`, $`g_n` still returns $`\bot`.
 
-*Proposition 8.11 (Least upper bound of state transformers) \[This book\] \[Paper proof only: §8.4\].* Every increasing sequence $`g_0\sqsubseteq g_1\sqsubseteq\cdots` of state transformers has a least upper bound, computed store by store:
+*Proposition 8.11 (Least upper bound of state transformers) \[This book\] \[Checked\].* Every increasing sequence $`g_0\sqsubseteq g_1\sqsubseteq\cdots` of state transformers has a least upper bound, computed store by store:
 
 $$`\Bigl(\bigsqcup_n g_n\Bigr)(s)=\bigsqcup_n g_n(s).`
 

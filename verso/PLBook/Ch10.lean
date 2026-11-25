@@ -1,4 +1,5 @@
 import VersoManual
+import PLBook.IMP.Correspondence
 
 open Verso.Genre Manual
 
@@ -10,7 +11,7 @@ file := "chapter-10"
 
 * *Definitions.* The execution rules ([Session 2, Definition 2.1](chapter-02/index.html#ch02-s2); [A.5](imp-card/index.html#imp-a5)). Partial function and graph ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). The set $`\mathrm{Exec}(c)` of initial–final store pairs ([Session 7, Definition 7.1](chapter-07/index.html#ch07-s1)). Outcomes $`\Sigma_\bot`, state transformers, strict extension $`h^\dagger` and the meanings $`f_c` ([Session 8, Definitions 8.1–8.4](chapter-08/index.html#ch08-s1)). The information order and increasing sequences of outcomes ([Session 8, Definition 8.7 and Lemma 8.10](chapter-08/index.html#ch08-s4)). The unfolding operator $`F`, the approximations $`w_n` and the loop meaning $`f_W` ([Session 9, Definitions 9.1 and 9.4](chapter-09/index.html#ch09-s1)), and the least fixed-point theorem ([Session 9, Theorem 9.5](chapter-09/index.html#ch09-s3)).
 * *New terms.* Relational composition, nested induction. [Glossary and label key](glossary/index.html)
-* *Theorem 10.2 \[This book\] \[Paper proof only: §§10.2–10.3\].* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
+* *Theorem 10.2 \[This book\] \[Checked\].* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
 * *Source.* The execution rules follow Leroy’s IMP (A.5). The meanings $`f_c` follow Reynolds, _Theories of Programming Languages_, §§2.2–2.4, as presented in Sessions 8–9. The proof structure follows Winskel, _The Formal Semantics of Programming Languages_, §5.3. \[Corresponding: Winskel Theorem 5.7; CS Theorem 11.6\] Winskel and, in _Concrete Semantics_, Nipkow and Klein prove the corresponding theorem for a meaning defined directly as a relation between stores. [Winskel, §5.3](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf) · [Concrete Semantics, §11.1.1, p. 183](https://concrete-semantics.org/concrete-semantics.pdf#page=193)
 * *Board case.* From a derivation to a meaning, loop iteration. Apply one induction hypothesis to the body and one to the loop from the intermediate store $`m`, and join them with the fixed-point equation of Session 9, Theorem 9.5(a).
 * *Proof outline.* From derivations to meanings: induction on the derivation $`D:s\vdash c\Downarrow t` with $`P(D)\coloneqq f_c(s)=t`. From meanings to derivations: structural induction on $`c` with $`Q(c)\coloneqq\forall s,t\in\Sigma,\ f_c(s)=t\Rightarrow s\vdash c\Downarrow t`. In the loop case a nested induction on the stage $`n` proves $`Q_W(n)\coloneqq\forall s,t\in\Sigma,\ w_n(s)=t\Rightarrow s\vdash W\Downarrow t`.
@@ -43,7 +44,7 @@ For a command $`c`, [Session 7, Definition 7.1](chapter-07/index.html#ch07-s1) w
 
 Both directions of the main theorem use one calculation with strict extension. Let $`x\ne y`, let $`c_1` be $`x:=1` and let $`c_2` be $`y:=x+1`. Definition 8.4 gives $`f_{c_1;c_2}(s)=f_{c_2}^\dagger(f_{c_1}(s))`. Here $`f_{c_1}(s)=s[x\mapsto1]=m` is a store. Strict extension passes $`m` to $`f_{c_2}`, and the result is $`m[y\mapsto2]`. If the prefix were $`\mathsf{while\ true\ do\ skip}`, its meaning would give $`\bot` at every store (§10.4). The strict extension would return $`\bot`, and no store would lie in the middle.
 
-*Lemma 10.1 (Intermediate store) \[This book\] \[Paper proof only: this section\].* For state transformers $`g,h` and stores $`s,t`,
+*Lemma 10.1 (Intermediate store) \[This book\] \[Checked\].* For state transformers $`g,h` and stores $`s,t`,
 
 $$`h^\dagger(g(s))=t\quad\Longleftrightarrow\quad\exists m\in\Sigma,\ \ g(s)=m\ \land\ h(m)=t.`
 
@@ -51,7 +52,7 @@ $$`h^\dagger(g(s))=t\quad\Longleftrightarrow\quad\exists m\in\Sigma,\ \ g(s)=m\ 
 
 In terms of graphs, $`(s,t)\in\mathrm{graph}(h^\dagger\circ g)` exactly when some store $`m` has $`(s,m)\in\mathrm{graph}(g)` and $`(m,t)\in\mathrm{graph}(h)`. The set of pairs joined in this way is the *relational composition* of the two graphs. A relation can in general offer several intermediate stores. Here the only candidate is the outcome $`g(s)`, because the first computation is represented by a function.
 
-*Theorem 10.2 (Correspondence) \[This book\] \[Paper proof only: §§10.2–10.3\].* For every command $`c` and stores $`s,t\in\Sigma`,
+*Theorem 10.2 (Correspondence) \[This book\] \[Checked\].* For every command $`c` and stores $`s,t\in\Sigma`,
 
 $$`s\vdash c\Downarrow t\quad\Longleftrightarrow\quad f_c(s)=t.`
 
@@ -160,7 +161,7 @@ tag := "ch10-s4"
 
 Consider $`\mathsf{while\ true\ do\ skip}`. [Session 2, §2.4](chapter-02/index.html#ch02-s4) proved that it has no terminating derivation. Its meaning gives $`\bot` at every store: by induction on the stage, $`w_{n+1}(s)=w_n^\dagger(s)=w_n(s)=\bot`. Theorem 10.2 speaks only about stores $`t`. There is no inference rule whose conclusion says that the final store is $`\bot`. To reach $`\bot` we quantify over stores and rule them all out. This works because $`\Sigma_\bot` has exactly one element besides the stores.
 
-*Corollary 10.3 (Graph of the meaning) \[This book\] \[Paper proof only: this section\].* For every command $`c`, $`\mathrm{graph}(f_c)=\mathrm{Exec}(c)`. Moreover, for every store $`s`, $`f_c(s)=\bot` if and only if no store $`t` satisfies $`s\vdash c\Downarrow t`.
+*Corollary 10.3 (Graph of the meaning) \[This book\] \[Checked\].* For every command $`c`, $`\mathrm{graph}(f_c)=\mathrm{Exec}(c)`. Moreover, for every store $`s`, $`f_c(s)=\bot` if and only if no store $`t` satisfies $`s\vdash c\Downarrow t`.
 
 *Proof.* The first claim is Theorem 10.2 applied to each pair $`(s,t)`. For the second, $`f_c(s)` is either $`\bot` or a store. If $`f_c(s)=t` for a store $`t`, Theorem 10.2 gives $`s\vdash c\Downarrow t`. Conversely, if $`s\vdash c\Downarrow t`, then Theorem 10.2 gives $`f_c(s)=t`, which is not $`\bot`. $`\square`
 
