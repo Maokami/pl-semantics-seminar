@@ -18,7 +18,7 @@ tag := "pl-study-ko"
 
 이 책은 실행 규칙과 구조적 귀납을 공부하는 1–7회 교재다. 산술식의 값을 계산하는 함수에서 출발해 실행을 유도하는 규칙을 세우고, 같은 명령의 두 가지 운영적 의미론이 종료 결과에 관해 일치함을 증명한다.
 
-[3회 · 종료 실행의 결정성](chapter-03/index.html)은 커리큘럼 v1.2의 한국어 시범 장이다. 1·2회의 선수 정의는 [IMP 언어 카드](imp-card/index.html)에 모았다. [1–3회 용어집](glossary/index.html)에서 영어 이름과 정의 위치를 찾을 수 있다.
+[3회 · 종료 실행의 결정성](chapter-03/index.html)은 커리큘럼 v1.2의 한국어판 초안이다. [영어 정본](../chapter-03/index.html)에서 회차 카드를 확인할 수 있다. 1·2회의 선수 정의는 [IMP 언어 카드](imp-card/index.html)에 모았다. [영어–한국어 용어집](../glossary/index.html)에서 토론에 쓸 대응어와 정의 위치를 찾을 수 있다.
 
 [이전 판 한국어 PDF](print/pl-study-ko.pdf) · [English edition](../index.html) · [이전 판 42회 읽기 일정](../seminar/index.html)
 

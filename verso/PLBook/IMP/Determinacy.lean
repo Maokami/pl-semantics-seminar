@@ -12,6 +12,11 @@ theorem ifFalse (guard : beval s b = false) (branch : cexec s d t) :
     cexec s (.IFTHENELSE b c d) t :=
   .cexec_ifthenelse (by simpa [guard] using branch)
 
+/-- Inversion of an assignment determines the complete final store (Lemma 3.1). -/
+theorem assignmentResult (run : cexec s (.ASSIGN x a) t) : t = update x (aeval s a) s := by
+  cases run
+  rfl
+
 /-- Two finite executions from the same command and store have equal final stores. -/
 theorem deterministic (first : cexec s c t) (other : cexec s c u) : t = u := by
   induction first generalizing u with

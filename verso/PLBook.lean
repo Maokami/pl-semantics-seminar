@@ -1,4 +1,6 @@
 import PLBook.Seminar
+import PLBook.LanguageCard
+import PLBook.Glossary
 import PLBook.Ch01
 import PLBook.Ch02
 import PLBook.Ch03
@@ -53,9 +55,11 @@ tag := "pl-study"
 
 A language definition gives rise to several mathematical questions. Which executions does it admit? When can an expression be replaced by another? Which observations must survive compilation? Chapters 1–7 develop execution rules, structural induction, and initial algebras. Chapters 8–13 relate execution to state transformers and assertions. Chapters 14–20 study binding, function types, and their categorical interpretation. Chapters 21–26 develop type checking, inference, subtyping, and polymorphism. Chapters 27–30 use domains to interpret recursion in PCF. Chapters 31–42 study effects, concurrency, compilers, and static analysis.
 
-The contents follow the seminar in seven units. Chapter and section numbers identify the same material in both editions. The Korean seminar guide lists the sections to read before each meeting, the passage for the presenter, and the problem the group will solve together. The worksheets at the end of the chapters provide additional practice. Each Lean panel checks the definitions or proof stated in that panel.
+The contents follow the seminar in seven units. Chapter 3 is the English source chapter for the revised seminar. Its session card specifies the assigned reading. The Korean seminar guide lists the sections to read before each meeting, the passage for the presenter, and the problem the group will solve together. The worksheets at the end of the chapters provide additional practice. Each Lean panel checks the definitions or proof stated in that panel.
 
-[Judgment notation](chapter-01/index.html#ch01-s4) · [Reading schedule (Korean)](seminar/index.html) · [English book (PDF)](print/pl-study.pdf)
+[Session 3](chapter-03/index.html) · [IMP language card](imp-card/index.html) · [English–Korean glossary](glossary/index.html)
+
+[Judgment notation](chapter-01/index.html#ch01-s4) · [Reading schedule (Korean)](seminar/index.html) · [Earlier edition (PDF)](print/pl-study.pdf)
 
 {include 1 PLBook.Seminar}
 
@@ -142,3 +146,7 @@ The contents follow the seminar in seven units. Chapter and section numbers iden
 {include 1 PLBook.Ch41}
 
 {include 1 PLBook.Ch42}
+
+{include 1 PLBook.LanguageCard}
+
+{include 1 PLBook.Glossary}

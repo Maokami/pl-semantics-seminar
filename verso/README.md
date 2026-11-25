@@ -2,13 +2,15 @@
 
 [영어판 42회](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/index.html) · [한국어판 1–7회](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/index.html) · [모임별 읽을 절과 원전](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/seminar/index.html) · [장별 분량 검토](chapter-review.ko.md)
 
-한국어판은 1–7장 전체를 수록한다. 기존 인쇄본은 42회 일정에 따른 판본이다. v1.2의 한국어 시범 장과 부록은 아래 HTML에서 읽는다.
+한국어판은 1–7장 전체를 수록한다. 기존 인쇄본은 42회 일정에 따른 판본이다. v1.2의 영어 시범 장과 부록은 아래 HTML에서 읽는다.
 
 [영문 PDF](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/print/pl-study.pdf) · [한국어 PDF](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/print/pl-study-ko.pdf) · [한국어 강의계획서](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/print/syllabus-ko.pdf)
 
 ## 원고
 
-v1.2의 기준은 [확정 커리큘럼](../docs/curriculum.ko.md)이다. [3회 한국어 원고](PLBook/Ko/Ch03.lean)는 한국어 정본이다. [IMP 언어 카드](PLBook/Ko/LanguageCard.lean)와 [1–3회 용어집](PLBook/Ko/Glossary.lean)을 함께 읽는다. [이전 장별 반영 목록](../docs/imp-alignment.ko.md)은 부록 B의 원전 대조 결과다. 공유 정의와 새 증명은 [IMP](PLBook/IMP)에 있다. 빌드한 시범 장은 [한국어 3회](site/html-multi/ko/chapter-03/index.html)에서 연다.
+v1.2의 기준은 [확정 커리큘럼](../docs/curriculum.ko.md)이다. [기존 영어 3장](PLBook/Ch03.lean)을 같은 자리에서 개정했다. 회차표와 다른 장에서 참조하는 주소, 절 책갈피와 정리 3.2의 번호를 유지하므로 참가자 모두가 같은 장을 연다. [시범 장 HTML](site/html-multi/chapter-03/index.html) 첫 쪽의 회차 카드가 지정 읽기다. [IMP 언어 카드](PLBook/LanguageCard.lean)와 [영어–한국어 용어집](PLBook/Glossary.lean)은 영어판의 번호 없는 부록이다. 영어 용어집의 Korean 열이 모임 대응어의 기준이다.
+
+[한국어 3회](PLBook/Ko/Ch03.lean)와 [한국어 언어 카드](PLBook/Ko/LanguageCard.lean)는 한국어판 초안으로 보존한다. [장별 반영 목록](../docs/imp-alignment.ko.md)은 부록 B의 원전 대조 결과다. [공유 모듈과 증명](PLBook/IMP)은 영어 3장을 빌드할 때 함께 검사한다.
 
 영문 본문은 PLBook/ChNN.lean, 기존 번역은 PLBook/Ko/ChNN.lean에 있다. 기존 번역에서는 수식·Lean 코드·절 태그를 보존한다. sessions.json은 회차, 읽기 범위, 원전 및 문제를 지정한다. 운영 자료는 수학 본문과 별도로 구성한다.
 

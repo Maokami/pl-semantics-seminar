@@ -91,9 +91,12 @@ def update_pages(site, ko=False):
         more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'
         if ko:
             more += '<a class="guide-link" href="imp-card/index.html">IMP 언어 카드</a>'
-            more += '<a class="guide-link" href="glossary/index.html">1–3회 용어집</a>'
+            more += '<a class="guide-link" href="../glossary/index.html">영어–한국어 용어집</a>'
             langlink = '../' + (chapter_link(ch) if ch else 'index.html')
             more += f'<a class="guide-link" href="{langlink}">English edition</a>'
+        else:
+            more += '<a class="guide-link" href="imp-card/index.html">IMP language card</a>'
+            more += '<a class="guide-link" href="glossary/index.html">English–Korean glossary</a>'
         # Verso uses a heading div for some releases, so anchor on this book's first table.
         pattern = r'(<div class="split-toc book">(?:(?!<table>).)*?)<table>.*?</table>'
         s, k = re.subn(pattern, lambda m: m[1]+more+course_nav(groups,names,ko,ch,True),s,count=1,flags=re.S)

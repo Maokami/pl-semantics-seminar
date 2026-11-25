@@ -2,6 +2,8 @@
 
 운영적·표시적·공리적 의미론, 타입 이론, 영역 이론, 컴파일러 정확성과 정적 분석을 공부하는 42회 스터디 교재다. 영어판은 42장 전체를, 한국어판은 1–7회에 읽는 1–7장을 수록한다.
 
+v1.2의 정본은 영어판이다. [시범 장 · Inversion and Determinacy](verso/PLBook/Ch03.lean)는 기존 3장 위치에서 [IMP 언어 카드](verso/PLBook/LanguageCard.lean)와 [영어–한국어 용어집](verso/PLBook/Glossary.lean)을 함께 읽는다. 한국어 3장과 언어 카드는 토론을 위한 초안이다.
+
 [영어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/) · [한국어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/) · [42회 읽기 일정](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/seminar/)
 
 ## 원고와 빌드 코드

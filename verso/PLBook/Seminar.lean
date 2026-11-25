@@ -58,11 +58,11 @@ tag := "week-03"
 number := false
 %%%
 
-*함께 읽을 절*　[§3.1–3.2](chapter-03/index.html#ch03-s1)
+*함께 읽을 절*　[§3.1–3.3](chapter-03/index.html#ch03-s1)
 
 첫 실행 유도에 대해 귀납한다. 둘째 유도와 최종 상태를 일반화한 귀납가정을 쓰고, 순차 합성의 두 중간 상태가 같다는 사실을 얻은 뒤 마지막 상태를 비교한다. 같은 방법으로 참인 가드의 반복 규칙을 검토한다.
 
-*담당자 자료*　[Winskel §3.4, 유도에 대한 귀납](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
+*담당자 자료*　[대응 원전 · Concrete Semantics §7.2.5, 보조정리 7.9](https://concrete-semantics.org/concrete-semantics.pdf)
 
 # 4회 · 초기 대수와 구조적 재귀
 %%%
