@@ -9,7 +9,7 @@ tag := "ch28"
 file := "chapter-28"
 %%%
 
-[Chapter PDF](print/chapter-28.pdf) · [Session 27](seminar/index.html#week-27)
+[Chapter PDF](print/chapter-28.pdf) · [Session 28](seminar/index.html#week-28)
 
 A recursive function returning zero after counting down may already have a meaning at input zero while its meaning at input one is still bottom. A finite evaluation derivation counts how often the recursive definition is used. A finite semantic approximation bounds how many such unfoldings are available.
 
@@ -99,7 +99,7 @@ tag := "ch28-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Give the types of $`G` and $`K`, and derive the function value returned by unfolding $`K`.
+*Definitions · 10 minutes.* Unfold `fix (λx:Nat. x)` and explain why preservation in Chapter 19 permits this divergence. Then write the operator defining `K`.
 
 *Joint proof · 30 minutes.* Build the evaluation of $`K\, 1` from its inner guard outward. On a second board compute $`g_{0},g_{1},g_{2}` at zero and one.
 

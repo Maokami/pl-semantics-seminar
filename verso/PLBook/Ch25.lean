@@ -97,7 +97,7 @@ number := false
 
 *Joint proof · 30 minutes.* Derive its universal type and calculate the two distinct substitutions in the application to zero. Require the group to write the type after each step.
 
-*Proof review · 20 minutes.* Try the polymorphic type argument of Exercise 1 and the capture example of §25.3.
+*Proof review · 20 minutes.* Make the two type arguments from the let-polymorphic identity of Session 22 explicit. Check one type substitution for capture as in §25.3.
 
 *Facilitator’s hint.* Look at the binder removed by a step. A capital lambda discharges a type parameter, so look inside term annotations when performing that substitution.
 

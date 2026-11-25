@@ -9,7 +9,7 @@ tag := "ch30"
 file := "chapter-30"
 %%%
 
-[Chapter PDF](print/chapter-30.pdf) · [Session 30](seminar/index.html#week-30)
+[Chapter PDF](print/chapter-30.pdf) · [Session 31](seminar/index.html#week-31)
 
 At ground type, Chapter 29 connects a concrete result of the domain calculation with an evaluation returning that value. At function type the domain also contains arguments that a source program cannot supply. Two source functions might differ on one of those arguments even when every program using them behaves identically.
 
@@ -42,6 +42,8 @@ There is an algebraic way to see the obstruction to defining parallel disjunctio
 Extend the relation to a function type by requiring that related argument triples yield related result triples. At every type a triple with bottom in either of the first two positions is related, by induction on the result type. Thus conditionals preserve the relation too. A missing first or second guard gives bottom in that result position. Otherwise related guards agree, so all three results come from the same related branch triple. The relation also admits limits of increasing chains. At a ground type, if the first two limit components are ordinary values, both have appeared by some common finite stage. From there the three components agree. At function type use the argument test and pointwise bounds. These facts justify the recursion case by iterating related functionals from related bottoms. Variables, abstraction and application then preserve relatedness by the usual induction on typing.
 
 Now feed two related columns `(true, ⊥, false)` and `(⊥, true, false)` to parallel disjunction coordinatewise. The output is `(true, true, false)`, which violates the ground relation. This supplies a logical-relations explanation of the nondefinability theorem used above.
+
+Compare the arrow clause in §26.4 and the recursion case in §29.2. Here the argument test takes three semantic values, and its ground relation expresses a constraint on sequential evaluation. Checking the two columns below shows exactly where parallel disjunction breaks that constraint.
 
 Here is the finite calculation in Lean. It checks the two input columns and the failed output relation explicitly. Proving that every PCF term preserves the relation still requires the typing induction and limit argument above.
 

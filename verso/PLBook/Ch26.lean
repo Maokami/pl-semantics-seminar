@@ -9,7 +9,7 @@ tag := "ch24"
 file := "chapter-24"
 %%%
 
-[Chapter PDF](print/chapter-24.pdf) · [Session 25](seminar/index.html#week-25)
+[Chapter PDF](print/chapter-24.pdf) · [Session 25](seminar/index.html#week-25) · [Session 26](seminar/index.html#week-26)
 
 A counter implementation provides an initial counter, a way to advance it, and a way to read it. The client needs the type of each operation and the guarantee that the three operations agree on one counter representation. The concrete representation can remain private.
 
@@ -88,6 +88,90 @@ theorem simulation {S T : Type} (ss : S → S) (ts : T → T)
 end CounterClients
 ```
 
+# Relational parametricity for simply typed clients
+%%%
+tag := "ch24-client-relation"
+%%%
+
+After opening a counter, consider the client `read ((λf:X→X. f (f init)) next)`. The argument to the lambda is itself an operation on the hidden representation. With the natural counter the two applications of `f` produce 2. With the pair counter they produce (2,2). Both reads return 2. We will prove equality of observations for every client in a language that permits functions as arguments and results.
+
+A client type is $`A ::= X \mid \mathrm{Nat} \mid A\to A`. Terms are variables, abstractions and applications, with the typing rules of Chapter 18. The counter fields are free variables with types `init:X`, `next:X→X`, and `read:X→Nat`. Fix two representation sets $`S,T` and any relation $`R\subseteq S\times T`. Write $`V_S(A)` for the interpretation of a type: $`V_S(X)=S`, $`V_S(\mathrm{Nat})=\mathbb N`, and $`V_S(A\to B)` is the set of total functions from $`V_S(A)` to $`V_S(B)`. Define $`V_T` in the same way. This language is pure and has no recursion. An environment assigns each free variable a value of its interpreted type. The denotation of a term in an environment uses lookup, function formation and function application, respectively.
+
+Define a *logical relation* $`R_A` between $`V_S(A)` and $`V_T(A)` by induction on the type. At $`X` use $`R`. At Nat use equality. At an arrow use
+$$`f\ R_{A\to B}\ g \quad\Longleftrightarrow\quad \forall x\in V_S(A),\ y\in V_T(A),\quad x\ R_A\ y\ \Longrightarrow\ f(x)\ R_B\ g(y).`
+Environments are related when they assign related values to each variable at its declared type. For the counter context, these are exactly the three obligations from §26.3: related initial values, preservation by advancement, and equality after reading.
+
+*Fundamental theorem.* For every judgment $`\Gamma\vdash e:A` and related environments $`\rho,\eta` for $`\Gamma`, the two interpretations of $`e` are related by $`R_A`. Induct on the typing derivation, allowing the environments to vary.
+
+1. *Variable.* Lookup in the two environments gives a related pair by the hypothesis for that variable.
+2. *Abstraction.* To compare the two functions denoted by $`\lambda x.u`, take any related arguments at the domain type. Extend the two environments by this pair. The new variable satisfies its relation by choice of arguments and each older variable retains its original pair. The induction hypothesis for the body in these extended environments gives the codomain relation required at the arrow.
+3. *Application.* The operator hypothesis gives two functions related at the arrow type. The operand hypothesis supplies a related pair at its domain. Applying the arrow clause to this pair gives the conclusion.
+
+*Representation independence.* Take the two implementations of §26.3 and the relation $`n\ R\ (a,b)` exactly when $`n=a`. Initialization gives $`0=0`, advancement preserves equality by successor, and the two reads return the equal first coordinates. Hence the counter environments are related. For any client of result type Nat, the fundamental theorem gives equality of its two denotations. For a function-valued result the conclusion is the arrow relation, so a client may pass that result on to a higher-order function. The observable equality follows when the whole client returns Nat.
+
+In Lean, `Term Γ a` encodes a typing derivation. A variable position `here` selects the newest binder and `there` steps past it. `extend` therefore changes only the new binding. The proof works for any pair of representation types and any relation on them.
+
+```lean
+namespace TypedCounter
+
+inductive Ty where
+  | rep | nat | arr (a b : Ty)
+
+def Val (S : Type) : Ty → Type
+  | .rep => S
+  | .nat => Nat
+  | .arr a b => Val S a → Val S b
+
+def Rel {S T : Type} (R : S → T → Prop) :
+    (a : Ty) → Val S a → Val T a → Prop
+  | .rep => R
+  | .nat => Eq
+  | .arr a b => fun f g =>
+      ∀ x y, Rel R a x y → Rel R b (f x) (g y)
+
+inductive Var : List Ty → Ty → Type where
+  | here : Var (a :: Γ) a
+  | there : Var Γ a → Var (b :: Γ) a
+
+inductive Term : List Ty → Ty → Type where
+  | var : Var Γ a → Term Γ a
+  | lam : Term (a :: Γ) b → Term Γ (.arr a b)
+  | app : Term Γ (.arr a b) → Term Γ a → Term Γ b
+
+abbrev Env (S : Type) (Γ : List Ty) :=
+  ∀ {a}, Var Γ a → Val S a
+
+def extend (ρ : Env S Γ) (x : Val S a) : Env S (a :: Γ)
+  | _, .here => x
+  | _, .there i => ρ i
+
+def denote {S : Type} : Term Γ a → Env S Γ → Val S a
+  | .var i, ρ => ρ i
+  | .lam body, ρ => fun x => denote body (extend ρ x)
+  | .app f u, ρ => denote f ρ (denote u ρ)
+
+def EnvRel (R : S → T → Prop) (ρ : Env S Γ) (η : Env T Γ) :=
+  ∀ {a} (i : Var Γ a), Rel R a (ρ i) (η i)
+
+theorem fundamental (R : S → T → Prop) (e : Term Γ a)
+    (ρ : Env S Γ) (η : Env T Γ) (h : EnvRel R ρ η) :
+    Rel R a (denote e ρ) (denote e η) := by
+  induction e with
+  | var i => exact h i
+  | app f u ihf ihu => exact ihf ρ η h _ _ (ihu ρ η h)
+  | lam body ih =>
+    intro x y hxy
+    apply ih (extend ρ x) (extend η y)
+    intro t i
+    cases i with
+    | here => exact hxy
+    | there j => exact h j
+
+end TypedCounter
+```
+
+*Further reading: System F.* For a closed term $`p:\forall X.\,X\to X` in pure, total System F, Reynolds’s abstraction theorem supplies preservation of every relation at every pair of instantiations. Fix a type and one value $`a`. Instantiate both sides at that type and choose the singleton relation $`\{(a,a)\}`. Preservation puts the pair of results at $`a` in this singleton, so each result equals $`a`. This corollary uses the universal-type case of the System F theorem. The Lean proof above establishes the simply typed theorem with one abstract type. [Pfenning, Representation Independence, §1.](https://www.cs.cmu.edu/`fp/courses/15814-f25/lectures/16-independence.pdf) [Pfenning, Parametricity.](https://www.cs.cmu.edu/`fp/courses/15814-f19/lectures/16-parametricity.pdf)
+
 # Exercises
 %%%
 tag := "ch24-s4"
@@ -106,6 +190,8 @@ tag := "ch24-s5"
 number := false
 %%%
 
+*Session 25 · Opening an existential package.* Read §§26.1–26.3.
+
 *Definitions · 10 minutes.* Write the three field types with an abstract representation, then instantiate them with Nat.
 
 *Joint proof · 30 minutes.* Derive the client judgment under a fresh type name and check that its result type survives leaving the scope. Repeat with the pair implementation and compare the execution.
@@ -113,6 +199,8 @@ number := false
 *Proof review · 20 minutes.* Prove the relation in §26.3 for one advance and one read. Explain what the common interface guarantees even for the implementation in Exercise 2.
 
 *Facilitator’s hint.* Keep the witness chosen inside the package on one part of the board and the fresh type variable available to the client on another.
+
+*Session 26 · Representation independence.* Read §26.4. Spend 10 minutes evaluating the higher-order client with each implementation. In 30 minutes prove the fundamental theorem, keeping the two environments on the board throughout the abstraction case. In the last 20 minutes check the three field obligations and specialize the theorem to a natural result. Replace the second reader by the constant zero function and find the failed obligation. The System F corollary is optional.
 
 # Solutions
 %%%

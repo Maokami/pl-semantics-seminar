@@ -76,6 +76,8 @@ number := false
 2. Why would command size alone be insufficient when $`d` is a large sequence?
 3. Does the measure need to decrease on machine segments known to be positive? Explain from the theorem’s disjunction.
 
+*4. Coinduction for divergence.* For a one-step relation on configurations define $`G(X)=\{p\mid\exists q,\ p\to q\ \land\ q\in X\}`. Write $`D` for the set of configurations admitting an infinite path as in §5.3. Show that $`D=G(D)`. Given a set $`X` with a chosen successor in $`X` for each member, prove $`X\subseteq D` and apply the result to the two configurations of the silent loop in §5.3. Why would replacing one step by zero or more steps invalidate the test?
+
 *Further problem.* Could the zero-step disjunct use a non-strict measure inequality if the compiler were required to preserve only finite source runs? Separate the finite-run induction from the argument extracting an infinite target path.
 
 # Reading for the Seminar
@@ -103,5 +105,7 @@ number := false
 *2.* The focused size would change from one to the size of $`d`, potentially increasing. Including pending commands in the old measure accounts for $`d` on both sides.
 
 *3.* No. A positive segment already contributes a target step to an infinite simulation. The measure obligation is needed when progress might otherwise be hidden indefinitely.
+
+*4.* Taking the tail of an infinite path proves $`D\subseteq G(D)`; prefixing one edge proves the converse. From $`p\in X`, iterate the chosen successor to obtain the path at every natural index. Thus $`X\subseteq D`. In classical mathematics with dependent choice, $`X\subseteq G(X)` suffices to obtain such a path from each start; in deterministic IMP the successor is unique. Hence $`D` is the greatest fixed point of this monotone operator on the powerset. This inclusion argument is *coinduction*. For the loop take the head and its skip-prefixed unfolding; each steps to the other. A zero-length path would let even a terminal configuration witness itself forever. The strict descent in §38.3 supplies a genuine target step when constructing each next part of the target run. In §41.3 the inclusion goes the other way: a set closed under a monotone liveness transfer contains its least fixed point.
 
 *Further problem.* A proof simulating a given finite source path by a finite target path does not need a measure. In the successor case, use the one-step simulation to reach a matching intermediate target and concatenate with the path supplied by induction. An empty segment composes by the identity law for finite paths. Replacing strict descent by nonincrease would preserve this use. For infinite runs the self-loop counterexample in §38.3 supplies a constant measure. Its source may keep stepping forever while the matched target stays still, satisfying nonincrease at each simulation step. The finite argument proves only matching for each chosen finite prefix. None of those conclusions says that the number of target transitions in the prefixes grows without bound.

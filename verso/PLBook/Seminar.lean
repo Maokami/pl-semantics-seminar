@@ -16,16 +16,16 @@ number := false
 
 TAPL은 Benjamin Pierce의 _Types and Programming Languages_입니다. TAPL과 Reynolds의 목차 링크는 소장본에서 읽을 절을 찾는 데 씁니다. S1·S2·S4는 한국어 발표 자료입니다.
 
-1–13회는 Winskel의 IMP를 따라 실행·표시·명세를 연결합니다. 작은걸음은 Concrete Semantics, 고정점은 Reynolds, 전체 정확성 실습은 Hitchhiker’s Guide를 참고합니다. 14–25회의 타입은 TAPL, 26–30회의 PCF는 Cambridge 강의 노트, 31–36회의 효과와 동시성은 Reynolds, 37–42회의 분석과 컴파일은 Leroy 강좌를 중심으로 읽습니다.
+1–13회는 Winskel의 IMP를 따라 실행·표시·명세를 연결합니다. 작은걸음은 Concrete Semantics, 고정점은 Reynolds, 전체 정확성 실습은 Hitchhiker’s Guide를 참고합니다. 14–26회에는 TAPL의 타입 이론과 Pfenning의 표현 독립성을, 27–31회에는 Cambridge 강의 노트의 PCF를, 32–36회에는 Reynolds와 Leroy의 효과·제어·동시성을 읽고, 37–42회의 분석과 컴파일은 Leroy 강좌를 중심으로 읽습니다.
 
 [한국어판 · 1–7회](ko/index.html) · [영문 교재 PDF](print/pl-study.pdf) · [한국어 강의계획서 PDF](print/syllabus-ko.pdf)
 
 * [1–7회 · 실행 규칙과 구조적 귀납](seminar/index.html#week-01)
 * [8–13회 · 표시적 의미론과 공리적 의미론](seminar/index.html#week-08)
 * [14–20회 · 람다 계산과 함수 타입](seminar/index.html#week-14)
-* [21–25회 · 타입 추론과 다형성](seminar/index.html#week-21)
-* [26–30회 · 영역 이론과 PCF](seminar/index.html#week-26)
-* [31–36회 · 상태·제어·동시성](seminar/index.html#week-31)
+* [21–26회 · 타입 추론과 다형성](seminar/index.html#week-21)
+* [27–31회 · 영역 이론과 PCF](seminar/index.html#week-27)
+* [32–36회 · 상태·제어·동시성](seminar/index.html#week-32)
 * [37–42회 · 컴파일러 정확성과 정적 분석](seminar/index.html#week-37)
 
 # 1회 · 산술식의 평가
@@ -48,7 +48,7 @@ number := false
 
 *함께 읽을 절*　[§2.1–2.3](chapter-02/index.html#ch02-s1)
 
-순차 합성 규칙을 역전해 중간 상태의 존재를 얻고, 두 전제에서 전체 유도를 복원한다. x := x + 1; y := x에서 둘째 대입을 처음 상태로 시작하면 왜 틀리는지 설명한다.
+순차 합성 규칙을 역전해 중간 상태의 존재를 얻고, 두 전제에서 전체 유도를 복원한다. x := x + 1; y := x에서 둘째 대입을 처음 상태로 시작하면 왜 틀리는지 설명한다. 마지막에 §2.4의 루프 탈출 규칙을 확인한다.
 
 *담당자 자료*　[Winskel §2.4, 순차 합성 규칙](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
 
@@ -60,7 +60,7 @@ number := false
 
 *함께 읽을 절*　[§3.1–3.2](chapter-03/index.html#ch03-s1)
 
-첫 실행 유도에 대해 귀납한다. 둘째 유도와 최종 상태를 일반화한 귀납가정을 쓰고, 순차 합성의 두 중간 상태가 같다는 사실을 얻은 뒤 마지막 상태를 비교한다.
+첫 실행 유도에 대해 귀납한다. 둘째 유도와 최종 상태를 일반화한 귀납가정을 쓰고, 순차 합성의 두 중간 상태가 같다는 사실을 얻은 뒤 마지막 상태를 비교한다. 같은 방법으로 참인 가드의 반복 규칙을 검토한다.
 
 *담당자 자료*　[Winskel §3.4, 유도에 대한 귀납](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
 
@@ -146,7 +146,7 @@ number := false
 
 *함께 읽을 절*　[§10.1–10.3](chapter-09/index.html#ch09-s1)
 
-순차 합성에서 함수가 반환한 정상 상태, 관계에 속한 상태 쌍, 실행 유도를 같은 중간 상태로 연결한다.
+순차 합성의 중간 상태를 미리 찾는다. 모임에서는 while의 종료 유도에서 유한 근사 단계를 구하고, 반대로 단계 번호에 대한 귀납으로 종료 유도를 복원한다.
 
 *담당자 자료*　[Winskel §5.3, 두 의미론의 동치](https://www.cin.ufpe.br/~if721/intranet/TheFormalSemanticsofProgrammingLanguages.pdf)
 
@@ -194,7 +194,7 @@ number := false
 
 *함께 읽을 절*　[§14.1–14.3](chapter-13/index.html#ch13-s1)
 
-(λy. x)에 y를 x 대신 대입한다. 바인더를 먼저 새 이름으로 바꾼 결과와 그대로 바꾼 결과의 자유 변수를 비교한다.
+(λy. x)에 y를 x 대신 대입한다. 바인더를 먼저 새 이름으로 바꾼 결과와 그대로 바꾼 결과의 자유 변수를 비교한다. 이 예를 이용해 치환 뒤 자유 변수에 관한 보조정리의 추상화 경우를 증명한다.
 
 *담당자 자료*　[TAPL §5.3, 치환 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
@@ -204,9 +204,9 @@ tag := "week-15"
 number := false
 %%%
 
-*함께 읽을 절*　[§15.1–15.2](chapter-14/index.html#ch14-s1)
+*함께 읽을 절*　[§15.1–15.3](chapter-14/index.html#ch14-s1)
 
-쓰이지 않는 인자에 발산하는 항을 전달한다. 두 전략의 첫 전이를 적고 어느 쪽이 함수의 결과에 도달하는지 설명한다.
+쓰이지 않는 인자에 발산하는 항을 전달한다. 두 전략의 첫 전이를 적고 어느 쪽이 함수의 결과에 도달하는지 설명한다. §15.3에서 인자를 두 번 쓰면 어느 계산을 반복하는지 추적한다.
 
 *담당자 자료*　[TAPL §5.1, 평가 전략 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
@@ -216,9 +216,9 @@ tag := "week-16"
 number := false
 %%%
 
-*함께 읽을 절*　[§16.1–16.2](chapter-15/index.html#ch15-s1)
+*함께 읽을 절*　[§16.1–16.3](chapter-15/index.html#ch15-s1)
 
-함수가 정의된 뒤 같은 이름의 변수가 다시 바인딩된 예를 평가한다. 함수 본문의 자유 변수가 어느 환경에서 조회되는지 표시한다.
+함수가 정의된 뒤 같은 이름의 변수가 다시 바인딩된 예를 평가한다. 함수 본문의 자유 변수가 어느 환경에서 조회되는지 표시한다. 호출 시점의 환경으로 바꾸면 같은 항의 결과가 어떻게 달라지는지 확인한다.
 
 *담당자 자료*　[Reynolds §11.2 평가 규칙, §§11.6–11.7 환경과 바인딩 (목차)](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
@@ -278,7 +278,7 @@ number := false
 
 *함께 읽을 절*　[§21.1–21.2](chapter-19/index.html#ch19-s1), [§22.1–22.2](chapter-20/index.html#ch20-s1)
 
-주석이 있는 (λx:Nat. x) 0의 타입을 검사한다. 주석을 지운 같은 항에서 타입 방정식을 만들고 단일화해 두 결과를 비교한다. 계산을 마친 뒤 §22.3의 풀이와 대조한다.
+주석이 있는 (λx:Nat. x) 0의 타입을 검사한다. 주석을 지운 같은 항에서 타입 방정식을 만들고 단일화해 두 결과를 비교한다. 계산을 마친 뒤 §22.3의 풀이와 대조한다. 마지막으로 0에 대한 적용을 지우면 어떤 타입 변수가 자유롭게 남는지 설명한다.
 
 *담당자 자료*　[TAPL §10.3 타입 검사, §§22.3–22.4 제약과 단일화 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
@@ -326,27 +326,39 @@ number := false
 
 *함께 읽을 절*　[§26.1–26.3](chapter-24/index.html#ch24-s1)
 
-카운터 패키지를 새 타입 이름으로 열고 연산을 호출한다. 클라이언트의 결과 타입에 그 이름이 남으면 안 되는 이유를 보인다.
+카운터 패키지를 새 타입 이름으로 열고 연산을 호출한다. 클라이언트의 결과 타입에 그 이름이 남으면 안 되는 이유를 보인다. 두 카운터의 초기값이 관련되고 next와 read가 그 관계를 보존하는지 확인한다.
 
 *담당자 자료*　[TAPL §24.1, 존재 타입 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-# 26회 · 함수 영역과 Scott 귀납법
+# 26회 · 관계적 매개변수성과 표현 독립성
 %%%
 tag := "week-26"
 number := false
 %%%
 
+*함께 읽을 절*　[§26.4](chapter-24/index.html#ch24-client-relation)
+
+추상 타입 X를 두 방식으로 해석한다. 변수·추상화·적용에 대한 귀납으로 기본 정리를 증명하고, 두 카운터에서 모든 단순 타입 클라이언트의 Nat 관찰값이 같음을 도출한다.
+
+*담당자 자료*　[Pfenning, Representation Independence §1, 표현 관계의 선택](https://www.cs.cmu.edu/~fp/courses/15814-f25/lectures/16-independence.pdf)
+
+# 27회 · 함수 영역과 Scott 귀납법
+%%%
+tag := "week-27"
+number := false
+%%%
+
 *함께 읽을 절*　[§27.1–27.3](chapter-27/index.html#ch27-s1)
 
-함수의 증가열을 한 입력에서 계산한다. 각 근사가 만족하는 성질을 상한에서도 결론 내리려면 무엇이 필요한지 보인다.
+함수 근사의 점별 상한을 계산하고, 정의된 출력이 모두 0이라는 성질을 Scott 귀납법으로 증명한다. 각 근사에 남아 있던 미정의 입력이 극한에서는 모두 사라질 수 있는 이유를 설명한다.
 
 *담당자 자료*　[Cambridge 강의 노트 §4, 고정점 귀납법](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 *심화*　[S2 · 순서·근사·최소 고정점](static/slides/s2/index.html#/13)
 
-# 27회 · PCF에서 재귀 함수 평가
+# 28회 · PCF에서 재귀 함수 평가
 %%%
-tag := "week-27"
+tag := "week-28"
 number := false
 %%%
 
@@ -356,9 +368,9 @@ number := false
 
 *담당자 자료*　[Cambridge 강의 노트 §5.2, PCF 평가 규칙](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
-# 28회 · 논리 관계의 기본 성질
+# 29회 · 논리 관계의 기본 성질
 %%%
-tag := "week-28"
+tag := "week-29"
 number := false
 %%%
 
@@ -368,21 +380,21 @@ number := false
 
 *담당자 자료*　[Cambridge 강의 노트 정의 27과 정리 30, pp. 56–58](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
-# 29회 · 기초 타입의 계산적 적절성
+# 30회 · 기초 타입의 계산적 적절성
 %%%
-tag := "week-29"
+tag := "week-30"
 number := false
 %%%
 
 *함께 읽을 절*　[§29.2–29.3](chapter-29/index.html#ch29-s2)
 
-재귀항을 고정하고 각 유한 근사가 그 항과 관련됨을 보인다. 26회의 상한 조건을 적용한 뒤, 빈 환경과 빈 치환을 넣어 닫힌 자연수 항의 계산적 적절성을 도출한다.
+재귀항을 고정하고 각 유한 근사가 그 항과 관련됨을 보인다. 27회의 상한 조건을 적용한 뒤, 빈 환경과 빈 치환을 넣어 닫힌 자연수 항의 계산적 적절성을 도출한다.
 
 *담당자 자료*　[Cambridge 강의 노트 보조정리 33·35, 정리 30–31](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
-# 30회 · 문맥 동치와 완전 추상화
+# 31회 · 문맥 동치와 완전 추상화
 %%%
-tag := "week-30"
+tag := "week-31"
 number := false
 %%%
 
@@ -392,21 +404,21 @@ number := false
 
 *담당자 자료*　[Cambridge 강의 노트 §8.1, 정리 40–41](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
-# 31회 · 참조와 저장소 타입
+# 32회 · 참조와 저장소 타입
 %%%
-tag := "week-31"
+tag := "week-32"
 number := false
 %%%
 
 *함께 읽을 절*　[§31.1–31.3](chapter-31/index.html#ch31-s1)
 
-참조 셀을 하나 할당한다. 저장소 타입을 확장한 뒤 새 셀의 값뿐 아니라 기존 셀의 타입도 유지됨을 보인다.
+참조 셀을 하나 할당한다. 저장소 타입을 확장한 뒤 새 셀의 값뿐 아니라 기존 셀의 타입도 유지됨을 보인다. 같은 셀을 Nat과 Bool에서 각각 쓴다고 가정해 타입 안전성이 깨지는 반례를 추적한다.
 
-*담당자 자료*　[TAPL §13.5, 할당 시의 보존 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
+*담당자 자료*　[TAPL §§13.5, 22.7, 저장소 타입과 값 제한 (목차)](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
-# 32회 · 실패와 예외 처리
+# 33회 · 실패와 예외 처리
 %%%
-tag := "week-32"
+tag := "week-33"
 number := false
 %%%
 
@@ -418,41 +430,29 @@ number := false
 
 *심화*　[S4 · 실패와 Kleisli 확장](static/slides/s4/index.html#/18)
 
-# 33회 · 출력 트레이스와 발산
-%%%
-tag := "week-33"
-number := false
-%%%
-
-*함께 읽을 절*　[§33.1–33.3](chapter-33/index.html#ch33-s1)
-
-아무것도 출력하지 않고 도는 루프와 7을 출력한 뒤 도는 루프를 비교한다. 각 실행의 유한 접두부에서 볼 수 있는 출력열을 적는다.
-
-*담당자 자료*　[Reynolds §5.2, 중간 출력 (목차)](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
 # 34회 · 연속과 CPS
 %%%
 tag := "week-34"
 number := false
 %%%
 
-*함께 읽을 절*　[§34.1–34.3](chapter-34/index.html#ch34-s1)
+*함께 읽을 절*　[§33.1–33.3](chapter-34/index.html#ch34-s1)
 
 덧셈의 왼쪽 결과를 받은 뒤 실행할 함수를 쓴다. 두 피연산자의 귀납가정으로 CPS 계산이 직접 평가값을 연속에 넘긴 결과와 같음을 보인다.
 
 *담당자 자료*　[Leroy, Control Structures §6.5, CPS 변환](https://xavierleroy.org/control-structures/book/main009.html)
 
-# 35회 · 비결정성과 may·must 종료
+# 35회 · 출력 접두부와 may·must 종료
 %%%
 tag := "week-35"
 number := false
 %%%
 
-*함께 읽을 절*　[§35.1–35.3](chapter-35/index.html#ch35-s1)
+*함께 읽을 절*　[§34.1–34.3](chapter-33/index.html#ch33-s1), [§35.1–35.3](chapter-35/index.html#ch35-s1)
 
-skip과 무한 루프 중 하나를 선택하는 명령에서 종료 경로와 무한 경로를 각각 구성한다. 가능한 종료와 모든 실행의 종료를 구분한다.
+7을 출력하고 종료하는 명령과, 출력 뒤 종료 또는 발산을 선택하는 명령을 비교한다. 유한 출력 접두부와 may 종료는 같지만 must 종료가 다름을 보인다. §34.3의 연속성 예제는 사전에 읽는다.
 
-*담당자 자료*　[Reynolds §7.1, 비결정적 선택의 전이 규칙 (목차)](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
+*담당자 자료*　[Reynolds §§5.2–5.3 중간 출력, §7.1 선택 규칙 (목차)](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
 # 36회 · 인터리빙과 원자성
 %%%
@@ -486,7 +486,7 @@ number := false
 
 *함께 읽을 절*　[§38.1–38.3](chapter-38/index.html#ch38-s1)
 
-소스에서 skip 뒤의 명령으로 넘어갈 때 기계가 0단계를 실행하는 경우를 그린다. 이때 감소하는 척도를 계산해 무한히 많은 소스 단계가 모두 사라질 수 없음을 보인다.
+소스에서 skip 뒤의 명령으로 넘어갈 때 기계가 0단계를 실행하는 경우를 그린다. 이때 감소하는 척도를 계산해 무한히 많은 소스 단계가 모두 사라질 수 없음을 보인다. 심화 문제 4에서는 한 단계 전이로 무한 경로의 존재를 보이는 공귀납 원리를 증명한다.
 
 *담당자 자료*　[Leroy, Compil.lean의 simulation\_step 중 순차 명령 경우](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Compil.lean#L905-L923)
 
@@ -544,6 +544,6 @@ tag := "further-reading"
 number := false
 %%%
 
-19회 뒤에는 TAPL §12.1에서 재귀 없는 단순 타입 람다 계산의 정규화를 증명할 수 있다. 27회에는 일반 재귀를 추가하여 어느 결론이 달라지는지 확인한다. 30회 뒤 재귀 타입을 연구할 때는 TAPL 20–21장의 타입 규칙과 Winskel 12–13장의 의미 모델을 대조한다.
+19회 뒤에는 TAPL §12.1에서 재귀 없는 단순 타입 람다 계산의 정규화를 증명할 수 있다. 28회에는 일반 재귀를 추가하여 어느 결론이 달라지는지 확인한다. 31회 뒤 재귀 타입을 연구할 때는 TAPL 20–21장의 타입 규칙과 Winskel 12–13장의 의미 모델을 대조한다.
 
 39–41회의 분석을 확장하려면 Concrete Semantics §§13.3–13.5에서 수집 의미론과 일반 추상 해석기를, §13.9에서 넓히기(widening)와 좁히기(narrowing)를 읽는다. 동시성을 더 공부할 때는 Reynolds 9장의 통신 프로세스, 타입과 모듈을 더 공부할 때는 Reynolds 18장의 모듈 명세가 출발점이다.

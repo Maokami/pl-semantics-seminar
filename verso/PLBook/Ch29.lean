@@ -9,11 +9,13 @@ tag := "ch29"
 file := "chapter-29"
 %%%
 
-[Chapter PDF](print/chapter-29.pdf) · [Session 28](seminar/index.html#week-28) · [Session 29](seminar/index.html#week-29)
+[Chapter PDF](print/chapter-29.pdf) · [Session 29](seminar/index.html#week-29) · [Session 30](seminar/index.html#week-30)
 
 The denotation of a closed PCF term can be calculated without producing an evaluation tree. If the result of that calculation is the number two, what warrants the prediction that evaluation actually returns two? For PCF the justification uses a relation between semantic objects and terms, with a different clause at each type.
 
 *Sources.* Cambridge _Denotational Semantics_, lectures 5–6. In the notes read Definition 27 (formal approximation), Theorem 30 (fundamental property) and Theorem 31 (adequacy), pp. 56–58. The joint proof derives Theorem 31 from the fundamental property. The general induction is illustrated here by application, abstraction and recursion. [Lectures.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/materials.html) [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
+
+In §26.4 both sides of the arrow relation were values from two interpretations. Here its left side is a domain element and its right side a closed PCF term. The application argument still uses related inputs. Recursion now requires closure under limits for a fixed term.
 
 # Ground observations
 %%%
@@ -89,9 +91,9 @@ tag := "ch29-s5"
 number := false
 %%%
 
-*Session 28 · The application case.* Read §§29.1–29.2. State what it means for a semantic function and a closed function term to be related. For the open term `f x`, put the related operator pair and the related operand pair on separate lines. Instantiate the arrow clause with the operand pair to obtain the relation for the application. Check which step would be unavailable if the relation were defined only at ground types.
+*Session 29 · The application case.* Read §§29.1–29.2. State what it means for a semantic function and a closed function term to be related. For the open term `f x`, put the related operator pair and the related operand pair on separate lines. Instantiate the arrow clause with the operand pair to obtain the relation for the application. Check which step would be unavailable if the relation were defined only at ground types.
 
-*Session 29 · Adequacy at Nat.* Read §§29.2–29.3. Spend the first half of the proof on fix: keep the term fixed, use Lemma 35 to transfer evaluation after unfolding, then use closure under chain suprema (Lemma 33). Spend the second half instantiating the resulting fundamental property. For a closed term, choose the empty environment and substitution. If its denotation is a number, use the ground clause to derive an evaluation returning the corresponding numeral. Apply this argument to Chapter 28’s countdown. Finish by asking how a closing context can observe a function; Chapter 30 takes up that question.
+*Session 30 · Adequacy at Nat.* Read §§29.2–29.3. Spend the first half of the proof on fix: keep the term fixed, use Lemma 35 to transfer evaluation after unfolding, then use closure under chain suprema (Lemma 33). Spend the second half instantiating the resulting fundamental property. For a closed term, choose the empty environment and substitution. If its denotation is a number, use the ground clause to derive an evaluation returning the corresponding numeral. Apply this argument to Chapter 28’s countdown. Finish by asking how a closing context can observe a function; Chapter 30 takes up that question.
 
 # Solutions
 %%%

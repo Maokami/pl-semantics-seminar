@@ -9,7 +9,7 @@ tag := "ch32"
 file := "chapter-32"
 %%%
 
-[Chapter PDF](print/chapter-32.pdf) · [Session 32](seminar/index.html#week-32)
+[Chapter PDF](print/chapter-32.pdf) · [Session 33](seminar/index.html#week-33)
 
 An assignment scheduled after an unsuccessful command should not run. A semantics recording only final states cannot tell whether the prefix explicitly reported failure or ran forever. Adding a separate failure outcome lets us specify how sequencing and handlers respond to it.
 

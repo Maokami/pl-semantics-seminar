@@ -104,7 +104,7 @@ number := false
 
 *Joint proof · 30 minutes.* Start from the typing of a beta redex at an unknown result type. Recover two premises, identify its domain, and instantiate Theorem 18.2 explicitly.
 
-*Proof review · 20 minutes.* Prove progress for an application, then add the constant in Exercise 3 and show exactly where a new case is required.
+*Proof review · 20 minutes.* Prove progress for an application. As a test of the conclusion, add a well-typed constant whose sole step is to itself. Does preservation still hold? Does evaluation terminate?
 
 *Facilitator’s hint.* Ask which theorem provides a typing for the *substituted body*. Inversion only types the original body under an extra assumption.
 

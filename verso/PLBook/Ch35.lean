@@ -35,6 +35,8 @@ tag := "ch35-s2"
 
 Let $`L` be the deterministic loop `while true do skip`, and let $`M` be `skip ⊕ L`. In any state $`s` one choice step leads to skip in $`s`. This is a witness for may termination. The other choice step leads to $`L`. Its guard is always true and its skip body returns to the same loop head after a finite nonempty sequence of silent steps. Repeating that cycle gives an infinite maximal run from $`M`. This is a counterexample to must termination. The normal-result set of $`M` is the singleton containing $`s`, the same as for skip.
 
+Now allow the visible emission rule of §34.1 alongside silent choice. Compare `emit 7; skip` with `emit 7; (skip ⊕ L)`. From any initial state both admit exactly the empty output list and `[7]` as finite visible traces: the first step emits seven and every later step is silent. Both may terminate in the initial store. Every maximal run of the first command exhausts its two forced steps. The second has a maximal run which selects `L` and follows its silent cycle forever. Even adding the set of possible final stores to the set of prefixes leaves these two programs indistinguishable until we ask about must termination.
+
 For `(x := 1) ⊕ (x := 2)`, either branch is a terminating assignment. Inverting the first transition exhausts the choices; in each case the remaining assignment terminates in one step. Thus this command must terminate, with two distinct possible final values at $`x`. Determinism, existence of a result and universal termination describe different properties.
 
 The normal-result set projects an execution onto its last state, when there is one. Apply that projection to both branches of the mixed example separately. The skip branch contributes the singleton containing the starting state; the infinite-loop branch contributes the empty set. Taking their union gives the same singleton. This calculation proves the may observation and also explains exactly where the evidence against must termination disappears: set union has no record of a branch that contributes no member.
@@ -92,13 +94,7 @@ tag := "ch35-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the quantifiers in may and must and identify which runs are maximal.
-
-*Joint proof · 30 minutes.* Construct the finite and infinite witnesses for the mixed choice. Then prove both equivalences of Proposition 35.1 by inspecting the first step.
-
-*Proof review · 20 minutes.* Compare two terminating assignments returning distinct results. Explain why universal termination permits this example.
-
-*Facilitator’s hint.* A finite prefix of an infinite run is not a counterexample to must termination unless it is maximal. Extend or close the run explicitly.
+*Session 35 · After Chapter 34.* Use the first 10 minutes for the trace projection in Chapter 34. In the next 30 minutes classify the two commands of §35.2 beginning with `emit 7`. Give a witness for each possible prefix, exclude longer prefixes, and draw the terminating and infinite branches. In the last 20 minutes derive the may and must clauses of Proposition 35.1 by taking the first choice step off a maximal run. Explain why a finite prefix ending just before that choice proves neither termination nor divergence.
 
 # Solutions
 %%%

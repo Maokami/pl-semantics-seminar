@@ -45,6 +45,8 @@ For a difference use the same two paths. Opposite changes $`v::u::S` to $`\left(
 
 Compile the expression `(1 + 2) + (4 − 3)` starting at counter 10 with incoming stack `[99]`. The left subexpression occupies three instructions. Its induction hypothesis applies at 10 with stack `[99]` and finishes at 13 with `[3, 99]`. The right subexpression occupies four instructions: the two literals, negation of the top element, and addition. Its hypothesis applies at 13 with that new stack and finishes at 17 with `[1, 3, 99]`. The final add at 17 leaves `[4, 99]` at 18. Quantifying over every starting counter and stack tail in the induction assertion is what licenses the second use of the hypothesis.
 
+Return to `x + (2 + y)` in §33.2, with `x = 3` and `y = 4`. Starting at counter zero with stack tail `S`, the block `Ivar x, Iconst 2, Ivar y, Iadd, Iadd` leaves `4 :: 2 :: 3 :: S` at counter three. The next two instructions leave `6 :: 3 :: S` and `9 :: S`. At the corresponding lookup in the CPS machine, four meets `[Combine(2), Combine(3)]`. The saved left operands occur on the value stack; the two pending additions are encoded by the remaining instructions. The CPS caller doubles nine only after the expression returns; that operation belongs to the caller in the compiled execution as well.
+
 There is also a useful list-level version of the continuation argument. A successful run of the operand blocks prepares exactly the stack needed for the next instruction. The following check isolates what the add instruction may do to *any* stack below its operands. Failure on short stacks is represented explicitly by an optional result.
 
 ```lean

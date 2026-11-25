@@ -107,7 +107,7 @@ number := false
 
 *Joint proof · 30 minutes.* Write entry, preservation and exit without their proofs. Have one participant obtain the body obligation backwards and another establish it from the old values.
 
-*Proof review · 20 minutes.* Try the weakened invariant of Exercise 1. Decide whether its failure refutes the program or just the proposed proof.
+*Proof review · 20 minutes.* Test the weakened invariant of Exercise 1. State the directions of soundness and relative completeness and identify the expressibility assumption needed for the latter.
 
 *Facilitator’s hint.* At exit, ask for the two separate inequalities needed to infer equality. Only one comes from the guard.
 

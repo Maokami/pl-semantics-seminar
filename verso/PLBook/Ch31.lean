@@ -9,7 +9,7 @@ tag := "ch31"
 file := "chapter-31"
 %%%
 
-[Chapter PDF](print/chapter-31.pdf) · [Session 31](seminar/index.html#week-31)
+[Chapter PDF](print/chapter-31.pdf) · [Session 32](seminar/index.html#week-32)
 
 Two variables may contain the same address. Writing through one changes the value that a later read through the other will return. An ordinary term context records the types of the variables, but preserving types during allocation also requires a typing for the newly created address.
 

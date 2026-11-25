@@ -9,7 +9,7 @@ tag := "ch27"
 file := "chapter-27"
 %%%
 
-[Chapter PDF](print/chapter-27.pdf) · [Session 26](seminar/index.html#week-26)
+[Chapter PDF](print/chapter-27.pdf) · [Session 27](seminar/index.html#week-27)
 
 A recursive definition can give an answer at input zero before it gives one at input one. Each finite approximation is already a function on the entire input domain. To pass from approximants to the recursive function we must specify how to compare functions and which properties survive their limit.
 

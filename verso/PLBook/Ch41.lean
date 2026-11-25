@@ -77,7 +77,7 @@ example {V : Type} (guard after body head : V → Prop)
 
 In the application, body denotes the backwards transfer evaluated at this very head. The earlier default-bound argument establishes the premise even if fuel is exhausted. The three resulting projections are precisely what the execution proof uses.
 
-*Why the abstract domain matters.* For the variables of a fixed finite program, a strictly increasing chain of live-variable sets can add only finitely many names. An interval analysis of an unbounded counter can instead produce `[0,0]`, `[0,1]`, `[0,2]`, and so on. A widening may replace an increasing upper endpoint by positive infinity to force stabilization while retaining all reachable values. This solves a different convergence problem from the fuel fallback in the Lean liveness analysis. See Concrete Semantics §13.9.
+*Further reading: interval widening.* For the variables of a fixed finite program, a strictly increasing chain of live-variable sets can add only finitely many names. An interval analysis of an unbounded counter can instead produce `[0,0]`, `[0,1]`, `[0,2]`, and so on. A widening may replace an increasing upper endpoint by positive infinity to force stabilization while retaining all reachable values. This solves a different convergence problem from the fuel fallback in the Lean liveness analysis. See Concrete Semantics §13.9.
 
 # Exercises
 %%%

@@ -3,132 +3,110 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Continuations and the CPS Transformation" =>
+#doc (Manual) "Output Traces and Divergence" =>
 %%%
-tag := "ch34"
-file := "chapter-34"
-%%%
-
-[Chapter PDF](print/chapter-34.pdf) · [Session 34](seminar/index.html#week-34)
-
-During evaluation of `(x + 2) + y`, obtaining the value of the inner sum leaves an outer addition to perform. A continuation represents the work still waiting for that value. Making this parameter explicit yields a program in continuation-passing style (CPS).
-
-*Sources.* Xavier Leroy, _Control Structures for Programming Languages_, chapter 6, on continuations and the CPS transformation. Follow the continuation passed to a non-tail subexpression. We derive a translation for pure arithmetic so that its correctness can be proved directly. Compare Reynolds, _Theories of Programming Languages_, §§12.1–12.3 for the functional-language development. [Leroy, chapter 6.](https://xavierleroy.org/control-structures/book/main009.html) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Answers and continuations
-%%%
-tag := "ch34-s1"
+tag := "ch33"
+file := "chapter-33"
 %%%
 
-Fix a state $`s` of Chapter 1 and an answer set $`R`. The ordinary evaluator assigns an integer to an expression. A continuation has type $`{\mathbb{Z}}\rightarrow R`; given the intermediate integer, it produces an answer. To recover an ordinary integer result, choose $`R = {\mathbb{Z}}` and the identity continuation. A continuation may instead test whether the result is zero, in which case $`R` can be the Boolean set.
+[Chapter PDF](print/chapter-33.pdf) · [Session 35](seminar/index.html#week-35)
 
-Write $`C\left( {e,s,k} \right)` for the CPS computation with continuation $`k`. Specify left-to-right evaluation by the following translation clauses. In the pseudocode, functions introduced by the translation have fresh parameter names.
+A process can print a result and then run forever. An observer who has already seen the result can distinguish that computation from one that stays silent forever. Returning bottom for both programs in a final-state semantics loses a visible observation.
 
-```
-C(lit n, s, k)   = k(n)
-C(var x, s, k)   = k(s(x))
-C(add a b, s, k) = C(a, s, λu. C(b, s, λv. k(u + v)))
-```
+*Sources.* Reynolds, _Theories of Programming Languages_, §§5.2–5.3, pp. 101–108, on intermediate output, sequences and continuity. We derive finite output observations directly from a labelled transition relation and then compare their information order with the sequence interpretation. [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
-When $`a` returns its integer $`u`, the outer continuation still has to evaluate $`b`. When $`b` returns $`v`, that work has become applying $`k` to $`u + v`. Each call is in *tail position*, meaning its result is the entire answer of the enclosing function call. The pending work is represented by functions capturing $`b,s,k` and then $`u,k`.
-
-The generated continuations have only two new shapes at an addition. This makes it possible to represent them as data, a transformation called *defunctionalization*. Fix the state for the entire evaluation. A stack of frames records what should happen to the next integer: `Right(b)` means that the left child has just returned and the right child `b` must be evaluated, while `Combine(u)` means that the next integer must be added to the saved left value `u`. Keep the caller's final continuation `k : ℤ → R` separately. Every frame consumes an integer as an intermediate value. Only calling `k` produces an answer in `R`.
-
-To evaluate `add a b`, push `Right(b)` and begin evaluating `a`. When a value `u` meets `Right(b)`, replace that frame by `Combine(u)` and begin evaluating `b`. When a value `v` meets `Combine(u)`, pop the frame and pass `u + v` to the remaining stack. A value presented to an empty stack goes to `k`. These cases follow by substituting a value into the two anonymous functions in the translation. The first function needs the expression `b` later, hence the expression field in its frame. The second needs the integer `u` later, hence the integer field in its frame. Both access the earlier pending work through the rest of the stack.
-
-# A trace
+# Visible and silent steps
 %%%
-tag := "ch34-s2"
+tag := "ch33-s1"
 %%%
 
-Take $`s(x) = 3`, $`s(y) = 4` and the final continuation $`k(r) = 2r`. The outer sum installs the continuation $`h(u) = C\left( {y,s,\lambda v.k\left( {u + v} \right)} \right)` for the inner sum. The variable lookup returns 3 to the continuation that next evaluates literal 2. After that literal the inner addition sends 5 to $`h`. Now $`y` returns 4 and the last continuation computes $`k\left( {5 + 4} \right) = 18`. The sequence of computed integers is 3, 2, 5, 4, 9; the final answer is 18. Changing $`k` changes what the caller does with 9 while leaving the expression’s own value intact.
+Extend the small-step language of Chapter 5 with `emit e`. A configuration is a residual command and a state. Write $`\langle c,s\rangle \xrightarrow{a} \langle d,u\rangle` for one step with label $`a`. A label is $`\tau` for silent computation or $`\text{out}(n)` for printing the integer $`n`. An emission from state $`s` steps to skip in the same state with visible label $`\text{out}\left( {\operatorname{eval}\left( {e,s} \right)} \right)`. Assignment, guard selection and structural sequencing steps are silent. Stepping the prefix of a sequence propagates its label. A skip configuration is terminal and has no outgoing steps.
 
-Parentheses change the pending work even when they leave the answer fixed. With the same state and caller, evaluate `x + (2 + y)`. Use a stack written with its next frame on the left. Looking up `x` yields three with only `Right(2 + y)` on the stack. Resuming at this frame replaces it with `Combine(3)`. Evaluating the inner sum pushes `Right(y)` above that frame. At the literal two the stack is therefore `[Right(y), Combine(3)]`. Its top frame schedules the lookup of `y` and leaves `[Combine(2), Combine(3)]` waiting. The lookup returns four. The first combination produces six, the next produces nine, and the caller doubles nine.
+A finite execution prefix is any finite sequence of consecutive steps from the initial configuration, including the empty sequence. Its *visible trace* is the list of printed integers obtained by deleting all silent labels. Let $`P\left( {c,s} \right)` collect these lists over all such finite execution prefixes. This set is prefix-closed: stop an execution immediately after the last retained output to realize each nonempty prefix of its list, and use zero steps for the empty list. A separate observation of termination records a terminal configuration and its state.
 
-Compare the point just after the lookup of `y` in the original parenthesization, `(x + 2) + y`. There the stack contains just `Combine(5)`: the left sum has already been computed. Both expressions look up `x` before `y`, but only the first parenthesization in the preceding paragraph holds two unfinished additions at the lookup of `y`. Their common answer uses associativity of integer addition. The derivation of the sequence of frames uses only the syntax tree and the left-to-right CPS clauses, so no arithmetic law could by itself determine that sequence.
+It helps to separate two operations on finite executions. Concatenation joins consecutive path segments whose meeting configurations agree. Projection erases the silent labels of a path and keeps its visible labels in order. If the first segment has labels `[τ,out(3),τ]` and the next has labels `[τ,out(5)]`, projecting their concatenation gives `[3,5]`. Projecting the segments separately gives `[3]` and `[5]`, whose concatenation has the same value. This equation depends only on the labels once the existence of the path has been established.
 
-# Correctness
-%%%
-tag := "ch34-s3"
-%%%
-
-*Theorem 34.1.* For every expression $`e`, state $`s` and continuation $`k:{\mathbb{Z}}\rightarrow R`, $`C\left( {e,s,k} \right) = k\left( {\operatorname{eval}\left( {e,s} \right)} \right)`. Prove this by structural induction on $`e`, quantifying the induction assertion over all continuations. At a literal and variable the two sides coincide by their defining clauses. At $`\text{add}\left( {a,b} \right)`, abbreviating constructor names in the argument, apply the hypothesis for $`a` with continuation $`u\mapsto C\left( {b,s,\lambda v.k\left( {u + v} \right)} \right)`. The result is $`C\left( {b,s,\lambda v.k\left( {\operatorname{eval}\left( {a,s} \right) + v} \right)} \right)`. Now apply the hypothesis for $`b` with this new continuation. It gives $`k\left( {\operatorname{eval}\left( {a,s} \right) + \operatorname{eval}\left( {b,s} \right)} \right)`, which equals the required result by direct evaluation of the sum.
-
-A hypothesis proved only for the identity continuation cannot be applied at the first recursive call. The theorem’s quantifier is forced by the translation itself. This proof uses pure, total arithmetic, with both subexpressions reading the same state. With effects one would also specify the state passed to the next continuation.
-
-The following definition uses natural numbers as variable names. Fixing the state `s` outside the recursion records that every occurrence of a variable reads the same state. The answer type `R` remains arbitrary. At a binary node, the second recursive call occurs in the continuation supplied to the first one, exactly as in the mathematical translation.
+In Lean a label can be encoded by `Option Int`, using `none` for silence and `some n` for an emission. Induction on the first segment proves the general equation. Its silent case consumes the head of the input without consuming a cell in the output.
 
 ```lean
-inductive CpsArithmetic where
-  | lit (n : Int)
-  | var (x : Nat)
-  | add (a b : CpsArithmetic)
+def printedLabels : List (Option Int) → List Int
+  | [] => []
+  | none :: xs => printedLabels xs
+  | some n :: xs => n :: printedLabels xs
 
-def CpsArithmetic.value (s : Nat → Int) : CpsArithmetic → Int
-  | .lit n => n
-  | .var x => s x
-  | .add a b => a.value s + b.value s
-
-def CpsArithmetic.cps {R : Type} (s : Nat → Int) :
-    CpsArithmetic → (Int → R) → R
-  | .lit n, k => k n
-  | .var x, k => k (s x)
-  | .add a b, k => a.cps s (fun u => b.cps s (fun v => k (u + v)))
-
-example {R : Type} (s : Nat → Int) (e : CpsArithmetic) :
-    ∀ k : Int → R, e.cps s k = k (e.value s) := by
-  induction e with
-  | lit n => intro k; rfl
-  | var x => intro k; rfl
-  | add a b iha ihb =>
-    intro k
-    simp only [CpsArithmetic.cps, CpsArithmetic.value, iha, ihb]
+example (xs ys : List (Option Int)) :
+    printedLabels (xs ++ ys) = printedLabels xs ++ printedLabels ys := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih => cases x <;> simp [printedLabels, ih]
 ```
 
-The position of `∀ k` matters when reading the proof. Induction takes place before the chosen continuation is introduced. Hence `iha` can rewrite the whole call on `a`, including the newly constructed function that appears as its argument. The resulting call on `b` is then an instance of `ihb`. Specializing the theorem to the identity function recovers the source integer in every state.
+The converse implication for paths would be too strong. An output list contains no record of the meeting configuration. To join two proposed executions, one must still verify that the source of the second is the target of the first.
 
-The continuation describes what the rest of the program will observe. In this pure fragment the CPS equation quantifies over all result continuations; instantiating it with the identity recovers the ordinary final value.
+# Printing before divergence
+%%%
+tag := "ch33-s2"
+%%%
+
+Let $`L` be `while true do skip`. Its transitions are silent and repeat a configuration indefinitely. For any initial state $`s`, $`P\left( {L,s} \right)` consists only of the empty list. For `emit 7; L` there is an initial output-labelled step of the sequence prefix, a silent sequencing step, and then the same loop. Thus the empty list and the one-element list containing seven are both observable. No longer list is observable: after that emission every reachable step is silent. Neither program reaches a terminal state.
+
+The proof of the negative claim needs more than finding a run with one emission. Inspect the reachable residual commands: the first emission is possible only in the original prefix, and the remaining steps stay in the silent loop and its unfolding. This accounts for *every* finite prefix in this deterministic language.
+
+Compare `emit 7; L` with `L; emit 7`. To determine whether the second program ever prints, list the rules whose conclusion steps a sequence. A step of its left operand propagates a label and leaves the right operand waiting. The other rule discards a completed left operand, exposing the right operand. Thus a first emission could come from the left operand while it is executing or from the right operand after the left has completed.
+
+Neither possibility can occur here. All steps of `L` and its successive unfoldings are silent: guard tests, executing `skip` and rearranging the sequence introduce no emission. Moreover the unfolding of the true guard places another execution of `L` after its body. In each turn the body can finish but the loop as a whole cannot reach a terminal configuration. By induction on the length of a finite run of the sequence, its right operand consequently stays pending throughout. The visible projection is empty for every such run.
+
+The two orderings therefore both run forever, while exactly one admits the finite observation `[7]`. Ten thousand silent steps before an eventual `emit 7` would still permit that singleton. Any finite delay can be traversed by some finite path. The silent divergence in the left operand of the second program prevents every such path from reaching the emission.
+
+# Information in prefixes
+%%%
+tag := "ch33-s3"
+%%%
+
+Order finite and infinite lists by the prefix order $`u \preceq v`: reading $`v` begins with exactly $`u`. The empty list is least. A chain of increasingly long consistent finite output observations has as least upper bound their union by position. Each position that appears must retain the same integer in every longer prefix. If lengths are unbounded the limit is an infinite list. If the chain stabilizes it has the stable list as its limit.
+
+The loop `while true do emit 1` has observations of arbitrarily many ones. For each $`k` we can exhibit a finite prefix with $`k` emissions by running $`k` iterations. Their least upper bound is the infinite stream of ones. This construction credits a finite observation only after a finite amount of execution. It explains the relevance of continuity in a model of intermediate outputs. Output prefixes alone do not record termination: skip and the silent loop both have just the empty output prefix. To answer a final-state question we must also record a termination observation.
+
+A test on traces illustrates what continuity demands. Let the result set have two elements, `unknown` below `yes`. Define a test that returns `yes` exactly on traces that contain an occurrence of seven, and `unknown` elsewhere. Extending a trace cannot delete an occurrence, so the test is monotone. It also preserves suprema of increasing chains. If the union contains a seven at position `j`, some chain member already has a position `j`, with that same value. Conversely, an occurrence in any member persists in the union. These two implications show that the test on the union equals the supremum of its answers on the members.
+
+Keep the same result set and test whether the trace is infinite. This test is monotone: an infinite trace cannot acquire a proper extension in the prefix order. Yet on the chain consisting of zero ones, one one, two ones, and so on, the answer is `unknown` at every finite stage. The supremum of those answers is `unknown`, while the answer on the union is `yes`. The defining equation for continuity fails. The distinction has a concrete reading for an observer. Seeing a seven requires one finite witness, its position. Observing another one, however many have already appeared, still leaves open the possibility that output ends there.
+
+An observation can now be a finite sequence of outputs produced before termination or divergence. A single final-store observation collapses both a silent infinite loop and a program that prints once before looping.
 
 # Exercises
 %%%
-tag := "ch34-s4"
+tag := "ch33-s4"
 number := false
 %%%
 
-1. Compute the answer in §34.2 when the continuation tests whether its argument is odd. State its answer type.
-2. Add unary negation to the source grammar. Give its CPS clause and prove the new induction case.
-3. Reverse the two recursive evaluations in the addition clause while keeping the operands of addition in source order. Does the theorem still hold for pure arithmetic?
+1. Give two programs that print seven once and have exactly the same finite visible traces, although one terminates and the other diverges.
+2. Compute all finite visible traces of `emit 1; emit 2; L`. Does the list containing only two occur?
+3. Suppose a transformation preserves only terminating final states. Could it replace `emit 7; L` with $`L`? Test the two criteria separately.
 
-*Further problem.* State-passing CPS. Add `postinc x` to arithmetic expressions: it returns the previous value of `x` and increments that variable. Give a left-to-right direct evaluator and CPS clauses for this operation and addition. State and prove the strengthened correctness equation. Using `x + postinc x`, show by calculation why the theorem need not hold if just the CPS translation switches evaluation order.
+*Further problem.* Composition of output observations. Show that knowing only `P(c,s)` is insufficient to calculate `P(c;d,s)`, even when `d` is fixed. Define `T(c,s)` to consist of pairs `(w,t)` such that some terminating run emits list `w` and finishes in state `t`. Give an exact formula for `P(c;d,s)` using `P` and `T`, and prove its two inclusions.
 
 # Reading for the Seminar
 %%%
-tag := "ch34-s5"
+tag := "ch33-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the type of the final continuation and of the one awaiting the right operand.
+*Session 35 · Preparation.* Read §§34.1–34.3 and §§35.1–35.3. Compare the finite witness for seeing seven with the increasing chain of finite lists of ones. Explain why only the former test can report a positive result at a finite stage.
 
-*Joint proof · 30 minutes.* Build the two continuations for addition from the type of the desired answer. Prove the addition equation with the induction hypotheses instantiated explicitly.
-
-*Proof review · 20 minutes.* Trace a continuation returning a Boolean, then try proving correctness with only identity as hypothesis.
-
-*Facilitator’s hint.* The induction hypothesis for the left child must accept a function that still evaluates the right child. Write that function out before applying induction.
+*First 10 minutes.* Project the labels of `emit 7; skip` onto their outputs. Include the empty path. Continue with the choice example in §35.2 and the joint proof in Chapter 35.
 
 # Solutions
 %%%
-tag := "ch34-s6"
+tag := "ch33-s6"
 number := false
 %%%
 
-*1.* The intermediate value is 9, so the answer is true in the Boolean set.
+*1.* Use `emit 7` and `emit 7; L`. Each permits just the empty trace and the singleton seven. Only the first has a terminal observation.
 
-*2.* Use $`C\left( {a,s,\lambda u.k\left( {- u} \right)} \right)`. The induction hypothesis gives $`k\left( {- \operatorname{eval}\left( {a,s} \right)} \right)`, the desired equation.
+*2.* The possibilities are the empty list, `[1]` and `[1,2]`. Erasing silent steps never changes the order of visible events or removes a preceding visible event.
 
-*3.* Evaluate $`b` first and bind its result $`v`, then evaluate $`a` and call $`k\left( {u + v} \right)`. Applying the two induction hypotheses in reversed order yields the same equation. If the operands emitted events, their traces could distinguish these translations.
+*3.* Both lack any terminating final state, so the proposed replacement agrees on that observation. The singleton seven witnesses failure to preserve the finite visible traces.
 
-*Further problem.* Let the direct evaluator `E(e,s)` return a pair `(n,t)`. Literals and variables return their usual integers with state `s`. For `postinc x` return `(s(x), s[x ↦ s(x)+1])`. For addition evaluate the left child at `s`, obtaining `(u,t)`, then the right child at `t`, obtaining `(v,w)`. Return `(u+v,w)`.
+*Further problem.* From the same state, `skip` and the silent infinite loop have the same visible prefixes. After each is sequenced with `emit 7`, only the sequence beginning with `skip` has the singleton trace seven. Thus prefix equality alone does not determine the answer.
 
-Use a continuation taking both an integer and a state. For `postinc x` call it on the direct evaluator's pair. For addition use `C(a,s,λu t. C(b,t,λv w. k(u+v,w)))`. Prove for all states and continuations that whenever `E(e,s)=(n,t)`, the CPS result is `k(n,t)`. All leaf cases are defining equations. At addition apply the hypothesis for `a` with the displayed first continuation. Its intermediate state is exactly the initial state required by the hypothesis for `b` with the inner continuation. That second application yields the required answer at the final state.
-
-If `x` initially holds three, left-to-right evaluation reads three, then returns three while storing four: the sum is six. Evaluating the increment first instead reads four in the other operand, producing seven with the same final state. The continuation returning just the integer already distinguishes the translations.
+The formula is the union of `P(c,s)` with the set of concatenations `w ++ v` for which there exists `t` with `(w,t) ∈ T(c,s)` and `v ∈ P(d,t)`. To prove inclusion from left to right, take a witnessing finite path of `c;d`. If the structural sequencing step that exposes `d` has not occurred, projecting the steps of its left operand exhibits a prefix of `c` with the same trace. Otherwise split the path at that step. The first segment witnesses termination of `c` with some trace and state, and the remaining segment is a prefix of `d` from that state. The intervening structural step is silent. Conversely, lift any prefix of `c` through the sequencing context. To realize a concatenation, lift the whole witnessing terminating run, take the silent sequencing step, and append the witnessing path of `d`. Trace projection preserves concatenation.

@@ -98,11 +98,13 @@ tag := "ch09-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Put the three sequence clauses on the board and mark the type of each intermediate object.
+*Preparation.* For sequential composition identify the same intermediate store in the derivation, the relational composition and the function computation.
 
-*Joint proof · 30 minutes.* Starting from an ordinary function result, derive the relational witness and build the execution tree. Have a second participant run the argument backwards by inversion.
+*Definitions · 10 minutes.* Write the loop exit pair at stage one. Calculate the first stage for a run with two body executions.
 
-*Proof review · 20 minutes.* For a loop, convert one finite derivation into a stage witness. Compare the stage induction with the structural induction on commands.
+*Joint proof · 30 minutes.* In §10.3 convert a terminating loop derivation to a finite stage by induction on its recursive premise. Reverse the construction by induction on the stage. At a true guard identify separately the body correspondence and the hypothesis for the remaining loop.
+
+*Proof review · 20 minutes.* Start with an ordinary result of the functional loop. Use flatness to find a finite approximation and the finite-stage lemma to obtain a relational pair. Reconstruct its execution and explain why stage zero cannot witness exit.
 
 *Facilitator’s hint.* Name the body result before naming the loop result. The former comes from the smaller syntax tree and the latter from a smaller stage or derivation.
 

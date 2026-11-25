@@ -93,7 +93,7 @@ number := false
 
 *Joint proof · 30 minutes.* Prove the unknown-guard case with both possible concrete branch selections. Use the defining direction of the precision order to justify the join step.
 
-*Proof review · 20 minutes.* Find a spurious store for a join and check whether it contradicts the statement of soundness.
+*Proof review · 20 minutes.* For the unknown guard, write the inclusion of concrete results in the concretization of the joined abstract result. Exhibit a spurious store allowed by the join and check the direction of inclusion.
 
 *Facilitator’s hint.* Pick a fact retained by the join. Which two abstract branch results had to agree about that exact variable and value?
 
