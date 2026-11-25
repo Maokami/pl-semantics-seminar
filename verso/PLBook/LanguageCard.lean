@@ -31,7 +31,7 @@ tag := "imp-a2"
 number := false
 %%%
 
-A store is a total function $`s:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of stores. The update $`s[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`s(y)`. Equality of stores means equality at every name.
+A store records the current integer value of every variable in IMP. We represent it by a total function $`s:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of stores. The update $`s[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`s(y)`. Equality of stores means equality at every name.
 
 # A.3 Expression evaluation · Session 1
 %%%

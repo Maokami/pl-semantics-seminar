@@ -36,7 +36,7 @@ The symbol $`::=` introduces alternatives, separated by vertical bars. A *constr
 
 For example, to prove $`\forall e\in E,\ P(e)`, prove $`P(n)` and $`P(x)` for all leaves. For arbitrary $`e_1,e_2`, assume $`P(e_1)` and $`P(e_2)` and prove both $`P(e_1+e_2)` and $`P(e_1-e_2)`. Each child is smaller than its parent. A leaf has height zero, and a binary node has height one greater than the maximum of its children's heights.
 
-*Definition 1.2 (Stores).* A store is a total function $`s:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of stores. The update $`s[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`s(y)`. Equality of stores means equality at every name.
+*Definition 1.2 (Stores).* A store records the current integer value of every variable in IMP. We represent it by a total function $`s:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of stores. The update $`s[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`s(y)`. Equality of stores means equality at every name.
 
 For example, let $`s` return $`3` at $`x` and $`0` everywhere else. The symbol $`x` is an element of $`V`, the tree $`\operatorname{var}(x)` is an element of $`E`, and the value $`s(x) = 3` is an element of $`\mathbb{Z}`. Only the last of these depends on the chosen store.
 
