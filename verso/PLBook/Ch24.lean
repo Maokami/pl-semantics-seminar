@@ -8,15 +8,16 @@ tag := "ch24"
 file := "chapter-24"
 %%%
 
+The closed term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` cannot step. Its guard $`0` is a value, but E-IfTrue and E-IfFalse need the guard $`\mathsf{true}` or $`\mathsf{false}`, and E-If needs a step of the guard. The term is not a value either, so evaluation stops without an answer. The term $`\mathsf{if}\ \mathsf{iszero}\ 0\ \mathsf{then}\ \mathsf{succ}\ 0\ \mathsf{else}\ 0` reaches the value $`\mathsf{succ}\ 0` in two steps. The first term has no type, and the second has type Nat. This session proves that a term with a type never reaches a term like the first.
+
+*In this session.*
+
 * *Definitions.* Terms, values, numeric values $`nv`, the evaluation rules, the types Bool and Nat and the typing rules ([C.2](lambda-card/index.html#lambda-c2)). The typing judgment $`\vdash t:T` ([Lambda card, Judgments](lambda-card/index.html)). One step $`t\to t'`, computation and congruence rules, normal forms and $`t\to^*t'` ([C.1](lambda-card/index.html#lambda-c1), Session 23). Inference rules and derivations ([A.3](imp-card/index.html#imp-a3)). Inversion and induction on derivations ([Session 1, §§1.4–1.5](chapter-01/index.html#ch01-s4)). The general statements and the form of the safety table ([C.8](lambda-card/index.html#lambda-c8)).
-* *New terms.* Stuck term, well-typed term, canonical form, preservation, type safety. [Glossary and label key](glossary/index.html)
+* *New terms.* Stuck term, well-typed term, canonical form, preservation, type safety. [Glossary](glossary/index.html)
 * *Lemma 24.2 (Canonical forms), Theorem 24.3 (Progress) and Theorem 24.4 (Preservation).* (Canonical forms) For every value $`v`: if $`\vdash v:\mathsf{Bool}` then $`v=\mathsf{true}` or $`v=\mathsf{false}`; if $`\vdash v:\mathsf{Nat}` then $`v` is a numeric value. (Progress) For every term $`t` and type $`T`: if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (Preservation) For all terms $`t,t'` and every type $`T`: if $`\vdash t:T` and $`t\to t'`, then $`\vdash t':T`.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL). The terms, values and evaluation rules of C.2 are those of §§3.2 and 3.5, and the types and typing rules are those of §§8.1–8.2. TAPL writes the typing judgment of this language without a context. With the empty context the rules are the same. Lemma 24.1 is the inversion lemma of §8.2. Lemma 24.2 and Theorems 24.3–24.4 are the canonical forms, progress and preservation results of §8.3. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Progress, case T-If. Apply the induction hypothesis to the guard. A step of the guard lifts to the conditional by E-If. A guard that is a value has type Bool, so Lemma 24.2 makes it true or false, and E-IfTrue or E-IfFalse applies.
 * *Proof outline.* Canonical forms: list the forms of value and exclude the wrong ones with the inversion Lemma 24.1. Progress: induction on the typing derivation $`D` of $`\vdash t:T` with $`P(D)\coloneqq t\ \text{is a value}\ \lor\ \exists t',\ t\to t'`. Preservation: induction on the evaluation derivation $`E` of $`t\to t'` with $`Q(E)\coloneqq\forall T,\ (\vdash t:T)\Rightarrow(\vdash t':T)`. Each preservation case inverts the typing of $`t` and builds a typing of $`t'`.
 * *From Session 23.* Session 23 followed evaluation that never ends, as for $`\Omega`. Here evaluation can also end without an answer. In the untyped terms of C.1 every value is an abstraction, so an application of a value to a value is always a redex. Session 24 starts the typed language with two kinds of value, Booleans and numeric values. A value of the wrong kind can block every rule, so a closed term can now be stuck. The typing rules exclude such terms before evaluation starts. The language has no variables until C.3.
-
-The closed term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` cannot step. Its guard $`0` is a value, but E-IfTrue and E-IfFalse need the guard $`\mathsf{true}` or $`\mathsf{false}`, and E-If needs a step of the guard. The term is not a value either, so evaluation stops without an answer. The term $`\mathsf{if}\ \mathsf{iszero}\ 0\ \mathsf{then}\ \mathsf{succ}\ 0\ \mathsf{else}\ 0` reaches the value $`\mathsf{succ}\ 0` in two steps. The first term has no type, and the second has type Nat. This session proves that a term with a type never reaches a term like the first.
 
 # Values, steps and stuck terms
 %%%
@@ -216,6 +217,8 @@ Every term on the path has type Nat, and every guard on it has type Bool.
 tag := "ch24-notes"
 number := false
 %%%
+
+Pierce, _Types and Programming Languages_ (TAPL). The terms, values and evaluation rules of C.2 are those of §§3.2 and 3.5, and the types and typing rules are those of §§8.1–8.2. TAPL writes the typing judgment of this language without a context. With the empty context the rules are the same. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Lemma 24.1.* Source: TAPL §8.2. Paper proof only ([§24.2](chapter-24/index.html#ch24-s2)).
 * *Lemma 24.2.* Source: TAPL §8.3. Paper proof only ([§24.2](chapter-24/index.html#ch24-s2)).

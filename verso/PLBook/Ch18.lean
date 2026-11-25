@@ -8,15 +8,16 @@ tag := "ch18"
 file := "chapter-18"
 %%%
 
+A compiler sees `z := x + 3` after a conditional whose two branches both set $`x` to 4, and replaces it by `z := 7`. The branches set $`y` to different values, so a read of $`y` there could not be replaced. Session 17 explains which facts are known after the conditional: every store that reaches the suffix is described by the abstract store $`\{x\mapsto4\}`. This session defines the rewrite and proves that it is safe. On every terminating execution, the rewritten program ends in the same final store as the original.
+
+*In this session.*
+
 * *Definitions.* Expressions, guards, commands, $`\mathrm{eval}(e,s)`, $`B(b,s)` and the six execution rules ([IMP language card A.1–A.5](imp-card/index.html#imp-a1); Session 2, Definition 2.1). Sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)) and the assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)). Abstract stores $`A`, the relation “$`A` describes $`s`”, written $`s\in\gamma(A)`, the abstract store $`\{\}` with no entries, the abstract transfer $`f^{\sharp}_{c}(A)`, the loop transfer $`f^{\sharp}_{W}(A)` with its entry and preservation inclusions ([Session 17, §§17.1–17.2](chapter-17/index.html#ch17-s1)), and the soundness theorem ([Session 17, Theorem 17.8](chapter-17/index.html#ch17-s3)).
-* *New terms.* Program transformation, constant propagation, constant folding, simplifying constructor, loop-head store. [Glossary and label key](glossary/index.html)
+* *New terms.* Program transformation, constant propagation, constant folding, simplifying constructor, loop-head store. [Glossary](glossary/index.html)
 * *Theorem 18.4 (Preservation of terminating executions).* For every command $`c`, abstract store $`A` and stores $`s,t`, if $`s\in\gamma(A)` and $`s\vdash c\Downarrow t`, then $`s\vdash\mathrm{cp}(A,c)\Downarrow t`.
-* *Source.* Xavier Leroy’s _Compiler Verification_ course, constant propagation (§§8.1–8.3 of its Lean port). The simplifying constructors, the transformation $`\mathrm{cp}`, Lemmas 18.1–18.3 and Theorem 18.4 are taken from there. The abstract stores and the transfer $`f^{\sharp}_{c}(A)` come from the same chapter, as presented in Session 17. Nipkow and Klein prove, for a simpler analysis that forgets every variable assigned in a loop body and a transformation that leaves guards unchanged, that the original and the transformed command have the same terminating executions from every store that the table describes. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.2, p. 163](https://concrete-semantics.org/concrete-semantics.pdf#page=173)
 * *Board case.* Conditional. Invert the execution to find the selected branch. Apply that branch’s induction hypothesis at the same abstract store. Lemma 18.2 shows that the transformed guard selects the transformed branch, and Lemma 18.3(a) rebuilds the execution. Five steps.
 * *Proof outline.* Structural induction on $`c` with $`P(c)\coloneqq\forall A,s,t,\ (s\in\gamma(A)\land s\vdash c\Downarrow t)\Rightarrow s\vdash\mathrm{cp}(A,c)\Downarrow t`. The abstract store is quantified inside $`P(c)`, because the sequence case applies the hypothesis for $`c_2` at $`f^{\sharp}_{c_1}(A)` and the loop case applies the hypothesis for the body at the loop-head store. Session 17, Theorem 17.8, shows that the abstract store used to rewrite the rest of the program describes the intermediate store of a sequence and the store after each iteration of a loop. The loop case adds an inner induction on the loop execution.
 * *From Session 17.* Session 17 proved that $`f^{\sharp}_{c}(A)` describes every final store of $`c` from a store described by $`A`. No program was changed. Here the same theorem justifies changing a program. It is applied to the original execution, at the store where the transformed program continues.
-
-A compiler sees `z := x + 3` after a conditional whose two branches both set $`x` to 4, and replaces it by `z := 7`. The branches set $`y` to different values, so a read of $`y` there could not be replaced. Session 17 explains which facts are known after the conditional: every store that reaches the suffix is described by the abstract store $`\{x\mapsto4\}`. This session defines the rewrite and proves that it is safe. On every terminating execution, the rewritten program ends in the same final store as the original.
 
 # Rewriting expressions with known constants
 %%%
@@ -236,6 +237,8 @@ number := false
 tag := "ch18-notes"
 number := false
 %%%
+
+Xavier Leroy’s _Compiler Verification_ course, constant propagation (§§8.1–8.3 of its Lean port). The simplifying constructors, the transformation $`\mathrm{cp}`, Lemmas 18.1–18.3 and Theorem 18.4 are taken from there. The abstract stores and the transfer $`f^{\sharp}_{c}(A)` come from the same chapter, as presented in Session 17. Nipkow and Klein prove, for a simpler analysis that forgets every variable assigned in a loop body and a transformation that leaves guards unchanged, that the original and the transformed command have the same terminating executions from every store that the table describes. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.2, p. 163](https://concrete-semantics.org/concrete-semantics.pdf#page=173)
 
 * *Lemma 18.1.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 18.2.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

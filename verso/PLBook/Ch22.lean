@@ -8,15 +8,16 @@ tag := "ch22"
 file := "chapter-22"
 %%%
 
+Take the abstraction $`\lambda y.x\,y`. The occurrence of $`y` refers to its parameter. The occurrence of $`x` is free: its meaning comes from outside the term. Replace $`x` by $`y` literally and the result is $`\lambda y.y\,y`. Now both occurrences refer to the parameter. The inserted $`y`, which named something outside, has been captured. Substitution that respects binding first renames the parameter and gives $`\lambda z.y\,z`. This session defines that substitution and proves the fact about it that later sessions use: which variables are free after a substitution.
+
+*In this session.*
+
 * *Definitions.* Untyped lambda terms, free variables $`\mathrm{FV}`, closed terms, alpha-equivalence and the substitution $`[x\mapsto s]t` ([Lambda language card C.1](lambda-card/index.html#lambda-c1)). Occurrences, binders and their scope ([Session 1, §1.3](chapter-01/index.html#ch01-s3)).
-* *New terms.* Alpha-equivalence, capture, fresh variable, capture-avoiding substitution, size of a term. [Glossary and label key](glossary/index.html)
+* *New terms.* Alpha-equivalence, capture, fresh variable, capture-avoiding substitution, size of a term. [Glossary](glossary/index.html)
 * *Theorem 22.3 (Free variables after substitution).* For all terms $`t,s` and every variable $`x`, if $`x\in\mathrm{FV}(t)` then $`\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)`.
-* *Source.* Terms, free variables and capture-avoiding substitution are those of Pierce, _Types and Programming Languages_ (TAPL), §5.3, as recorded in C.1. TAPL treats alpha-equivalent terms as interchangeable by convention. Lemmas 22.1 and 22.2, Theorem 22.3 and Corollary 22.4 are stated and proved here for these definitions. [Source sections](lambda-card/index.html#lambda-sources)
 * *Board case.* Abstraction with renaming: $`t=\lambda y.t_1` with $`y\in\mathrm{FV}(s)`. Rename $`y` to a fresh $`z`. Lemma 22.1 shows that the renamed body has the size of $`t_1` and the same free variables apart from $`y` and $`z`. Apply the induction hypothesis to the renamed body.
 * *Proof outline.* Fix $`x` and $`s`. Prove $`P(t)\coloneqq x\in\mathrm{FV}(t)\Rightarrow\mathrm{FV}([x\mapsto s]t)=(\mathrm{FV}(t)\setminus\{x\})\cup\mathrm{FV}(s)` by induction on the size of $`t`. Variable: $`t=x`. Application: the induction hypothesis for each part that contains $`x`, and Lemma 22.2 for a part that does not. Abstraction $`\lambda y.t_1`: here $`y\neq x`. If $`y\notin\mathrm{FV}(s)`, apply the hypothesis to $`t_1`. Otherwise apply it to the renamed body, which is not a subterm but has the same size as $`t_1`.
 * *From Session 21.* Part 1 ends there. Its tools carry over: inference rules and derivations ([A.3](imp-card/index.html#imp-a3)), structural recursion and structural induction (Session 1), and induction on a measure, such as the height of a derivation ([Session 3, §3.1](chapter-03/index.html#ch03-s1)). What is new is binding. IMP expressions have no binders, so substitution into them ([Session 11, Definition 11.1](chapter-11/index.html#ch11-s1)) never renames anything. An abstraction binds its parameter, and substitution must sometimes rename it. In Part 2 the letters $`s,t,u` denote terms, not stores.
-
-Take the abstraction $`\lambda y.x\,y`. The occurrence of $`y` refers to its parameter. The occurrence of $`x` is free: its meaning comes from outside the term. Replace $`x` by $`y` literally and the result is $`\lambda y.y\,y`. Now both occurrences refer to the parameter. The inserted $`y`, which named something outside, has been captured. Substitution that respects binding first renames the parameter and gives $`\lambda z.y\,z`. This session defines that substitution and proves the fact about it that later sessions use: which variables are free after a substitution.
 
 # Binders and alpha-equivalence
 %%%
@@ -203,6 +204,8 @@ number := false
 tag := "ch22-notes"
 number := false
 %%%
+
+Terms, free variables and capture-avoiding substitution are those of Pierce, _Types and Programming Languages_ (TAPL), §5.3, as recorded in C.1. TAPL treats alpha-equivalent terms as interchangeable by convention. [Source sections](lambda-card/index.html#lambda-sources)
 
 * *Lemma 22.1.* Formulated in this book. Paper proof only ([§22.1](chapter-22/index.html#ch22-s1)).
 * *Lemma 22.2.* Formulated in this book. Paper proof only ([§22.3](chapter-22/index.html#ch22-s3)).

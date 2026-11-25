@@ -8,15 +8,16 @@ tag := "ch23"
 file := "chapter-23"
 %%%
 
+A function may return without using its operand. The term $`(\lambda y.\lambda z.z)\,\Omega` of [C.1](lambda-card/index.html#lambda-c1) applies such a function to $`\Omega`, a term that steps to itself forever. Call by value evaluates the operand before it substitutes it, so it repeats the step of $`\Omega` and never returns. Call by name substitutes $`\Omega` unevaluated, and the function discards it in one step. This session states the difference as a theorem about one term and proves it from the rules. The proof needs one more fact: from each term, each strategy allows at most one step.
+
+*In this session.*
+
 * *Definitions.* [Lambda card C.1](lambda-card/index.html#lambda-c1): terms, free variables and capture-avoiding substitution $`[x\mapsto s]t` ([Session 22](chapter-22/index.html)); values, redexes, the call-by-value rules E-App1, E-App2 and E-AppAbs, computation and congruence rules, normal forms, $`\to^*`, the call-by-name rules N-App1 and N-AppAbs, and the term $`\Omega`. Finite and infinite paths as in [A.6](imp-card/index.html#imp-a6). Induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)) with the second result quantified inside the induction property ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)).
-* *New terms.* Evaluation strategy, call by value, call by name, determinacy of one-step evaluation, divergence. [Glossary and label key](glossary/index.html)
+* *New terms.* Evaluation strategy, call by value, call by name, determinacy of one-step evaluation, divergence. [Glossary](glossary/index.html)
 * *Theorem 23.4 (Call by name returns where call by value diverges).* Let $`\mathsf{id}=\lambda x.x` and $`u=(\lambda y.\lambda z.z)\,\Omega\,\mathsf{id}`. (a) Under call by name, $`u\to_{\mathrm n}(\lambda z.z)\,\mathsf{id}\to_{\mathrm n}\mathsf{id}`, and $`\mathsf{id}` is a value. (b) Under call by value, $`u\to u`, and for every natural number $`k` and term $`s`, if $`u\to^k s` then $`s=u`. Hence no normal form, and in particular no value, is reachable from $`u` under call by value: $`u` diverges.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §5.1 compares evaluation strategies, among them call by value and call by name, and describes call by name in prose. TAPL §5.3 gives the call-by-value rules of C.1. The term $`\Omega` and the word “diverge” are from TAPL §5.2. The statement and proof of Theorem 23.4 are this book’s, as is determinacy for these rules (Theorem 23.1, Proposition 23.2). Pierce proves determinacy of one-step evaluation for a language of Boolean terms. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Theorem 23.4, both parts. Evaluate $`u` step by step under call by name, naming each rule and computing each substitution. Derive the call-by-value step $`u\to u`. Then use Theorem 23.1 and induction on the length of a path to show that call by value never leaves $`u`.
 * *Proof outline.* Call by name: N-AppAbs inside N-App1 discards $`\Omega` without evaluating it, and a second N-AppAbs gives $`\mathsf{id}`. Call by value: E-AppAbs gives $`\Omega\to\Omega`, and E-App2 and E-App1 lift this step to $`u\to u`. By Theorem 23.1 it is the only step from $`u`. Induction on $`k` proves $`Q(k)\coloneqq\forall s,\ (u\to^k s)\Rightarrow s=u`.
 * *From Session 22.* Session 22 defined capture-avoiding substitution. Here each computation rule substitutes an operand for a parameter. The two strategies differ in when they do so. Call by value first evaluates the operand to a value. Call by name substitutes the operand as it stands.
-
-A function may return without using its operand. The term $`(\lambda y.\lambda z.z)\,\Omega` of [C.1](lambda-card/index.html#lambda-c1) applies such a function to $`\Omega`, a term that steps to itself forever. Call by value evaluates the operand before it substitutes it, so it repeats the step of $`\Omega` and never returns. Call by name substitutes $`\Omega` unevaluated, and the function discards it in one step. This session states the difference as a theorem about one term and proves it from the rules. The proof needs one more fact: from each term, each strategy allows at most one step.
 
 # Two strategies
 %%%
@@ -186,6 +187,8 @@ number := false
 tag := "ch23-notes"
 number := false
 %%%
+
+Pierce, _Types and Programming Languages_ (TAPL), §5.1 compares evaluation strategies, among them call by value and call by name, and describes call by name in prose. TAPL §5.3 gives the call-by-value rules of C.1. The term $`\Omega` and the word “diverge” are from TAPL §5.2. The statement and proof of Theorem 23.4 are this book’s, as is determinacy for these rules (Theorem 23.1, Proposition 23.2). Pierce proves determinacy of one-step evaluation for a language of Boolean terms. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Theorem 23.1.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only ([§23.2](chapter-23/index.html#ch23-s2)).
 * *Proposition 23.2.* Formulated in this book. Corresponds to TAPL §3.5. Paper proof only ([§23.2](chapter-23/index.html#ch23-s2)).

@@ -9,15 +9,16 @@ tag := "ch13"
 file := "chapter-13"
 %%%
 
+Start two loops in a store with $`x=3`. Their guard $`0<x` is the derived notation of [A.4](imp-card/index.html#imp-a4) for $`\neg(x\le0)`, so it is true at $`s` exactly when $`0<s(x)`. The loop $`W_{\mathrm{dec}}=\mathsf{while}\ 0<x\ \mathsf{do}\ x:=x-1` reaches its test with $`x` equal to 3, 2, 1 and 0, and stops. The loop $`W_{\mathrm{skip}}=\mathsf{while}\ 0<x\ \mathsf{do}\ \mathsf{skip}` reaches its test with $`x=3` again and again and never stops. Yet the proof system of Session 12 derives $`\{0\le x\}\,W\,\{x=0\}` for both loops $`W`. This session gives triples a meaning that requires termination, adds to the while rule a number that must decrease, and proves the new rules sound.
+
+*In this session.*
+
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notations $`e_1<e_2` and $`b_1\lor b_2` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Determinacy ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)). Assertions, triples and partial correctness $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` ([Session 11, Definition 11.5](chapter-11/index.html#ch11-s3)). Guard assertions $`\mathrm{T}_b,\mathrm{F}_b`, conjunction of assertions and the Hoare proof system $`\vdash_{\mathrm H}` ([Session 12, §§12.1–12.2](chapter-12/index.html#ch12-s1)). Nested induction ([Session 10, §10.3](chapter-10/index.html#ch10-s3)).
-* *New terms.* Total correctness, variant, total-correctness proof system, strong induction. [Glossary and label key](glossary/index.html)
+* *New terms.* Total correctness, variant, total-correctness proof system, strong induction. [Glossary](glossary/index.html)
 * *Theorem 13.3 (Soundness for total correctness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` then $`\models_{\mathrm{tot}}\{P\}\,c\,\{Q\}`.
-* *Source.* Validity for total correctness, the while rule with a variant, and the soundness lemma are in _Concrete Semantics_, §12.5. The defining while rule of Nipkow and Klein uses a relation between stores and natural numbers. They derive from it a rule with a function from stores to natural numbers, and that derived rule is the total while rule of this session. They prove soundness as Lemma 12.13 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §12.5, pp. 212–214](https://concrete-semantics.org/concrete-semantics.pdf#page=222)
 * *Board case.* The total while rule: termination by a variant. Prove $`L(j)` by strong induction on the value $`j` of the variant. In the true-guard case, the hypothesis for the body premise with the same $`j` produces the body’s final store $`m`, the induction hypothesis at $`m` produces the rest of the loop, and the loop iteration rule joins them. Five steps.
 * *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm{tot}}\{P\}\,c\,\{Q\}` with $`V_{\mathrm{tot}}(H)\coloneqq\forall s,\ P(s)\Rightarrow\exists t,\ \bigl(s\vdash c\Downarrow t\land Q(t)\bigr)`. Each case builds an execution with a rule of A.5 from the executions that the hypotheses supply. In the while case a nested strong induction on $`j` proves $`L(j)\coloneqq\forall s,\ \bigl(P(s)\land\mu(s)=j\bigr)\Rightarrow\exists t,\ \bigl(s\vdash W\Downarrow t\land P(t)\land B(b,t)=\mathsf{false}\bigr)`.
 * *From Session 12.* A triple valid in the sense of Session 11, Definition 11.4, promises nothing when no execution ends, and the soundness proof of Session 12 inverted a given execution. Here a valid triple promises an execution, and each case of the proof builds one. In the loop case there is no given execution to induct on, so the induction runs on the value of the variant.
-
-Start two loops in a store with $`x=3`. Their guard $`0<x` is the derived notation of [A.4](imp-card/index.html#imp-a4) for $`\neg(x\le0)`, so it is true at $`s` exactly when $`0<s(x)`. The loop $`W_{\mathrm{dec}}=\mathsf{while}\ 0<x\ \mathsf{do}\ x:=x-1` reaches its test with $`x` equal to 3, 2, 1 and 0, and stops. The loop $`W_{\mathrm{skip}}=\mathsf{while}\ 0<x\ \mathsf{do}\ \mathsf{skip}` reaches its test with $`x=3` again and again and never stops. Yet the proof system of Session 12 derives $`\{0\le x\}\,W\,\{x=0\}` for both loops $`W`. This session gives triples a meaning that requires termination, adds to the while rule a number that must decrease, and proves the new rules sound.
 
 # Total correctness
 %%%
@@ -208,5 +209,7 @@ number := false
 tag := "ch13-notes"
 number := false
 %%%
+
+Validity for total correctness, the while rule with a variant, and the soundness lemma are in _Concrete Semantics_, §12.5. The defining while rule of Nipkow and Klein uses a relation between stores and natural numbers. They derive from it a rule with a function from stores to natural numbers, and that derived rule is the total while rule of this session. They prove soundness as Lemma 12.13 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §12.5, pp. 212–214](https://concrete-semantics.org/concrete-semantics.pdf#page=222)
 
 * *Theorem 13.3.* Corresponds to CS Lemma 12.13. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

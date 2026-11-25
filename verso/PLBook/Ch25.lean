@@ -8,15 +8,16 @@ tag := "ch25"
 file := "chapter-25"
 %%%
 
+Let $`\Gamma` be the context $`n{:}\mathsf{Nat}`. Under the extra binding $`x{:}\mathsf{Nat}`, the term $`\lambda z{:}\mathsf{Bool}.\,\mathsf{if}\ z\ \mathsf{then}\ x\ \mathsf{else}\ 0` has type $`\mathsf{Bool}\to\mathsf{Nat}`. Under $`\Gamma` alone, $`\mathsf{succ}\ n` has type $`\mathsf{Nat}`. Replace $`x` by $`\mathsf{succ}\ n`. Does $`\lambda z{:}\mathsf{Bool}.\,\mathsf{if}\ z\ \mathsf{then}\ \mathsf{succ}\ n\ \mathsf{else}\ 0` have type $`\mathsf{Bool}\to\mathsf{Nat}` under $`\Gamma`? Its derivation must type $`\mathsf{succ}\ n` under $`n{:}\mathsf{Nat},z{:}\mathsf{Bool}`, a context with a binding that the given derivation of $`\mathsf{succ}\ n` never saw. This session proves that the answer is always yes.
+
+*In this session.*
+
 * *Definitions.* Free variables, alpha-equivalence and capture-avoiding substitution ([C.1](lambda-card/index.html#lambda-c1), extended to annotated abstractions and constants in [C.3](lambda-card/index.html#lambda-c3)). The typing rules of [C.2](lambda-card/index.html#lambda-c2). Typing contexts, $`\mathrm{dom}(\Gamma)`, the extension $`\Gamma,x{:}T` and the rules T-Var, T-Abs, T-App and T-Unit ([C.3](lambda-card/index.html#lambda-c3)). Derivations ([A.3](imp-card/index.html#imp-a3)), side conditions ([A.5](imp-card/index.html#imp-a5)), induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)), the height of a derivation ([Session 2, §2.4](chapter-02/index.html#ch02-s4)) and induction on height ([Session 3, §3.1](chapter-03/index.html#ch03-s1)).
-* *New terms.* Typing context, permutation of a context, weakening, substitution lemma. [Glossary and label key](glossary/index.html)
+* *New terms.* Typing context, permutation of a context, weakening, substitution lemma. [Glossary](glossary/index.html)
 * *Theorem 25.5 (Substitution lemma).* For all contexts $`\Gamma`, variables $`x`, terms $`s,t` and types $`S,T`: if $`\Gamma,x{:}S\vdash t:T` and $`\Gamma\vdash s:S`, then $`\Gamma\vdash[x\mapsto s]t:T`.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL), §9.3: permutation (Lemma 25.2), weakening (Lemma 25.4) and the preservation of types under substitution (Theorem 25.5) for the simply typed lambda calculus. The proofs here follow the same plan and cover every rule of C.2 and C.3. Lemmas 25.1 and 25.3 make the convention on bound variables of C.1 precise for derivations. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* The abstraction case of Theorem 25.5, in six numbered steps (§25.3). The context of the premise shows that the parameter $`y` is new. Lemma 25.1 lets substitution pass under the binder. Permutation moves $`x{:}S` to the end of the premise's context. Weakening adds $`y{:}T_1` to the derivation of $`s`. The induction hypothesis applies to the permuted premise, and T-Abs closes the case.
 * *Proof outline.* Fix $`x,S,s`. Induction on the height of a derivation $`D` of $`\Gamma,x{:}S\vdash t:T`, with $`P(D)\coloneqq(\Gamma\vdash s:S)\Rightarrow(\Gamma\vdash[x\mapsto s]t:T)`, where $`\Gamma,t,T` are read from the conclusion of $`D`. The variable case uses $`\Gamma\vdash s:S` or T-Var. The other cases without a binder rebuild the last rule from the induction hypotheses. In the abstraction case the premise's context ends with the parameter's binding, not with $`x{:}S`. Permutation reorders it without changing the height, so the induction hypothesis is applied to a derivation that is not a subderivation of $`D`. This is why the induction is on height.
 * *From Session 24.* Session 24 typed terms without variables, and its rules never inspected the context. Here T-Var reads the type of a variable from the context, and T-Abs extends the context. Session 26 uses Theorem 25.5 for the preservation case of E-AppAbs, which replaces a parameter by an argument ([C.8](lambda-card/index.html#lambda-c8), Row 2).
-
-Let $`\Gamma` be the context $`n{:}\mathsf{Nat}`. Under the extra binding $`x{:}\mathsf{Nat}`, the term $`\lambda z{:}\mathsf{Bool}.\,\mathsf{if}\ z\ \mathsf{then}\ x\ \mathsf{else}\ 0` has type $`\mathsf{Bool}\to\mathsf{Nat}`. Under $`\Gamma` alone, $`\mathsf{succ}\ n` has type $`\mathsf{Nat}`. Replace $`x` by $`\mathsf{succ}\ n`. Does $`\lambda z{:}\mathsf{Bool}.\,\mathsf{if}\ z\ \mathsf{then}\ \mathsf{succ}\ n\ \mathsf{else}\ 0` have type $`\mathsf{Bool}\to\mathsf{Nat}` under $`\Gamma`? Its derivation must type $`\mathsf{succ}\ n` under $`n{:}\mathsf{Nat},z{:}\mathsf{Bool}`, a context with a binding that the given derivation of $`\mathsf{succ}\ n` never saw. This session proves that the answer is always yes.
 
 # Contexts and derivations
 %%%
@@ -183,6 +184,8 @@ number := false
 tag := "ch25-notes"
 number := false
 %%%
+
+Pierce, _Types and Programming Languages_ (TAPL), §9.3: permutation (Lemma 25.2), weakening (Lemma 25.4) and the preservation of types under substitution (Theorem 25.5) for the simply typed lambda calculus. The proofs here follow the same plan and cover every rule of C.2 and C.3. Lemmas 25.1 and 25.3 make the convention on bound variables of C.1 precise for derivations. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Lemma 25.1.* Formulated in this book. Paper proof only ([§25.1](chapter-25/index.html#ch25-s1)).
 * *Lemma 25.2.* Corresponds to TAPL §9.3. Paper proof only ([§25.2](chapter-25/index.html#ch25-s2)).

@@ -8,15 +8,16 @@ tag := "ch17"
 file := "chapter-17"
 %%%
 
+Consider the command `if y ≤ 0 then (x := 7; z := 0) else (x := 7; z := 1)`, run from a store about which nothing is known. Which branch runs depends on the value of $`y`, so a compiler cannot decide it. Still, every terminating run ends with 7 at $`x`. A following `w := x + 1` could therefore be compiled as `w := 8`. If the second branch assigned 8 to $`x`, the claim “$`x` is 7” would be false on some runs. This session makes “known” precise, computes the known facts for every command, and proves that they hold in every final store. Session 18 uses these facts to rewrite programs.
+
+*In this session.*
+
 * *Definitions.* Stores, update and $`\mathrm{eval}` ([IMP language card A.2–A.3](imp-card/index.html#imp-a2)). Guards and their values $`B(b,s)` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5)). Induction on execution derivations by height ([Session 3, §3.1](chapter-03/index.html#ch03-s1)). The invariant argument for a loop execution ([Session 12, §12.3](chapter-12/index.html#ch12-s3)).
-* *New terms.* Abstract store, concretization, precision order, join, abstract transfer. [Glossary and label key](glossary/index.html)
+* *New terms.* Abstract store, concretization, precision order, join, abstract transfer. [Glossary](glossary/index.html)
 * *Theorem 17.8 (Soundness of the analysis).* For every command $`c`, stores $`s,t` and abstract store $`A`, if $`s\vdash c\Downarrow t` and $`s\in\gamma(A)`, then $`t\in\gamma(f^{\sharp}_{c}(A))`.
-* *Source.* Abstract stores, their order and join, abstract evaluation, the abstract transfer of commands with its bounded iteration for loops, and Theorem 17.8 are those of the constant propagation chapter of Xavier Leroy’s _Compiler Verification_ course. Nipkow and Klein prove the same statement for their table of constants. Their transfer always joins at a conditional and, at a loop, forgets every variable assigned in the body. [Source and proof references](imp-card/index.html#imp-sources) · [Leroy’s course, constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean) · [Concrete Semantics, §10.2, p. 162](https://concrete-semantics.org/concrete-semantics.pdf#page=172)
 * *Board case.* Conditional. Invert the execution to find the branch that ran, then split on the abstract value of the guard. When that value is $`\top`, pass from the branch result to the join with Lemma 17.3.
 * *Proof outline.* Structural induction on $`c` with $`P(c)\coloneqq\forall s,t,A,\ (s\vdash c\Downarrow t\land s\in\gamma(A))\Rightarrow t\in\gamma(f^{\sharp}_{c}(A))`. The abstract store is quantified inside $`P(c)` because the sequence case applies the hypothesis for $`c_2` at $`f^{\sharp}_{c_1}(A)`. In the loop case, fix $`X=f^{\sharp}_{W}(A)` and prove $`s\in\gamma(X)\Rightarrow t\in\gamma(X)` by a second induction on the loop execution, using Lemma 17.7.
 * *From Session 16.* Session 16 proved a property of every terminating execution by induction on its derivation, with the code position and the stack quantified inside the induction property. Here the outer induction is on the command, because the abstract transfer is defined by recursion on the command, and the abstract store is quantified inside. Induction on derivations returns inside the loop case, as in Session 12.
-
-Consider the command `if y ≤ 0 then (x := 7; z := 0) else (x := 7; z := 1)`, run from a store about which nothing is known. Which branch runs depends on the value of $`y`, so a compiler cannot decide it. Still, every terminating run ends with 7 at $`x`. A following `w := x + 1` could therefore be compiled as `w := 8`. If the second branch assigned 8 to $`x`, the claim “$`x` is 7” would be false on some runs. This session makes “known” precise, computes the known facts for every command, and proves that they hold in every final store. Session 18 uses these facts to rewrite programs.
 
 # Abstract stores
 %%%
@@ -206,6 +207,8 @@ number := false
 tag := "ch17-notes"
 number := false
 %%%
+
+Abstract stores, their order and join, abstract evaluation, the abstract transfer of commands with its bounded iteration for loops, and Theorem 17.8 are those of the constant propagation chapter of Xavier Leroy’s _Compiler Verification_ course. Nipkow and Klein prove the same statement for their table of constants. Their transfer always joins at a conditional and, at a loop, forgets every variable assigned in the body. [Source and proof references](imp-card/index.html#imp-sources) · [Leroy’s course, constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean) · [Concrete Semantics, §10.2, p. 162](https://concrete-semantics.org/concrete-semantics.pdf#page=172)
 
 * *Lemma 17.3.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 17.5.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

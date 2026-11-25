@@ -8,15 +8,16 @@ tag := "ch32"
 file := "chapter-32"
 %%%
 
+Let $`u=\mathsf{case}\ (\mathsf{inr}\ (\mathsf{ref}\ 0)\ \mathsf{as}\ \mathsf{Nat}+\mathsf{Ref}\ \mathsf{Nat})\ \mathsf{of}\ \mathsf{inl}\ y\Rightarrow\{y,\mathsf{ref}\ y\}\mid\mathsf{inr}\ x\Rightarrow\{{!}x,x\}`. It has type $`\mathsf{Nat}\times\mathsf{Ref}\ \mathsf{Nat}`. From the empty store it allocates a cell, selects the right branch, reads the cell and ends at a pair. Type safety says that no such run gets stuck. The rows of the safety table behind that claim were proved in Sessions 24, 26, 27, 29 and 30, each for its own language and each with premises hidden in its notation. Session 24 wrote $`\vdash t:T` for a language without variables. Sessions 26 and 27 used the same notation for the empty context. Throughout Part 2, $`\vdash t:T` abbreviates $`\varnothing\mid\varnothing\vdash t:T` (Lambda card, Judgments). From Session 30 the store typing may be nonempty, and progress also needs a well-typed store. This session writes every premise back, runs $`u` through progress and preservation for two steps, and states what type safety does not say.
+
+*In this session.*
+
 * *Definitions.* The typed language and the judgment $`\Gamma\mid\Sigma\vdash t:T` ([Lambda card, Judgments](lambda-card/index.html)). Closed terms and $`\to^*` ([C.1](lambda-card/index.html#lambda-c1)). Stuck terms ([C.2](lambda-card/index.html#lambda-c2)). Injections and case terms ([C.4](lambda-card/index.html#lambda-c4)). Stores, store typings, $`\Sigma\subseteq\Sigma'` and well-typed stores ([C.6](lambda-card/index.html#lambda-c6)). The general statements, safety and Rows 1–6 of the safety table ([C.8](lambda-card/index.html#lambda-c8)). Free variables of a typed term ([Session 25, Lemma 25.1](chapter-25/index.html#ch25-s1)). Inversion for products and sums and the substitution lemma ([Session 27, Lemmas 27.1 and 27.4](chapter-27/index.html#ch27-s1)). Store weakening and canonical forms for Ref ([Session 30, Lemmas 30.2 and 30.4](chapter-30/index.html#ch30-s2)).
-* *New terms.* None. [Glossary and label key](glossary/index.html)
+* *New terms.* None. [Glossary](glossary/index.html)
 * *Safety (C.8) with the invariant of Session 30, §30.4.* For every $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\varnothing\mid\Sigma\vdash t:T`, $`\varnothing\mid\Sigma\vdash\mu` and $`t\mid\mu\to^*t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\varnothing\mid\Sigma'\vdash t':T` and $`\varnothing\mid\Sigma'\vdash\mu'`, and $`t'` is a value or $`t'\mid\mu'\to t''\mid\mu''` for some $`t''` and $`\mu''`. There is no new theorem: §32.1 restates this statement and [Session 30, Theorems 30.5–30.6](chapter-30/index.html#ch30-s3) with every premise, and names the premises that [Session 24, Theorems 24.3–24.4](chapter-24/index.html#ch24-s3), [Session 26, Theorem 26.3](chapter-26/index.html#ch26-s2) and [Session 27, Theorem 27.3](chapter-27/index.html#ch27-s2) wrote into their notation.
-* *Source.* No new source. Each restated theorem keeps the source and proof status of its session: TAPL §8.3 for Session 24, §9.3 for Sessions 26 and 27, §13.5 for Session 30. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Row 3 of the safety table with every premise, applied to the first two steps of $`u` (§32.2). Six steps: progress and preservation for each step, then the premises used.
 * *Proof outline.* No induction. Each entry of the table is applied in three moves: check its premises, name the rule that steps or the lemma that retypes, and read off the next term, store and store typing.
 * *From Session 31.* Session 31 added Row 6 without proof. This last session of Part 2 collects the rows proved in Sessions 24, 26, 27, 29 and 30 in their final form, with the premises that each session left implicit.
-
-Let $`u=\mathsf{case}\ (\mathsf{inr}\ (\mathsf{ref}\ 0)\ \mathsf{as}\ \mathsf{Nat}+\mathsf{Ref}\ \mathsf{Nat})\ \mathsf{of}\ \mathsf{inl}\ y\Rightarrow\{y,\mathsf{ref}\ y\}\mid\mathsf{inr}\ x\Rightarrow\{{!}x,x\}`. It has type $`\mathsf{Nat}\times\mathsf{Ref}\ \mathsf{Nat}`. From the empty store it allocates a cell, selects the right branch, reads the cell and ends at a pair. Type safety says that no such run gets stuck. The rows of the safety table behind that claim were proved in Sessions 24, 26, 27, 29 and 30, each for its own language and each with premises hidden in its notation. Session 24 wrote $`\vdash t:T` for a language without variables. Sessions 26 and 27 used the same notation for the empty context. Throughout Part 2, $`\vdash t:T` abbreviates $`\varnothing\mid\varnothing\vdash t:T` (Lambda card, Judgments). From Session 30 the store typing may be nonempty, and progress also needs a well-typed store. This session writes every premise back, runs $`u` through progress and preservation for two steps, and states what type safety does not say.
 
 # The safety table with its premises
 %%%
@@ -124,6 +125,8 @@ number := false
 tag := "ch32-notes"
 number := false
 %%%
+
+No new source. Each restated theorem keeps the source and proof status of its session: TAPL §8.3 for Session 24, §9.3 for Sessions 26 and 27, §13.5 for Session 30. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Theorem 30.5.* Restated from Session 30; see [its notes](chapter-30/index.html#ch30-notes).
 * *Theorem 30.6.* Restated from Session 30; see [its notes](chapter-30/index.html#ch30-notes).

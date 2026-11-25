@@ -8,15 +8,16 @@ tag := "ch35"
 file := "chapter-35"
 %%%
 
+A recursive function can be run, and it can be given a meaning. Take the function $`K` of §35.1, which counts its argument down to zero and returns zero. Evaluating $`K\ \overline{1}` unfolds the recursive definition twice. To compute the meaning of $`K` at 1, we start from the function that knows no results and apply the recursive definition repeatedly; the approximation at stage 2 is the first that answers at 1. This session defines both computations for PCF and proves that they never disagree: a term that evaluates to a value has the same meaning as that value.
+
+*In this session.*
+
 * *Definitions.* Types, terms, values, typing rules and the substitution $`[x\mapsto s]t` of the [Lambda language card C.2–C.3](lambda-card/index.html#lambda-c2), without Unit. Call by name ([C.1](lambda-card/index.html#lambda-c1)) and canonical forms ([C.8](lambda-card/index.html#lambda-c8), Row 1). The substitution and permutation lemmas for typing ([Session 25](chapter-25/index.html)). Inversion for functions ([Session 26, Lemma 26.1](chapter-26/index.html#ch26-s1)). Derivations and their height ([Session 1, §1.4](chapter-01/index.html#ch01-s4); [Session 2, §2.4](chapter-02/index.html#ch02-s4)). Bottom $`\bot`, the order $`\sqsubseteq` and least upper bounds $`\bigsqcup` ([Session 8](chapter-08/index.html)). Domains, continuous functions, flat domains, function domains ordered pointwise, and the least fixed point $`\mathrm{lfp}(f)=\bigsqcup_{j}f^j(\bot)` of a continuous function $`f`, which satisfies $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)` ([Session 34](chapter-34/index.html)). PCF itself is defined in Definitions 35.1–35.5.
-* *New terms.* PCF, numeral, recursion operator, soundness of evaluation. [Glossary and label key](glossary/index.html)
+* *New terms.* PCF, numeral, recursion operator, soundness of evaluation. [Glossary](glossary/index.html)
 * *Theorem 35.8 (Soundness of evaluation).* For every closed term $`t`, type $`T` and value $`v`, if $`\vdash t:T` and $`t\Downarrow v`, then $`\llbracket t\rrbracket=\llbracket v\rrbracket`.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024), §§5.1–5.2 and chapter 6. They define PCF, its evaluation relation and its denotational semantics, and prove that evaluation is sound (their Theorem 28), which is Theorem 35.8. Lemma 35.7 specializes their Proposition 27 to a closed substituting term. We use their rules and semantic clauses and write terms in the notation of the Lambda language card. The countdown example and Proposition 35.6 are this book’s. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* B-Fix. First derive $`K\ \overline{1}\Downarrow 0` for the countdown $`K` (§35.2) and compute its approximations $`g_0,g_1,g_2` at the inputs 0 and 1 (§35.3). Then prove the B-Fix case and read it at line 4 of the derivation, where B-Fix is used.
 * *Proof outline.* Induct on the derivation $`D` of $`t\Downarrow v` with $`P(D)\coloneqq\llbracket t\rrbracket=\llbracket v\rrbracket`. In each case compute $`\llbracket t\rrbracket` by the clause of Definition 35.5 for the conclusion, and apply the induction hypotheses to the premises. B-App uses Lemma 35.7 (substitution). B-Fix uses the fixed-point equation $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)`.
 * *From Session 34.* Session 34 obtained the least fixed point of a continuous function as the least upper bound of its approximations. Here the term $`\mathsf{fix}\ t` means the least fixed point of the meaning of $`t`, and an evaluation unfolds $`\mathsf{fix}\ t` once at each use of B-Fix.
-
-A recursive function can be run, and it can be given a meaning. Take the function $`K` of §35.1, which counts its argument down to zero and returns zero. Evaluating $`K\ \overline{1}` unfolds the recursive definition twice. To compute the meaning of $`K` at 1, we start from the function that knows no results and apply the recursive definition repeatedly; the approximation at stage 2 is the first that answers at 1. This session defines both computations for PCF and proves that they never disagree: a term that evaluates to a value has the same meaning as that value.
 
 # PCF
 %%%
@@ -243,6 +244,8 @@ number := false
 tag := "ch35-notes"
 number := false
 %%%
+
+Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024), §§5.1–5.2 and chapter 6. They define PCF, its evaluation relation and its denotational semantics, and prove that evaluation is sound (their Theorem 28), which is Theorem 35.8. Lemma 35.7 specializes their Proposition 27 to a closed substituting term. We use their rules and semantic clauses and write terms in the notation of the Lambda language card. The countdown example and Proposition 35.6 are this book’s. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 * *Proposition 35.6.* Formulated in this book. Paper proof only ([§35.3](chapter-35/index.html#ch35-s3)).
 * *Lemma 35.7.* Source: Cambridge notes §6.3, Proposition 27, specialized to a closed substituting term. Paper proof only ([§35.4](chapter-35/index.html#ch35-s4)).

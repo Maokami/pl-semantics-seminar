@@ -8,15 +8,16 @@ tag := "ch19"
 file := "chapter-19"
 %%%
 
+Consider the loop $`W=\mathsf{while}\ 0<g\ \mathsf{do}\ (z:=y;\ y:=x;\ g:=g-1)` with distinct names $`g,x,y,z`, and suppose that only $`z` is read after it. Which initial values can change the final $`z`? Start with $`g=2`, $`y=8` and $`x=5`. The first iteration sets $`z` to 8, $`y` to 5 and $`g` to 1. The second sets $`z` to 5 and $`g` to 0, and the loop exits with $`z=5`. Change only the initial $`x` to 6, and the loop exits with $`z=6`. No assignment copies $`x` into $`z`, yet the initial $`x` matters: it reaches $`z` through $`y`, one iteration later. An analysis that reads the program backwards from $`z` must go around the loop twice to find $`x`.
+
+*In this session.*
+
 * *Definitions.* Expressions, guards, commands and big-step execution ([IMP language card A.1–A.5](imp-card/index.html)). Free variables $`\mathrm{FV}(e)`, the restriction $`s|_S` and Lemma 1.1 ([Session 1, §1.3](chapter-01/index.html#ch01-s3)). The unfolding $`U` of a loop ([Session 7, Theorem 7.3](chapter-07/index.html#ch07-s2)). Fixed points ([Session 9, §9.3](chapter-09/index.html#ch09-s3)).
-* *New terms.* Live variable, liveness transfer, loop head, post-fixed point, bounded iteration with its fuel and fallback set. [Glossary and label key](glossary/index.html)
+* *New terms.* Live variable, liveness transfer, loop head, post-fixed point, bounded iteration with its fuel and fallback set. [Glossary](glossary/index.html)
 * *Theorem 19.6 (Loop-head inclusions).* For every guard $`b`, command $`c` and set of names $`L`, let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and $`H=\mathrm{live}(W,L)`. Then (1) $`\mathrm{FV}(b)\subseteq H`, (2) $`L\subseteq H` and (3) $`\mathrm{live}(c,H)\subseteq H`.
-* *Source.* Xavier Leroy’s _Compiler Verification_ course, liveness analysis (§10.1 of the Lean port). Definitions 19.1–19.3 are its definitions, and Lemmas 19.4–19.5 and Theorem 19.6 are its results. The course’s Lean development takes one property of its finite sets as an axiom: a name is in a union exactly when it is in one of the two sets. Nipkow and Klein define the loop clause as a least fixed point and note that it satisfies the same three inclusions, their constraints (10.1). [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.4, p. 172](https://concrete-semantics.org/concrete-semantics.pdf#page=182)
 * *Board case.* Inclusion (3), $`\mathrm{live}(c,H)\subseteq H`. Lemma 19.4(a) gives two alternatives: the iteration stopped at a post-fixed point of $`F`, or it returned the fallback set $`D`. Prove the inclusion in each.
 * *Proof outline.* Lemma 19.4(a), by induction on the fuel, says that the bounded iteration returns a post-fixed point of $`F` or the fallback set $`D`. At a post-fixed point, $`F(H)\subseteq H` contains all three inclusions, because $`F(H)` is the union of their left-hand sides. At the fallback, $`H=\mathrm{FV}(b)\cup\mathrm{RV}(c)\cup L` contains the first two left-hand sides by definition, and Lemma 19.5, $`\mathrm{live}(c,X)\subseteq\mathrm{RV}(c)\cup X` for every set $`X`, gives the third. Lemma 19.5 is proved by structural induction on the command, with the observed set quantified inside the induction property. Its loop case uses Lemma 19.4(b).
 * *From Session 18.* Sessions 17 and 18 analysed a command forwards: an abstract store before the command gave an abstract store after it. Liveness runs backwards: the names observed after a command give the names needed before it. A loop again needs a set that one more turn of the loop does not enlarge, and a bounded iteration again searches for it. When the fuel runs out, the fallback is now a finite set read off the loop’s syntax.
-
-Consider the loop $`W=\mathsf{while}\ 0<g\ \mathsf{do}\ (z:=y;\ y:=x;\ g:=g-1)` with distinct names $`g,x,y,z`, and suppose that only $`z` is read after it. Which initial values can change the final $`z`? Start with $`g=2`, $`y=8` and $`x=5`. The first iteration sets $`z` to 8, $`y` to 5 and $`g` to 1. The second sets $`z` to 5 and $`g` to 0, and the loop exits with $`z=5`. Change only the initial $`x` to 6, and the loop exits with $`z=6`. No assignment copies $`x` into $`z`, yet the initial $`x` matters: it reaches $`z` through $`y`, one iteration later. An analysis that reads the program backwards from $`z` must go around the loop twice to find $`x`.
 
 # Names needed before a command
 %%%
@@ -218,6 +219,8 @@ so $`F(X_2)=\{g,z\}\cup\{g,x\}=X_2` and the loop-head set is $`\{g,x,z\}`. The o
 tag := "ch19-notes"
 number := false
 %%%
+
+Xavier Leroy’s _Compiler Verification_ course, liveness analysis (§10.1 of the Lean port). Definitions 19.1–19.3 are its definitions, and Lemmas 19.4–19.5 and Theorem 19.6 are its results. The course’s Lean development takes one property of its finite sets as an axiom: a name is in a union exactly when it is in one of the two sets. Nipkow and Klein define the loop clause as a least fixed point and note that it satisfies the same three inclusions, their constraints (10.1). [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §10.4, p. 172](https://concrete-semantics.org/concrete-semantics.pdf#page=182)
 
 * *Lemma 19.4.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 19.5.* Externally checked: the statement matches a declaration of Leroy’s course ([IMP card references](imp-card/index.html#imp-sources)).

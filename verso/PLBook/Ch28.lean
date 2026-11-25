@@ -8,15 +8,16 @@ tag := "ch28"
 file := "chapter-28"
 %%%
 
+The annotation in $`\lambda x{:}\mathsf{Nat}.\mathsf{succ}\ x` tells a checker the type of $`x` before it looks at the body. Erase it. In $`(\lambda x.\mathsf{succ}\ x)\,0` the type of $`x` is still forced, because $`\mathsf{succ}` requires a number. In $`\lambda f.\lambda x.f\,(f\,x)` nothing requires Bool or Nat. The two uses of $`f` force only that the result type of $`f` be its parameter type. This session writes such requirements as equations between types and solves them by unification. The main theorem says that unification fails only when the equations have no unifier, and otherwise returns a unifier from which every other unifier is obtained.
+
+*In this session.*
+
 * *Definitions.* Typing rules and typing contexts of [C.2](lambda-card/index.html#lambda-c2) and [C.3](lambda-card/index.html#lambda-c3). From [C.5](lambda-card/index.html#lambda-c5): unannotated terms, types with type variables, the unannotated rule T-Abs, type substitutions, their composition and the order $`\sqsubseteq`, constraint sets, unifiers and principal unifiers, constraint typing, solutions and principal types, the function $`\mathrm{unify}` and the occurs check. Structural induction and induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)).
-* *New terms.* Type substitution, constraint set, principal unifier, occurs check, principal type. [Glossary and label key](glossary/index.html)
+* *New terms.* Type substitution, constraint set, principal unifier, occurs check, principal type. [Glossary](glossary/index.html)
 * *Theorem 28.3 (Unification).* For every constraint set $`C`: (a) the computation of $`\mathrm{unify}(C)` terminates; (b) if it returns $`\sigma`, then $`\sigma` unifies $`C`; (c) if $`\sigma'` unifies $`C`, then it returns some $`\sigma` with $`\sigma\sqsubseteq\sigma'`. Hence $`\mathrm{unify}(C)` fails exactly when $`C` has no unifier, and otherwise returns a principal unifier of $`C`.
-* *Source.* Pierce, _Types and Programming Languages_ (TAPL): constraint typing in §22.3, unification and its correctness in §22.4, principal types in §22.5, and CT-AbsInf for unannotated abstractions in §22.6. TAPL proves Theorem 28.3 for the same algorithm on the same types, built from type variables, Bool, Nat and $`\to`. TAPL proves the counterparts of Proposition 28.5 and Corollary 28.6 for annotated abstractions. Proposition 28.2 and Lemma 28.4 are this book’s. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Two parts. First, generate the constraints of $`u=\lambda f.\lambda x.f\,(f\,x)` and run $`\mathrm{unify}` on them (§28.2, steps 1–8). Second, the variable case of Theorem 28.3(c) (§28.3, steps 1–7): from $`\sigma'X=\sigma'T`, show that $`\sigma'` unifies $`[X\mapsto T]C'`, apply the induction hypothesis, and compare $`\gamma\circ\sigma_1\circ[X\mapsto T]` with $`\sigma'` on each type variable.
 * *Proof outline.* (a) Each recursive call lowers the number of type variables, or keeps it and lowers the total size of the types. (b) and (c) by induction on the number of calls $`k(C)`. For (c) the induction property is $`Q(C)\coloneqq\forall\sigma',\ (\sigma'\text{ unifies }C)\Rightarrow\mathrm{unify}(C)\text{ returns some }\sigma\text{ with }\sigma\sqsubseteq\sigma'`. The variable case uses Lemma 28.4. Failure cannot occur, because a substitution keeps outermost constructors and cannot make a type identical to a larger type containing it.
 * *From Session 27.* Sessions 24–27 typed terms whose abstractions carry their parameter type, and proved that evaluation preserves types. This session asks how a type is found. With annotations, a function computes it (§28.1). Without them, types contain type variables, which stand for types not yet determined. Unit and sums are left out, and products appear only in Exercise 28.4.
-
-The annotation in $`\lambda x{:}\mathsf{Nat}.\mathsf{succ}\ x` tells a checker the type of $`x` before it looks at the body. Erase it. In $`(\lambda x.\mathsf{succ}\ x)\,0` the type of $`x` is still forced, because $`\mathsf{succ}` requires a number. In $`\lambda f.\lambda x.f\,(f\,x)` nothing requires Bool or Nat. The two uses of $`f` force only that the result type of $`f` be its parameter type. This session writes such requirements as equations between types and solves them by unification. The main theorem says that unification fails only when the equations have no unifier, and otherwise returns a unifier from which every other unifier is obtained.
 
 # Checking annotated terms
 %%%
@@ -237,6 +238,8 @@ number := false
 tag := "ch28-notes"
 number := false
 %%%
+
+Pierce, _Types and Programming Languages_ (TAPL): constraint typing in §22.3, unification and its correctness in §22.4, principal types in §22.5, and CT-AbsInf for unannotated abstractions in §22.6. TAPL proves Theorem 28.3 for the same algorithm on the same types, built from type variables, Bool, Nat and $`\to`. TAPL proves the counterparts of Proposition 28.5 and Corollary 28.6 for annotated abstractions. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Proposition 28.2.* Formulated in this book. Paper proof only ([§28.1](chapter-28/index.html#ch28-s1)).
 * *Theorem 28.3.* Source: TAPL §22.4. Paper proof only ([§28.3](chapter-28/index.html#ch28-s3)).

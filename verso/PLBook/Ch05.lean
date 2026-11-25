@@ -9,15 +9,16 @@ tag := "ch05"
 file := "chapter-05"
 %%%
 
+A debugger can stop between the two assignments of a sequence. At the stopping point there is a current store and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final store. Rules of this kind form a small-step semantics, in contrast with the big-step semantics of Session 2, Definition 2.1, whose judgment relates a command directly to its final store.
+
+*In this session.*
+
 * *Definitions.* Commands, guard values, store update and terminating execution (Sessions 1–2, Definitions 1.2–1.3 and 2.1). [IMP language card A.6](imp-card/index.html#imp-a6)
-* *New terms.* Configuration, transition, finite path, progress, infinite path. [Glossary and label key](glossary/index.html)
+* *New terms.* Configuration, transition, finite path, progress, infinite path. [Glossary](glossary/index.html)
 * *Lemma 5.3 (Progress of commands) and Example 5.5 (An infinite path indexed by the natural numbers).* For every command $`c` and store $`s`, either $`c=\mathsf{skip}` or there are $`d,t` with $`\langle c,s\rangle\to\langle d,t\rangle`. For every store $`s`, an infinite path starts at $`\langle\mathsf{while\ true\ do\ skip},s\rangle`.
-* *Source.* The six transition rules and progress statement are from Leroy’s IMP. In _Concrete Semantics_ a configuration has no successor exactly when its command is skip. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Progress for $`c_1;c_2`. Inspect the left command $`c_1`. Exhibit a successor both when $`c_1` is skip and when it takes a step.
 * *Proof outline.* Induct on the command, quantifying over its input store. To exhibit an infinite path from `while true do skip`, give a configuration at every natural index and check both kinds of adjacent edge.
 * *From Session 4.* Sessions 2–4 described a computation by a finite tree, or computed its result by recursion on a finite tree. Here a computation is a sequence of configurations, and the sequence need not end. For `while true do skip`, the least-height argument of Session 2, §2.4 excluded a terminating derivation. Here two explicit transitions supply a witness for its infinite path.
-
-A debugger can stop between the two assignments of a sequence. At the stopping point there is a current store and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final store. Rules of this kind form a small-step semantics, in contrast with the big-step semantics of Session 2, Definition 2.1, whose judgment relates a command directly to its final store.
 
 # The step relation
 %%%
@@ -156,6 +157,8 @@ An infinite path requires a successor even at its first index. Hence an irreduci
 tag := "ch05-notes"
 number := false
 %%%
+
+The six transition rules and progress statement are from Leroy’s IMP. In _Concrete Semantics_ a configuration has no successor exactly when its command is skip. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Lemma 5.3.* Source: Leroy’s IMP, progress for commands. Corresponds to CS Lemma 7.17. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 5.4.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

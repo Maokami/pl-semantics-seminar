@@ -9,15 +9,16 @@ tag := "ch02"
 file := "chapter-02"
 %%%
 
+A command can change the values available to a later expression. If $`x` initially holds 8, executing `x := 1; y := x + 3` leaves $`y` equal to 4. The second assignment reads an intermediate store. This chapter makes that store explicit in a derivation.
+
+*In this session.*
+
 * *Definitions.* Stores, update and expression evaluation (Session 1, Definitions 1.2–1.3). Guard evaluation and command execution use [IMP language card A.4–A.5](imp-card/index.html#imp-a4).
-* *New terms.* Guard, execution judgment, sequencing, derived rule, height of a derivation. [Glossary and label key](glossary/index.html)
+* *New terms.* Guard, execution judgment, sequencing, derived rule, height of a derivation. [Glossary](glossary/index.html)
 * *Proposition 2.2 (Sequence inversion).* For any commands $`c,d` and stores $`s,t`, $`s\vdash(c;d)\Downarrow t` if and only if some store $`m` satisfies both $`s\vdash c\Downarrow m` and $`m\vdash d\Downarrow t`.
-* *Source.* The guards, commands and six execution rules follow Leroy’s IMP. Nipkow and Klein derive the sequence equivalence for their execution relation. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Derive `x := 1; y := x + 3`, name the intermediate store, and recover it from the completed tree.
 * *Proof outline.* Invert the last rule of a sequence derivation to obtain a witness and two premises. Conversely, join the given premise trees with the sequence rule.
 * *From Session 1.* Both operands of a sum are evaluated in the same store. The second command in a sequence starts in the store produced by the first.
-
-A command can change the values available to a later expression. If $`x` initially holds 8, executing `x := 1; y := x + 3` leaves $`y` equal to 4. The second assignment reads an intermediate store. This chapter makes that store explicit in a derivation.
 
 # Syntax, guards, and stores
 %%%
@@ -198,6 +199,8 @@ For the source presentation of the single conditional rule, see the [IMP languag
 tag := "ch02-notes"
 number := false
 %%%
+
+The guards, commands and six execution rules follow Leroy’s IMP. Nipkow and Klein derive the sequence equivalence for their execution relation. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, pp. 81–82](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Conditional, true and false cases.* Formulated in this book. Corresponds to CS IfTrue, IfFalse. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Proposition 2.2.* Formulated in this book. Corresponds to CS §7.2.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

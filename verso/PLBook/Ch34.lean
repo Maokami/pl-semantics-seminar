@@ -8,15 +8,16 @@ tag := "ch34"
 file := "chapter-34"
 %%%
 
+Consider the recursive definition $`z(0)=0` and $`z(k+1)=z(k)` for natural numbers $`k`. Read as a program, $`z` counts its argument down to zero and returns zero. A machine that may unfold the definition at most $`n` times answers at the inputs $`0,\ldots,n-1` and has no answer yet at the others. Each such partial answer is a function on all inputs, with $`\bot` where the answer is missing. This session asks three questions. How are such functions compared? Is the least upper bound of the approximations again a function of the same kind? Which properties of the approximations hold at the least upper bound? Session 35 uses the answers to give the recursive programs of PCF a meaning.
+
+*In this session.*
+
 * *Definitions.* The information order, strictness, increasing sequences and least upper bounds ([Session 8, Definitions 8.3, 8.7 and 8.9, Lemma 8.10, Proposition 8.11](chapter-08/index.html#ch08-s4)). The unfolding operator of a loop, its approximations, fixed points, least fixed points and continuous operators on state transformers ([Session 9, Definitions 9.1 and 9.4, Theorem 9.5](chapter-09/index.html#ch09-s3)). This session adds Definitions 34.1, 34.2 and 34.7.
-* *New terms.* Domain, continuous function, function domain, admissible property, Scott induction. [Glossary and label key](glossary/index.html)
+* *New terms.* Domain, continuous function, function domain, admissible property, Scott induction. [Glossary](glossary/index.html)
 * *Theorem 34.8 (Scott induction, also called fixed-point induction).* Let $`D` be a domain, $`f:D\to D` a continuous function and $`P` an admissible property of elements of $`D`: $`P(\bot)` holds and $`P` is chain-closed. If $`P(d)\Rightarrow P(f(d))` for every $`d\in D`, then $`P(\mathrm{lfp}(f))`, where $`\mathrm{lfp}(f)=\bigsqcup_n f^n(\bot)` is the least fixed point of $`f`.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024): function domains in §3.3 (Definition 15); chain-closed and admissible subsets, Scott induction, its examples and the rules for building chain-closed subsets in §§4.1–4.3. Definition 34.7 uses their Theorem 17(i)–(ii) and Remark 4. A property $`P` here corresponds to the subset of elements at which $`P` holds. The notes also prove the least fixed-point theorem for continuous functions (their Theorem 6), Proposition 34.4 here. Session 9 proved the least fixed-point theorem for loop operators. Theorem 34.8 is their Theorem 17. Nipkow and Klein prove the least fixed-point theorem for continuous functions on sets ordered by inclusion. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 * *Board case.* Theorem 34.8 in six numbered steps. Then its use in Proposition 34.9 for the countdown definition: check the property at the least element, check chain-closure at one fixed input, and check preservation in the three clauses of the definition.
 * *Proof outline.* Prove $`Q(n)\coloneqq P(f^n(\bot))` by induction on $`n`. The base uses $`P(\bot)` and the step uses preservation. The elements $`f^n(\bot)` form an increasing sequence, so chain-closure gives $`P` at its least upper bound. Proposition 34.4 identifies that least upper bound as the least fixed point.
 * *From Session 33.* Session 33 proved a property of every well-typed term by checking that each typing rule preserves it. Here the object is a recursive definition, and a property is checked at the least element, through one unfolding, and through least upper bounds. Domains and least fixed points generalize the state transformers and loop meanings of Sessions 8 and 9.
-
-Consider the recursive definition $`z(0)=0` and $`z(k+1)=z(k)` for natural numbers $`k`. Read as a program, $`z` counts its argument down to zero and returns zero. A machine that may unfold the definition at most $`n` times answers at the inputs $`0,\ldots,n-1` and has no answer yet at the others. Each such partial answer is a function on all inputs, with $`\bot` where the answer is missing. This session asks three questions. How are such functions compared? Is the least upper bound of the approximations again a function of the same kind? Which properties of the approximations hold at the least upper bound? Session 35 uses the answers to give the recursive programs of PCF a meaning.
 
 # Domains and continuous functions
 %%%
@@ -198,6 +199,8 @@ number := false
 tag := "ch34-notes"
 number := false
 %%%
+
+Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024): function domains in §3.3 (Definition 15); chain-closed and admissible subsets, Scott induction, its examples and the rules for building chain-closed subsets in §§4.1–4.3. Definition 34.7 uses their Theorem 17(i)–(ii) and Remark 4. A property $`P` here corresponds to the subset of elements at which $`P` holds. The notes also prove the least fixed-point theorem for continuous functions (their Theorem 6), Proposition 34.4 here. Session 9 proved the least fixed-point theorem for loop operators. Theorem 34.8 is their Theorem 17. Nipkow and Klein prove the least fixed-point theorem for continuous functions on sets ordered by inclusion. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 
 * *Lemma 34.3.* Formulated in this book. Paper proof only ([§34.1](chapter-34/index.html#ch34-s1)).
 * *Proposition 34.4.* Source: Cambridge notes, Theorem 6. Corresponds to CS Theorem 11.12. Paper proof only ([§34.1](chapter-34/index.html#ch34-s1)).

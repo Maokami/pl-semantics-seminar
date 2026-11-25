@@ -9,15 +9,16 @@ tag := "ch11"
 file := "chapter-11"
 %%%
 
+A command increases $`x` by 3, and afterwards $`x` must equal 8. Which initial stores are acceptable? Exactly those with $`x=5`. The answer comes from replacing $`x` by $`x+3` in the requirement: $`x+3=8`. This session proves that such replacement is correct for every assignment and every requirement written with expressions.
+
+*In this session.*
+
 * *Definitions.* Stores and update, expression evaluation, guard values and execution ([IMP language card A.2–A.5](imp-card/index.html#imp-a2)). Structural induction ([A.1](imp-card/index.html#imp-a1)). The assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)).
-* *New terms.* Substitution, assertion, Hoare triple, partial correctness, substituted assertion. [Glossary and label key](glossary/index.html)
+* *New terms.* Substitution, assertion, Hoare triple, partial correctness, substituted assertion. [Glossary](glossary/index.html)
 * *Theorem 11.7 (Validity of assignment triples).* For every assertion $`Q`, name $`x` and expression $`e`, $`\models\{Q[e/x]\}\,x:=e\,\{Q\}`. If $`Q` is written $`\varphi(a_1,\ldots,a_j)` with expressions $`a_1,\ldots,a_j`, then $`\models\{\varphi(a_1[e/x],\ldots,a_j[e/x])\}\,x:=e\,\{\varphi(a_1,\ldots,a_j)\}`.
-* *Source.* Triples and validity follow Nipkow and Klein, _Concrete Semantics_, §12.2.2 (assertions as predicates on stores), applied to the execution relation of A.5. The triple of Theorem 11.7 is the conclusion of their rule Assign (Fig. 12.3). Theorem 11.7 is the assignment case of their soundness proof (p. 204). Nipkow and Klein state Lemma 11.6 for Boolean expressions. Their Exercise 3.3 poses Lemma 11.3 for their arithmetic expressions. [Concrete Semantics, §§12.2–12.3, pp. 192–205](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Theorem 11.7 for a postcondition written with expressions (the four steps at the end of §11.3). Invert the execution, then apply the substitution lemma to each expression. Prepare the variable case of Lemma 11.3.
 * *Proof outline.* Lemma 11.3 is proved by structural induction on $`a` with $`e,x,s` fixed, for $`L(a)\coloneqq\mathrm{eval}(a[e/x],s)=\mathrm{eval}(a,s[x\mapsto\mathrm{eval}(e,s)])`. Theorem 11.7 needs no induction. Inversion gives the final store $`t=s[x\mapsto\mathrm{eval}(e,s)]`. The precondition at $`s` is then the postcondition at $`t`.
 * *From Session 10.* Session 10 related terminating executions to the meaning of a command. Hoare logic asks a different question about the same execution relation. It does not compute the final store. It states a property that every final store has.
-
-A command increases $`x` by 3, and afterwards $`x` must equal 8. Which initial stores are acceptable? Exactly those with $`x=5`. The answer comes from replacing $`x` by $`x+3` in the requirement: $`x+3=8`. This session proves that such replacement is correct for every assignment and every requirement written with expressions.
 
 # Substitution
 %%%
@@ -231,6 +232,8 @@ number := false
 tag := "ch11-notes"
 number := false
 %%%
+
+Triples and validity follow Nipkow and Klein, _Concrete Semantics_, §12.2.2 (assertions as predicates on stores), applied to the execution relation of A.5. The triple of Theorem 11.7 is the conclusion of their rule Assign (Fig. 12.3). Theorem 11.7 is the assignment case of their soundness proof (p. 204). Nipkow and Klein state Lemma 11.6 for Boolean expressions. Their Exercise 3.3 poses Lemma 11.3 for their arithmetic expressions. [Concrete Semantics, §§12.2–12.3, pp. 192–205](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Lemma 11.3.* Formulated in this book. Corresponds to CS Exercise 3.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 11.6.* Formulated in this book. Corresponds to CS Lemma 12.1. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

@@ -8,15 +8,16 @@ tag := "ch38"
 file := "chapter-38"
 %%%
 
+Session 35 built a thirteen-line derivation of $`K\ \overline{1}\Downarrow 0` by hand. A program that adds two numbers by recursion needs a longer one: evaluated at $`\overline{2}` and $`\overline{1}`, it calls itself three times. Adequacy replaces that derivation by a calculation of the meaning. This session computes the meaning of the addition program and concludes what it evaluates to. Then it shows that two different programs have equal meanings and concludes that they evaluate to the same numeral.
+
+*In this session.*
+
 * *Definitions.* PCF terms and typing, the evaluation rules B-Value to B-Fix with the convention that $`t\Downarrow v` relates closed terms of one type, the meaning $`\llbracket t\rrbracket\rho` and the fact $`\llbracket\overline{n}\rrbracket=n` ([Session 35, Definitions 35.1–35.5](chapter-35/index.html#ch35-s1)). Soundness of evaluation, Theorem 35.8 ([Session 35, §35.4](chapter-35/index.html#ch35-s4)). Computational adequacy, Theorem 36.1 ([Session 36, §36.1](chapter-36/index.html#ch36-s1)), proved in [Session 37, §37.4](chapter-37/index.html#ch37-s4), and the consequence proved there: a closed term of type Nat has meaning $`\bot` exactly when it has no evaluation. The flat domain $`\mathbb{N}_\bot` and the fixed-point equation $`f(\mathrm{lfp}(f))=\mathrm{lfp}(f)` ([Session 34, Proposition 34.4](chapter-34/index.html#ch34-s1)). Canonical forms ([C.8](lambda-card/index.html#lambda-c8), Row 1).
-* *New terms.* Full abstraction, named in §38.3 and used in no proof. [Glossary and label key](glossary/index.html)
+* *New terms.* Full abstraction, named in §38.3 and used in no proof. [Glossary](glossary/index.html)
 * *Corollary 38.2 (Equal meanings at type Nat).* Let $`t` and $`t'` be closed terms with $`\vdash t:\mathsf{Nat}`, $`\vdash t':\mathsf{Nat}` and $`\llbracket t\rrbracket=\llbracket t'\rrbracket`. Then for every natural number $`n`, $`t\Downarrow\overline{n}` if and only if $`t'\Downarrow\overline{n}`.
-* *Source.* No new source. Theorem 36.1 is Theorem 31 of the Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). The addition term $`A`, Lemma 38.1 and Corollary 38.2 are this book’s. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* Compute $`\llbracket A\ \overline{2}\ \overline{1}\rrbracket=3` and conclude $`A\ \overline{2}\ \overline{1}\Downarrow\overline{3}` (§38.1, six steps). Then prove Corollary 38.2 and apply it to $`A\ u\ w` and $`A\ w\ u` (§38.2).
 * *Proof outline.* Meanings are computed with the clauses of Definition 35.5 and the fixed-point equation. No evaluation derivation is built. Lemma 38.1 is an induction on the first argument of $`A`. Corollary 38.2 goes from evaluation to meaning by Theorem 35.8 and back by Theorem 36.1.
 * *From Session 37.* Session 37 proved adequacy. This last session of Part 3 adds no theory. It applies soundness and adequacy to a term that the earlier sessions did not treat, and it states what adequacy does not give.
-
-Session 35 built a thirteen-line derivation of $`K\ \overline{1}\Downarrow 0` by hand. A program that adds two numbers by recursion needs a longer one: evaluated at $`\overline{2}` and $`\overline{1}`, it calls itself three times. Adequacy replaces that derivation by a calculation of the meaning. This session computes the meaning of the addition program and concludes what it evaluates to. Then it shows that two different programs have equal meanings and concludes that they evaluate to the same numeral.
 
 # Computing a meaning
 %%%
@@ -123,6 +124,8 @@ number := false
 tag := "ch38-notes"
 number := false
 %%%
+
+Theorem 36.1 is Theorem 31 of the Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). The addition term $`A` is this book’s. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 * *Theorem 36.1.* Restated from Session 36; see [its notes](chapter-36/index.html#ch36-notes).
 * *Lemma 38.1.* Formulated in this book. Paper proof only ([§38.1](chapter-38/index.html#ch38-s1)).

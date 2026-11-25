@@ -8,15 +8,16 @@ tag := "ch21"
 file := "chapter-21"
 %%%
 
+Run `y := x + 1; x := 0` from a store with $`x=4`. Four theorems of Part 1 speak about this run. Session 6 gives it a path of transitions that ends at skip. Session 10 gives it a meaning that is a store. Session 16 runs its compiled code to the end of the block. Session 20 deletes its second assignment and keeps the final value of $`y`. Quoted in one line, each says that two things agree. Each compares a different part of the result, and each needs premises that are easy to drop. This session writes the premises back and runs the program through all four theorems.
+
+*In this session.*
+
 * *Definitions.* Execution rules and transitions ([A.5–A.6](imp-card/index.html#imp-a5)). Observation ([Session 7, §7.1](chapter-07/index.html#ch07-s1)). Outcomes, strict extension and the meanings $`f_c` ([Session 8, Definitions 8.1–8.4](chapter-08/index.html#ch08-s1); [Session 9, Definition 9.4](chapter-09/index.html#ch09-s2)). Code at a position, machine configurations, $`\mathrm{ccom}` and whole programs ([B.2–B.9](machine-card/index.html#machine-b2)). Abstract stores and $`\gamma` ([Session 17, §17.1](chapter-17/index.html#ch17-s1)) and constant propagation $`\mathrm{cp}` ([Session 18, §18.2](chapter-18/index.html#ch18-s2)). The liveness transfer $`\mathrm{live}(c,L)` ([Session 19, Definitions 19.2–19.3](chapter-19/index.html#ch19-s1)), agreement $`s|_X=u|_X` ([Session 1, §1.3](chapter-01/index.html#ch01-s3)) and $`\mathrm{elim}(c,L)` ([Session 20, §20.1](chapter-20/index.html#ch20-s1)). Progress ([Session 5, Lemma 5.3](chapter-05/index.html#ch05-s2)).
-* *New terms.* None. [Glossary and label key](glossary/index.html)
+* *New terms.* None. [Glossary](glossary/index.html)
 * *Theorems.* No new theorem. §21.1 restates [Session 6, Theorem 6.2](chapter-06/index.html#ch06-s2), [Session 10, Theorem 10.2](chapter-10/index.html#ch10-s1), [Session 16, Theorem 16.2](chapter-16/index.html#ch16-s2) and [Session 20, Theorem 20.2](chapter-20/index.html#ch20-s2) with every premise, and names the observation each one preserves or equates.
-* *Source.* No new source. Each theorem keeps the source given in its session. Further Reading cites the converse directions proved by Nipkow and Klein, _Concrete Semantics_, Lemma 8.18 (p. 110) and Lemma 10.20 (p. 170). [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf#page=120)
 * *Board case.* Fill the row of Theorem 20.2 for $`c=(y:=x+1;\ x:=0)` and the observed set $`\{y\}`: compute the live sets and $`\mathrm{elim}(c,\{y\})`, check both premises, run the transformed command, and name what the conclusion compares and what it leaves out. Seven steps (§21.2).
 * *Proof outline.* No induction. Each theorem is applied in three moves: instantiate its quantifiers, check its premises, read off its conclusion. The runs of the example are computed with the rules of A.5, A.6 and B.4.
 * *From Session 20.* Session 20 proved that removing dead assignments keeps the final values of the observed names. That is the last correctness theorem of Part 1. Here it is set beside the theorems of Sessions 6, 10 and 16.
-
-Run `y := x + 1; x := 0` from a store with $`x=4`. Four theorems of Part 1 speak about this run. Session 6 gives it a path of transitions that ends at skip. Session 10 gives it a meaning that is a store. Session 16 runs its compiled code to the end of the block. Session 20 deletes its second assignment and keeps the final value of $`y`. Quoted in one line, each says that two things agree. Each compares a different part of the result, and each needs premises that are easy to drop. This session writes the premises back and runs the program through all four theorems.
 
 # Four theorems and their premises
 %%%
@@ -155,6 +156,8 @@ number := false
 tag := "ch21-notes"
 number := false
 %%%
+
+No new source. Each theorem keeps the source given in its session. Further Reading cites the converse directions proved by Nipkow and Klein, _Concrete Semantics_, Lemma 8.18 (p. 110) and Lemma 10.20 (p. 170). [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf#page=120)
 
 * *Theorem 6.2.* Restated from Session 6; see [its notes](chapter-06/index.html#ch06-notes).
 * *Theorem 10.2.* Restated from Session 10; see [its notes](chapter-10/index.html#ch10-notes).

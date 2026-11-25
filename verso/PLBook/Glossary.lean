@@ -60,12 +60,12 @@ number := false
 *
   * evaluation function
   * 평가 함수
-  * The function computing the integer value of an arithmetic expression in a store.
+  * The function computing the integer value of an arithmetic expression in a state.
   * Session 1 · [§1.2](chapter-01/index.html#ch01-s2)
 *
   * evaluation judgment
   * 평가 판단
-  * The assertion that an expression evaluates to a given integer in a given store.
+  * The assertion that an expression evaluates to a given integer in a given state.
   * Session 1 · [§1.4](chapter-01/index.html#ch01-s4)
 *
   * free variable
@@ -73,14 +73,14 @@ number := false
   * A variable with an occurrence outside the scope of any binder for that name.
   * Session 1 · [§1.3](chapter-01/index.html#ch01-s3)
 *
-  * IMP store
+  * IMP state
   * 상태
   * A total function from variable names to integers.
   * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
 *
-  * IMP store update
+  * IMP state update
   * 상태 갱신
-  * The store obtained by assigning one name its specified value and preserving all other lookups.
+  * The state obtained by assigning one name its specified value and preserving all other lookups.
   * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
 *
   * induction hypothesis
@@ -130,7 +130,7 @@ number := false
 *
   * agreement on a set
   * 집합 위의 일치 (X 위에서 일치한다)
-  * `s(y) = u(y)` for every `y ∈ X`; written `s|_X = u|_X`
+  * $`\sigma(y)=\sigma''(y)` for every $`y\in X`; written $`\sigma|_X=\sigma''|_X`
   * Session 1 · [§1.3](chapter-01/index.html#ch01-s3)
 *
   * big-step semantics
@@ -140,7 +140,7 @@ number := false
 *
   * Boolean expression
   * 조건식
-  * An expression whose value in a store is true or false.
+  * An expression whose value in a state is true or false.
   * Session 2 · [§2.1](chapter-02/index.html#ch02-s1)
 *
   * command
@@ -155,12 +155,12 @@ number := false
 *
   * execution judgment
   * 실행 판단
-  * The assertion that a command started in a given store terminates in a specified store.
+  * The assertion that a command started in a given state terminates in a specified state.
   * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
 *
   * execution relation
   * 실행 관계
-  * The relation s ⊢ c ⇓ t of Definition 2.1, as a set of triples. For one command c its pairs form Exec(c) (Session 7, Definition 7.1).
+  * The relation $`\sigma\vdash c\Downarrow\sigma'` of Definition 2.1, as a set of triples. For one command c its pairs form Exec(c) (Session 7, Definition 7.1).
   * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
 *
   * guard
@@ -175,7 +175,7 @@ number := false
 *
   * sequencing
   * 순차 합성
-  * Composition that uses the first command’s final store as the second command’s initial store. For state transformers, extend the second transformer strictly and compose it with the first (§8.2).
+  * Composition that uses the first command’s final state as the second command’s initial state. For state transformers, extend the second transformer strictly and compose it with the first (§8.2).
   * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
 *
   * side condition
@@ -185,7 +185,7 @@ number := false
 *
   * command determinacy
   * 결정성
-  * Uniqueness of the final store for a given command and initial store, whenever a terminating execution exists.
+  * Uniqueness of the final state for a given command and initial state, whenever a terminating execution exists.
   * Session 3 · [§3.2](chapter-03/index.html#ch03-s2)
 *
   * partial function and its graph
@@ -205,7 +205,7 @@ number := false
 *
   * configuration
   * 구성
-  * A pair consisting of a residual command and the current store. In Part 2, a pair `t | μ` of a term and a store (§32.3).
+  * A pair consisting of a residual command and the current state. In Part 2, a pair `t | μ` of a term and a store (§32.3).
   * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
   * finite path
@@ -240,7 +240,7 @@ number := false
 *
   * path lifting
   * 경로 올리기
-  * Placing every command on a path in the same sequence context while retaining its store and each edge.
+  * Placing every command on a path in the same sequence context while retaining its state and each edge.
   * Session 6 · [§6.1](chapter-06/index.html#ch06-s1)
 *
   * sequence context
@@ -255,17 +255,17 @@ number := false
 *
   * observation
   * 관찰
-  * What an equivalence compares about a run. In Definition 7.1 it is the entire final store of each terminating execution.
+  * What an equivalence compares about a run. In Definition 7.1 it is the entire final state of each terminating execution.
   * Session 7 · [§7.1](chapter-07/index.html#ch07-s1)
 *
   * program equivalence
   * 프로그램 동치
-  * Two commands have the same set of initial–final store pairs.
+  * Two commands have the same set of initial–final state pairs.
   * Session 7 · [§7.1](chapter-07/index.html#ch07-s1)
 *
   * bottom
   * 바닥
-  * The element ⊥, which is not a store. As the result of a command it records that there is no final store (nontermination).
+  * The element ⊥, which is not a state. As the result of a command it records that there is no final state (nontermination).
   * Session 8 · [§8.1](chapter-08/index.html#ch08-s1)
 *
   * increasing sequence
@@ -290,17 +290,17 @@ number := false
 *
   * outcome
   * 결과
-  * An element of Σ⊥ = Σ ∪ \{⊥\}: a store or bottom.
+  * An element of Σ⊥ = Σ ∪ \{⊥\}: a state or bottom.
   * Session 8 · [§8.1](chapter-08/index.html#ch08-s1)
 *
   * state transformer
   * 상태 변환기
-  * A total function from stores to outcomes.
+  * A total function from states to outcomes.
   * Session 8 · [§8.1](chapter-08/index.html#ch08-s1)
 *
   * strict extension
   * 엄격 확장
-  * For a state transformer g, the function g† on outcomes with g†(⊥) = ⊥ and g†(t) = g(t) for stores t.
+  * For a state transformer g, the function g† on outcomes with g†(⊥) = ⊥ and $`g^\dagger(\sigma')=g(\sigma')` for states $`\sigma'`.
   * Session 8 · [§8.2](chapter-08/index.html#ch08-s2)
 *
   * upper bound
@@ -345,22 +345,22 @@ number := false
 *
   * relational composition
   * 관계 합성
-  * The set of pairs (s,t) such that some intermediate store m has (s,m) in the first relation and (m,t) in the second.
+  * The set of pairs $`(\sigma,\sigma')` such that some intermediate state $`\sigma_1` has $`(\sigma,\sigma_1)` in the first relation and $`(\sigma_1,\sigma')` in the second.
   * Session 10 · [§10.1](chapter-10/index.html#ch10-s1)
 *
   * assertion
   * 단언
-  * A statement about a store that is true or false at each store
+  * A statement about a state that is true or false at each state
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
   * assertion written with expressions
   * 식으로 쓴 단언
-  * An assertion φ(a\_1,…,a\_j) that reads the store only through the values of expressions
+  * An assertion φ(a\_1,…,a\_j) that reads the state only through the values of expressions
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
   * substitution lemma (IMP expressions)
   * 식 치환 보조정리
-  * eval(a\[e/x\], s) = eval(a, s\[x ↦ eval(e,s)\])
+  * $`\mathrm{eval}(a[e/x],\sigma)=\mathrm{eval}(a,\sigma[x\mapsto\mathrm{eval}(e,\sigma)])`
   * Session 11 · [§11.1](chapter-11/index.html#ch11-s1)
 *
   * Hoare triple
@@ -375,17 +375,17 @@ number := false
 *
   * postcondition
   * 사후 조건
-  * The assertion promised of every final store in a triple
+  * The assertion promised of every final state in a triple
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
   * precondition
   * 사전 조건
-  * The assertion required of the initial store in a triple
+  * The assertion required of the initial state in a triple
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
   * substituted assertion
   * 치환한 단언
-  * Q\[e/x\]: holds at s when Q holds at s\[x ↦ eval(e,s)\]
+  * Q\[e/x\]: holds at $`\sigma` when Q holds at $`\sigma[x\mapsto\mathrm{eval}(e,\sigma)]`
   * Session 11 · [§11.3](chapter-11/index.html#ch11-s3)
 *
   * substitution
@@ -395,7 +395,7 @@ number := false
 *
   * valid triple
   * 타당한 삼중항
-  * Every terminating execution from a store satisfying P ends in a store satisfying Q
+  * Every terminating execution from a state satisfying P ends in a state satisfying Q
   * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
 *
   * consequence rule
@@ -410,7 +410,7 @@ number := false
 *
   * guard assertion
   * 가드 단언
-  * The assertion T\_b (resp. F\_b) holding at a store exactly when the guard's value there is true (resp. false).
+  * The assertion T\_b (resp. F\_b) holding at a state exactly when the guard's value there is true (resp. false).
   * Session 12 · [§12.1](chapter-12/index.html#ch12-s1)
 *
   * Hoare proof system
@@ -435,7 +435,7 @@ number := false
 *
   * total correctness (valid for total correctness)
   * 전체 정확성
-  * ⊨\_tot \{P\} c \{Q\}: from every store satisfying P some execution of c terminates in a store satisfying Q
+  * ⊨\_tot \{P\} c \{Q\}: from every state satisfying P some execution of c terminates in a state satisfying Q
   * Session 13 · [§13.1](chapter-13/index.html#ch13-s1)
 *
   * total while rule
@@ -450,7 +450,7 @@ number := false
 *
   * variant
   * 변량
-  * A function μ from stores to natural numbers that every execution of a loop body, from a store where the guard is true, must strictly lower
+  * A function μ from states to natural numbers that every execution of a loop body, from a state where the guard is true, must strictly lower
   * Session 13 · [§13.2](chapter-13/index.html#ch13-s2)
 *
   * well-founded relation (Further Reading only)
@@ -490,12 +490,12 @@ number := false
 *
   * list execution
   * 목록 실행
-  * `run_s(K)`: the partial function on stacks computed by branch-free code in store s.
+  * $`\mathrm{run}_\sigma(K)`: the partial function on stacks computed by branch-free code in state $`\sigma`.
   * Session 14 · [§14.1](chapter-14/index.html#ch14-s1)
 *
   * machine configuration
   * 기계 구성
-  * A program counter, a stack and a store.
+  * A program counter, a stack and a state.
   * Session 14 · [B.3](machine-card/index.html#machine-b3)
 *
   * program counter
@@ -530,7 +530,7 @@ number := false
 *
   * contract of compiled Boolean expressions
   * 조건식 코드의 계약
-  * From any position where K sits, reach pc+|K|+sel(B(b,s),d1,d0) with stack and store unchanged (Definition 15.1).
+  * From any position where K sits, reach $`\mathit{pc}+|K|+\mathrm{sel}(B(b,\sigma),d_1,d_0)` with stack and state unchanged (Definition 15.1).
   * Session 15 · [§15.2](chapter-15/index.html#ch15-s2)
 *
   * true exit / false exit
@@ -545,7 +545,7 @@ number := false
 *
   * contract of compiled commands
   * 명령 코드의 계약
-  * For every s ⊢ c ⇓ t and every C, pc, S with at(C,pc,K): C ⊢ ⟨pc,S,s⟩ →\* ⟨pc+|K|,S,t⟩ (Definition 16.1).
+  * For every $`\sigma\vdash c\Downarrow\sigma'` and every C, pc, S with at(C,pc,K): $`C\vdash\langle\mathit{pc},S,\sigma\rangle\to^*\langle\mathit{pc}+|K|,S,\sigma'\rangle` (Definition 16.1).
   * Session 16 · [§16.2](chapter-16/index.html#ch16-s2)
 *
   * layout of a compiled command
@@ -568,7 +568,7 @@ number := false
   * eval♯(e, A) and B♯(b, A): the value when every operand is known, ⊤ otherwise.
   * Session 17 · [§17.2](chapter-17/index.html#ch17-s2)
 *
-  * abstract store
+  * abstract state
   * 추상 상태
   * A function from names to abstract values, ⊤ at all but finitely many names. Written by listing its entries, e.g. \{x ↦ 7\}; \{\} has no entries.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
@@ -585,32 +585,32 @@ number := false
 *
   * analysis soundness
   * 분석 건전성
-  * Theorem 17.8: the transfer result describes every final store of a run from a described store.
+  * Theorem 17.8: the transfer result describes every final state of a run from a described state.
   * Session 17 · [§17.3](chapter-17/index.html#ch17-s3)
 *
   * concretization
   * 구체화
-  * γ(A), the set of stores s with s(x) = n for every entry x ↦ n of A.
+  * γ(A), the set of states $`\sigma` with $`\sigma(x)=n` for every entry x ↦ n of A.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
 *
-  * describes (an abstract store describes a store)
+  * describes (an abstract state describes a state)
   * 기술하다
-  * A describes s when s ∈ γ(A).
+  * $`A` describes $`\sigma` when $`\sigma\in\gamma(A)`.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
 *
-  * entry (of an abstract store)
+  * entry (of an abstract state)
   * 항목
   * A pair x ↦ n with A(x) = n an integer.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
 *
   * join
   * 이음
-  * Name by name: a ⊔ a' = a if a = a', else ⊤. The join of abstract stores keeps their common entries. It is their least upper bound.
+  * Name by name: a ⊔ a' = a if a = a', else ⊤. The join of abstract states keeps their common entries. It is their least upper bound.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
 *
   * precision order
   * 정밀도 순서
-  * An abstract store is below another when it contains every entry of the other. Moving upward forgets information: a known integer lies below unknown, and the empty abstract store is greatest.
+  * An abstract state is below another when it contains every entry of the other. Moving upward forgets information: a known integer lies below unknown, and the empty abstract state is greatest.
   * Session 17 · [§17.1](chapter-17/index.html#ch17-s1)
 *
   * constant folding
@@ -620,7 +620,7 @@ number := false
 *
   * constant propagation
   * 상수 전파
-  * Replacing a variable read by the literal that the abstract store records for that variable.
+  * Replacing a variable read by the literal that the abstract state records for that variable.
   * Session 18 · [§18.1](chapter-18/index.html#ch18-s1)
 *
   * program transformation
@@ -630,12 +630,12 @@ number := false
 *
   * simplifying constructor
   * 단순화 생성자
-  * A function that builds an expression, guard or command from its parts and simplifies constant parts, keeping the value at every store.
+  * A function that builds an expression, guard or command from its parts and simplifies constant parts, keeping the value at every state.
   * Session 18 · [§18.1](chapter-18/index.html#ch18-s1)
 *
-  * loop-head store
+  * loop-head state
   * 루프 머리 추상 상태
-  * The abstract store `f♯_W(A)`, which describes the store at every test of the loop's guard.
+  * The abstract state `f♯_W(A)`, which describes the state at every test of the loop's guard.
   * Session 18 · [§18.2](chapter-18/index.html#ch18-s2)
 *
   * bounded iteration

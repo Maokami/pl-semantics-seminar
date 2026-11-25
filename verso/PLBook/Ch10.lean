@@ -9,15 +9,16 @@ tag := "ch10"
 file := "chapter-10"
 %%%
 
+Take $`\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1` and a store with $`x=0`. The rules of Session 2 derive a final store with $`x=2`. The meaning computed in Session 9 returns the same store, first at stage 3. This session proves that the two accounts agree for every command and every pair of stores. The intermediate store in sequencing is where they meet. For a loop the bridge is the number of finite unfoldings needed by an execution.
+
+*In this session.*
+
 * *Definitions.* The execution rules ([Session 2, Definition 2.1](chapter-02/index.html#ch02-s2); [A.5](imp-card/index.html#imp-a5)). Partial function and graph ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). The set $`\mathrm{Exec}(c)` of initial–final store pairs ([Session 7, Definition 7.1](chapter-07/index.html#ch07-s1)). Outcomes $`\Sigma_\bot`, state transformers, strict extension $`h^\dagger` and the meanings $`f_c` ([Session 8, Definitions 8.1–8.4](chapter-08/index.html#ch08-s1)). The information order and increasing sequences of outcomes ([Session 8, Definition 8.7 and Lemma 8.10](chapter-08/index.html#ch08-s4)). The unfolding operator $`F`, the approximations $`w_n` and the loop meaning $`f_W` ([Session 9, Definitions 9.1 and 9.4](chapter-09/index.html#ch09-s1)), the increasing approximations ([Session 9, Lemma 9.3](chapter-09/index.html#ch09-s2)), and the least fixed-point theorem ([Session 9, Theorem 9.5](chapter-09/index.html#ch09-s3)).
-* *New terms.* Relational composition, nested induction. [Glossary and label key](glossary/index.html)
+* *New terms.* Relational composition, nested induction. [Glossary](glossary/index.html)
 * *Theorem 10.2 (Correspondence).* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`f_c(s)=t`.
-* *Source.* The execution rules follow Leroy’s IMP (A.5). The meanings $`f_c` follow Reynolds, _Theories of Programming Languages_, §§2.2–2.4, as presented in Sessions 8–9. The proof structure follows Winskel, _The Formal Semantics of Programming Languages_, §5.3. Winskel and, in _Concrete Semantics_, Nipkow and Klein prove the corresponding theorem for a meaning defined directly as a relation between stores. [Winskel, §5.3](https://doi.org/10.7551/mitpress/3054.001.0001) · [Concrete Semantics, §11.1.1, p. 183](https://concrete-semantics.org/concrete-semantics.pdf#page=193)
 * *Board case.* From a derivation to a meaning, loop iteration. Apply one induction hypothesis to the body and one to the loop from the intermediate store $`m`, and join them with the fixed-point equation of Session 9, Theorem 9.5(a).
 * *Proof outline.* From derivations to meanings: induction on the derivation $`D:s\vdash c\Downarrow t` with $`P(D)\coloneqq f_c(s)=t`. From meanings to derivations: structural induction on $`c` with $`Q(c)\coloneqq\forall s,t\in\Sigma,\ f_c(s)=t\Rightarrow s\vdash c\Downarrow t`. In the loop case a nested induction on the stage $`n` proves $`Q_W(n)\coloneqq\forall s,t\in\Sigma,\ w_n(s)=t\Rightarrow s\vdash W\Downarrow t`.
 * *From Session 9.* Session 9 defined the loop meaning $`f_W` as the least upper bound of the approximations $`w_n` and proved that it is the least fixed point of $`F`. The direction from derivations to meanings uses only the fixed-point equation $`f_W=F(f_W)`. The other direction uses the approximations themselves, and this is where leastness matters.
-
-Take $`\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1` and a store with $`x=0`. The rules of Session 2 derive a final store with $`x=2`. The meaning computed in Session 9 returns the same store, first at stage 3. This session proves that the two accounts agree for every command and every pair of stores. The intermediate store in sequencing is where they meet. For a loop the bridge is the number of finite unfoldings needed by an execution.
 
 # Two accounts of one loop
 %%%
@@ -222,6 +223,8 @@ number := false
 tag := "ch10-notes"
 number := false
 %%%
+
+The execution rules follow Leroy’s IMP (A.5). The meanings $`f_c` follow Reynolds, _Theories of Programming Languages_, §§2.2–2.4, as presented in Sessions 8–9. The proof structure follows Winskel, _The Formal Semantics of Programming Languages_, §5.3. Winskel and, in _Concrete Semantics_, Nipkow and Klein prove the corresponding theorem for a meaning defined directly as a relation between stores. [Winskel, §5.3](https://doi.org/10.7551/mitpress/3054.001.0001) · [Concrete Semantics, §11.1.1, p. 183](https://concrete-semantics.org/concrete-semantics.pdf#page=193)
 
 * *Lemma 10.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Theorem 10.2.* Formulated in this book. Corresponds to Winskel Theorem 5.7 and CS Theorem 11.6. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

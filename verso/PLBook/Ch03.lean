@@ -9,15 +9,16 @@ tag := "ch03"
 file := "chapter-03"
 %%%
 
+Two people derive terminating executions of the same program from the same store. Their proofs introduce different names for the intermediate stores. To compare their final results one must first prove that those intermediate stores agree. The example exposes a choice in the induction property that also occurs in proofs about type systems and compilers.
+
+*In this session.*
+
 * *Definitions.* [IMP language card A.1–A.5](imp-card/index.html), especially the six execution rules in A.5 (Session 2, Definition 2.1). Inversion ([Session 1, §1.4](chapter-01/index.html#ch01-s4)) and induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)). The height of an execution derivation ([Session 2, §2.4](chapter-02/index.html#ch02-s4)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)).
-* *New terms.* Command determinacy, partial function and its graph. [Glossary and label key](glossary/index.html)
+* *New terms.* Command determinacy, partial function and its graph. [Glossary](glossary/index.html)
 * *Theorem 3.2 (Determinacy).* For every command $`c` and stores $`s,t,u`, if $`s\vdash c\Downarrow t` and $`s\vdash c\Downarrow u`, then $`t=u`.
-* *Source.* The execution relation is defined by the six big-step rules for commands in Xavier Leroy’s compiler verification course (IMP, as presented in A.5). Nipkow and Klein prove the corresponding theorem for their IMP in _Concrete Semantics_, §7.2.5. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Sequencing. Invert the second derivation $`E` and identify the intermediate stores before comparing the final stores.
 * *Proof outline.* For $`D:s\vdash c\Downarrow t`, take $`P(D)\coloneqq\forall u,\ (s\vdash c\Downarrow u)\Rightarrow t=u`. Quantify $`u` inside the induction property so the first induction hypothesis can be applied at the intermediate store and the second at the final store.
 * *From Session 2.* Inverting one sequence derivation gave an intermediate store. Here each derivation supplies its own intermediate store. The first induction hypothesis proves that the two stores are equal.
-
-Two people derive terminating executions of the same program from the same store. Their proofs introduce different names for the intermediate stores. To compare their final results one must first prove that those intermediate stores agree. The example exposes a choice in the induction property that also occurs in proofs about type systems and compilers.
 
 # Induction over evidence
 %%%
@@ -169,6 +170,8 @@ Compare the introduction and elimination of inductive predicates in _The Hitchhi
 tag := "ch03-notes"
 number := false
 %%%
+
+The execution relation is defined by the six big-step rules for commands in Xavier Leroy’s compiler verification course (IMP, as presented in A.5). Nipkow and Klein prove the corresponding theorem for their IMP in _Concrete Semantics_, §7.2.5. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Lemma 3.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Theorem 3.2.* Formulated in this book. Corresponds to CS Lemma 7.9. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

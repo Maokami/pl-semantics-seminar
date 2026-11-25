@@ -9,15 +9,16 @@ tag := "ch09"
 file := "chapter-09"
 %%%
 
+Session 8 gave a meaning $`f_c:\Sigma\to\Sigma_\bot` to every command except the loop. [Session 7](chapter-07/index.html) showed that $`W=\mathsf{while}\ b\ \mathsf{do}\ c` has the same executions as $`\mathsf{if}\ b\ \mathsf{then}\ (c;W)\ \mathsf{else}\ \mathsf{skip}`. So $`f_W` should satisfy an equation in which $`f_W` occurs on both sides. For $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}` that equation says $`f_W(s)=f_W(s)` at every store. Every state transformer satisfies it, including the identity, which would claim that the loop returns at once. This session chooses one solution. Start from a state transformer that knows no results, unfold the loop a finite number of times, and take the limit.
+
+*In this session.*
+
 * *Definitions.* Stores and guard values $`B(b,s)` ([IMP language card A.2 and A.4](imp-card/index.html#imp-a4)). Outcomes $`\Sigma_\bot`, state transformers, strict extension $`h^\dagger`, and the meanings $`f_c` of skip, assignment, sequencing and conditionals ([Session 8, §§8.1–8.2](chapter-08/index.html#ch08-s1)). The information order on outcomes and on state transformers, increasing sequences and least upper bounds ([Session 8, Definitions 8.7 and 8.9](chapter-08/index.html#ch08-s4)). The form of an increasing sequence of outcomes and its least upper bound ([Session 8, Lemma 8.10](chapter-08/index.html#ch08-s4)), and the least upper bound of state transformers ([Session 8, Proposition 8.11](chapter-08/index.html#ch08-s4)).
-* *New terms.* Unfolding operator, approximation, fixed point, least fixed point, continuous operator. [Glossary and label key](glossary/index.html)
+* *New terms.* Unfolding operator, approximation, fixed point, least fixed point, continuous operator. [Glossary](glossary/index.html)
 * *Theorem 9.5 (Least fixed point).* For every loop $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, the least upper bound $`f_W` of the approximations $`w_0\sqsubseteq w_1\sqsubseteq\cdots` satisfies $`F(f_W)=f_W`, and $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
-* *Source.* Reynolds, _Theories of Programming Languages_, §2.4, proves the least fixed-point theorem for continuous functions and uses it to define the meaning of a loop as a state transformer. We prove the instance for the unfolding operator of a loop directly. Nipkow and Klein prove the same statement for continuous functions on sets and apply it to loop meanings that are relations between stores. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 * *Board case.* Part (a), that $`f_W` is a fixed point. Fix a store $`s` and split on the three cases of Definition 9.1. In the third case the outcomes at $`s` are the outcomes at the body’s result $`m`, one stage later.
 * *Proof outline.* (a) At each store, compare the sequence $`w_n(s)` with the sequence $`w_n(m)` using $`w_{n+1}(s)=w_n(m)` and Lemma 8.10. (b) Prove $`Q(n)\coloneqq w_n\sqsubseteq g` by induction on $`n` with Lemma 9.2, then take the least upper bound at each store.
 * *From Session 8.* Session 8 gave a meaning to every command except the loop. Here the meaning of a loop is the least upper bound of an increasing sequence of state transformers, computed store by store with Lemma 8.10.
-
-Session 8 gave a meaning $`f_c:\Sigma\to\Sigma_\bot` to every command except the loop. [Session 7](chapter-07/index.html) showed that $`W=\mathsf{while}\ b\ \mathsf{do}\ c` has the same executions as $`\mathsf{if}\ b\ \mathsf{then}\ (c;W)\ \mathsf{else}\ \mathsf{skip}`. So $`f_W` should satisfy an equation in which $`f_W` occurs on both sides. For $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}` that equation says $`f_W(s)=f_W(s)` at every store. Every state transformer satisfies it, including the identity, which would claim that the loop returns at once. This session chooses one solution. Start from a state transformer that knows no results, unfold the loop a finite number of times, and take the limit.
 
 # The unfolding operator
 %%%
@@ -198,6 +199,8 @@ Conversely, if $`w_n(s)=t` is a store, there is a run from $`s` ending in $`t` w
 tag := "ch09-notes"
 number := false
 %%%
+
+Reynolds, _Theories of Programming Languages_, §2.4, proves the least fixed-point theorem for continuous functions and uses it to define the meaning of a loop as a state transformer. We prove the instance for the unfolding operator of a loop directly. Nipkow and Klein prove the same statement for continuous functions on sets and apply it to loop meanings that are relations between stores. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
 
 * *Lemma 9.2.* Formulated in this book. Corresponds to CS Lemma 11.3. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Lemma 9.3.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

@@ -8,15 +8,16 @@ tag := "ch37"
 file := "chapter-37"
 %%%
 
+Theorem 36.1 follows once we know $`\llbracket t\rrbracket \lhd_T t` for every closed term $`t` of every type $`T`. A proof by induction on $`t` must pass through the body of an abstraction, and that body has a free variable. So we prove a statement about terms with free variables. Each free variable receives a semantic element on the left of $`\lhd` and a closed term on the right, and the two must be related.
+
+*In this session.*
+
 * *Definitions.* Definition 36.2 (the relations $`\lhd_T`), Lemma 36.3 (the related set is admissible), Lemma 36.4 (closure under evaluation) and the statement of Theorem 36.1 ([Session 36](chapter-36/index.html)). Typing contexts, the typing and evaluation rules, environments $`\rho` with their extension $`\rho[y\mapsto d]`, and the meaning $`\llbracket t\rrbracket \rho` of a term with free variables ([Session 35](chapter-35/index.html)). Scott induction and least fixed points $`\mathrm{lfp}(f)` ([Session 34](chapter-34/index.html)). Substitution $`[x\mapsto u]t` ([C.1](lambda-card/index.html#lambda-c1)) and the substitution lemma for typing ([Session 25](chapter-25/index.html)).
-* *New terms.* Closing substitution, related environment and substitution. [Glossary and label key](glossary/index.html)
+* *New terms.* Closing substitution, related environment and substitution. [Glossary](glossary/index.html)
 * *Theorem 37.2 (Fundamental theorem for the formal approximation relation).* Let $`\Gamma=x_1{:}T_1,\ldots,x_k{:}T_k` and $`\Gamma\vdash t:T`. For every environment $`\rho` for $`\Gamma` and all closed terms $`u_1,\ldots,u_k` with $`\vdash u_i:T_i`, if $`\rho(x_i)\lhd_{T_i}u_i` for every $`i`, then $`\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). Theorem 37.2 is their Theorem 30 and Theorem 36.1 their Theorem 31. Lemma 36.3 is their Lemmas 32 and 33, and Lemma 36.4 is their Lemma 35. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* The fixed-point case of Theorem 37.2 (§37.3), in eight numbered steps.
 * *Proof outline.* Induction on the typing derivation, with $`P(\Gamma\vdash t:T)\coloneqq\forall\rho,\ \forall\vec{u},\ \rho\lhd_\Gamma\vec{u}\Rightarrow\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`. Application instantiates the arrow clause of the operator’s hypothesis with the operand’s pair. Abstraction applies the body’s hypothesis to an extended pair and returns with Lemma 36.4. The fixed point applies Scott induction to the admissible set of Lemma 36.3 and unfolds once with Lemma 36.4. Adequacy is the case of the empty context.
 * *From Session 36.* Session 36 defined $`\lhd_T` for closed terms and proved Lemmas 36.3 and 36.4. This session uses them as stated and proves Theorem 36.1. The new step is to handle free variables: each variable receives a semantic element on the left and a closed term on the right.
-
-Theorem 36.1 follows once we know $`\llbracket t\rrbracket \lhd_T t` for every closed term $`t` of every type $`T`. A proof by induction on $`t` must pass through the body of an abstraction, and that body has a free variable. So we prove a statement about terms with free variables. Each free variable receives a semantic element on the left of $`\lhd` and a closed term on the right, and the two must be related.
 
 # Related environments and substitutions
 %%%
@@ -165,5 +166,7 @@ number := false
 tag := "ch37-notes"
 number := false
 %%%
+
+Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). Theorem 37.2 is their Theorem 30 and Theorem 36.1 their Theorem 31. Lemma 36.3 is their Lemmas 32 and 33, and Lemma 36.4 is their Lemma 35. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 * *Theorem 37.2.* Source: Cambridge notes, Theorem 30. Paper proof only ([§37.2](chapter-37/index.html#ch37-s2)–[§37.3](chapter-37/index.html#ch37-s3)).

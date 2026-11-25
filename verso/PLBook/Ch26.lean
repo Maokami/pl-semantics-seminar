@@ -8,15 +8,16 @@ tag := "ch26"
 file := "chapter-26"
 %%%
 
+Let $`\mathit{inc}=\lambda z{:}\mathsf{Nat}.\mathsf{succ}\ z`. The term $`(\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.f)\ \mathit{inc}\ (\mathsf{pred}\ (\mathsf{succ}\ 0))` has type Nat. It takes three steps and ends at the value $`\mathsf{succ}\ 0`. Every term on the way has type Nat. This session proves that this is no accident: a closed well-typed term is a value or takes a step, and a step keeps the type. The last of the three steps is the delicate one. An application disappears, and the body of $`\mathit{inc}` appears with the argument in place of the parameter. The type of the new term is rebuilt by the substitution lemma of Session 25.
+
+*In this session.*
+
 * *Definitions.* The typed language of Session 26: the terms, values, evaluation rules and typing rules of the [Lambda language card C.2–C.3](lambda-card/index.html#lambda-c2). Closed terms, alpha-equivalence, substitution $`[x\mapsto s]t`, normal forms and $`\to^*` ([C.1](lambda-card/index.html#lambda-c1)). Stuck terms ([C.2](lambda-card/index.html#lambda-c2)). Typing contexts and $`\mathrm{dom}(\Gamma)` ([C.3](lambda-card/index.html#lambda-c3)). The counted path $`t\to^n t'`, read as in [A.6](imp-card/index.html#imp-a6). The safety statements, the form of the safety table and its Row 1 ([C.8](lambda-card/index.html#lambda-c8), Session 24). The substitution lemma ([Session 25](chapter-25/index.html)). Inversion and induction on derivations ([Session 1, §1.4](chapter-01/index.html#ch01-s4); [Session 3, §3.1](chapter-03/index.html#ch03-s1)).
-* *New terms.* Domain and codomain of a function type. [Glossary and label key](glossary/index.html)
+* *New terms.* Domain and codomain of a function type. [Glossary](glossary/index.html)
 * *Theorem 26.3 (Progress and preservation).* (a) Progress: for every term $`t` and type $`T`, if $`\vdash t:T`, then $`t` is a value or there is a term $`t'` with $`t\to t'`. (b) Preservation: for every context $`\Gamma`, terms $`t,t'` and type $`T`, if $`\Gamma\vdash t:T` and $`t\to t'`, then $`\Gamma\vdash t':T`.
-* *Source.* Benjamin C. Pierce, _Types and Programming Languages_ (TAPL), §9.3. Pierce proves inversion, canonical forms, progress and preservation for functions with Booleans. Our typed language also has the natural numbers, whose cases are those of TAPL §8.3 and Session 24, and Unit (TAPL §11.2), whose cases are immediate. Lemmas 26.1–26.2 and Theorem 26.3 have the same form for this larger language. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 * *Board case.* Preservation for a step by E-AppAbs. Invert T-App and then T-Abs, identify the argument type with the parameter type, and apply the substitution lemma of Session 25 to the body and the argument.
 * *Proof outline.* Progress: induction on the typing derivation $`D:\Gamma\vdash t:T` with $`P(D)\coloneqq(\Gamma=\varnothing)\Rightarrow\bigl(t\text{ is a value}\vee\exists t',\ t\to t'\bigr)`. The T-App case uses canonical forms (Lemma 26.2). Preservation: induction on the evaluation derivation $`E:t\to t'` with $`Q(E)\coloneqq\forall\Gamma\,\forall T,\ (\Gamma\vdash t:T)\Rightarrow(\Gamma\vdash t':T)`. The congruence cases apply the induction hypothesis at the function type or at its domain. The computation case E-AppAbs uses the substitution lemma.
 * *From Session 25.* Session 25 proved that substituting a term of type $`S` for a variable of type $`S` keeps the type. Here that lemma types the result of E-AppAbs. Session 24 proved progress and preservation for Booleans and natural numbers in the empty context. Here the language has functions and Unit, and preservation holds in every context.
-
-Let $`\mathit{inc}=\lambda z{:}\mathsf{Nat}.\mathsf{succ}\ z`. The term $`(\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.f)\ \mathit{inc}\ (\mathsf{pred}\ (\mathsf{succ}\ 0))` has type Nat. It takes three steps and ends at the value $`\mathsf{succ}\ 0`. Every term on the way has type Nat. This session proves that this is no accident: a closed well-typed term is a value or takes a step, and a step keeps the type. The last of the three steps is the delicate one. An application disappears, and the body of $`\mathit{inc}` appears with the argument in place of the parameter. The type of the new term is rebuilt by the substitution lemma of Session 25.
 
 # Functions in the typed language
 %%%
@@ -237,6 +238,8 @@ TAPL §9.3 proves the theorems of this session for functions with Booleans. TAPL
 tag := "ch26-notes"
 number := false
 %%%
+
+Benjamin C. Pierce, _Types and Programming Languages_ (TAPL), §9.3. Pierce proves inversion, canonical forms, progress and preservation for functions with Booleans. Our typed language also has the natural numbers, whose cases are those of TAPL §8.3 and Session 24, and Unit (TAPL §11.2), whose cases are immediate. Lemmas 26.1–26.2 and Theorem 26.3 have the same form for this larger language. [Source sections](lambda-card/index.html#lambda-sources) · [TAPL contents](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 
 * *Lemma 26.1.* Corresponds to TAPL §9.3 for functions. The other constructs follow §§8.3 and 11.2. Paper proof only ([§26.1](chapter-26/index.html#ch26-s1)).
 * *Lemma 26.2.* Corresponds to TAPL §9.3 for functions. The other constructs follow §§8.3 and 11.2. Paper proof only ([§26.2](chapter-26/index.html#ch26-s2)).

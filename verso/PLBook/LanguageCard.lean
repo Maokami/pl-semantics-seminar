@@ -9,9 +9,9 @@ file := "imp-card"
 number := false
 %%%
 
-A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-04/index.html). A.6 gives the step and path judgments for [Session 5](chapter-05/index.html) and [Session 6](chapter-06/index.html). [English–Korean glossary](glossary/index.html)
+A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`\sigma\vdash c\Downarrow\sigma'` the letters $`\sigma,\sigma'` stand for complete states, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-04/index.html). A.6 gives the step and path judgments for [Session 5](chapter-05/index.html) and [Session 6](chapter-06/index.html). [English–Korean glossary](glossary/index.html)
 
-*Letters.* $`x,y,z` range over variable names, $`n` over integers, $`e` over arithmetic expressions, $`b` over Boolean expressions and $`c,d` over commands. $`s,t,u` range over stores and $`m,n` name intermediate stores in command derivations (when every letter is taken, a further store is $`v`). In expression judgments, $`m,n,n_1,n_2` denote integers. $`p,q,r` range over configurations.
+*Letters.* $`x,y,z` range over variable names, $`n` over integers, $`e` over arithmetic expressions, $`b` over Boolean expressions and $`c,d` over commands. $`\sigma,\sigma',\sigma''` range over states and $`\sigma_1,\sigma_2` name intermediate states in command derivations. In expression judgments, $`m,n,n_1,n_2` denote integers. $`p,q,r` range over configurations.
 
 # A.1 Arithmetic expressions · Session 1
 %%%
@@ -27,13 +27,13 @@ A minus sign at an internal node denotes binary subtraction. A negative integer 
 
 *Structural induction* proves a property $`P(e)` by considering each constructor. At a binary node, the claims $`P(e_1)` and $`P(e_2)` for its two immediate children are the *induction hypotheses*.
 
-# A.2 Stores and update · Session 1
+# A.2 States and update · Session 1
 %%%
 tag := "imp-a2"
 number := false
 %%%
 
-A store records the current integer value of every variable in IMP. We represent it by a total function $`s:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of stores. The update $`s[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`s(y)`. Equality of stores means equality at every name.
+A state records the current integer value of every variable in IMP. We represent it by a total function $`\sigma:\mathrm{Name}\to\mathbb Z`. Write $`\Sigma` for the set of states. The update $`\sigma[x\mapsto n]` is the function whose value at $`x` is $`n` and whose value at each other name $`y` is $`\sigma(y)`. Equality of states means equality at every name.
 
 # A.3 Expression evaluation · Session 1
 %%%
@@ -41,24 +41,24 @@ tag := "imp-a3"
 number := false
 %%%
 
-The evaluation function is defined by *structural recursion*. There is one equation per constructor, and recursive calls are made only on immediate children. At each binary node it obtains the two operand values in the same store.
+The evaluation function is defined by *structural recursion*. There is one equation per constructor, and recursive calls are made only on immediate children. At each binary node it obtains the two operand values in the same state.
 
 $$`\begin{aligned}
-\mathrm{eval}(n,s)&=n & \mathrm{eval}(x,s)&=s(x)\\
-\mathrm{eval}(e_1+e_2,s)&=\mathrm{eval}(e_1,s)+\mathrm{eval}(e_2,s)\\
-\mathrm{eval}(e_1-e_2,s)&=\mathrm{eval}(e_1,s)-\mathrm{eval}(e_2,s).
+\mathrm{eval}(n,\sigma)&=n & \mathrm{eval}(x,\sigma)&=\sigma(x)\\
+\mathrm{eval}(e_1+e_2,\sigma)&=\mathrm{eval}(e_1,\sigma)+\mathrm{eval}(e_2,\sigma)\\
+\mathrm{eval}(e_1-e_2,\sigma)&=\mathrm{eval}(e_1,\sigma)-\mathrm{eval}(e_2,\sigma).
 \end{aligned}`
 
-*Evaluation judgment.* Write $`s\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
+*Evaluation judgment.* Write $`\sigma\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules. An *inference rule* puts its premises above the line and its conclusion below. A rule with no premises is an *axiom*. A *derivation* is a finite tree of rule applications whose root is the judgment proved and whose children derive the premise judgments. If $`D` is a derivation whose root is the judgment $`J`, we write $`D:J` and say that $`D` derives $`J`.
 
-$$`\frac{}{s\vdash n\Downarrow n}\qquad\frac{}{s\vdash x\Downarrow s(x)}`
+$$`\frac{}{\sigma\vdash n\Downarrow n}\qquad\frac{}{\sigma\vdash x\Downarrow\sigma(x)}`
 
-$$`\frac{s\vdash e_1\Downarrow n_1\quad s\vdash e_2\Downarrow n_2}{s\vdash e_1+e_2\Downarrow n_1+n_2}
-\qquad\frac{s\vdash e_1\Downarrow n_1\quad s\vdash e_2\Downarrow n_2}{s\vdash e_1-e_2\Downarrow n_1-n_2}`
+$$`\frac{\sigma\vdash e_1\Downarrow n_1\quad \sigma\vdash e_2\Downarrow n_2}{\sigma\vdash e_1+e_2\Downarrow n_1+n_2}
+\qquad\frac{\sigma\vdash e_1\Downarrow n_1\quad \sigma\vdash e_2\Downarrow n_2}{\sigma\vdash e_1-e_2\Downarrow n_1-n_2}`
 
 We refer to the four rules as the literal axiom, the variable axiom, the addition rule and the subtraction rule.
 
-For example, if $`s(x)=2`, the variable axiom and the literal axiom supply the premises for $`s\vdash x-3\Downarrow -1`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
+For example, if $`\sigma(x)=2`, the variable axiom and the literal axiom supply the premises for $`\sigma\vdash x-3\Downarrow -1`. *Inversion* recovers the possible last rules of a derivation, together with the premises and equalities forced by their conclusions.
 
 # A.4 Guards and commands · Session 2
 %%%
@@ -70,7 +70,7 @@ A Boolean expression has one of six forms:
 
 $$`b ::= \mathsf{true}\mid\mathsf{false}\mid(e_1=e_2)\mid(e_1\le e_2)\mid\neg b\mid(b_1\land b_2).`
 
-Its value $`B(b,s)` is a Boolean. Constants give their own values. Comparisons test the integer values of both operands in $`s`. Negation exchanges true and false. Conjunction returns true exactly when both operands return true. In programs, $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, $`e_1\ne e_2` abbreviates $`\neg(e_1=e_2)`, and $`b_1\lor b_2` abbreviates $`\neg(\neg b_1\land\neg b_2)`.
+Its value $`B(b,\sigma)` is a Boolean. Constants give their own values. Comparisons test the integer values of both operands in $`\sigma`. Negation exchanges true and false. Conjunction returns true exactly when both operands return true. In programs, $`e_1<e_2` abbreviates $`\neg(e_2\le e_1)`, $`e_1\ne e_2` abbreviates $`\neg(e_1=e_2)`, and $`b_1\lor b_2` abbreviates $`\neg(\neg b_1\land\neg b_2)`.
 
 $$`c ::= \mathsf{skip}\mid x:=e\mid(c_1;c_2)\mid
 \mathsf{if}\ b\ \mathsf{then}\ c_1\ \mathsf{else}\ c_2\mid
@@ -84,23 +84,23 @@ tag := "imp-a5"
 number := false
 %%%
 
-In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`s\vdash c\Downarrow t`. The judgment holds precisely when it has a finite derivation. Skip leaves the store unchanged. Assignment evaluates the right-hand side in the initial store. *Sequencing* runs the second command from the final store of the first: the sequence rule binds its two premises through the intermediate store $`m`.
+In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`\sigma\vdash c\Downarrow\sigma'`. The judgment holds precisely when it has a finite derivation. Skip leaves the state unchanged. Assignment evaluates the right-hand side in the initial state. *Sequencing* runs the second command from the final state of the first: the sequence rule binds its two premises through the intermediate state $`\sigma_1`.
 
-$$`\frac{}{s\vdash\mathsf{skip}\Downarrow s}\qquad
-\frac{}{s\vdash x:=e\Downarrow s[x\mapsto\mathrm{eval}(e,s)]}`
+$$`\frac{}{\sigma\vdash\mathsf{skip}\Downarrow\sigma}\qquad
+\frac{}{\sigma\vdash x:=e\Downarrow\sigma[x\mapsto\mathrm{eval}(e,\sigma)]}`
 
-$$`\frac{s\vdash c\Downarrow m\quad m\vdash d\Downarrow t}{s\vdash(c;d)\Downarrow t}`
+$$`\frac{\sigma\vdash c\Downarrow\sigma_1\quad \sigma_1\vdash d\Downarrow\sigma'}{\sigma\vdash(c;d)\Downarrow\sigma'}`
 
-For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` denote $`c` when $`B(b,s)` is true and $`d` otherwise. There is one conditional rule:
+For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` denote $`c` when $`B(b,\sigma)` is true and $`d` otherwise. There is one conditional rule:
 
-$$`\frac{s\vdash k\Downarrow t}{s\vdash I\Downarrow t}`
+$$`\frac{\sigma\vdash k\Downarrow\sigma'}{\sigma\vdash I\Downarrow\sigma'}`
 
-Fixing the value of $`B(b,s)`, as true or as false, gives a *derived rule*: each of its instances follows by one application of the defining rule. The guard $`b` itself is not replaced.
+Fixing the value of $`B(b,\sigma)`, as true or as false, gives a *derived rule*: each of its instances follows by one application of the defining rule. The guard $`b` itself is not replaced.
 
-Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only the execution judgments above a line, the rule's execution premises, require subderivations. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final store.
+Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. The guard tests above the lines below are *side conditions*. Evaluate the Boolean function to check each equality. Only the execution judgments above a line, the rule's execution premises, require subderivations. A false guard ends the loop. A true guard requires both an execution of the body and a further execution of the loop starting in the body’s final state.
 
-$$`\frac{B(b,s)=\mathsf{false}}{s\vdash W\Downarrow s}\qquad
-\frac{B(b,s)=\mathsf{true}\quad s\vdash c\Downarrow m\quad m\vdash W\Downarrow t}{s\vdash W\Downarrow t}`
+$$`\frac{B(b,\sigma)=\mathsf{false}}{\sigma\vdash W\Downarrow\sigma}\qquad
+\frac{B(b,\sigma)=\mathsf{true}\quad \sigma\vdash c\Downarrow\sigma_1\quad \sigma_1\vdash W\Downarrow\sigma'}{\sigma\vdash W\Downarrow\sigma'}`
 
 We refer to the six rules as the skip, assignment, sequence, conditional, loop exit and loop iteration rules.
 
@@ -112,20 +112,20 @@ tag := "imp-a6"
 number := false
 %%%
 
-A *configuration* $`\langle c,s\rangle` consists of a residual command $`c` (the work still to do) and the current store $`s`. Write $`p\to q` for one transition. Assignment evaluates its right-hand side in the current store and steps to skip with the updated store.
+A *configuration* $`\langle c,\sigma\rangle` consists of a residual command $`c` (the work still to do) and the current state $`\sigma`. Write $`p\to q` for one transition. Assignment evaluates its right-hand side in the current state and steps to skip with the updated state.
 
-$$`\frac{}{\langle x:=e,s\rangle\to\langle\mathsf{skip},s[x\mapsto\mathrm{eval}(e,s)]\rangle}`
+$$`\frac{}{\langle x:=e,\sigma\rangle\to\langle\mathsf{skip},\sigma[x\mapsto\mathrm{eval}(e,\sigma)]\rangle}`
 
-A sequence with skip on the left steps to its right command. A step of its left command lifts through the sequence, carrying the resulting store with it.
+A sequence with skip on the left steps to its right command. A step of its left command lifts through the sequence, carrying the resulting state with it.
 
-$$`\frac{}{\langle \mathsf{skip};d,s\rangle\to\langle d,s\rangle}
-\qquad\frac{\langle c,s\rangle\to\langle c',t\rangle}{\langle c;d,s\rangle\to\langle c';d,t\rangle}`
+$$`\frac{}{\langle \mathsf{skip};d,\sigma\rangle\to\langle d,\sigma\rangle}
+\qquad\frac{\langle c,\sigma\rangle\to\langle c',\sigma'\rangle}{\langle c;d,\sigma\rangle\to\langle c';d,\sigma'\rangle}`
 
-For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` be the branch selected by $`B(b,s)` as in Session 2, Definition 2.1. For $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, a false guard exits and a true guard exposes the body.
+For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` be the branch selected by $`B(b,\sigma)` as in Session 2, Definition 2.1. For $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, a false guard exits and a true guard exposes the body.
 
-$$`\frac{}{\langle I,s\rangle\to\langle k,s\rangle}\qquad
-\frac{B(b,s)=\mathsf{false}}{\langle W,s\rangle\to\langle\mathsf{skip},s\rangle}\qquad
-\frac{B(b,s)=\mathsf{true}}{\langle W,s\rangle\to\langle c;W,s\rangle}`
+$$`\frac{}{\langle I,\sigma\rangle\to\langle k,\sigma\rangle}\qquad
+\frac{B(b,\sigma)=\mathsf{false}}{\langle W,\sigma\rangle\to\langle\mathsf{skip},\sigma\rangle}\qquad
+\frac{B(b,\sigma)=\mathsf{true}}{\langle W,\sigma\rangle\to\langle c;W,\sigma\rangle}`
 
 Skip itself has no outgoing step. We refer to the six rules as the small-step assignment rule, the skip-discarding rule, the lifting rule, and the small-step conditional, loop exit and loop iteration rules.
 
@@ -143,8 +143,8 @@ These references document the formalization. They are optional for seminar prepa
 
 *Source.* The shared definitions follow the Lean port of Xavier Leroy’s _Compiler Verification_ course at revision `a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01`. The evaluation judgment in [A.3](imp-card/index.html#imp-a3) is formulated in this book on the same syntax. [IMP definitions](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean) · [Paths](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Sequences.lean)
 
-* $`\mathrm{eval}(e,s)`, $`B(b,s)` and $`s[x\mapsto n]` correspond to `aeval s e`, `beval s b` and `update x n s`.
-* $`s\vdash c\Downarrow t` corresponds to `cexec s c t`. The conditional rule is `cexec_ifthenelse`.
+* A state $`\sigma` has type `store` in Lean. $`\mathrm{eval}(e,\sigma)`, $`B(b,\sigma)` and $`\sigma[x\mapsto n]` correspond to `aeval s e`, `beval s b` and `update x n s`.
+* $`\sigma\vdash c\Downarrow\sigma'` corresponds to `cexec s c t`. The conditional rule is `cexec_ifthenelse`.
 * One step is `red`. The finite closure is `star`. The two presentations of an infinite path are `infseq_with_function` and `infseq`.
 * Definition 1.5 is `PLBook.IMP.Evaluates`. In `PLBook.IMP.Arithmetic`, membership in the free-variable set is `occurs`. Lemma 1.1 is `coincidence`, Corollary 1.2 is `updateIrrelevant`, Theorem 1.3 is `correspondence`, and Corollary 1.4 is `uniqueValue`, all in the namespace `PLBook.IMP`. Expression substitution and its evaluation lemma are [Definition 11.1 and Lemma 11.3](chapter-11/index.html#ch11-s1).
 * Proposition 2.2 is `PLBook.IMP.sequenceExecution` on the shared execution relation.
@@ -155,12 +155,12 @@ These references document the formalization. They are optional for seminar prepa
 * Lemma 6.1 is `liftLength` and preserves the exact length. Leroy’s `red_seq_steps` lifts a finite path without specifying its length. [Sequence context in IMP](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L340-L356)
 * Theorem 6.2 is `terminatingEquivalence`. The source gives the two implications separately in `cexec_to_reds` and `reds_to_cexec`. Lemma 6.3 is `executionBeforeStep`, with the same premise and conclusion as `red_append_cexec`. These book proofs use the shared IMP relations. [Forward implication](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L361-L385) · [Backward step and reverse implication](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L388-L405)
 * In `PLBook.IMP.Equivalence`, Theorem 7.3 is `loopUnfolding` and Proposition 7.4 is `equivalentBeforeSuffix`.
-* In `PLBook.IMP.Denotation`, an outcome is an optional IMP store. The strict extension, flat order, pointwise order and finite approximations adapt the definitions in the seminar’s `Lecture/S02Order.lean` to arbitrary IMP guards and body meanings. Theorem 8.5 is `sequencingAssoc`, Corollary 8.6 is `commandSequencingAssoc`, Proposition 8.8 is `sequencingMono`, Lemma 8.10 is `outcomeChainCases` and Proposition 8.11 is `chainSup_isLub`.
+* In `PLBook.IMP.Denotation`, an outcome is an optional IMP state. The strict extension, flat order, pointwise order and finite approximations adapt the definitions in the seminar’s `Lecture/S02Order.lean` to arbitrary IMP guards and body meanings. Theorem 8.5 is `sequencingAssoc`, Corollary 8.6 is `commandSequencingAssoc`, Proposition 8.8 is `sequencingMono`, Lemma 8.10 is `outcomeChainCases` and Proposition 8.11 is `chainSup_isLub`.
 * In the same module, Lemmas 9.2 and 9.3 are `unfoldMono` and `approxIncreasing`. Theorem 9.5 is `whileDenotationLeastFixed`. Its loop denotation is the pointwise supremum of the finite approximations.
 * Lemma 10.1 is `intermediateStore` in `PLBook.IMP.Denotation`. In `PLBook.IMP.Correspondence`, Theorem 10.2 is `executionIffDenotation` and Corollary 10.3 is `graphAndDivergence`.
 * In `PLBook.IMP.Hoare`, Lemmas 11.3 and 11.6 are `evalSubst` and `writtenSubst`. The two clauses of Theorem 11.7 are `assignmentValid` and `writtenAssignmentValid`. Proposition 11.8 is `assignmentPrecondition`. The two rules of Proposition 11.9 are `validSequence` and `validConsequence`.
 * Theorem 12.3 is `hoareSound` for the six rules of `Hoare`. Theorem 13.3 is `totalHoareSound` for `TotalHoare`, whose loop rule has a premise for each natural-number value of the variant. Both declarations are in `PLBook.IMP.Hoare`.
-* Sessions 17–18 follow the constant propagation chapter of the course. An abstract store is a `Store`. The relation $`s\in\gamma(A)` is `matches' s A`. The order, the join and $`\{\}` are `Le`, `Join` and `Top`. $`\mathrm{eval}^{\sharp}` and $`B^{\sharp}` are `Aeval` and `Beval`, the update $`A[x\mapsto a]` is `Update`, and $`f^{\sharp}_{c}(A)` is `Cexec A c`, whose loop clause iterates at most `num_iter = 20` times. Lemma 17.3 is `matches_Le`, `Le_Join_l`, `Le_Join_r` and `Le_Top`. Lemma 17.5 is `Aeval_sound` and `Beval_sound`. Lemma 17.7 is `fixpoint_sound`. Theorem 17.8 is `Cexec_sound`. [Constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean)
+* Sessions 17–18 follow the constant propagation chapter of the course. An abstract state is a `Store`. The relation $`\sigma\in\gamma(A)` is `matches' s A`. The order, the join and $`\{\}` are `Le`, `Join` and `Top`. $`\mathrm{eval}^{\sharp}` and $`B^{\sharp}` are `Aeval` and `Beval`, the update $`A[x\mapsto a]` is `Update`, and $`f^{\sharp}_{c}(A)` is `Cexec A c`, whose loop clause iterates at most `num_iter = 20` times. Lemma 17.3 is `matches_Le`, `Le_Join_l`, `Le_Join_r` and `Le_Top`. Lemma 17.5 is `Aeval_sound` and `Beval_sound`. Lemma 17.7 is `fixpoint_sound`. Theorem 17.8 is `Cexec_sound`. [Constant propagation](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Constprop.lean)
 * The simplifying constructors of Definition 18.1 are `mk_PLUS`, `mk_MINUS`, `mk_EQUAL`, `mk_LESSEQUAL`, `mk_NOT` and `mk_AND`, with the auxiliary `mk_PLUS_CONST`. Definitions 18.2–18.3 are `cp_aexp`, `cp_bexp`, `mk_IFTHENELSE`, `mk_WHILE` and `cp_com`. Lemma 18.1 is `mk_PLUS_sound`, `mk_MINUS_sound`, `mk_EQUAL_sound`, `mk_LESSEQUAL_sound`, `mk_NOT_sound` and `mk_AND_sound`. Lemma 18.2 is `cp_aexp_sound` and `cp_bexp_sound`. Lemma 18.3 is `cexec_mk_IFTHENELSE`, `cexec_mk_WHILE_done` and `cexec_mk_WHILE_loop`. Theorem 18.4 is `cp_com_correct_terminating`.
 * Sessions 19–20 follow the liveness and dead code chapter. A set of names is an `IdentSet`, a hash set. The development assumes one axiom, `union_characterisation`: a name is in a union exactly when it is in one of the two sets. $`\mathrm{FV}(b)` and $`\mathrm{RV}(c)` are `fv_bexp b` and `fv_com c`. $`\mathrm{iter}(F,D,n,X)` is `deadcode_fixpoint_rec F D n X`, and $`\mathrm{iter}(F,D,20,\varnothing)` is `deadcode_fixpoint F D`. $`\mathrm{live}(c,L)` is `live c L`. Lemma 19.4 is `fixpoint_charact'` and `fixpoint_upper_bound`. Lemma 19.5 is `live_upper_bound`. Theorem 19.6 is `live_while_charact`. [Liveness and dead code](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Deadcode.lean)
-* $`\mathrm{elim}(c,L)` is `dce c L`, and $`s|_X=u|_X` is `agree X s u`. Lemma 20.1 is `beval_agree`. Theorem 20.2 is `dce_correct_terminating`.
+* $`\mathrm{elim}(c,L)` is `dce c L`, and $`\sigma|_X=\sigma''|_X` is `agree X s u`. Lemma 20.1 is `beval_agree`. Theorem 20.2 is `dce_correct_terminating`.

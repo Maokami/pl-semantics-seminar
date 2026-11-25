@@ -9,15 +9,16 @@ tag := "ch04"
 file := "chapter-04"
 %%%
 
+The evaluator in Session 1 specifies a result at each leaf and combines two results at an addition. Counting nodes uses the same recursion with different operations. We can characterize the expression datatype by what it allows us to do for *every* choice of such operations. Session 14 uses this characterization to prove the expression compiler correct.
+
+*In this session.*
+
 * *Definitions.* The four constructors of IMP expressions and the evaluator of Session 1, Definitions 1.1–1.3. [IMP language card A.1–A.3](imp-card/index.html#imp-a1)
-* *New terms.* Fold, constructor equation. [Glossary and label key](glossary/index.html)
+* *New terms.* Fold, constructor equation. [Glossary](glossary/index.html)
 * *Theorem 4.1 (Existence and uniqueness of a fold).* For every set $`A` equipped with a literal operation, a variable operation, and two binary operations, exactly one function from expressions to $`A` satisfies the four constructor equations of §4.1.
-* *Source.* The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Source and proof references](imp-card/index.html#imp-sources)
 * *Board case.* At an addition node, use the two induction hypotheses to compare the results of two functions satisfying the same equations.
 * *Proof outline.* Define one function by recursion on finite trees. For every competing function, prove pointwise equality by structural induction.
 * *From Session 3.* Session 3 proved that two execution derivations for the same command from the same initial store end in the same final store. Here two functions that satisfy the same constructor equations are proved equal, by structural induction on expressions (Session 1, §1.1). The evaluator of Session 1 becomes one choice of operations; counting nodes and recording the order of leaves are others.
-
-The evaluator in Session 1 specifies a result at each leaf and combines two results at an addition. Counting nodes uses the same recursion with different operations. We can characterize the expression datatype by what it allows us to do for *every* choice of such operations. Session 14 uses this characterization to prove the expression compiler correct.
 
 # Four operations on a set
 %%%
@@ -131,5 +132,7 @@ In Session 14 the result set will consist of functions describing what a compile
 tag := "ch04-notes"
 number := false
 %%%
+
+The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Source and proof references](imp-card/index.html#imp-sources)
 
 * *Theorem 4.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

@@ -9,15 +9,16 @@ tag := "ch06"
 file := "chapter-06"
 %%%
 
+Session 2 represents a terminating execution by a tree. Session 5 represents it by a path ending at skip. For a sequence, the tree has one child per operand, whereas the path keeps the second operand in its residual command while the first executes. Matching the two pictures requires a lemma about executing a command inside a larger one.
+
+*In this session.*
+
 * *Definitions.* Terminating execution (Session 2, Definition 2.1), transitions and finite paths (Session 5, Definition 5.1 and Lemma 5.4). [IMP language card A.5–A.6](imp-card/index.html#imp-a5)
-* *New terms.* Sequence context, path lifting. [Glossary and label key](glossary/index.html)
+* *New terms.* Sequence context, path lifting. [Glossary](glossary/index.html)
 * *Theorem 6.2 (Equivalence of terminating executions).* For every command $`c` and stores $`s,t`, $`s\vdash c\Downarrow t` if and only if $`\langle c,s\rangle\to^*\langle\mathsf{skip},t\rangle`.
-* *Source.* Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* From an execution tree for $`c_1;c_2`, lift the path for $`c_1` through the suffix $`c_2`, discard the leading skip, and join the path for $`c_2`.
 * *Proof outline.* From a tree, induct on the execution derivation. From a path ending at skip, induct on its length, using Lemma 6.3 to reconstruct the execution before the first edge.
 * *From Session 5.* There we characterized termination by reaching skip. Here we compare that endpoint with the final store certified by a Session 2 execution tree.
-
-Session 2 represents a terminating execution by a tree. Session 5 represents it by a path ending at skip. For a sequence, the tree has one child per operand, whereas the path keeps the second operand in its residual command while the first executes. Matching the two pictures requires a lemma about executing a command inside a larger one.
 
 # Paths inside sequences
 %%%
@@ -158,6 +159,8 @@ To make an intermediate observation meaningful, specify what a path exposes. Sup
 tag := "ch06-notes"
 number := false
 %%%
+
+Leroy proves the two implications for these IMP rules, with Lemma 6.3 as the key step of the reverse implication. Nipkow and Klein prove the same endpoint equivalence for their transition rules. [Source and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.3.1](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Lemma 6.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Theorem 6.2.* Source: Leroy’s IMP, correspondence between executions and transitions. Corresponds to CS Corollary 7.16. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

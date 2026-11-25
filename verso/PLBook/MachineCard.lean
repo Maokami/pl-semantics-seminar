@@ -9,7 +9,7 @@ file := "machine-card"
 number := false
 %%%
 
-B.1–B.6 accompany [Compiling Expressions to a Stack Machine](chapter-14/index.html). B.7 accompanies [Session 15](chapter-15/index.html). B.8–B.9 accompany [Session 16](chapter-16/index.html). The instruction set, the transition rules and the three compilation functions follow Leroy’s course without change: the same instructions, the same order of arguments and the same branch offsets. Expressions, guards, commands, stores and evaluation are those of the [IMP language card](imp-card/index.html). Letters: $`C` is the code of a whole program, $`K` a block of code, $`i` an instruction, $`\mathit{pc}` a program counter, $`S` a stack, $`s,t` stores, $`n` an integer and $`d` a branch distance. [English–Korean glossary](glossary/index.html)
+B.1–B.6 accompany [Compiling Expressions to a Stack Machine](chapter-14/index.html). B.7 accompanies [Session 15](chapter-15/index.html). B.8–B.9 accompany [Session 16](chapter-16/index.html). The instruction set, the transition rules and the three compilation functions follow Leroy’s course without change: the same instructions, the same order of arguments and the same branch offsets. Expressions, guards, commands, states and evaluation are those of the [IMP language card](imp-card/index.html). Letters: $`C` is the code of a whole program, $`K` a block of code, $`i` an instruction, $`\mathit{pc}` a program counter, $`S` a stack, $`\sigma,\sigma'` states, $`n` an integer and $`d` a branch distance. [English–Korean glossary](glossary/index.html)
 
 # B.1 Instructions · Session 14
 %%%
@@ -55,7 +55,7 @@ number := false
 
 A *stack* is a finite list of integers with its top on the left. Write $`[\,]` for the empty stack and $`n::S` for the stack with $`n` on top of the stack $`S`. Thus $`[3,8,11]=3::8::11::[\,]` has $`3` on top. Write $`\mathrm{Stack}` for the set of stacks.
 
-A *machine configuration* $`\langle\mathit{pc},S,s\rangle` has three components. The *program counter* $`\mathit{pc}` is the position of the next instruction. The stack $`S` holds intermediate results. The store $`s` (A.2) gives the values of variables. The code $`C` stays fixed during a run and is not part of the configuration.
+A *machine configuration* $`\langle\mathit{pc},S,\sigma\rangle` has three components. The *program counter* $`\mathit{pc}` is the position of the next instruction. The stack $`S` holds intermediate results. The state $`\sigma` (A.2) gives the values of variables. The code $`C` stays fixed during a run and is not part of the configuration.
 
 # B.4 Transitions · Session 14
 %%%
@@ -65,26 +65,26 @@ number := false
 
 Write $`C\vdash p\to q` when the machine running the code $`C` moves from the configuration $`p` to the configuration $`q` in one *transition*. The prefix $`C\vdash` distinguishes these transitions from the transitions of IMP commands in A.6. There is one rule for each instruction except $`\mathsf{halt}`. Each rule reads the instruction at the current program counter.
 
-$$`\frac{C(\mathit{pc})=\mathsf{push}(n)}{C\vdash\langle\mathit{pc},S,s\rangle\to\langle\mathit{pc}+1,n::S,s\rangle}\qquad
-\frac{C(\mathit{pc})=\mathsf{load}(x)}{C\vdash\langle\mathit{pc},S,s\rangle\to\langle\mathit{pc}+1,s(x)::S,s\rangle}`
+$$`\frac{C(\mathit{pc})=\mathsf{push}(n)}{C\vdash\langle\mathit{pc},S,\sigma\rangle\to\langle\mathit{pc}+1,n::S,\sigma\rangle}\qquad
+\frac{C(\mathit{pc})=\mathsf{load}(x)}{C\vdash\langle\mathit{pc},S,\sigma\rangle\to\langle\mathit{pc}+1,\sigma(x)::S,\sigma\rangle}`
 
-$$`\frac{C(\mathit{pc})=\mathsf{setvar}(x)}{C\vdash\langle\mathit{pc},n::S,s\rangle\to\langle\mathit{pc}+1,S,s[x\mapsto n]\rangle}`
+$$`\frac{C(\mathit{pc})=\mathsf{setvar}(x)}{C\vdash\langle\mathit{pc},n::S,\sigma\rangle\to\langle\mathit{pc}+1,S,\sigma[x\mapsto n]\rangle}`
 
 In the rule for $`\mathsf{plus}` the integer $`n_2` is on top and $`n_1` is below it. The sum is written $`n_1+n_2`.
 
-$$`\frac{C(\mathit{pc})=\mathsf{plus}}{C\vdash\langle\mathit{pc},n_2::n_1::S,s\rangle\to\langle\mathit{pc}+1,(n_1+n_2)::S,s\rangle}\qquad
-\frac{C(\mathit{pc})=\mathsf{opp}}{C\vdash\langle\mathit{pc},n::S,s\rangle\to\langle\mathit{pc}+1,(-n)::S,s\rangle}`
+$$`\frac{C(\mathit{pc})=\mathsf{plus}}{C\vdash\langle\mathit{pc},n_2::n_1::S,\sigma\rangle\to\langle\mathit{pc}+1,(n_1+n_2)::S,\sigma\rangle}\qquad
+\frac{C(\mathit{pc})=\mathsf{opp}}{C\vdash\langle\mathit{pc},n::S,\sigma\rangle\to\langle\mathit{pc}+1,(-n)::S,\sigma\rangle}`
 
-$$`\frac{C(\mathit{pc})=\mathsf{branch}(d)}{C\vdash\langle\mathit{pc},S,s\rangle\to\langle\mathit{pc}+1+d,S,s\rangle}`
+$$`\frac{C(\mathit{pc})=\mathsf{branch}(d)}{C\vdash\langle\mathit{pc},S,\sigma\rangle\to\langle\mathit{pc}+1+d,S,\sigma\rangle}`
 
 The two conditional branch instructions pop $`n_2` from the top and $`n_1` from below it. For $`\mathsf{beq}(d_1,d_0)` let $`\delta` be $`d_1` when $`n_1=n_2` and $`d_0` otherwise. For $`\mathsf{ble}(d_1,d_0)` let $`\delta` be $`d_1` when $`n_1\le n_2` and $`d_0` otherwise.
 
-$$`\frac{C(\mathit{pc})=\mathsf{beq}(d_1,d_0)}{C\vdash\langle\mathit{pc},n_2::n_1::S,s\rangle\to\langle\mathit{pc}+1+\delta,S,s\rangle}\qquad
-\frac{C(\mathit{pc})=\mathsf{ble}(d_1,d_0)}{C\vdash\langle\mathit{pc},n_2::n_1::S,s\rangle\to\langle\mathit{pc}+1+\delta,S,s\rangle}`
+$$`\frac{C(\mathit{pc})=\mathsf{beq}(d_1,d_0)}{C\vdash\langle\mathit{pc},n_2::n_1::S,\sigma\rangle\to\langle\mathit{pc}+1+\delta,S,\sigma\rangle}\qquad
+\frac{C(\mathit{pc})=\mathsf{ble}(d_1,d_0)}{C\vdash\langle\mathit{pc},n_2::n_1::S,\sigma\rangle\to\langle\mathit{pc}+1+\delta,S,\sigma\rangle}`
 
-Only $`\mathsf{setvar}` changes the store. Only the three branch instructions move the program counter by something other than one. A configuration has no transition when $`C(\mathit{pc})` is undefined, when $`C(\mathit{pc})=\mathsf{halt}`, or when the stack holds fewer integers than the instruction pops.
+Only $`\mathsf{setvar}` changes the state. Only the three branch instructions move the program counter by something other than one. A configuration has no transition when $`C(\mathit{pc})` is undefined, when $`C(\mathit{pc})=\mathsf{halt}`, or when the stack holds fewer integers than the instruction pops.
 
-For example, take $`C=[\mathsf{push}(1),\mathsf{load}(x),\mathsf{plus},\mathsf{setvar}(y)]` and a store with $`s(x)=4`. From $`\langle0,[\,],s\rangle` the machine moves to $`\langle1,[1],s\rangle`, $`\langle2,[4,1],s\rangle`, $`\langle3,[5],s\rangle` and $`\langle4,[\,],s[y\mapsto5]\rangle`. Since $`C(4)` is undefined, the last configuration has no transition.
+For example, take $`C=[\mathsf{push}(1),\mathsf{load}(x),\mathsf{plus},\mathsf{setvar}(y)]` and a state with $`\sigma(x)=4`. From $`\langle0,[\,],\sigma\rangle` the machine moves to $`\langle1,[1],\sigma\rangle`, $`\langle2,[4,1],\sigma\rangle`, $`\langle3,[5],\sigma\rangle` and $`\langle4,[\,],\sigma[y\mapsto5]\rangle`. Since $`C(4)` is undefined, the last configuration has no transition.
 
 # B.5 Finite paths · Session 14
 %%%
@@ -114,7 +114,7 @@ Both operands are compiled first, the left one before the right one, and the ope
 
 $$`\mathrm{cexp}(x-(2+1))=[\mathsf{load}(x),\mathsf{push}(2),\mathsf{push}(1),\mathsf{plus},\mathsf{opp},\mathsf{plus}].`
 
-The code $`\mathrm{cexp}(e)` contains only the instructions $`\mathsf{push}`, $`\mathsf{load}`, $`\mathsf{plus}` and $`\mathsf{opp}`. Session 14 proves that it advances the program counter by $`|\mathrm{cexp}(e)|`, pushes $`\mathrm{eval}(e,s)` on the stack and leaves the store unchanged.
+The code $`\mathrm{cexp}(e)` contains only the instructions $`\mathsf{push}`, $`\mathsf{load}`, $`\mathsf{plus}` and $`\mathsf{opp}`. Session 14 proves that it advances the program counter by $`|\mathrm{cexp}(e)|`, pushes $`\mathrm{eval}(e,\sigma)` on the stack and leaves the state unchanged.
 
 # B.7 Compiling Boolean expressions · Session 15
 %%%
@@ -122,7 +122,7 @@ tag := "machine-b7"
 number := false
 %%%
 
-The code $`\mathrm{cbexp}(b,d_1,d_0)` for a guard $`b` (A.4) never puts a truth value on the stack. It is meant to leave the stack and the store unchanged, and then to continue $`d_1` instructions after its own end when $`B(b,s)=\mathsf{true}` and $`d_0` instructions after its own end when $`B(b,s)=\mathsf{false}`. Session 15 proves this. The two branch distances $`d_1,d_0` are integers.
+The code $`\mathrm{cbexp}(b,d_1,d_0)` for a guard $`b` (A.4) never puts a truth value on the stack. It is meant to leave the stack and the state unchanged, and then to continue $`d_1` instructions after its own end when $`B(b,\sigma)=\mathsf{true}` and $`d_0` instructions after its own end when $`B(b,\sigma)=\mathsf{false}`. Session 15 proves this. The two branch distances $`d_1,d_0` are integers.
 
 $$`\begin{aligned}
 \mathrm{cbexp}(\mathsf{true},d_1,d_0)&=[\,]\ \text{ if } d_1=0,\quad\text{otherwise } [\mathsf{branch}(d_1)]\\
@@ -135,7 +135,7 @@ $$`\begin{aligned}
 
 Negation exchanges the two distances. In a conjunction, the code for $`b_1` continues into $`K_2` when $`b_1` is true. When $`b_1` is false it skips $`K_2` and then $`d_0` further instructions, which is where the false outcome of $`b_1\land b_2` must continue.
 
-For example, $`\mathrm{cbexp}(x\le1,0,3)=[\mathsf{load}(x),\mathsf{push}(1),\mathsf{ble}(0,3)]`. With $`s(x)=4` the comparison pops $`n_2=1` and $`n_1=4`. Since $`4\le1` is false, the machine continues three instructions after the end of the block.
+For example, $`\mathrm{cbexp}(x\le1,0,3)=[\mathsf{load}(x),\mathsf{push}(1),\mathsf{ble}(0,3)]`. With $`\sigma(x)=4` the comparison pops $`n_2=1` and $`n_1=4`. Since $`4\le1` is false, the machine continues three instructions after the end of the block.
 
 # B.8 Compiling commands · Session 16
 %%%
@@ -143,7 +143,7 @@ tag := "machine-b8"
 number := false
 %%%
 
-The code $`\mathrm{ccom}(c)` for a command $`c` (A.4) is meant to change the store as $`c` does, leave the stack unchanged, and finish at its own end. Session 16 proves this for terminating executions.
+The code $`\mathrm{ccom}(c)` for a command $`c` (A.4) is meant to change the state as $`c` does, leave the stack unchanged, and finish at its own end. Session 16 proves this for terminating executions.
 
 $$`\begin{aligned}
 \mathrm{ccom}(\mathsf{skip})&=[\,]\\
@@ -171,13 +171,13 @@ tag := "machine-b9"
 number := false
 %%%
 
-A whole program $`c` is compiled to $`C=\mathrm{ccom}(c)\mathbin{+\!\!+}[\mathsf{halt}]`. A run starts in the configuration $`\langle0,[\,],s\rangle`. There are three possible behaviours.
+A whole program $`c` is compiled to $`C=\mathrm{ccom}(c)\mathbin{+\!\!+}[\mathsf{halt}]`. A run starts in the configuration $`\langle0,[\,],\sigma\rangle`. There are three possible behaviours.
 
-* The machine *terminates* from $`s` with final store $`t` when there is a position $`\mathit{pc}` with $`C\vdash\langle0,[\,],s\rangle\to^*\langle\mathit{pc},[\,],t\rangle` and $`C(\mathit{pc})=\mathsf{halt}`.
-* The machine *diverges* from $`s` when there is an infinite path of machine transitions from $`\langle0,[\,],s\rangle`, in the sense of A.6.
-* The machine *goes wrong* from $`s` when $`C\vdash\langle0,[\,],s\rangle\to^*\langle\mathit{pc},S,t\rangle` for a configuration with no transition such that $`C(\mathit{pc})` is not $`\mathsf{halt}` (it may be undefined) or $`S\neq[\,]`.
+* The machine *terminates* from $`\sigma` with final state $`\sigma'` when there is a position $`\mathit{pc}` with $`C\vdash\langle0,[\,],\sigma\rangle\to^*\langle\mathit{pc},[\,],\sigma'\rangle` and $`C(\mathit{pc})=\mathsf{halt}`.
+* The machine *diverges* from $`\sigma` when there is an infinite path of machine transitions from $`\langle0,[\,],\sigma\rangle`, in the sense of A.6.
+* The machine *goes wrong* from $`\sigma` when $`C\vdash\langle0,[\,],\sigma\rangle\to^*\langle\mathit{pc},S,\sigma'\rangle` for a configuration with no transition such that $`C(\mathit{pc})` is not $`\mathsf{halt}` (it may be undefined) or $`S\neq[\,]`.
 
-For example, $`\mathrm{ccom}(x:=x+1)\mathbin{+\!\!+}[\mathsf{halt}]=[\mathsf{load}(x),\mathsf{push}(1),\mathsf{plus},\mathsf{setvar}(x),\mathsf{halt}]`. From a store with $`s(x)=2` the machine reaches $`\langle4,[\,],s[x\mapsto3]\rangle`, where $`C(4)=\mathsf{halt}`. It terminates with final store $`s[x\mapsto3]`.
+For example, $`\mathrm{ccom}(x:=x+1)\mathbin{+\!\!+}[\mathsf{halt}]=[\mathsf{load}(x),\mathsf{push}(1),\mathsf{plus},\mathsf{setvar}(x),\mathsf{halt}]`. From a state with $`\sigma(x)=2` the machine reaches $`\langle4,[\,],\sigma[x\mapsto3]\rangle`, where $`C(4)=\mathsf{halt}`. It terminates with final state $`\sigma[x\mapsto3]`.
 
 # Source and Lean names
 %%%
@@ -192,7 +192,7 @@ These references document the formalization. They are optional for seminar prepa
 * The instructions $`\mathsf{push}(n)`, $`\mathsf{load}(x)`, $`\mathsf{setvar}(x)`, $`\mathsf{plus}`, $`\mathsf{opp}`, $`\mathsf{branch}(d)`, $`\mathsf{beq}(d_1,d_0)`, $`\mathsf{ble}(d_1,d_0)` and $`\mathsf{halt}` are the constructors `Iconst n`, `Ivar x`, `Isetvar x`, `Iadd`, `Iopp`, `Ibranch d`, `Ibeq d1 d0`, `Ible d1 d0` and `Ihalt` of the type `instr`.
 * Code is `List instr`. The length $`|C|` is `codelen C`. The equation $`C(\mathit{pc})=i` is `instr_at C pc = .some i`, and $`C(\mathit{pc})` undefined is `instr_at C pc = .none`.
 * $`\mathrm{at}(C,\mathit{pc},K)` is `code_at C pc K`. The three facts of B.2 are `code_at_head` with `code_at_tail`, then `code_at_app_left` with `code_at_app_right`, then `code_at_app_right2`.
-* A stack is `stack`, a list of integers whose head is the top. The configuration $`\langle\mathit{pc},S,s\rangle` is the triple `(pc, S, s)` of type `config`. The store and $`s[x\mapsto n]` are `store` and `update x n s`.
+* A stack is `stack`, a list of integers whose head is the top. The configuration $`\langle\mathit{pc},S,\sigma\rangle` is the triple `(pc, S, s)` of type `config`. The state $`\sigma` has type `store` in Lean. Its update $`\sigma[x\mapsto n]` is `update x n s`.
 * $`C\vdash p\to q` is `transition C p q`. Its rules are `trans_const`, `trans_var`, `trans_setvar`, `trans_add`, `trans_opp`, `trans_branch`, `trans_beq` and `trans_ble`.
 * $`C\vdash p\to^*q` is `transitions C p q`, defined as `star (transition C) p q`. A single transition as a path is `star_one`. Joining two paths is `star_trans`. An infinite path is `infseq`.
 * $`\mathrm{cexp}(e)`, $`\mathrm{cbexp}(b,d_1,d_0)` and $`\mathrm{ccom}(c)` are `compile_aexp e`, `compile_bexp b d1 d0` and `compile_com c`. The compiled whole program is `compile_program c`.

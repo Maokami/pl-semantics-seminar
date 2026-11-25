@@ -8,15 +8,16 @@ tag := "ch36"
 file := "chapter-36"
 %%%
 
+Session 35 computed the meaning of the term $`K\,\overline{1}` without evaluating it and obtained the number 0. Separately, it found an evaluation of $`K\,\overline{1}` to the numeral $`\overline{0}`. Was that evaluation guaranteed once the meaning was known? This session states the guarantee, called computational adequacy, and builds the tool for its proof: a relation between semantic elements and closed terms, defined by recursion on types. Session 37 proves the theorem.
+
+*In this session.*
+
 * *Definitions.* PCF types, closed terms, values, the typing judgment $`\vdash t:T`, the evaluation judgment $`t\Downarrow v` with its call-by-name rule B-App and its rule B-Fix, the domains $`\llbracket T\rrbracket ` and the meaning $`\llbracket t\rrbracket ` of a closed term ([Session 35](chapter-35/index.html)). Increasing sequences $`d_0\sqsubseteq d_1\sqsubseteq\cdots`, least upper bounds $`\bigsqcup_j d_j`, flat domains, the pointwise order on continuous functions and admissible sets ([Session 34](chapter-34/index.html)).
-* *New terms.* Computational adequacy, ground type, formal approximation relation, closure under evaluation. [Glossary and label key](glossary/index.html)
+* *New terms.* Computational adequacy, ground type, formal approximation relation, closure under evaluation. [Glossary](glossary/index.html)
 * *Lemma 36.3 (The related set is admissible).* For every type $`T` and every closed term $`t` with $`\vdash t:T`: (a) $`\bot\lhd_T t`; (b) for every increasing sequence $`d_0\sqsubseteq d_1\sqsubseteq\cdots` in $`\llbracket T\rrbracket `, if $`d_j\lhd_T t` for every $`j`, then $`\bigsqcup_j d_j\lhd_T t`. With Lemma 36.4 it is one of the two tools for Theorem 36.1 (adequacy), which Session 37 proves.
-* *Source.* Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). Definition 36.2 is their Definition 27, Lemma 36.3 their Lemmas 32 and 33, Lemma 36.4 their Lemma 35, and Theorem 36.1 their Theorem 31. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 * *Board case.* Lemma 36.3(b) in the case Nat and in the case of an arrow type $`T\to S`.
 * *Proof outline.* Induction on the type $`T` with $`Q(T)\coloneqq\forall t,\ \forall(d_j)_j,\ (\forall j,\ d_j\lhd_T t)\Rightarrow\bigsqcup_j d_j\lhd_T t`, where $`t` ranges over closed terms of type $`T` and $`(d_j)_j` over increasing sequences in $`\llbracket T\rrbracket `. At $`\mathsf{Nat}` a number in the limit already occurs at a finite stage. At $`T\to S` fix a related argument pair $`(d,u)` and apply $`Q(S)` to the term $`t\,u`, which is the same at every stage.
 * *From Session 35.* Session 35 computed $`\llbracket K\,\overline{1}\rrbracket =0` from an increasing sequence of approximations and built a derivation of $`K\,\overline{1}\Downarrow\overline{0}` by hand. This session asks when the first calculation guarantees the second, for every closed term of type $`\mathsf{Nat}` or $`\mathsf{Bool}`.
-
-Session 35 computed the meaning of the term $`K\,\overline{1}` without evaluating it and obtained the number 0. Separately, it found an evaluation of $`K\,\overline{1}` to the numeral $`\overline{0}`. Was that evaluation guaranteed once the meaning was known? This session states the guarantee, called computational adequacy, and builds the tool for its proof: a relation between semantic elements and closed terms, defined by recursion on types. Session 37 proves the theorem.
 
 # Soundness and adequacy
 %%%
@@ -177,6 +178,8 @@ number := false
 tag := "ch36-notes"
 number := false
 %%%
+
+Cambridge _Denotational Semantics_ lecture notes for 2025–26 (version of 5 December 2024). Definition 36.2 is their Definition 27. [Cambridge notes](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
 
 * *Theorem 35.8.* Restates [Theorem 35.8](chapter-35/index.html#ch35-notes). Paper proof only ([§35.4](chapter-35/index.html#ch35-s4)).
 * *Theorem 36.1.* Source: Cambridge notes, Theorem 31. Paper proof only ([§37.4](chapter-37/index.html#ch37-s4)).

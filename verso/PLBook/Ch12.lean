@@ -9,15 +9,16 @@ tag := "ch12"
 file := "chapter-12"
 %%%
 
+The program below adds the integers from 1 to $`n`. With $`n=3` the loop test is reached four times, with $`(i,a)` equal to $`(0,0)`, $`(1,1)`, $`(2,3)` and $`(3,6)`. Each pair satisfies $`2a=i(i+1)`, and the last test fails with $`i=n`. Checking one value of $`n` at a time never ends. We need one assertion that holds before the loop, survives one more execution of the body, and gives the result when the guard fails. This session turns that argument into a proof rule and proves that every triple derived by the rules of Hoare logic is valid.
+
+*In this session.*
+
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notation $`e_1<e_2` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Assertions, triples $`\{P\}\,c\,\{Q\}`, validity $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` and the validity of assignment triples ([Session 11, Definition 11.5 and Theorem 11.7](chapter-11/index.html#ch11-s3)). Sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)), the assignment result ([Session 3, Lemma 3.1](chapter-03/index.html#ch03-s2)) and the validity of sequences and consequence ([Session 11, Proposition 11.9](chapter-11/index.html#ch11-s4)).
-* *New terms.* Guard assertion, loop invariant, Hoare proof system, derivable triple, soundness. [Glossary and label key](glossary/index.html)
+* *New terms.* Guard assertion, loop invariant, Hoare proof system, derivable triple, soundness. [Glossary](glossary/index.html)
 * *Theorem 12.3 (Soundness).* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
-* *Source.* The six proof rules are those of _Concrete Semantics_, Fig. 12.3, where assertions are predicates on stores. They are written here for the guards of A.4. Nipkow and Klein prove soundness as Lemma 12.2 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §§12.2–12.3, pp. 192–204](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* The while rule. Take the hypothesis $`V(H_1)` for the body and prove $`L(D)` by induction on the loop execution $`D:s\vdash W\Downarrow t`. The iteration case takes four steps.
 * *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` with $`V(H)\coloneqq\forall s,t,\ (P(s)\land s\vdash c\Downarrow t)\Rightarrow Q(t)`. Most cases invert the execution of $`c` and apply the hypotheses of the premises. In the while case a nested induction (Session 10, §10.3), on the height of $`D:s\vdash W\Downarrow t`, proves $`L(D)\coloneqq P(s)\Rightarrow(P(t)\land B(b,t)=\mathsf{false})`.
 * *From Session 11.* Session 11 proved one triple valid at a time, directly from the execution rules. Here rules combine into derivations, and one induction proves every derivable triple valid. For the loop, the hypothesis about the rest of the run comes from induction on execution derivations, as in Session 3.
-
-The program below adds the integers from 1 to $`n`. With $`n=3` the loop test is reached four times, with $`(i,a)` equal to $`(0,0)`, $`(1,1)`, $`(2,3)` and $`(3,6)`. Each pair satisfies $`2a=i(i+1)`, and the last test fails with $`i=n`. Checking one value of $`n` at a time never ends. We need one assertion that holds before the loop, survives one more execution of the body, and gives the result when the guard fails. This session turns that argument into a proof rule and proves that every triple derived by the rules of Hoare logic is valid.
 
 # Invariants of a summation loop
 %%%
@@ -241,5 +242,7 @@ number := false
 tag := "ch12-notes"
 number := false
 %%%
+
+The six proof rules are those of _Concrete Semantics_, Fig. 12.3, where assertions are predicates on stores. They are written here for the guards of A.4. Nipkow and Klein prove soundness as Lemma 12.2 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §§12.2–12.3, pp. 192–204](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Theorem 12.3.* Corresponds to CS Lemma 12.2. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

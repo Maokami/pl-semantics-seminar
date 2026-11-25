@@ -9,15 +9,16 @@ tag := "ch08"
 file := "chapter-08"
 %%%
 
+The command `x := x + 1` produces a final store from every initial store. The command `while 0 < x do skip` returns its initial store when $`s(x)\le0` and has no terminating execution when $`s(x)>0`. We want a meaning for each command that is one function on stores, and we want the meaning of `c; d` to be computed from the meanings of `c` and `d`. Two questions follow. What does the function return when there is no final store? What does the second command do when the first returns nothing?
+
+*In this session.*
+
 * *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)), expression evaluation ([A.3](imp-card/index.html#imp-a3)), commands and guard values ([A.4](imp-card/index.html#imp-a4)), the branch selected by a guard ([A.5](imp-card/index.html#imp-a5)), partial functions and their graphs ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). This session adds Definitions 8.1–8.4, 8.7 and 8.9.
-* *New terms.* Bottom, state transformer, strict extension, information order, least upper bound. [Glossary and label key](glossary/index.html)
+* *New terms.* Bottom, state transformer, strict extension, information order, least upper bound. [Glossary](glossary/index.html)
 * *Theorem 8.5 (Associativity of sequencing).* For all state transformers $`f,g,h`, $`h^{\dagger}\circ(g^{\dagger}\circ f)=(h^{\dagger}\circ g)^{\dagger}\circ f`. Running $`f`, then $`g`, then $`h` gives the same state transformer under either grouping.
-* *Source.* The outcomes, strict extension, command meanings and information order follow John C. Reynolds, _Theories of Programming Languages_, §§2.2–2.3. Here they are applied to the commands of [A.4](imp-card/index.html#imp-a4). [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 * *Board case.* Theorem 8.5 at one store $`s`, in both cases of the first state transformer: it does not terminate ($`f(s)=\bot`), and it terminates in an intermediate store ($`f(s)=m`).
 * *Proof outline.* Two state transformers are equal when they agree at every store. Fix $`s` and split on the outcome $`f(s)`. In each case apply the two equations of strict extension until both sides become the same expression. No induction is needed.
 * *From Session 7.* Session 7 compared two commands through their terminating executions, one pair of stores at a time. Here each command without loops receives a single state transformer, and a claim about all executions of two commands becomes an equation between two functions.
-
-The command `x := x + 1` produces a final store from every initial store. The command `while 0 < x do skip` returns its initial store when $`s(x)\le0` and has no terminating execution when $`s(x)>0`. We want a meaning for each command that is one function on stores, and we want the meaning of `c; d` to be computed from the meanings of `c` and `d`. Two questions follow. What does the function return when there is no final store? What does the second command do when the first returns nothing?
 
 # Outcomes and state transformers
 %%%
@@ -208,6 +209,8 @@ number := false
 tag := "ch08-notes"
 number := false
 %%%
+
+The outcomes, strict extension, command meanings and information order follow John C. Reynolds, _Theories of Programming Languages_, §§2.2–2.3. Here they are applied to the commands of [A.4](imp-card/index.html#imp-a4). [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
 
 * *Theorem 8.5.* Source: Reynolds §§2.2–2.3, strict extension. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Corollary 8.6.* Source: Reynolds §§2.2–2.3, the sequencing clause. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).

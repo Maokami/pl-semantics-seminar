@@ -8,15 +8,16 @@ tag := "ch14"
 file := "chapter-14"
 %%%
 
+Compile $`x+1` to the three instructions $`\mathsf{load}(x)`, $`\mathsf{push}(1)`, $`\mathsf{plus}`. Run them with $`s(x)=8`, starting from the stack $`[11]`. The stacks are $`[8,11]`, $`[1,8,11]` and $`[9,11]`. The value $`9` lands on top, and the $`11` below it is never touched. In the code for $`(x+1)+y`, the code for $`y` then starts from $`[9,11]`, a stack that already holds a partial result. A theorem about the empty initial stack alone could not justify that second run. The statement must hold for every initial stack, even though every complete program starts with an empty one.
+
+*In this session.*
+
 * *Definitions.* Expressions, stores and evaluation (Session 1, Definitions 1.1–1.3; [IMP language card A.1–A.3](imp-card/index.html#imp-a1)). Partial functions ([Session 3, §3.3](chapter-03/index.html#ch03-s3)). The four operations and [Session 4, Theorem 4.1](chapter-04/index.html#ch04-s2). Instructions, code, stacks, transitions, finite paths and the compiler for expressions ([Stack machine card B.1–B.6](machine-card/index.html#machine-b1)).
-* *New terms.* Stack, program counter, code at a position, branch-free code, list execution. [Glossary and label key](glossary/index.html)
+* *New terms.* Stack, program counter, code at a position, branch-free code, list execution. [Glossary](glossary/index.html)
 * *Theorem 14.2 (Compiled code pushes the value).* For every expression $`e`, store $`s` and stack $`S`, list execution of the compiled code $`\mathrm{cexp}(e)` from $`S` is defined and $`\mathrm{run}_s(\mathrm{cexp}(e))(S)=\mathrm{eval}(e,s)::S`.
-* *Source.* The instructions, transitions and compiler are those of Leroy’s course, as recorded in the stack machine card. List execution, Theorem 14.2 and Lemma 14.3 are formulated here. Nipkow and Klein prove the same equation for list execution of their compiler, whose expressions have no subtraction. Corollary 14.4 is the correctness theorem for compiled expressions in Leroy’s course. [Source and Lean names](machine-card/index.html#machine-sources) · [Concrete Semantics, §3.3, p. 35](https://concrete-semantics.org/concrete-semantics.pdf)
 * *Board case.* Sum. Show that the function “run the compiled code” and the function “push the value” satisfy the same constructor equation at $`e_1+e_2`.
 * *Proof outline.* Fix the store. Let $`A` be the set of partial functions from stacks to stacks, with four operations read off the compiler. Check the four constructor equations for both functions, using Lemma 14.1 for the compiled code. Theorem 4.1 identifies the two functions. Lemma 14.3, proved by induction on the instruction list with the program counter and the stack quantified, carries the result over to the machine with positions.
 * *From Session 13.* Sessions 11–13 proved properties of source programs in one language. Here a compiler translates expressions into code for a second language, the stack machine, and the main theorem compares the two. Its proof reuses [Session 4, Theorem 4.1](chapter-04/index.html#ch04-s2), which was proved once, by structural induction, for every set with four operations. Here it is applied to a set of functions on stacks, so the proof of Theorem 14.2 needs no induction of its own.
-
-Compile $`x+1` to the three instructions $`\mathsf{load}(x)`, $`\mathsf{push}(1)`, $`\mathsf{plus}`. Run them with $`s(x)=8`, starting from the stack $`[11]`. The stacks are $`[8,11]`, $`[1,8,11]` and $`[9,11]`. The value $`9` lands on top, and the $`11` below it is never touched. In the code for $`(x+1)+y`, the code for $`y` then starts from $`[9,11]`, a stack that already holds a partial result. A theorem about the empty initial stack alone could not justify that second run. The statement must hold for every initial stack, even though every complete program starts with an empty one.
 
 # Code as a function on stacks
 %%%
@@ -201,6 +202,8 @@ number := false
 tag := "ch14-notes"
 number := false
 %%%
+
+The instructions, transitions and compiler are those of Leroy’s course, as recorded in the stack machine card. List execution, Theorem 14.2 and Lemma 14.3 are formulated here. Nipkow and Klein prove the same equation for list execution of their compiler, whose expressions have no subtraction. Corollary 14.4 is the correctness theorem for compiled expressions in Leroy’s course. [Source and Lean names](machine-card/index.html#machine-sources) · [Concrete Semantics, §3.3, p. 35](https://concrete-semantics.org/concrete-semantics.pdf)
 
 * *Definition 14.1.* Formulated in this book.
 * *Lemma 14.1.* Formulated in this book. Paper proof only ([§14.1](chapter-14/index.html#ch14-s1)).

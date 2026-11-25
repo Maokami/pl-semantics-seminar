@@ -9,15 +9,16 @@ tag := "ch01"
 file := "chapter-01"
 %%%
 
+In a store where the variable $`x` holds $`3`, the expression $`x + 4` has value $`7`. This chapter gives two precise accounts of that sentence. The first is a function that computes the value from the leaves of the expression up. The second is a set of rules that justify a proposed value step by step. We shall prove that a proposed value has a justification by the rules exactly when the function returns it. The same example runs through every section.
+
+*In this session.*
+
 * *Definitions.* Arithmetic expressions, stores, the evaluation function, free variables and the evaluation judgment (Definitions 1.1–1.5; [IMP language card A.1–A.3](imp-card/index.html)).
-* *New terms.* Inference rule, derivation, inversion, structural induction, induction on derivations. [Glossary and label key](glossary/index.html)
+* *New terms.* Inference rule, derivation, inversion, structural induction, induction on derivations. [Glossary](glossary/index.html)
 * *Theorem 1.3 (Correspondence).* For every expression $`e`, store $`s` and integer $`n`, $`s\vdash e\Downarrow n` if and only if $`\mathrm{eval}(e,s)=n`.
-* *Source.* The syntax, stores and evaluation function follow the arithmetic fragment of Leroy’s IMP. The four evaluation rules are formulated here on that syntax. Winskel identifies the graph of an expression’s meaning, the set of pairs of a store and the value in that store, with the pairs of stores and integers justified by his rules. [Source and proof references](imp-card/index.html#imp-sources) · [Winskel, §5.3, pp. 61–62](https://doi.org/10.7551/mitpress/3054.001.0001)
 * *Board case.* Addition in both directions. In one direction the two children of a derivation give equalities. In the other the two children of an expression give derivations.
 * *Proof outline.* From a derivation with result $`n`, prove that the evaluator returns $`n` by induction on that derivation. For the converse, construct a derivation of the computed result by structural induction on the expression.
 * *Starting point.* We begin with the expression $`x+4` and a store in which $`x` holds $`3`.
-
-In a store where the variable $`x` holds $`3`, the expression $`x + 4` has value $`7`. This chapter gives two precise accounts of that sentence. The first is a function that computes the value from the leaves of the expression up. The second is a set of rules that justify a proposed value step by step. We shall prove that a proposed value has a justification by the rules exactly when the function returns it. The same example runs through every section.
 
 # Abstract syntax and stores
 %%%
@@ -349,6 +350,8 @@ Xavier Leroy’s _Compiler Verification_ course, Lean 4 port by Wojciech Różow
 tag := "ch01-notes"
 number := false
 %%%
+
+The syntax, stores and evaluation function follow the arithmetic fragment of Leroy’s IMP. The four evaluation rules are formulated here on that syntax. Winskel identifies the graph of an expression’s meaning, the set of pairs of a store and the value in that store, with the pairs of stores and integers justified by his rules. [Source and proof references](imp-card/index.html#imp-sources) · [Winskel, §5.3, pp. 61–62](https://doi.org/10.7551/mitpress/3054.001.0001)
 
 * *Lemma 1.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
 * *Corollary 1.2.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
