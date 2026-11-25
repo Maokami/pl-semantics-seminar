@@ -101,14 +101,29 @@ theorem chainSup_some {g : Nat → Meaning} (inc : ∀ n, MeaningLe (g n) (g (n+
     (s t : store) : chainSup g s = some t ↔ ∃ n, g n s = some t :=
   outcomeSup_some (fun n ↦ inc n s) t
 
+/-- An upper bound below every upper bound, in the flat order (Definition 8.9). -/
+def IsLub (r : Nat → Outcome) (a : Outcome) : Prop :=
+  (∀ n, FlatLe (r n) a) ∧ ∀ u, (∀ n, FlatLe (r n) u) → FlatLe a u
+
+private theorem outcomeSup_isLub {r : Nat → Outcome} (inc : ∀ n, FlatLe (r n) (r (n+1))) :
+    IsLub r (outcomeSup r) := by
+  constructor
+  · exact fun n ↦ flatLe_iff.mpr fun t ht ↦ (outcomeSup_some inc t).mpr ⟨n, ht⟩
+  · intro a upper
+    apply flatLe_iff.mpr
+    intro t ht
+    obtain ⟨n, hn⟩ := (outcomeSup_some inc t).mp ht
+    exact flatLe_iff.mp (upper n) t hn
+
 /-- The first returning stage separates the two parts of a non-bottom chain (Lemma 8.10). -/
 theorem outcomeChainCases (r : Nat → Outcome) (inc : ∀ n, FlatLe (r n) (r (n+1))) :
-    ((∀ n, r n = none) ∧ outcomeSup r = none) ∨
-    ∃ k t, (∀ n, n < k → r n = none) ∧ (∀ n, k ≤ n → r n = some t) ∧
-      outcomeSup r = some t := by
+    ((∀ n, r n = none) ∧ IsLub r none) ∨
+    ∃ k t, (∀ n, n < k → r n = none) ∧ (∀ n, k ≤ n → r n = some t) ∧ IsLub r (some t) := by
   classical
+  have lub := outcomeSup_isLub inc
   by_cases allBottom : ∀ n, r n = none
-  · exact Or.inl ⟨allBottom, by simp [outcomeSup, allBottom]⟩
+  · have eq : outcomeSup r = none := by simp [outcomeSup, allBottom]
+    exact Or.inl ⟨allBottom, eq ▸ lub⟩
   · have defined : ∃ n, r n ≠ none := Classical.not_forall.mp allBottom
     obtain ⟨n, hn⟩ := defined
     obtain ⟨k, hk, before⟩ : ∃ k, r k ≠ none ∧ ∀ i, i < k → r i = none := by
@@ -123,27 +138,18 @@ theorem outcomeChainCases (r : Nat → Outcome) (inc : ∀ n, FlatLe (r n) (r (n
     cases eq : r k with
     | none => exact (hk eq).elim
     | some t =>
-      exact Or.inr ⟨k, t, before, fun _ le ↦ persists inc le eq,
-        (outcomeSup_some inc t).mpr ⟨k, eq⟩⟩
-
-private theorem outcomeSup_isLub {r : Nat → Outcome} (inc : ∀ n, FlatLe (r n) (r (n+1))) :
-    (∀ n, FlatLe (r n) (outcomeSup r)) ∧
-    (∀ a, (∀ n, FlatLe (r n) a) → FlatLe (outcomeSup r) a) := by
-  constructor
-  · exact fun n ↦ flatLe_iff.mpr fun t ht ↦ (outcomeSup_some inc t).mpr ⟨n, ht⟩
-  · intro a upper
-    apply flatLe_iff.mpr
-    intro t ht
-    obtain ⟨n, hn⟩ := (outcomeSup_some inc t).mp ht
-    exact flatLe_iff.mp (upper n) t hn
+      have supEq := (outcomeSup_some inc t).mpr ⟨k, eq⟩
+      exact Or.inr ⟨k, t, before, fun _ le ↦ persists inc le eq, supEq ▸ lub⟩
 
 /-- The pointwise construction is the least upper bound (Proposition 8.11). -/
 theorem chainSup_isLub (g : Nat → Meaning) (inc : ∀ n, MeaningLe (g n) (g (n+1))) :
     (∀ n, MeaningLe (g n) (chainSup g)) ∧
-    (∀ f, (∀ n, MeaningLe (g n) f) → MeaningLe (chainSup g) f) := by
-  constructor
-  · exact fun n s ↦ (outcomeSup_isLub (fun k ↦ inc k s)).1 n
-  · exact fun f upper s ↦ (outcomeSup_isLub (fun k ↦ inc k s)).2 (f s) (fun n ↦ upper n s)
+    (∀ f, (∀ n, MeaningLe (g n) f) → MeaningLe (chainSup g) f) ∧
+    ∀ s, chainSup g s = outcomeSup (fun n ↦ g n s) ∧ IsLub (fun n ↦ g n s) (chainSup g s) := by
+  have pointwise (s : store) := outcomeSup_isLub (fun n ↦ inc n s)
+  exact ⟨fun n s ↦ (pointwise s).1 n,
+    fun f upper s ↦ (pointwise s).2 (f s) (fun n ↦ upper n s),
+    fun s ↦ ⟨rfl, pointwise s⟩⟩
 
 noncomputable def loopMeaning (b : bexp) (body : Meaning) : Meaning := chainSup (approx b body)
 
@@ -182,7 +188,7 @@ theorem loopLeastFixed (b : bexp) (body : Meaning) :
             (by simpa [approx, unfoldLoop, guard] using h)
           exact ⟨m, hm, (atStage m t).mpr ⟨n, hn⟩⟩
   · intro g fixed
-    apply (chainSup_isLub _ (approxIncreasing b body)).2
+    apply (chainSup_isLub _ (approxIncreasing b body)).2.1
     intro n
     induction n with
     | zero => exact fun _ ↦ Or.inl rfl
