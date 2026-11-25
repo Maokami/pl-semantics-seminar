@@ -6,6 +6,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 from editions import update_pages
+from lean_sources import write_lean_sources
 
 ROOT = Path(__file__).resolve().parent
 
@@ -26,6 +27,7 @@ def build():
                 page.write_text(re.sub(r'<script src="' + re.escape(external) + r'"[^>]*>',
                                        '<script src="static/marked.min.js">', text))
         update_pages(stage)
+        write_lean_sources(stage)
         destination = site / "html-multi"
         if destination.exists():
             destination.rename(out / "previous")

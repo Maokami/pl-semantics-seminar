@@ -38,7 +38,7 @@ We prove $`P(\mathcal{D})` for every typing derivation $`\mathcal{D}` by inducti
 
 $$`P(\Gamma\vdash t:T)\coloneqq\forall\rho,\ \forall\vec{u},\ \rho\lhd_\Gamma\vec{u}\Rightarrow\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t.`
 
-The environment and the substitution are quantified inside $`P`, as the final store was in [Session 3](chapter-03/index.html#ch03-s2). The abstraction case applies the hypothesis for the body to an extended pair, not to the pair fixed at the start of the case.
+The environment and the substitution are quantified inside $`P`, as the final state was in [Session 3](chapter-03/index.html#ch03-s2). The abstraction case applies the hypothesis for the body to an extended pair, not to the pair fixed at the start of the case.
 
 # The cases other than the fixed point
 %%%

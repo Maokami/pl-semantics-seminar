@@ -11,7 +11,7 @@ number := false
 
 The Korean column gives the term to use when discussing the English text. The last column links to the definition and identifies the session that introduces it.
 
-*Reading the chapter notes.* Each chapter ends with *Sources and Formalization*. Look up a result by its number. The source describes where the statement comes from. The proof note describes what has been verified.
+*Reading the chapter notes.* Each chapter ends with *Sources and Formalization*. Look up a result by its number. The source describes where the statement comes from. The proof note describes what has been verified. Select a Lean declaration in the note to read its proof, or browse the book’s [Lean source index](lean/index.html).
 
 * *Formulated in this book* (자체 진술). The book formulates the statement for its own definitions.
 * *Corresponds to* (대응 정리). The cited result has the same form on the source’s definitions. CS abbreviates Nipkow and Klein’s _Concrete Semantics_.

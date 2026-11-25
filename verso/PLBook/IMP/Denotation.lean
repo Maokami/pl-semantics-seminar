@@ -1,8 +1,8 @@
 import PLBook.IMP.Language
 
-/-! Reynolds's lifted-store semantics. The outcome type, strict extension, flat order,
+/-! Reynolds's lifted-state semantics. The outcome type, strict extension, flat order,
 pointwise order and finite iteration specialize Lecture/S02Order.lean to the shared IMP
-stores and generalize its example unfolding to arbitrary guards and body meanings. -/
+states and generalize its example unfolding to arbitrary guards and body meanings. -/
 
 namespace PLBook.IMP
 

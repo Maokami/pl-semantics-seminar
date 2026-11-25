@@ -198,7 +198,7 @@ $$`P(D_2):\quad\forall\eta,\eta',\ \eta\mathrel{R_{\Gamma,x:T_1}}\eta'\Rightarro
 2. The extended environments are related at $`\Gamma,x{:}T_1`. At $`x` they give $`d` and $`d'`, which are related at $`T_1`. At each binding $`y{:}S` of $`\Gamma` they give $`\rho(y)` and $`\rho'(y)`, because $`y\neq x`, and these are related at $`S` because $`\rho\mathrel{R_\Gamma}\rho'`.
 3. $`P(D_2)` with $`\eta=\rho[x\mapsto d]` and $`\eta'=\rho'[x\mapsto d']` gives the claim of step 1. $`\square`
 
-The abstraction case applies the induction hypothesis to the extended environments, not to $`\rho` and $`\rho'`. This is why $`P(D)` quantifies over environments. In the same way, $`Q(k)` in Proposition 33.2 quantified over related elements, and [Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2) quantified the final store inside its induction property.
+The abstraction case applies the induction hypothesis to the extended environments, not to $`\rho` and $`\rho'`. This is why $`P(D)` quantifies over environments. In the same way, $`Q(k)` in Proposition 33.2 quantified over related elements, and [Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2) quantified the final state inside its induction property.
 
 The Lean code below checks Theorem 33.6. Reading it is optional. It represents a typing derivation directly, as a term indexed by its context and its type. A variable is represented by its position in the context, counted from the most recent binding, so variable names play no role. The types are the abstract type, Nat and arrows. A set is a Lean type, and the meaning of an arrow type is the Lean function type. The meaning of types, environments and their extension, the meaning of terms, the logical relation and related environments follow Definitions 33.4 and 33.5. The last declaration is Theorem 33.6, and its three cases are the three cases above.
 
@@ -356,6 +356,6 @@ number := false
 
 The statements and proofs are this book’s, over the set meaning of Definition 33.4. They follow Frank Pfenning’s lecture notes on representation independence, whose §3 chooses a relation between two representations of an abstract type. TAPL §24.2 builds a counter as an abstract data type with records. Session 31 and this session write it with pairs. The Lean code in §33.1 and §33.3 checks Proposition 33.2 and Theorem 33.6 over definitions local to those sections. [Pfenning, Representation Independence, §3.](https://www.cs.cmu.edu/~fp/courses/15814-f25/lectures/16-independence.pdf) [Pfenning, Parametricity.](https://www.cs.cmu.edu/~fp/courses/15814-f19/lectures/16-parametricity.pdf)
 
-* *Proposition 33.2.* Formulated in this book. Checked in Lean in [§33.1](chapter-33/index.html#ch33-s1).
-* *Theorem 33.6.* Formulated in this book. Checked in Lean in [§33.3](chapter-33/index.html#ch33-s3).
+* *Proposition 33.2.* Formulated in this book. Checked in Lean ([`simulation`](lean/CounterClients.html#simulation)) in [§33.1](chapter-33/index.html#ch33-s1).
+* *Theorem 33.6.* Formulated in this book. Checked in Lean ([`fundamental`](lean/TypedCounter.html#fundamental)) in [§33.3](chapter-33/index.html#ch33-s3).
 * *Corollary 33.7.* Formulated in this book. Paper proof only ([§33.4](chapter-33/index.html#ch33-s4)).

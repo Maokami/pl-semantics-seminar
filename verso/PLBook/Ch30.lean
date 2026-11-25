@@ -28,7 +28,7 @@ the write goes through $`q` and the read through $`r`, and the read returns $`\m
 tag := "ch30-s1"
 %%%
 
-[C.6](lambda-card/index.html#lambda-c6) adds three forms of term: $`\mathsf{ref}\ t` allocates a new cell, $`{!}t` reads a cell, and $`t_1\mathrel{:=}t_2` writes one. A *location* $`l` names a cell. Locations are values that arise only during evaluation; a program contains none. A *store* $`\mu` is a finite map from locations to values, and $`\mu(l)` is the content of the cell at $`l`. A program starts in the empty store $`\varnothing`, and one step is now $`t\mid\mu\to t'\mid\mu'`. This store is not the IMP store of Part 1. An IMP store is a total function $`\mathrm{Name}\to\mathbb Z`: every variable name has an integer from the start. A store $`\mu` is a partial map $`\mathrm{Location}\rightharpoonup\mathrm{Value}` with a finite domain. It is defined only at the locations allocated so far, it grows when $`\mathsf{ref}` allocates a cell, and a cell holds any value of the language, including a function or another location.
+[C.6](lambda-card/index.html#lambda-c6) adds three forms of term: $`\mathsf{ref}\ t` allocates a new cell, $`{!}t` reads a cell, and $`t_1\mathrel{:=}t_2` writes one. A *location* $`l` names a cell. Locations are values that arise only during evaluation; a program contains none. A *store* $`\mu` is a finite map from locations to values, and $`\mu(l)` is the content of the cell at $`l`. A program starts in the empty store $`\varnothing`, and one step is now $`t\mid\mu\to t'\mid\mu'`. This store is not the state of Part 1. An IMP state is a total function $`\mathrm{Name}\to\mathbb Z`: every variable name has an integer from the start. A store $`\mu` is a partial map $`\mathrm{Location}\rightharpoonup\mathrm{Value}` with a finite domain. It is defined only at the locations allocated so far, it grows when $`\mathsf{ref}` allocates a cell, and a cell holds any value of the language, including a function or another location.
 
 The opening program takes six steps from $`\varnothing`. Its sequence abbreviates $`(\lambda y{:}\mathsf{Unit}.{!}r)\,(q\mathrel{:=}\mathsf{succ}\ 0)` ([C.3](lambda-card/index.html#lambda-c3)).
 
@@ -43,7 +43,7 @@ Steps 2 and 3 copy the location, not the cell, so the write in step 4 and the re
 
 What type should $`l` have after step 1? Its cell holds $`0`, so $`\mathsf{Ref}\ \mathsf{Nat}` is the natural answer. Reading the type off the cell fails in two ways. First, the typing of a term would depend on the store, which changes at every write. Second, a cell can mention its own location. The program $`\mathsf{let}\ r=\mathsf{ref}\ (\lambda y{:}\mathsf{Unit}.y)\ \mathsf{in}\ r\mathrel{:=}(\lambda y{:}\mathsf{Unit}.({!}r)\,y)` ends with the store $`(\varnothing,l\mapsto\lambda y{:}\mathsf{Unit}.({!}l)\,y)`. To type $`l` from its contents we must type this abstraction, which contains $`l`, which sends us back to the same cell.
 
-A *store typing* $`\Sigma` (C.6) fixes in advance the type of the contents of each cell; it is not the set of IMP stores of A.2. T-Loc reads it, and never the store:
+A *store typing* $`\Sigma` is a finite map from locations to types. Here $`\Sigma` is not the set of IMP states of [A.2](imp-card/index.html#imp-a2). T-Loc reads it, and never the store:
 
 $$`\frac{\Sigma(l)=T_1}{\Gamma\mid\Sigma\vdash l:\mathsf{Ref}\ T_1}\;\textsf{T-Loc}`
 
@@ -51,7 +51,7 @@ Let $`\Sigma_c=(\varnothing,l{:}\mathsf{Unit}\to\mathsf{Unit})` and $`\Gamma_y=(
 
 $$`\dfrac{\dfrac{\dfrac{\dfrac{\Sigma_c(l)=\mathsf{Unit}\to\mathsf{Unit}}{\Gamma_y\mid\Sigma_c\vdash l:\mathsf{Ref}\ (\mathsf{Unit}\to\mathsf{Unit})}\;\textsf{T-Loc}}{\Gamma_y\mid\Sigma_c\vdash{!}l:\mathsf{Unit}\to\mathsf{Unit}}\;\textsf{T-Deref}\qquad\dfrac{y{:}\mathsf{Unit}\in\Gamma_y}{\Gamma_y\mid\Sigma_c\vdash y:\mathsf{Unit}}\;\textsf{T-Var}}{\Gamma_y\mid\Sigma_c\vdash({!}l)\,y:\mathsf{Unit}}\;\textsf{T-App}}{\varnothing\mid\Sigma_c\vdash\lambda y{:}\mathsf{Unit}.({!}l)\,y:\mathsf{Unit}\to\mathsf{Unit}}\;\textsf{T-Abs}`
 
-A store $`\mu` is *well typed* under $`\Gamma` and $`\Sigma`, written $`\Gamma\mid\Sigma\vdash\mu`, if $`\mathrm{dom}(\mu)=\mathrm{dom}(\Sigma)` and $`\Gamma\mid\Sigma\vdash\mu(l):\Sigma(l)` for every $`l\in\mathrm{dom}(\mu)` (C.6). Each stored value is typed under the whole of $`\Sigma`. So the derivation above shows that the cyclic store is well typed under $`\Sigma_c`. The store $`(\varnothing,l\mapsto 0)` of the opening trace is well typed under $`(\varnothing,l{:}\mathsf{Nat})`. It is not well typed under $`(\varnothing,l{:}\mathsf{Bool})`, since $`0` does not have type Bool, nor under $`\varnothing`, since the domains differ.
+A store $`\mu` is *well typed* under $`\Gamma` and $`\Sigma`, written $`\Gamma\mid\Sigma\vdash\mu`, if $`\mathrm{dom}(\mu)=\mathrm{dom}(\Sigma)` and $`\Gamma\mid\Sigma\vdash\mu(l):\Sigma(l)` for every $`l\in\mathrm{dom}(\mu)`. Stored values are typed under the whole of $`\Sigma`, so a stored value may mention its own location. So the derivation above shows that the cyclic store is well typed under $`\Sigma_c`. The store $`(\varnothing,l\mapsto 0)` of the opening trace is well typed under $`(\varnothing,l{:}\mathsf{Nat})`. It is not well typed under $`(\varnothing,l{:}\mathsf{Bool})`, since $`0` does not have type Bool, nor under $`\varnothing`, since the domains differ.
 
 # Inversion, weakening and update
 %%%

@@ -95,7 +95,7 @@ Compare two derivations. In the empty context, $`\vdash\lambda x.x:X\to X`. Repl
 
 $$`P(D)\coloneqq\forall\sigma,\ \sigma\Gamma\vdash t:\sigma T.`
 
-The substitution is quantified inside $`P(D)`, as the final store was in [Session 3, §3.2](chapter-03/index.html#ch03-s2). The case T-LetGen applies the induction hypothesis for its first premise at a substitution other than $`\sigma`.
+The substitution is quantified inside $`P(D)`, as the final state was in [Session 3, §3.2](chapter-03/index.html#ch03-s2). The case T-LetGen applies the induction hypothesis for its first premise at a substitution other than $`\sigma`.
 
 *T-VarInst.* Here $`t=x`, $`x{:}\forall X_1\ldots X_n.U\in\Gamma` and $`T=[X_1\mapsto S_1,\ldots,X_n\mapsto S_n]U`. Rename $`X_1,\ldots,X_n` to variables that $`\sigma` avoids. Then $`x{:}\forall X_1\ldots X_n.\sigma U\in\sigma\Gamma`, and T-VarInst with the types $`\sigma S_1,\ldots,\sigma S_n` gives $`\sigma\Gamma\vdash x:[X_1\mapsto\sigma S_1,\ldots,X_n\mapsto\sigma S_n](\sigma U)`. This type is $`\sigma T`. At an occurrence of $`X_i` in $`U`, both types have $`\sigma S_i`, since $`\sigma X_i=X_i`. At an occurrence of another variable $`W`, both have $`\sigma W`, since $`\sigma W` contains no $`X_i`.
 

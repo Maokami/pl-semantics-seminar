@@ -113,7 +113,7 @@ Let $`f_0\sqsubseteq f_1\sqsubseteq\cdots` be an increasing sequence in $`\llbra
 
 Since $`(d,u)` was an arbitrary related pair, $`f\lhd_{T\to S}t`. $`\square`
 
-In step 4 the term $`t\,u` stays fixed while the semantic side moves along the increasing sequence. A hypothesis stated only for the single term $`t` would not apply to $`t\,u`. This is the choice made in [Session 3](chapter-03/index.html#ch03-s2), where the final store was quantified inside the induction property.
+In step 4 the term $`t\,u` stays fixed while the semantic side moves along the increasing sequence. A hypothesis stated only for the single term $`t` would not apply to $`t\,u`. This is the choice made in [Session 3](chapter-03/index.html#ch03-s2), where the final state was quantified inside the induction property.
 
 By B-Fix, every value of $`G\,K` is a value of $`K`: a derivation of $`G\,(\mathsf{fix}\ G)\Downarrow v` becomes a derivation of $`K\Downarrow v` when B-Fix is added at its root. So $`K` keeps every promise that $`G\,K` keeps. The next lemma turns this observation into a statement about the relation.
 

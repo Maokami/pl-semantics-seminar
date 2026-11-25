@@ -18,14 +18,14 @@ The evaluator in Session 1 specifies a result at each leaf and combines two resu
 * *Theorem 4.1 (Existence and uniqueness of a fold).* For every set $`A` equipped with a literal operation, a variable operation, and two binary operations, exactly one function from expressions to $`A` satisfies the four constructor equations of §4.1.
 * *Board case.* At an addition node, use the two induction hypotheses to compare the results of two functions satisfying the same equations.
 * *Proof outline.* Define one function by recursion on finite trees. For every competing function, prove pointwise equality by structural induction.
-* *From Session 3.* Session 3 proved that two execution derivations for the same command from the same initial store end in the same final store. Here two functions that satisfy the same constructor equations are proved equal, by structural induction on expressions (Session 1, §1.1). The evaluator of Session 1 becomes one choice of operations; counting nodes and recording the order of leaves are others.
+* *From Session 3.* Session 3 proved that two execution derivations for the same command from the same initial state end in the same final state. Here two functions that satisfy the same constructor equations are proved equal, by structural induction on expressions (Session 1, §1.1). The evaluator of Session 1 becomes one choice of operations; counting nodes and recording the order of leaves are others.
 
 # Four operations on a set
 %%%
 tag := "ch04-s1"
 %%%
 
-Fix a store $`s` with $`s(x)=3`. To evaluate $`x+4`, interpret the variable by lookup, the literal by its integer, and the root by integer addition. The result is seven. At the root of $`x-4` use subtraction instead, giving minus one. This interpretation takes values in $`\mathbb Z`.
+Fix a state $`\sigma` with $`\sigma(x)=3`. To evaluate $`x+4`, interpret the variable by lookup, the literal by its integer, and the root by integer addition. The result is seven. At the root of $`x-4` use subtraction instead, giving minus one. This interpretation takes values in $`\mathbb Z`.
 
 To count nodes, give each leaf size one and combine sizes $`i,j` by $`1+i+j` at either binary node. The same two trees now both have size three. Here the result set is the natural numbers.
 
@@ -42,7 +42,7 @@ h(e_1+e_2)&=P(h(e_1),h(e_2)) & h(e_1-e_2)&=M(h(e_1),h(e_2)).
 
 They hold for every integer $`n`, name $`x` and pair of expressions $`e_1,e_2`. A *fold* computes its result by these equations, replacing each constructor by its specified operation.
 
-To see how much information the four operations can express, take the set of results to be finite words over the two letters `N` and `X`. Send every literal to the one-letter word `N`, every variable to `X`, and either binary node to the concatenation of its two child words in their given order. The trees `add(var(x),lit(7))` and `add(lit(7),var(x))` then receive the words `XN` and `NX`. For the integer interpretation the values of these trees agree in every store, by commutativity of addition. The word interpretation records the order of the leaves.
+To see how much information the four operations can express, take the set of results to be finite words over the two letters `N` and `X`. Send every literal to the one-letter word `N`, every variable to `X`, and either binary node to the concatenation of its two child words in their given order. The trees `add(var(x),lit(7))` and `add(lit(7),var(x))` then receive the words `XN` and `NX`. For the integer interpretation the values of these trees agree in every state, by commutativity of addition. The word interpretation records the order of the leaves.
 
 Now take the length of each word. Let both leaf operations on the natural numbers return one and let both binary operations be ordinary addition; the fold with these operations counts leaves. Each one-letter word has length one, and the length of a concatenation is the sum of the two lengths. So the function sending a tree to the length of its word satisfies the four constructor equations of the leaf-counting operations. By the uniqueness part of Theorem 4.1 in §4.2 it equals the leaf-counting fold, even though the word itself records the order of the leaves.
 
@@ -71,13 +71,13 @@ Consider the tree `add(add(var(x),lit(1)),lit(2))`. To show that two candidate f
 tag := "ch04-s3"
 %%%
 
-Now allow the store to vary. Choose $`A=\Sigma\to\mathbb Z`, where $`\Sigma` is the set of stores of Session 1, Definition 1.2. A literal produces the constant function at its integer. A variable produces the function taking $`s` to $`s(x)`. For two functions $`q,r`, their sum takes $`s` to $`q(s)+r(s)` and their difference takes $`s` to $`q(s)-r(s)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a store with $`s(x)=3` gives $`3+4=7`. By Definition 1.3, the function sending $`e` to $`(s\mapsto\mathrm{eval}(e,s))` satisfies all four equations. Theorem 4.1 identifies it with this fold on every tree.
+Now allow the state to vary. Choose $`A=\Sigma\to\mathbb Z`, where $`\Sigma` is the set of states of Session 1, Definition 1.2. A literal produces the constant function at its integer. A variable produces the function taking $`\sigma` to $`\sigma(x)`. For two functions $`q,r`, their sum takes $`\sigma` to $`q(\sigma)+r(\sigma)` and their difference takes $`\sigma` to $`q(\sigma)-r(\sigma)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a state with $`\sigma(x)=3` gives $`3+4=7`. By Definition 1.3, the function sending $`e` to $`(\sigma\mapsto\mathrm{eval}(e,\sigma))` satisfies all four equations. Theorem 4.1 identifies it with this fold on every tree.
 
 The tree `add(lit(1),lit(2))` and `lit(3)` receive the same evaluation function. The node counts are three and one. Imposing integer arithmetic identities on trees themselves would remove the possibility of counting their nodes in this way.
 
-Return to the fixed store of §4.1. There are now two routes from an expression to an integer. One can interpret the whole tree as a function and apply the resulting function to $`s`. Alternatively, one can fold directly into the integers using lookup in $`s`. To compare them, consider the map sending any function $`q` to $`q(s)`. It preserves literal and variable interpretations by evaluation. Evaluating a pointwise sum at $`s` gives $`q(s)+r(s)`, and evaluating a pointwise difference gives $`q(s)-r(s)`. Thus the first route satisfies the four equations for the second. Uniqueness identifies the two routes.
+Return to the fixed state of §4.1. There are now two routes from an expression to an integer. One can interpret the whole tree as a function and apply the resulting function to $`\sigma`. Alternatively, one can fold directly into the integers using lookup in $`\sigma`. To compare them, consider the map sending any function $`q` to $`q(\sigma)`. It preserves literal and variable interpretations by evaluation. Evaluating a pointwise sum at $`\sigma` gives $`q(\sigma)+r(\sigma)`, and evaluating a pointwise difference gives $`q(\sigma)-r(\sigma)`. Thus the first route satisfies the four equations for the second. Uniqueness identifies the two routes.
 
-This argument also explains when a variable can be interpreted by a fixed integer. Such a choice is legitimate if the interpretation is meant for one specified store. Suppose instead that the required result is the meaning of the variable at every store. Two stores assigning respectively two and five to the same name demand distinct results. A single integer cannot answer both queries. A function can retain this dependence while still letting addition operate on the meanings of immediate subexpressions.
+This argument also explains when a variable can be interpreted by a fixed integer. Such a choice is legitimate if the interpretation is meant for one specified state. Suppose instead that the required result is the meaning of the variable at every state. Two states assigning respectively two and five to the same name demand distinct results. A single integer cannot answer both queries. A function can retain this dependence while still letting addition operate on the meanings of immediate subexpressions.
 
 # Exercises
 %%%
@@ -99,7 +99,7 @@ tag := "ch04-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Begin with the expression tree for x + 4 in Session 1. Assign each leaf its value in a fixed store, then assign each leaf size one. Evaluate the same tree in the two interpretations. Write the types of the four operations in each.
+*Definitions · 10 minutes.* Begin with the expression tree for x + 4 in Session 1. Assign each leaf its value in a fixed state, then assign each leaf size one. Evaluate the same tree in the two interpretations. Write the types of the four operations in each.
 
 *Joint proof · 30 minutes.* Prove existence by constructing a fold into an arbitrary set with four operations. Write the same four equations for a second function. Use them to prove that the two functions agree on every tree.
 
@@ -135,4 +135,4 @@ number := false
 
 The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Source and proof references](imp-card/index.html#imp-sources)
 
-* *Theorem 4.1.* Formulated in this book. Checked in Lean ([IMP card references](imp-card/index.html#imp-sources)).
+* *Theorem 4.1.* Formulated in this book. Checked in Lean ([`uniqueFold`](lean/Fold.html#uniqueFold) · [IMP card references](imp-card/index.html#imp-sources)).

@@ -113,7 +113,7 @@ We prove $`Q(E)` for every evaluation derivation $`E` by induction on $`E`. For 
 
 $$`Q(E)\coloneqq\forall T,\ (\vdash t:T)\Rightarrow(\vdash t':T).`
 
-The type is quantified inside $`Q(E)`, as the final store was in [Session 3, §3.2](chapter-03/index.html#ch03-s2). The induction hypothesis is then available at the type of the subterm that steps, which may differ from $`T`. In the case E-IsZero below, $`T=\mathsf{Bool}` and the subterm has type Nat.
+The type is quantified inside $`Q(E)`, as the final state was in [Session 3, §3.2](chapter-03/index.html#ch03-s2). The induction hypothesis is then available at the type of the subterm that steps, which may differ from $`T`. In the case E-IsZero below, $`T=\mathsf{Bool}` and the subterm has type Nat.
 
 *E-If.* Here $`t=\mathsf{if}\ t_1\ \mathsf{then}\ t_2\ \mathsf{else}\ t_3` and $`t'=\mathsf{if}\ t_1'\ \mathsf{then}\ t_2\ \mathsf{else}\ t_3`. The premise of $`E` is $`E_1:t_1\to t_1'`, with $`Q(E_1):\forall S,\ (\vdash t_1:S)\Rightarrow(\vdash t_1':S)`. Let $`\vdash t:T`. Lemma 24.1(b) gives $`\vdash t_1:\mathsf{Bool}`, $`\vdash t_2:T` and $`\vdash t_3:T`. $`Q(E_1)` at $`S=\mathsf{Bool}` gives $`\vdash t_1':\mathsf{Bool}`. T-If gives $`\vdash t':T`.
 
