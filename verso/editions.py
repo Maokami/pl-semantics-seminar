@@ -87,9 +87,11 @@ def update_pages(site, ko=False):
             continue
         ch = by_slug.get(p.parent.name)
         guide = '../seminar/index.html' if ko else 'seminar/index.html'
-        guide_label = '42회 읽기 일정' if ko else 'Reading schedule (Korean)'
+        guide_label = '이전 판 42회 읽기 일정' if ko else 'Reading schedule (Korean)'
         more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'
         if ko:
+            more += '<a class="guide-link" href="imp-card/index.html">IMP 언어 카드</a>'
+            more += '<a class="guide-link" href="glossary/index.html">1–3회 용어집</a>'
             langlink = '../' + (chapter_link(ch) if ch else 'index.html')
             more += f'<a class="guide-link" href="{langlink}">English edition</a>'
         # Verso uses a heading div for some releases, so anchor on this book's first table.

@@ -4,6 +4,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
+from check_translation import check_pilot_terms
 from editions import update_pages
 from seminar import render_guide
 
@@ -16,6 +17,8 @@ def run(*args):
 
 
 def build(ko):
+    if ko:
+        check_pilot_terms()
     render_guide()
     chapter_dir = ROOT / ("PLBook/Ko" if ko else "PLBook")
     modules = [("PLBook.Ko." if ko else "PLBook.") + p.stem for p in sorted(chapter_dir.glob("Ch*.lean"))]
