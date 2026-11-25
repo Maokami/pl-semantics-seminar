@@ -9,7 +9,7 @@ file := "imp-card"
 number := false
 %%%
 
-A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. A.6 introduces a second judgment for individual steps. [English–Korean glossary](glossary/index.html)
+A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-25/index.html). A.6 gives the step and path judgments for [Session 5](chapter-04/index.html) and [Session 6](chapter-05/index.html). [English–Korean glossary](glossary/index.html)
 
 # A.1 Arithmetic expressions · Session 1
 %%%
@@ -106,9 +106,26 @@ tag := "imp-a6"
 number := false
 %%%
 
-A configuration $`\langle c,s\rangle` consists of the residual command and the current store. Write $`p\to q` for one transition. Assignment steps to skip with the updated store. A sequence with skip on the left steps to its right command. A step of its left command lifts through the sequence, carrying the resulting store with it. A conditional steps to its selected branch. A loop with a false guard steps to skip; with a true guard it steps to the sequence of its body and the same loop. Selecting a branch, unfolding or exiting a loop, and dropping an initial skip all preserve the current store. Skip itself has no outgoing step.
+A *configuration* $`\langle c,s\rangle` consists of a residual command $`c` (the work still to do) and the current store $`s`. Write $`p\to q` for one transition. Assignment evaluates its right-hand side in the current store and steps to skip with the updated store.
 
-A finite path $`p\to^*q` either takes zero steps with $`p=q`, or has a first step $`p\to r` and a finite tail $`r\to^*q`. In Session 5, $`p\to^n q` means that there are configurations $`p_0,\ldots,p_n` with $`p_0=p`, $`p_n=q` and $`p_i\to p_{i+1}` for every $`0\le i<n`. An infinite path can be exhibited by a function $`f` on the natural numbers such that $`f(0)=p` and $`f(i)\to f(i+1)` for every $`i`. The port also defines infinite execution coinductively, as the greatest predicate $`X` satisfying $`X(p)\iff\exists q,\ p\to q\land X(q)`.
+$$`\frac{}{\langle x:=e,s\rangle\to\langle\mathsf{skip},s[x\mapsto\mathrm{eval}(e,s)]\rangle}`
+
+A sequence with skip on the left steps to its right command. A step of its left command lifts through the sequence, carrying the resulting store with it.
+
+$$`\frac{}{\langle \mathsf{skip};d,s\rangle\to\langle d,s\rangle}
+\qquad\frac{\langle c,s\rangle\to\langle c',t\rangle}{\langle c;d,s\rangle\to\langle c';d,t\rangle}`
+
+For $`I=\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d`, let $`k` be the branch selected by $`B(b,s)` as in Session 2, Definition 2.1. For $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, a false guard exits and a true guard exposes the body.
+
+$$`\frac{}{\langle I,s\rangle\to\langle k,s\rangle}\qquad
+\frac{B(b,s)=\mathsf{false}}{\langle W,s\rangle\to\langle\mathsf{skip},s\rangle}\qquad
+\frac{B(b,s)=\mathsf{true}}{\langle W,s\rangle\to\langle c;W,s\rangle}`
+
+Skip itself has no outgoing step.
+
+A finite path $`p\to^*q` either takes zero steps with $`p=q`, or has a first step $`p\to r` and a finite tail $`r\to^*q`. Write $`p\to^n q` when there are configurations $`p_0,\ldots,p_n` with $`p_0=p`, $`p_n=q` and $`p_i\to p_{i+1}` for every $`0\le i<n`. The natural number $`n` counts edges.
+
+An *infinite path* from $`p` is witnessed by a function $`f` from natural numbers to configurations with $`f(0)=p` and $`f(i)\to f(i+1)` for every $`i`. The coinductive presentation uses a predicate on configurations: the greatest predicate $`X`, under inclusion, satisfying $`X(p)\iff\exists q,\ p\to q\land X(q)`.
 
 # Source and proof references
 %%%
@@ -126,3 +143,8 @@ These references document the formalization. They are optional for seminar prepa
 * Definition 1.5 is `PLBook.IMP.Evaluates`. In `PLBook.IMP.Arithmetic`, membership in the free-variable set is `occurs`. Lemma 1.1 is `coincidence`, Corollary 1.2 is `updateIrrelevant`, Theorem 1.3 is `correspondence`, and Corollary 1.4 is `uniqueValue`, all in the namespace `PLBook.IMP`. Theorem 1.5 has a paper proof in the Session 11 reading.
 * Proposition 2.2 is `PLBook.IMP.sequenceExecution` on the shared execution relation.
 * The proof module `PLBook.IMP.Determinacy` checks Lemma 3.1 with `PLBook.IMP.assignmentResult` and Theorem 3.2 with `PLBook.IMP.deterministic` on the shared execution relation. The two derived conditional rules are `PLBook.IMP.ifTrue` and `PLBook.IMP.ifFalse`.
+* Theorem 4.1 is `PLBook.IMP.uniqueFold` in `PLBook.IMP.Fold`. It includes existence and uniqueness for all four constructors of `aexp`. The operations take values in an arbitrary type.
+* In `PLBook.IMP.Paths`, Lemma 5.3 is `progress` on the shared transition relation. The source statement is `red_progress`. [Progress for IMP commands](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L315-L335)
+* Lemma 5.4 is `finiteIffLength`. The finite sequence in $`p\to^n q` is represented by `PathOfLength`: a single configuration at length zero, or a first edge followed by a sequence of length $`n` at length $`n+1`. Example 5.5 is `skipLoopInfinite` on `infseq_with_function`. Its checked witness alternates between the loop head and its unfolded body.
+* Lemma 6.1 is `liftLength` and preserves the exact length. Leroy’s `red_seq_steps` lifts a finite path without specifying its length. [Sequence context in IMP](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L340-L356)
+* Theorem 6.2 is `terminatingEquivalence`. The source gives the two implications separately in `cexec_to_reds` and `reds_to_cexec`. Lemma 6.3 is `executionBeforeStep`, with the same premise and conclusion as `red_append_cexec`. These book proofs use the shared IMP relations. [Forward implication](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L361-L385) · [Backward step and reverse implication](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Imp.lean#L388-L405)
