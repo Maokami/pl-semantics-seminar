@@ -96,7 +96,7 @@ number := false
   * induction property
   * 귀납 성질
   * The statement to be proved for each object of the induction.
-  * Session 1 · [§1.5](chapter-01/index.html#ch01-s5)
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
 *
   * inference rule
   * 추론 규칙

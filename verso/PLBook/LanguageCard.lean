@@ -11,7 +11,7 @@ number := false
 
 A.1–A.3 accompany [Arithmetic Expressions](chapter-01/index.html). A.4–A.5 accompany [Big-Step Semantics of Commands](chapter-02/index.html) and supply the rules used in [Inversion and Determinacy](chapter-03/index.html). In the judgment $`s\vdash c\Downarrow t` the letters $`s,t` stand for complete stores, $`c` for a command, and the down arrow for a terminating execution. Session 4 uses the syntax of A.1 for [expression folds](chapter-04/index.html). A.6 gives the step and path judgments for [Session 5](chapter-05/index.html) and [Session 6](chapter-06/index.html). [English–Korean glossary](glossary/index.html)
 
-*Letters.* $`x,y,z` range over variable names, $`n` over integers, $`e` over arithmetic expressions, $`b` over Boolean expressions and $`c,d` over commands. $`s,t,u` range over stores and $`m,n` name intermediate stores in derivations (when every letter is taken, a further store is $`v`). $`p,q,r` range over configurations.
+*Letters.* $`x,y,z` range over variable names, $`n` over integers, $`e` over arithmetic expressions, $`b` over Boolean expressions and $`c,d` over commands. $`s,t,u` range over stores and $`m,n` name intermediate stores in command derivations (when every letter is taken, a further store is $`v`). In expression judgments, $`m,n,n_1,n_2` denote integers. $`p,q,r` range over configurations.
 
 # A.1 Arithmetic expressions · Session 1
 %%%
