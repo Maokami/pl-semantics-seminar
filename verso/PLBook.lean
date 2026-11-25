@@ -1,6 +1,3 @@
-import PLBook.Seminar
-import PLBook.LanguageCard
-import PLBook.Glossary
 import PLBook.Ch01
 import PLBook.Ch02
 import PLBook.Ch03
@@ -39,10 +36,10 @@ import PLBook.Ch35
 import PLBook.Ch36
 import PLBook.Ch37
 import PLBook.Ch38
-import PLBook.Ch39
-import PLBook.Ch40
-import PLBook.Ch41
-import PLBook.Ch42
+import PLBook.LanguageCard
+import PLBook.MachineCard
+import PLBook.LambdaCard
+import PLBook.Glossary
 
 open Verso.Genre Manual
 
@@ -53,15 +50,9 @@ shortTitle := "Programming Languages"
 tag := "pl-study"
 %%%
 
-A language definition gives rise to several mathematical questions. Which executions does it admit? When can an expression be replaced by another? Which observations must survive compilation? Chapters 1–7 develop execution rules, structural induction, and initial algebras. Chapters 8–13 relate execution to state transformers and assertions. Chapters 14–20 study binding, function types, and their categorical interpretation. Chapters 21–26 develop type checking, inference, subtyping, and polymorphism. Chapters 27–30 use domains to interpret recursion in PCF. Chapters 31–42 study effects, concurrency, compilers, and static analysis.
+Part 1 (Sessions 1–21) studies IMP. We define what it means for a command to execute, compare its execution with its denotation, and use the resulting semantics to prove properties of programs, compilers and analyses. Part 2 (Sessions 22–32) turns to functions and types. We study binding and evaluation, then prove what typing guarantees as the language grows. The optional third part (Sessions 33–38) uses logical relations to study representation independence and the connection between the evaluation of a PCF program and its mathematical meaning.
 
-The contents follow the seminar in seven units. Chapter 3 is the English source chapter for the revised seminar. Its session card specifies the assigned reading. The Korean seminar guide lists the sections to read before each meeting, the passage for the presenter, and the problem the group will solve together. The worksheets at the end of the chapters provide additional practice. Each Lean panel checks the definitions or proof stated in that panel.
-
-[Session 3](chapter-03/index.html) · [IMP language card](imp-card/index.html) · [English–Korean glossary](glossary/index.html)
-
-[Judgment notation](chapter-01/index.html#ch01-s4) · [Reading schedule (Korean)](seminar/index.html) · [Earlier edition (PDF)](print/pl-study.pdf)
-
-{include 1 PLBook.Seminar}
+[IMP language card](imp-card/index.html) · [Stack machine card](machine-card/index.html) · [Lambda language card](lambda-card/index.html) · [Glossary and proof labels](glossary/index.html)
 
 {include 1 PLBook.Ch01}
 
@@ -139,14 +130,10 @@ The contents follow the seminar in seven units. Chapter 3 is the English source 
 
 {include 1 PLBook.Ch38}
 
-{include 1 PLBook.Ch39}
-
-{include 1 PLBook.Ch40}
-
-{include 1 PLBook.Ch41}
-
-{include 1 PLBook.Ch42}
-
 {include 1 PLBook.LanguageCard}
+
+{include 1 PLBook.MachineCard}
+
+{include 1 PLBook.LambdaCard}
 
 {include 1 PLBook.Glossary}

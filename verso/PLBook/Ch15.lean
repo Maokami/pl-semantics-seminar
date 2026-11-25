@@ -1,130 +1,174 @@
 import VersoManual
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Evaluation Strategies" =>
+#doc (Manual) "Compiling Boolean Expressions and Branches" =>
 %%%
-tag := "ch14"
-file := "chapter-14"
-%%%
-
-[Chapter PDF](print/chapter-14.pdf) · [Session 15](seminar/index.html#week-15)
-
-A caller passes two pieces of code to an evaluator: a function and its argument. The function may return without ever inspecting the argument. If the argument runs forever, deciding when to evaluate it determines whether the whole application returns.
-
-*Sources.* Reynolds, _Theories of Programming Languages_, §§10.3–10.4, pp. 201–207. Compare the normal-order and eager treatments of application. We compare their behavior at the outermost result of a closed pure term using two weak strategies, each stopping at a lambda. Pierce, _Types and Programming Languages_, §5.1 introduces related reduction strategies. [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html) [Pierce.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
-
-# Two one-step relations
-%%%
-tag := "ch14-s1"
+tag := "ch15"
+file := "chapter-15"
 %%%
 
-Use the terms and capture-avoiding substitution of Chapter 14. A value in this chapter is an abstraction. A *redex* is an expression to which a reduction rule applies. A beta step replaces an application of an abstraction by its body with its parameter replaced by the argument. To specify a strategy we must also say which redex can be chosen and when the argument is eligible.
+* *Definitions.* Expressions, stores and $`\mathrm{eval}` ([IMP language card A.1–A.3](imp-card/index.html#imp-a1)). Boolean expressions and their values $`B(b,s)` ([A.4](imp-card/index.html#imp-a4)). Structural induction ([Session 1, §1.1](chapter-01/index.html#ch01-s1)). Instructions, code, code at a position $`\mathrm{at}(C,\mathit{pc},K)` with its three facts, stacks, machine configurations, transitions, finite paths and joining, and the compilers $`\mathrm{cexp}` and $`\mathrm{cbexp}` ([Stack machine card B.1–B.7](machine-card/index.html#machine-b1)). The loop layout ([B.8](machine-card/index.html#machine-b8)). Compiled expressions on the machine ([Session 14, Corollary 14.4](chapter-14/index.html#ch14-s3)). A variable quantified inside the induction property ([Session 3, §3.2](chapter-03/index.html#ch03-s2)).
+* *New terms.* Branch instruction and branch distance, conditional branch instruction, compilation with two distances, contract of compiled Boolean expressions. [Glossary and label key](glossary/index.html)
+* *Theorem 15.2 \[Externally checked: Leroy course, [machine-card references](machine-card/index.html#machine-sources)\].* For every code $`C`, store $`s`, stack $`S`, Boolean expression $`b`, integers $`d_1,d_0` and position $`\mathit{pc}`, let $`K=\mathrm{cbexp}(b,d_1,d_0)`. If $`\mathrm{at}(C,\mathit{pc},K)`, then $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K|+\mathrm{sel}(B(b,s),d_1,d_0),S,s\rangle`. Here $`\mathrm{sel}(\beta,d_1,d_0)` is $`d_1` if $`\beta=\mathsf{true}` and $`d_0` if $`\beta=\mathsf{false}`.
+* *Source.* The instructions, the transitions and the compiler $`\mathrm{cbexp}` are those of Leroy’s course, as recorded in the stack machine card. Theorem 15.2 is the correctness theorem for compiled Boolean expressions in that course. \[Corresponding: CS Lemma 8.8\] Nipkow and Klein prove the same contract for their compiler. It takes one offset and a flag instead of two distances, runs the code on its own from position $`0`, and requires the offset to be nonnegative. [Definitions and Lean names](machine-card/index.html#machine-sources) · [Concrete Semantics, §8.3, p. 101](https://concrete-semantics.org/concrete-semantics.pdf#page=111)
+* *Board case.* Conjunction. Split the block at the end of the code for $`b_1`. Apply the hypothesis for $`b_1` with the distances $`0` and $`|K_2|+d_0`. A false $`b_1` already reaches the false exit. A true $`b_1` reaches the start of $`K_2`, where the hypothesis for $`b_2` applies. Six steps.
+* *Proof outline.* Fix $`C`, $`s` and $`S`. Use structural induction on $`b` with $`P(b)\coloneqq\forall d_1,d_0,\mathit{pc},\ \mathrm{at}(C,\mathit{pc},\mathrm{cbexp}(b,d_1,d_0))\Rightarrow C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{cbexp}(b,d_1,d_0)|+\mathrm{sel}(B(b,s),d_1,d_0),S,s\rangle`. The distances and the position are quantified inside $`P(b)`, as the final store was in Session 3: negation uses the hypothesis with the distances exchanged, and conjunction uses it with new distances for $`b_1` and a new position for $`b_2`. Constants take at most one branch. Comparisons use Corollary 14.4 twice and no hypothesis.
+* *From Session 14.* Expression code ends at its own end with one new value on the stack. Code for a Boolean expression pushes nothing and has two possible ends, chosen by $`B(b,s)`. It contains branches, so the list execution of Session 14 does not apply, and the proof works with positions throughout. Session 16 places this code at the head of every loop and conditional. In a loop, a true guard continues into the body, and a false guard continues past the body and the backward branch.
 
-Call-by-name first evaluates the operator of an application. Once the operator is an abstraction, it substitutes the entire unevaluated argument. The only rules are these, with the subscript $`n` denoting one name step:
+Session 16 compiles the loop $`\mathsf{while}\ x\le1\ \mathsf{do}\ x:=x+1` as in [B.8](machine-card/index.html#machine-b8). Placed at position $`0`, the test $`[\mathsf{load}(x),\mathsf{push}(1),\mathsf{ble}(0,5)]` occupies positions 0–2, the body $`[\mathsf{load}(x),\mathsf{push}(1),\mathsf{plus},\mathsf{setvar}(x)]` occupies positions 3–6, and $`\mathsf{branch}(-8)` sits at position 7. Run it from a store with $`s(x)=1` and the empty stack. The test leaves $`[1,1]` on the stack. Since $`1\le1`, the instruction $`\mathsf{ble}(0,5)` pops both integers and continues at $`2+1+0=3`, the start of the body. The body sets $`x` to $`2`, and the branch at 7 continues at $`7+1-8=0`. Now the test leaves $`[1,2]`. Since $`2\le1` is false, it continues at $`2+1+5=8`, just past the loop. Each time the test ended with the stack and the store it started with. The proof in Session 16 needs this from the code of every guard, however many branches that code contains. A true guard must end at the end of the test, a false guard five instructions further, and neither may change the stack or the store. This session states that requirement as a contract and proves that the compiler meets it.
 
-$$`\frac{f\to_{\mathrm n} f'}{f\, a\to_{\mathrm n} f'\, a}\quad\left( {\lambda x.b} \right)\, a\to_{\mathrm n} b\left\lbrack {a/x} \right\rbrack.`
-
-Call-by-value evaluates the operator, then the operand. Its beta rule requires a value operand. Write $`v,w` for values. The subscript $`v` on an arrow denotes a value step:
-
-$$`\frac{f\to_{\mathrm v} f'}{f\, a\to_{\mathrm v} f'\, a}\quad\frac{a\to_{\mathrm v} a'}{v\, a\to_{\mathrm v} v\, a'}`
-
-$$`\left( {\lambda x.b} \right)\, w\to_{\mathrm v} b\left\lbrack {w/x} \right\rbrack.`
-
-Neither relation descends beneath an abstraction. Thus observing convergence here means reaching an abstraction in finitely many steps. Full normalization may inspect its body as well. For each strategy at most one step is possible: at an application the outer form and the operator’s value status determine which rule can apply, and the recursive positions inherit uniqueness by induction.
-
-One can predict a complete first step by marking the particular hole in which the next redex must lie. Write a hole as `□`. For name evaluation the permitted contexts are `□` and `E a`, recursively. For value evaluation they are `□`, `E a` and `v E`, where the operator in the last case must already be a value. Filling the hole with a reducible application gives the whole term. Each constructor surrounding the hole corresponds to one propagation rule in the earlier presentation.
-
-For example, take `((λf. f) I) ((λw. w) I)`, with `I = λz. z`. Both strategies begin in the operator, even though the operand contains another beta redex. The left application reduces to `I`; the whole term is now `I ((λw. w) I)`. Name evaluation accepts it immediately as an outer redex. Value evaluation moves the hole to the operand, because the outer operator is a value and the operand has yet to become one. This gives a mechanical way to read a derivation backwards: identify the hole from the outside in, perform one beta step there, then rebuild the surrounding application nodes unchanged.
-
-# An ignored argument
+# Branches and compiled Boolean expressions
 %%%
-tag := "ch14-s2"
+tag := "ch15-s1"
 %%%
 
-Let $`I = \lambda z.z`, $`D = \lambda u.\left( {u\, u} \right)`, and $`\Omega = D\, D`. The operand $`D` is a value. Substituting it for both occurrences of $`u` in the body yields $`D\, D` again. Consequently $`\Omega` takes a step back to itself under either strategy. Repetition gives an infinite sequence of steps, even though all the printed terms look identical.
+The instruction $`\mathsf{branch}(d)` is a *branch instruction*. Its rule in [B.4](machine-card/index.html#machine-b4) moves the program counter from $`\mathit{pc}` to $`\mathit{pc}+1+d` and changes nothing else. The integer $`d` is its *branch distance*. The distance is relative: it counts instructions from the instruction after the branch, not from the start of the code. So $`\mathsf{branch}(0)` continues with the next instruction and $`\mathsf{branch}(2)` skips two. Relative distances let the compiler build a block before it knows where the block will be placed. Placed at position $`20` instead of $`0`, the loop above has the same instructions, and its $`\mathsf{branch}(-8)` at position $`27` continues at $`27+1-8=20`, again the start of the test.
 
-Take $`M = \left( {\lambda x.I} \right)\,\Omega`, with $`x` fresh. Under call-by-name the outer beta rule gives $`I\left\lbrack {\Omega/x} \right\rbrack = I` in one step. Under call-by-value the operator is already a value but the operand is an application. Only the operand rule applies. Its premise steps $`\Omega` to itself, so its conclusion steps $`M` to itself. By uniqueness, every finite run still ends at $`M`, which is an application. Thus no finite run reaches a value. The arguments for convergence and divergence use the actual strategy rules in different ways.
+The instructions $`\mathsf{beq}(d_1,d_0)` and $`\mathsf{ble}(d_1,d_0)` are *conditional branch instructions*. Each pops two integers, $`n_2` from the top and $`n_1` below it. Then $`\mathsf{beq}` tests $`n_1=n_2` and $`\mathsf{ble}` tests $`n_1\le n_2`. If the test holds, the instruction branches with distance $`d_1`. If it fails, it branches with distance $`d_0`. Neither pushes a result. In the second test of the opening run, $`\mathsf{ble}(0,5)` at position 2 found $`[1,2]`, so $`n_2=1` and $`n_1=2`. The test $`2\le1` failed, and the distance was $`5`.
 
-The distinction can be measured at the level of functions as well as at individual programs. Consider the closed function `K = λx. λz. z`. Used on the ordinary argument `I`, both weak strategies immediately return `λz. z`. That agreement on value arguments does not settle their agreement on all closed arguments. The application context `K □` permits a computation in its hole. Filling it with the closed diverging term gives precisely the two observations just established: a function value under name evaluation and divergence under value evaluation.
+The compiler for Boolean expressions ([B.7](machine-card/index.html#machine-b7)) takes two distances as arguments:
 
-Change the body to `x I` so that the function must inspect its argument in operator position. On the same diverging input, name evaluation first obtains `Ω I`. Its next step reduces the operator `Ω` to itself, and this repeats forever. Value evaluation again remains at the original application. Thus a difference in the number or position of initial steps need not give a difference in convergence. To show separation of the strategies one needs both sides of the original example: a finite path that actually reaches a value, and an argument excluding every such path for the other strategy.
+$$`\begin{aligned}
+\mathrm{cbexp}(\mathsf{true},d_1,d_0)&=[\,]\ \text{ if } d_1=0,\quad\text{otherwise } [\mathsf{branch}(d_1)]\\
+\mathrm{cbexp}(\mathsf{false},d_1,d_0)&=[\,]\ \text{ if } d_0=0,\quad\text{otherwise } [\mathsf{branch}(d_0)]\\
+\mathrm{cbexp}(e_1=e_2,d_1,d_0)&=\mathrm{cexp}(e_1)\mathbin{+\!\!+}\mathrm{cexp}(e_2)\mathbin{+\!\!+}[\mathsf{beq}(d_1,d_0)]\\
+\mathrm{cbexp}(e_1\le e_2,d_1,d_0)&=\mathrm{cexp}(e_1)\mathbin{+\!\!+}\mathrm{cexp}(e_2)\mathbin{+\!\!+}[\mathsf{ble}(d_1,d_0)]\\
+\mathrm{cbexp}(\neg b,d_1,d_0)&=\mathrm{cbexp}(b,d_0,d_1)\\
+\mathrm{cbexp}(b_1\land b_2,d_1,d_0)&=\mathrm{cbexp}(b_1,0,|K_2|+d_0)\mathbin{+\!\!+}K_2\quad\text{where } K_2=\mathrm{cbexp}(b_2,d_1,d_0).
+\end{aligned}`
 
-For this single application we can quotient the computation down to two configurations. Name evaluation moves from the original application to its final value. Value evaluation leaves the application at precisely the same configuration. The induction in Lean establishes the claim about *all* finite value prefixes; the correspondence of the two displayed transitions with the actual beta and operand rules was derived above. At the final value, the option result `none` records the absence of a next step.
+This is *compilation with two distances*. The caller chooses $`d_1` and $`d_0`. Both are measured from the end of the block, the position just after its last instruction. The code never puts a truth value on the stack. The value of $`b` decides only where the code ends. A constant needs at most one branch, and none for a distance $`0`. A comparison computes both operands with $`\mathrm{cexp}` and then executes one conditional branch instruction. Negation emits no instruction. It exchanges the distances. In a conjunction the code $`K_2` for $`b_2` is built first, because the code for $`b_1` needs its length. A true $`b_1` continues into $`K_2`. A false $`b_1` skips $`K_2` and then $`d_0` further instructions, so $`b_2` is not evaluated.
 
-```lean
-namespace StrategyPrefix
-inductive Point where | app | result
-  deriving DecidableEq
+Now take the guard $`b=(x\le1)\land\neg(y=0)` with the body of the opening loop. That body has four instructions, so Session 16 compiles the test with the distances $`0` and $`4+1=5` (B.8). Compute $`\mathrm{cbexp}(b,0,5)` from the second operand outward:
 
-def byName : Point → Option Point
-  | .app => some .result
-  | .result => none
+$$`\begin{aligned}
+K_2&=\mathrm{cbexp}(\neg(y=0),0,5)=\mathrm{cbexp}(y=0,5,0)=[\mathsf{load}(y),\mathsf{push}(0),\mathsf{beq}(5,0)],\\
+K_1&=\mathrm{cbexp}(x\le1,0,|K_2|+5)=\mathrm{cbexp}(x\le1,0,8)=[\mathsf{load}(x),\mathsf{push}(1),\mathsf{ble}(0,8)].
+\end{aligned}`
 
-def byValue : Point → Option Point
-  | .app => some .app
-  | .result => none
+The block $`K=K_1\mathbin{+\!\!+}K_2` has six instructions. Place it at position $`0`. Then $`K_1` occupies positions 0–2, $`K_2` occupies positions 3–5, and the block ends at $`6`. It should continue at $`6+0=6`, the start of the body, when $`b` is true, and at $`6+5=11`, past the loop, when $`b` is false. Start each run with the empty stack.
 
-def after (step : Point → Option Point) : Nat → Point → Option Point
-  | 0, p => some p
-  | n+1, p => (step p).bind (after step n)
+* $`s(x)=4,\ s(y)=7`. The stacks are $`[4]` and $`[1,4]`. At position 2, $`4\le1` fails, so $`\mathsf{ble}(0,8)` continues at $`2+1+8=11`. Positions 3–5 are never reached. Here $`B(b,s)=\mathsf{false}`.
+* $`s(x)=0,\ s(y)=7`. The stacks are $`[0]` and $`[1,0]`. At position 2, $`0\le1` holds, so the machine continues at $`3`. The stacks are $`[7]` and $`[0,7]`. At position 5, $`7=0` fails, so $`\mathsf{beq}(5,0)` continues at $`5+1+0=6`. Here $`B(b,s)=\mathsf{true}`.
+* $`s(x)=0,\ s(y)=0`. The run is as before up to position 5. There $`0=0` holds, and $`\mathsf{beq}(5,0)` continues at $`5+1+5=11`. Here $`B(b,s)=\mathsf{false}`.
 
-example : after byName 1 .app = some .result := rfl
-example (n : Nat) : after byValue n .app = some .app := by
-  induction n with
-  | zero => rfl
-  | succ n ih => exact ih
-end StrategyPrefix
-```
+Every run ends with the empty stack and the store it started with. The position $`11` is reached from two different instructions.
 
-# Repeated uses of a parameter
+# The contract
 %%%
-tag := "ch14-s3"
+tag := "ch15-s2"
 %%%
 
-Set $`A = \left( {\lambda z.z} \right)\, I`. It steps to $`I` in one step under either strategy. Consider $`\left( {\lambda x.x\, x} \right)\, A`. Under call-by-value, first evaluate $`A` and perform the outer beta step to obtain $`I\, I`, which returns $`I`. Under call-by-name, the first step produces $`A\, A`. Evaluate its operator, obtaining $`I\, A`. This reduces to $`A`, which must be evaluated again. The result is $`I` in each case. The two copies distinguish call-by-name from *call-by-need*, which stores a result for reuse when a delayed argument is demanded again. We assume no sharing rule in the name semantics.
+In the example each run ends at $`6+0` or at $`6+5`, and the value of the guard selects the summand. We name this selection.
 
-Duplication has a numerical cost even for arguments that return normally. Define `A₀ = I` and `Aₖ₊₁ = (λz.z) Aₖ`. With either weak strategy, evaluating `Aₖ` to its outer value costs exactly `k` beta steps. Under name evaluation each outer identity immediately exposes its argument. Under value evaluation each identity waits until its argument returns, then passes that value upward. Induction on `k` verifies both counts.
+*Definition 15.1 (Contract of compiled Boolean expressions) \[This book\].* For a Boolean $`\beta` and integers $`d_1,d_0`, write $`\mathrm{sel}(\beta,d_1,d_0)` for $`d_1` if $`\beta=\mathsf{true}` and for $`d_0` if $`\beta=\mathsf{false}`. Let $`K` be code, $`b` a Boolean expression and $`d_1,d_0` integers. The code $`K` *meets the contract* for $`b,d_1,d_0` if for every code $`C`, store $`s`, stack $`S` and position $`\mathit{pc}` with $`\mathrm{at}(C,\mathit{pc},K)`,
 
-Now evaluate `(λx. x x) Aₖ`. With values, the first `k` steps reduce the argument to `I`. The outer substitution and the final `I I` together cost two further steps. With names, the first beta step produces `Aₖ Aₖ`. Reducing its operator costs `k`; applying the resulting identity costs one step and exposes the second copy. That copy costs another `k`, for a total of `2k + 2`. In this example the cost difference is exactly `k`. The count concerns beta steps in the stated semantics. An implementation of call-by-need would also perform operations to create, force and update a shared delayed computation, so the same numerical cost model cannot be carried over without additional rules.
+$$`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K|+\mathrm{sel}(B(b,s),d_1,d_0),\,S,\,s\rangle.`
+
+The positions $`\mathit{pc}+|K|+d_1` and $`\mathit{pc}+|K|+d_0` are the *true exit* and the *false exit* of the block.
+
+The contract has four parts. The run ends at one of two positions. The value $`B(b,s)` decides which. The stack is $`S` again. The store is $`s` again. In the example, $`\mathrm{sel}(B(b,s),0,5)` is $`0` when $`s(x)\le1` and $`s(y)\ne0`, and $`5` otherwise.
+
+*Theorem 15.2 (Compiled Boolean expressions meet the contract) \[Externally checked: Leroy course, [machine-card references](machine-card/index.html#machine-sources)\].* For every code $`C`, store $`s`, stack $`S`, Boolean expression $`b`, integers $`d_1,d_0` and position $`\mathit{pc}`, let $`K=\mathrm{cbexp}(b,d_1,d_0)`. If $`\mathrm{at}(C,\mathit{pc},K)`, then
+
+$$`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K|+\mathrm{sel}(B(b,s),d_1,d_0),\,S,\,s\rangle.`
+
+In words, $`\mathrm{cbexp}(b,d_1,d_0)` meets the contract for $`b,d_1,d_0`. Session 16 applies the theorem with the distances $`0` and $`|K'|+1`, where $`K'` is the code of the loop body or of the first branch of a conditional.
+
+The theorem says that the machine passes through the exit configuration. It does not say that every instruction of the block runs: in the first run above, positions 3–5 were skipped. Nor does it say what happens at the exit. That depends on the instruction found there, which belongs to the code around the block.
+
+# Proof by structural induction
+%%%
+tag := "ch15-s3"
+%%%
+
+*Proof of Theorem 15.2.* Fix $`C`, $`s` and $`S`. We prove $`P(b)` for every Boolean expression $`b` by structural induction on $`b`, with one case for each of the six forms of A.4. The induction property is
+
+$$`P(b)\ \coloneqq\ \forall d_1,d_0,\mathit{pc},\quad\mathrm{at}(C,\mathit{pc},\mathrm{cbexp}(b,d_1,d_0))\ \Longrightarrow\ C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|\mathrm{cbexp}(b,d_1,d_0)|+\mathrm{sel}(B(b,s),d_1,d_0),\,S,\,s\rangle.`
+
+Only $`\neg b_1` and $`b_1\land b_2` have Boolean expressions as children, so only these two cases have induction hypotheses. The children of a comparison are arithmetic expressions, and for them Session 14 has done the work.
+
+The distances and the position are quantified inside $`P(b)`. In [Session 3, §3.2](chapter-03/index.html#ch03-s2) the final store was quantified inside the induction property, because the hypothesis for the first premise was applied at a different store. Here the hypotheses are applied at different distances and positions. Take the conjunction $`b` of §15.1, compiled with the distances $`0` and $`5`. Its hypothesis for $`x\le1` must describe $`K_1=\mathrm{cbexp}(x\le1,0,8)`, and its hypothesis for $`\neg(y=0)` must describe a block that starts at position $`3`, not $`0`. With $`d_1,d_0,\mathit{pc}` fixed before the induction, the hypothesis for $`x\le1` would describe $`\mathrm{cbexp}(x\le1,0,5)`, a block that does not occur in $`C`. The code $`C`, the store $`s` and the stack $`S` may stay fixed, because every hypothesis is used with the same three. Code for a Boolean expression changes neither the stack nor the store.
+
+*Constants.* Suppose $`b=\mathsf{true}`. Then $`\mathrm{sel}(B(b,s),d_1,d_0)=d_1`. If $`d_1=0`, the block is empty, and the path with zero transitions ends at $`\mathit{pc}+0+0`. Otherwise the block is $`[\mathsf{branch}(d_1)]`. By B.2, fact 1, $`C(\mathit{pc})=\mathsf{branch}(d_1)`, and the branch rule gives one transition to $`\langle\mathit{pc}+1+d_1,S,s\rangle`. A single transition is a path (B.5). The block has length $`1`, so this is the required configuration. The case $`b=\mathsf{false}` is the same with $`d_0`.
+
+*Comparison (warm-up).* Suppose $`b=(e_1\le e_2)`, so the block is $`K=\mathrm{cexp}(e_1)\mathbin{+\!\!+}\mathrm{cexp}(e_2)\mathbin{+\!\!+}[\mathsf{ble}(d_1,d_0)]`. Write $`\ell_1=|\mathrm{cexp}(e_1)|`, $`\ell_2=|\mathrm{cexp}(e_2)|`, $`n_1=\mathrm{eval}(e_1,s)` and $`n_2=\mathrm{eval}(e_2,s)`. Then $`|K|=\ell_1+\ell_2+1`. Assume $`\mathrm{at}(C,\mathit{pc},K)`. The steps use [Session 14, Corollary 14.4](chapter-14/index.html#ch14-s3) twice.
+
+1. By B.2, fact 2 applied twice, $`\mathrm{at}(C,\mathit{pc},\mathrm{cexp}(e_1))`, $`\mathrm{at}(C,\mathit{pc}+\ell_1,\mathrm{cexp}(e_2))` and $`\mathrm{at}(C,\mathit{pc}+\ell_1+\ell_2,[\mathsf{ble}(d_1,d_0)])`. By fact 1, $`C(\mathit{pc}+\ell_1+\ell_2)=\mathsf{ble}(d_1,d_0)`.
+2. Corollary 14.4 for $`e_1` at $`\mathit{pc}` with the stack $`S` gives $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+\ell_1,n_1::S,s\rangle`.
+3. Corollary 14.4 for $`e_2` at $`\mathit{pc}+\ell_1` with the stack $`n_1::S` gives $`C\vdash\langle\mathit{pc}+\ell_1,n_1::S,s\rangle\to^*\langle\mathit{pc}+\ell_1+\ell_2,n_2::n_1::S,s\rangle`.
+4. The rule for $`\mathsf{ble}` (B.4) pops $`n_2` and $`n_1` and moves to $`\langle\mathit{pc}+\ell_1+\ell_2+1+\delta,S,s\rangle`, where $`\delta` is $`d_1` if $`n_1\le n_2` and $`d_0` otherwise. By A.4, $`n_1\le n_2` holds exactly when $`B(b,s)=\mathsf{true}`. So $`\delta=\mathrm{sel}(B(b,s),d_1,d_0)`, and the new position is $`\mathit{pc}+|K|+\mathrm{sel}(B(b,s),d_1,d_0)`.
+5. Join the paths of steps 2–4 (B.5).
+
+The equality case is the same with $`\mathsf{beq}` and $`n_1=n_2`. Step 3 applies Corollary 14.4 on the stack $`n_1::S`, not on the stack the block started with. This is why Session 14 proved it for every stack. No induction hypothesis was used.
+
+*Negation.* Suppose $`b=\neg b_1`. The block is $`K=\mathrm{cbexp}(\neg b_1,d_1,d_0)=\mathrm{cbexp}(b_1,d_0,d_1)`. Assume $`\mathrm{at}(C,\mathit{pc},K)`. Apply $`P(b_1)` with the distances $`d_0,d_1`, in this order, and the position $`\mathit{pc}`. It gives a path to $`\langle\mathit{pc}+|K|+\mathrm{sel}(B(b_1,s),d_0,d_1),S,s\rangle`. If $`B(b_1,s)=\mathsf{true}`, then $`B(b,s)=\mathsf{false}` by A.4, and both $`\mathrm{sel}(B(b_1,s),d_0,d_1)` and $`\mathrm{sel}(B(b,s),d_1,d_0)` equal $`d_0`. If $`B(b_1,s)=\mathsf{false}`, both equal $`d_1`. So the path ends at the required configuration.
+
+*Conjunction (board case).* Suppose $`b=b_1\land b_2`. Fix $`d_1,d_0,\mathit{pc}` and write
+
+$$`K_2=\mathrm{cbexp}(b_2,d_1,d_0),\qquad K_1=\mathrm{cbexp}(b_1,0,|K_2|+d_0),\qquad K=K_1\mathbin{+\!\!+}K_2.`
+
+By B.7, $`K=\mathrm{cbexp}(b,d_1,d_0)`, and $`|K|=|K_1|+|K_2|` by B.2. The induction hypotheses are as follows. We name the bound distances $`d_1',d_0'` and the bound position $`\mathit{pc}'` to keep them apart from those of the case.
+
+$$`\begin{aligned}
+P(b_1):\quad&\forall d_1',d_0',\mathit{pc}',\ \ \mathrm{at}(C,\mathit{pc}',\mathrm{cbexp}(b_1,d_1',d_0'))\Longrightarrow{}\\
+&\qquad C\vdash\langle\mathit{pc}',S,s\rangle\to^*\langle\mathit{pc}'+|\mathrm{cbexp}(b_1,d_1',d_0')|+\mathrm{sel}(B(b_1,s),d_1',d_0'),\,S,\,s\rangle,\\
+P(b_2):\quad&\forall d_1',d_0',\mathit{pc}',\ \ \mathrm{at}(C,\mathit{pc}',\mathrm{cbexp}(b_2,d_1',d_0'))\Longrightarrow{}\\
+&\qquad C\vdash\langle\mathit{pc}',S,s\rangle\to^*\langle\mathit{pc}'+|\mathrm{cbexp}(b_2,d_1',d_0')|+\mathrm{sel}(B(b_2,s),d_1',d_0'),\,S,\,s\rangle.
+\end{aligned}`
+
+1. Assume $`\mathrm{at}(C,\mathit{pc},K_1\mathbin{+\!\!+}K_2)`. We must show $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K_1|+|K_2|+\mathrm{sel}(B(b,s),d_1,d_0),S,s\rangle`. By B.2, fact 2, $`\mathrm{at}(C,\mathit{pc},K_1)` and $`\mathrm{at}(C,\mathit{pc}+|K_1|,K_2)`.
+2. Apply $`P(b_1)` with $`d_1'=0`, $`d_0'=|K_2|+d_0` and $`\mathit{pc}'=\mathit{pc}`. Its block is $`K_1`, which is at $`\mathit{pc}` by step 1. This gives $`C\vdash\langle\mathit{pc},S,s\rangle\to^*\langle\mathit{pc}+|K_1|+\mathrm{sel}(B(b_1,s),0,|K_2|+d_0),S,s\rangle`.
+3. Suppose $`B(b_1,s)=\mathsf{false}`. The selected distance in step 2 is $`|K_2|+d_0`, so the path ends at $`\mathit{pc}+|K_1|+|K_2|+d_0`. By A.4, $`B(b,s)=\mathsf{false}`, so $`\mathrm{sel}(B(b,s),d_1,d_0)=d_0`. The path of step 2 is the required one. The block $`K_2` was skipped, and $`P(b_2)` is not needed.
+4. Suppose $`B(b_1,s)=\mathsf{true}`. The selected distance in step 2 is $`0`, so the path ends at $`\langle\mathit{pc}+|K_1|,S,s\rangle`, the start of $`K_2`.
+5. Apply $`P(b_2)` with $`d_1'=d_1`, $`d_0'=d_0` and $`\mathit{pc}'=\mathit{pc}+|K_1|`. Its block is $`K_2`, which is at $`\mathit{pc}+|K_1|` by step 1. This gives $`C\vdash\langle\mathit{pc}+|K_1|,S,s\rangle\to^*\langle\mathit{pc}+|K_1|+|K_2|+\mathrm{sel}(B(b_2,s),d_1,d_0),S,s\rangle`.
+6. By A.4, $`B(b,s)=B(b_2,s)` when $`B(b_1,s)=\mathsf{true}`. So the path of step 5 ends at the required configuration. Join the paths of steps 2 and 5 (B.5).
+
+Step 2 uses the hypothesis for $`b_1` at the distances $`0` and $`|K_2|+d_0`. Step 5 uses the hypothesis for $`b_2` at the position $`\mathit{pc}+|K_1|`. Neither matches the $`d_1,d_0,\mathit{pc}` of the case. Step 3 also shows why the compiler adds $`|K_2|` to the false distance of $`b_1`: the false exit of $`K_1` is $`(\mathit{pc}+|K_1|)+(|K_2|+d_0)=\mathit{pc}+|K|+d_0`, the false exit of $`K`.
+
+This proves $`P(b)` for every Boolean expression $`b`. Theorem 15.2 is $`P(b)` at the given $`d_1,d_0,\mathit{pc}`. $`\square`
 
 # Exercises
 %%%
-tag := "ch14-s4"
+tag := "ch15-s4"
 number := false
 %%%
 
-1. Count the steps in §15.3 under each strategy. Identify the precise step at which the argument is duplicated.
-2. For `λz. Ω`, classify weak evaluation under both strategies. Can repeated beta contraction inside its body terminate?
-3. Replace the function in $`M` by $`I`. Does call-by-name now terminate?
+*15.1.* The guard $`x=0\lor y=0` abbreviates $`\neg(\neg(x=0)\land\neg(y=0))` (A.4). Compute $`\mathrm{cbexp}` of it with the distances $`0` and $`4`. Place the code at position $`0` and run it from stores with $`(s(x),s(y))` equal to $`(0,5)`, $`(3,0)` and $`(3,5)`. Which conditional branch instruction decides each run, and which exit does it reach?
 
-*Further problem.* For fresh names `x,u`, put `L = (λx. λu. x) Ω`. Trace evaluation of both `L` and `L I` under each weak strategy. Which observations change when a caller supplies one more argument?
+*15.2.* Compute $`\mathrm{cbexp}(\mathsf{false}\land\mathsf{true},3,0)`. Which instruction never runs, whatever the store? Does this contradict Theorem 15.2?
+
+*15.3.* Suppose the induction property fixed $`d_1` and $`d_0` before the induction and quantified only $`\mathit{pc}`. Which cases of the proof fail? For each, name the block the hypothesis describes and the block that occurs in $`C`.
+
+*Further problem.* Add a Boolean expression $`b_1\lor b_2` with $`B(b_1\lor b_2,s)=\mathsf{true}` exactly when $`B(b_1,s)=\mathsf{true}` or $`B(b_2,s)=\mathsf{true}`. Compile it by $`\mathrm{cbexp}(b_1\lor b_2,d_1,d_0)=\mathrm{cbexp}(b_1,|K_2|+d_1,0)\mathbin{+\!\!+}K_2` with $`K_2=\mathrm{cbexp}(b_2,d_1,d_0)`. Prove the new case of Theorem 15.2 in the style of the board case. Compare the code for $`x=0\lor y=0` with the code of Exercise 15.1.
 
 # Reading for the Seminar
 %%%
-tag := "ch14-s5"
+tag := "ch15-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Annotate each use of a congruence rule and each beta rule in the one-step definitions.
+*Definitions · 10 minutes.* Write the rules for $`\mathsf{branch}` and $`\mathsf{ble}` (B.4). Draw the loop layout of the opening and mark the two exits of the test. Compute $`\mathrm{cbexp}((x\le1)\land\neg(y=0),0,5)` and run it from a store with $`s(x)=0` and $`s(y)=7`.
 
-*Joint proof · 30 minutes.* Build the finite name evaluation of $`M`. Then prove, by induction on the number of value steps, that every finite value-strategy prefix ends at $`M`.
+*Joint proof · 30 minutes.* Write $`P(b)` with its three quantifiers. Do the comparison case as a warm-up: two uses of Corollary 14.4 and one conditional branch instruction. Then write $`P(b_1)` and $`P(b_2)` and the six steps of the board case.
 
-*Proof review · 20 minutes.* Trace the repeated-use example, distinguishing substitution of code from reuse of an already computed value.
+*Proof review · 20 minutes.* Do the constant and negation cases. Use Exercise 15.3 to find which quantifier each case needs. Run Exercise 15.2 and say what the theorem does not promise.
 
-*Facilitator’s hint.* When a term steps to itself, an infinite path exists. To exclude a second, terminating path use uniqueness of the selected step.
+*Facilitator’s hint.* In step 2 of the board case, ask with which distances the code for $`b_1` was compiled. In step 5, ask at which position the code for $`b_2` starts.
 
-# Solutions
+# Solutions and Further Reading
 %%%
-tag := "ch14-s6"
+tag := "ch15-s6"
 number := false
 %%%
 
-*1.* Value takes three steps: reduce $`A` inside the argument, perform the outer substitution, then reduce $`I\, I`. Name takes four: duplicate $`A` at the outer beta step, reduce the left $`A`, apply $`I`, then reduce the remaining $`A`.
+*15.1.* The negation exchanges the distances, so the code is $`\mathrm{cbexp}(\neg(x=0)\land\neg(y=0),4,0)`. Then $`K_2=\mathrm{cbexp}(\neg(y=0),4,0)=\mathrm{cbexp}(y=0,0,4)=[\mathsf{load}(y),\mathsf{push}(0),\mathsf{beq}(0,4)]` and $`K_1=\mathrm{cbexp}(\neg(x=0),0,3)=\mathrm{cbexp}(x=0,3,0)=[\mathsf{load}(x),\mathsf{push}(0),\mathsf{beq}(3,0)]`. At position $`0` the block ends at $`6`. The true exit is $`6` and the false exit is $`10`. For $`(0,5)` the $`\mathsf{beq}` at position 2 finds $`0=0` and continues at $`2+1+3=6`. For $`(3,0)` it fails and continues at $`3`, and the $`\mathsf{beq}` at position 5 finds $`0=0` and continues at $`5+1+0=6`. For $`(3,5)` both tests fail, and the $`\mathsf{beq}` at position 5 continues at $`5+1+4=10`. The first two runs reach the true exit and the third the false exit.
 
-*2.* An abstraction is already a weak value under both strategies. If contraction proceeds inside the body, the only redex there is $`\Omega`, whose contraction reproduces it. The term has no beta-normal form.
+*15.2.* Here $`K_2=\mathrm{cbexp}(\mathsf{true},3,0)=[\mathsf{branch}(3)]` and $`K_1=\mathrm{cbexp}(\mathsf{false},0,1+0)=[\mathsf{branch}(1)]`. The block is $`[\mathsf{branch}(1),\mathsf{branch}(3)]`. From $`\mathit{pc}`, the first branch continues at $`\mathit{pc}+2=\mathit{pc}+|K|+0`, the false exit, as required since $`B(\mathsf{false}\land\mathsf{true},s)=\mathsf{false}`. The $`\mathsf{branch}(3)` at $`\mathit{pc}+1` never runs. The theorem promises only the exit reached, so this unreachable instruction does not contradict it. Nipkow and Klein observe the same effect in their Example 8.7.
 
-*3.* The first name step in $`I\,\Omega` yields $`\Omega`. Each subsequent step reproduces it, so this term diverges under name as well.
+*15.3.* Constants and comparisons use no hypothesis, so they still go through. In the negation case the hypothesis describes $`\mathrm{cbexp}(b_1,d_1,d_0)`, but $`C` contains $`\mathrm{cbexp}(b_1,d_0,d_1)`. In the conjunction case the hypothesis for $`b_1` describes $`\mathrm{cbexp}(b_1,d_1,d_0)`, but $`C` contains $`K_1=\mathrm{cbexp}(b_1,0,|K_2|+d_0)`. The hypothesis for $`b_2` has the right distances, and its position is still quantified, so step 5 survives. If the position were fixed as well, step 5 would also fail, because $`K_2` starts at $`\mathit{pc}+|K_1|`.
 
-*Further problem.* Under call-by-name the operator of `L` is already an abstraction, so one beta step substitutes the closed term `Ω` and yields `λu. Ω`. This is a value under the weak rules. In `L I`, that same step occurs in operator position; the next step applies the resulting abstraction to `I` and leaves `Ω`. Every subsequent step returns `Ω` itself, so this second experiment never reaches a value. Under call-by-value, `L` already has a value operator but still requires a value operand. The only possible step evaluates `Ω` to itself and leaves `L` unchanged. In `L I`, the operator must step first, which carries that self-step to the enclosing application. Neither value run can reach an abstraction, by uniqueness of the selected step. Thus observing the returned function and observing the result of calling it are distinct experiments even though their programs share the entire expression `L`.
+*Further problem.* By B.2, fact 2, $`K_1=\mathrm{cbexp}(b_1,|K_2|+d_1,0)` is at $`\mathit{pc}` and $`K_2` at $`\mathit{pc}+|K_1|`. Apply $`P(b_1)` with the distances $`|K_2|+d_1` and $`0` at $`\mathit{pc}`. If $`B(b_1,s)=\mathsf{true}`, the path ends at $`\mathit{pc}+|K_1|+|K_2|+d_1`, the true exit, and $`B(b_1\lor b_2,s)=\mathsf{true}`. If $`B(b_1,s)=\mathsf{false}`, it ends at $`\mathit{pc}+|K_1|`. Apply $`P(b_2)` with $`d_1,d_0` at $`\mathit{pc}+|K_1|`, note $`B(b_1\lor b_2,s)=B(b_2,s)`, and join the two paths. For $`x=0\lor y=0` with the distances $`0` and $`4`, the new equation gives $`\mathrm{cbexp}(y=0,0,4)` as $`K_2` and $`\mathrm{cbexp}(x=0,3,0)` as $`K_1`. This is exactly the code of Exercise 15.1.
+
+*Further reading · Sources.* Nipkow and Klein, _Concrete Semantics_, §8.3, compile a Boolean expression with one offset $`n` and a flag $`f`. Their code jumps $`n` instructions past its end when the value of the expression equals $`f`, and otherwise ends at its end. The distances $`0` and $`n` of this book correspond to their flag false. Their Lemma 8.8 runs the code on its own from position $`0` and requires $`0\le n`. They place code in a larger program with a separate composition lemma (Lemma 8.5). They motivate the scheme with the same loop layout (Fig. 8.1), and their Lemma 8.13 bounds the possible exits of the code. Leroy’s _Compiler Verification_ course remarks that the code could instead push $`1` or $`0` and let the conditional and the loop compare that value with $`0`. The course calls the branching code simpler and more efficient: it never computes the value as an integer, and it leaves the stack unchanged. The code also skips the second operand of a conjunction whose first operand is false (§15.1). [Concrete Semantics](https://concrete-semantics.org/concrete-semantics.pdf#page=110) · [Definitions and Lean names](machine-card/index.html#machine-sources)

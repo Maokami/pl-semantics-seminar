@@ -1,34 +1,38 @@
 """Apply seminar order to the navigation of the rendered Verso editions."""
 import html
 import re
+from functools import lru_cache
 from pathlib import Path
 
-from seminar import chapter_slug, study_groups
-
 ROOT = Path(__file__).resolve().parent
-EN_UNITS = [
-    'Execution Rules and Structural Induction', 'Denotational and Axiomatic Semantics',
-    'Lambda Calculus and Function Types', 'Type Inference and Polymorphism',
-    'Domain Theory and PCF', 'State, Control and Concurrency',
-    'Compiler Correctness and Static Analysis',
-]
+PARTS = (
+    (1, 21, "IMP", "Part 1 · IMP"),
+    (22, 32, "함수와 타입", "Part 2 · Functions and Types"),
+    (33, 38, "논리 관계와 PCF", "Part 3 · Logical Relations and PCF"),
+)
+REFERENCES = (
+    ("imp-card", "IMP language card"),
+    ("machine-card", "Stack machine card"),
+    ("lambda-card", "Lambda language card"),
+    ("glossary", "Glossary"),
+)
 
 
 def units(ko=False):
-    groups = study_groups()
-    for i, group in enumerate(groups[:1] if ko else groups):
-        rows = group['sessions']
-        weeks = {}
-        for row in rows:
-            for span in row['read']:
-                n = int(span.split('.')[0])
-                if row['week'] not in weeks.setdefault(n, []):
-                    weeks[n].append(row['week'])
-        yield rows[0]['week'], rows[-1]['week'], group['title'], EN_UNITS[i], weeks
+    parts = [(1, 7, "실행 규칙과 구조적 귀납", "")] if ko else PARTS
+    for first, last, korean, english in parts:
+        yield first, last, korean, english, range(first, last + 1)
 
 
-def titles(ko):
-    folder = ROOT / ('PLBook/Ko' if ko else 'PLBook')
+@lru_cache(maxsize=None)
+def chapter_slug(n, ko=False):
+    folder = ROOT / ("PLBook/Ko" if ko else "PLBook")
+    source = (folder / f"Ch{n:02}.lean").read_text()
+    return re.search(r'^file := "([^"]+)"$', source, re.M)[1]
+
+
+def titles():
+    folder = ROOT / "PLBook"
     return {int(p.stem[2:]): re.search(r'^#doc \(Manual\) "([^"]+)"', p.read_text(), re.M)[1]
             for p in folder.glob('Ch*.lean')}
 
@@ -37,7 +41,7 @@ def chapter_link(n, ko=False):
     return f'{chapter_slug(n, ko)}/index.html'
 
 
-def reader_buttons(page, current, order, names, ko):
+def reader_buttons(page, current, order, names):
     position = order.index(current) if current is not None else -1
     buttons = []
     for rel, offset in [('prev', -1), ('next', 1)]:
@@ -47,24 +51,20 @@ def reader_buttons(page, current, order, names, ko):
             where = f'<span class="where">{n}. {html.escape(names[n])}</span>'
             arrow = '<span class="arrow">←</span>' if offset < 0 else '<span class="arrow">→</span>'
             body = arrow + where if offset < 0 else where + arrow
-            buttons.append(f'<a class="local-button active" rel="{rel}" href="{chapter_link(n, ko)}">{body}</a>')
+            buttons.append(f'<a class="local-button active" rel="{rel}" href="{chapter_link(n)}">{body}</a>')
     return re.sub(r'<nav class="prev-next-buttons">.*?</nav>',
                   lambda _: '<nav class="prev-next-buttons">' + ''.join(buttons) + '</nav>',
                   page, flags=re.S)
 
-def course_nav(groups, names, ko, current, sidebar):
+def course_nav(groups, names, current, sidebar):
     blocks = []
-    for first, last, title, english, chapters in groups:
-        label = f'{first}–{last}회 · {title}' if ko else english
+    for first, _, _, label, chapters in groups:
         rows = []
-        for n, weeks in chapters.items():
-            if ko:
-                meeting = '·'.join(map(str, weeks)) + '회'
-            else:
-                meeting = ('Session ' if len(weeks) == 1 else 'Sessions ') + '–'.join(map(str, weeks))
+        for n in chapters:
+            meeting = f'Session {n}'
             active = ' aria-current="page"' if current == n else ''
-            rows.append(f'<li><a{active} href="{chapter_link(n, ko)}"><span class="meeting-no">{meeting}</span>'
-                        f' <span>{n}. {html.escape(names[n])}</span></a></li>')
+            rows.append(f'<li><a{active} href="{chapter_link(n)}"><span class="meeting-no">{meeting}</span>'
+                        f' · {html.escape(names[n])}</a></li>')
         listing = '<ul>' + ''.join(rows) + '</ul>'
         if sidebar:
             opened = ' open' if current in chapters or (current is None and first == 1) else ''
@@ -74,47 +74,29 @@ def course_nav(groups, names, ko, current, sidebar):
     return '<div class="course-toc">' + ''.join(blocks) + '</div>'
 
 
-def update_pages(site, ko=False):
-    groups = list(units(ko))
-    names = titles(ko)
+def update_pages(site):
+    groups = list(units())
+    names = titles()
     order = [n for *_, chapters in groups for n in chapters]
-    by_slug = {chapter_slug(n, ko): n for n in order}
+    by_slug = {chapter_slug(n): n for n in order}
     for p in [site/'index.html', *site.glob('*/index.html')]:
-        if p.parent.parent == site and p.parent.name == 'ko':
-            continue
         s = p.read_text()
         if 'split-toc book' not in s:
             continue
         ch = by_slug.get(p.parent.name)
-        if not ko and p.parent.name in {"chapter-04", "chapter-05", "chapter-06", "chapter-06-legacy"}:
-            # Verso links to the part tag in its sidebar but omits the ID on a page's own heading.
-            tag = p.parent.name.replace("chapter-", "ch", 1)
+        tag = f'ch{ch:02}' if ch else p.parent.name
+        if ch or any(tag == slug for slug, _ in REFERENCES):
+            # Verso links to the part tag but leaves its own page heading untagged.
             s = re.sub(r'(<section>\s*)<h1>', rf'\1<h1 id="{tag}">', s, count=1)
-        guide = '../seminar/index.html' if ko else 'seminar/index.html'
-        guide_label = '이전 판 42회 읽기 일정' if ko else 'Reading schedule (Korean)'
-        more = f'<a class="guide-link" href="{guide}">{guide_label}</a>'
-        if ko:
-            more += '<a class="guide-link" href="imp-card/index.html">IMP 언어 카드</a>'
-            more += '<a class="guide-link" href="../glossary/index.html">영어–한국어 용어집</a>'
-            if ch:
-                # Korean chapters link to their English counterparts using the earlier addresses.
-                s = s.replace(f'href="../{chapter_link(ch, True)}"', f'href="../{chapter_link(ch)}"')
-            langlink = '../' + (chapter_link(ch) if ch else 'index.html')
-            more += f'<a class="guide-link" href="{langlink}">English edition</a>'
-        else:
-            more += '<a class="guide-link" href="imp-card/index.html">IMP language card</a>'
-            more += '<a class="guide-link" href="glossary/index.html">English–Korean glossary</a>'
+        more = ''.join(f'<a class="guide-link" href="{slug}/index.html">{label}</a>'
+                       for slug, label in REFERENCES)
         # Verso uses a heading div for some releases, so anchor on this book's first table.
         pattern = r'(<div class="split-toc book">(?:(?!<table>).)*?)<table>.*?</table>'
-        s, k = re.subn(pattern, lambda m: m[1]+more+course_nav(groups,names,ko,ch,True),s,count=1,flags=re.S)
+        s, k = re.subn(pattern, lambda m: m[1]+more+course_nav(groups,names,ch,True),s,count=1,flags=re.S)
         if k != 1: raise ValueError(f'Book navigation missing in {p}')
         if p == site/'index.html':
-            s, k = re.subn(r'<ol class="section-toc">.*?</ol>',lambda m: course_nav(groups,names,ko,ch,False),s,count=1,flags=re.S)
+            s, k = re.subn(r'<ol class="section-toc">.*?</ol>',lambda m: course_nav(groups,names,ch,False),s,count=1,flags=re.S)
             if k != 1: raise ValueError(f'Root navigation missing in {p}')
         if ch or p == site/'index.html':
-            s = reader_buttons(s, ch, order, names, ko)
-        s=s.replace('<html>', '<html lang="ko">' if ko else '<html lang="en">',1)
-        if ko:
-            s=s.replace('<html lang="en"','<html lang="ko"').replace('>Table of Contents<','>차례<')
-            s=re.sub(r'(<h2>\s*)Contents(</h2>)',r'\1차례\2',s)
-        p.write_text(s)
+            s = reader_buttons(s, ch, order, names)
+        p.write_text(s.replace('<html>', '<html lang="en">', 1))

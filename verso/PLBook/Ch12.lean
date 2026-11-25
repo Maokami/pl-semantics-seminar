@@ -1,128 +1,236 @@
 import VersoManual
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Loop Invariants" =>
 %%%
-tag := "ch11"
-file := "chapter-11"
+tag := "ch12"
+file := "chapter-12"
 %%%
 
-[Chapter PDF](print/chapter-11.pdf) · [Session 12](seminar/index.html#week-12)
+* *Definitions.* Stores and update ([A.2](imp-card/index.html#imp-a2)). Guards, their values $`B(b,s)` and the derived notation $`e_1<e_2` ([A.4](imp-card/index.html#imp-a4)). The execution judgment $`s\vdash c\Downarrow t` and its six rules ([A.5](imp-card/index.html#imp-a5), Session 2, Definition 2.1). Assertions, triples $`\{P\}\,c\,\{Q\}`, validity $`\models\{P\}\,c\,\{Q\}` ([Session 11, Definition 11.4](chapter-11/index.html#ch11-s2)). The substituted assertion $`Q[e/x]` and the validity of assignment triples ([Session 11, Definition 11.5 and Theorem 11.8](chapter-11/index.html#ch11-s3)).
+* *New terms.* Guard assertion, loop invariant, Hoare proof system, derivable triple, soundness. [Glossary and label key](glossary/index.html)
+* *Theorem 12.3 \[Corresponding: CS Lemma 12.2\] \[Paper proof only: proof in this section\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+* *Source.* The six proof rules are those of _Concrete Semantics_, Fig. 12.3, where assertions are predicates on stores. They are written here for the guards of A.4. Nipkow and Klein prove soundness as Lemma 12.2 for their own execution relation, which has two conditional rules and a different guard language. Here validity refers to the execution relation of A.5. [Concrete Semantics, §§12.2–12.3, pp. 192–204](https://concrete-semantics.org/concrete-semantics.pdf)
+* *Board case.* The while rule. Take the hypothesis $`V(H_1)` for the body and prove $`L(D)` by induction on the loop execution $`D:s\vdash W\Downarrow t`. The iteration case takes four steps.
+* *Proof outline.* Induction on the derivation $`H` of $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` with $`V(H)\coloneqq\forall s,t,\ (P(s)\land s\vdash c\Downarrow t)\Rightarrow Q(t)`. Most cases invert the execution of $`c` and apply the hypotheses of the premises. In the while case a second induction, on the height of $`D:s\vdash W\Downarrow t`, proves $`L(D)\coloneqq P(s)\Rightarrow(P(t)\land B(b,t)=\mathsf{false})`.
+* *From Session 11.* Session 11 proved one triple valid at a time, directly from the execution rules. Here rules combine into derivations, and one induction proves every derivable triple valid. For the loop, the hypothesis about the rest of the run comes from induction on execution derivations, as in Session 3.
 
-After the first two iterations of a summation loop the accumulator contains three. After the third it contains six. To verify summation for every input we need an equation that remains true when one more summand is added. We also need enough information about the index to recover the requested sum when the guard becomes false.
+The program below adds the integers from 1 to $`n`. With $`n=3` the loop test is reached four times, with $`(i,a)` equal to $`(0,0)`, $`(1,1)`, $`(2,3)` and $`(3,6)`. Each pair satisfies $`2a=i(i+1)`, and the last test fails with $`i=n`. Checking one value of $`n` at a time never ends. We need one assertion that holds before the loop, survives one more execution of the body, and gives the result when the guard fails. This session turns that argument into a proof rule and proves that every triple derived by the rules of Hoare logic is valid.
 
-*Sources.* _The Hitchhiker’s Guide to Logical Verification_ (2026), §§10.5–10.7, pp. 147–151. Follow the invariant in the addition program, then locate the obligations produced by the verification condition generator. We derive those obligations for summation over an interval. Reynolds, _Theories of Programming Languages_, §3.4 gives the while rule. [Guide, 2026 edition.](https://raw.githubusercontent.com/lean-forward/logical_verification_2026/460f6be0846eefc3d9441e4e48d75753fcfe1709/hitchhikers_guide_2026_desktop.pdf) [Lean companion.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709) [Reynolds.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# Partial correctness
+# Invariants of a summation loop
 %%%
-tag := "ch11-s1"
-%%%
-
-Let $`s \vdash c \Downarrow t` mean that command $`c` terminates from $`s` in $`t`. An assertion is a predicate on states. A partial-correctness triple with precondition $`P` and postcondition $`Q` means that for all $`s,t`, if $`P(s)` and $`s \vdash c \Downarrow t` hold, then $`Q(t)` holds. An assertion $`I` is an invariant for a loop with guard $`b` and body $`c` if every terminating execution of the body from a state satisfying $`I` and $`b` ends in a state satisfying $`I`. An invariant is asserted at loop heads, including the final test.
-
-Given a precondition $`P` at entry and a desired postcondition $`Q`, the following three obligations suffice. As in Chapter 2, $`B(b,s)` holds when guard $`b` evaluates to true in state $`s`.
-
-1. *Entry.* For every $`s`, $`P(s)` implies $`I(s)`.
-2. *Preservation.* For every $`s,t`, if $`I(s)`, $`B(b,s)` and $`s \vdash c \Downarrow t`, then $`I(t)`.
-3. *Exit.* For every $`s`, $`I(s)` and $`\neg B(b,s)` imply $`Q(s)`.
-
-*Soundness.* Induct on a terminating loop derivation starting with $`I`. If the last rule exits, the final state equals the initial state, so use the exit obligation. If it iterates, the true guard and body derivation establish $`I` at the intermediate state by preservation. Apply the induction hypothesis to the smaller loop derivation starting there. Entry permits the argument to begin at any $`P`-state.
-
-*Reachable states and inductive assertions.* Fix a set of initial stores and define `H` to be the set of all stores reached at the loop head after finitely many completed iterations from those entries. Include the stores reached before the first guard test. Then `H` satisfies entry and preservation by its definition. For preservation, append one terminating execution of the body to the finite history that witnesses reachability of the given head. This also proves minimality: for any assertion satisfying entry and preservation, induction on the length of a history puts each store in `H` inside that assertion. Restrict the entry set to the stores immediately after any initialization code.
-
-The exact set `H` is rarely easy to describe with arithmetic formulas. An invariant used in a proof can therefore include stores unreachable from the intended entries. Preservation and exit must both hold on those extra stores as well. For instance with entry `x = 0` and body `x := x + 2` under guard `x < 9`, all reachable head values are even. The predicate `x ≤ 10` includes the unreachable value 9 and still satisfies preservation. However, it cannot on its own establish the exact exit value 10, since at 9 the guard is already false. Adding evenness makes the exit conclusion follow.
-
-# Summation
-%%%
-tag := "ch11-s2"
+tag := "ch12-s1"
 %%%
 
-Use distinct integer variables $`i,a,n`. The input $`n` stays fixed throughout. In the code, the right side of an assignment reads the current state.
+Let $`i,a,n` be distinct names. The program is
 
-```
-i := 0; a := 0;
-while i < n do (i := i + 1; a := a + i)
-```
+$$`i:=0;\ \bigl(a:=0;\ W\bigr),\qquad W=\mathsf{while}\ i<n\ \mathsf{do}\ c,\qquad c=\bigl(i:=i+1;\ a:=a+i\bigr).`
 
-For $`n \geq 0` we claim that any final state satisfies $`2a = n\left( {n + 1} \right)`. Multiplication in this assertion is ordinary integer multiplication in the specification. The program uses only additions and a comparison. The invariant at the head is
+The guard $`i<n` is the derived notation of [A.4](imp-card/index.html#imp-a4). It abbreviates $`\neg(n\le i)`, so $`B(i<n,s)=\mathsf{true}` exactly when $`s(i)<s(n)`. Every right-hand side uses only names, literals and addition, so it is an expression of [A.1](imp-card/index.html#imp-a1). No assignment changes $`n`.
 
-$$`I\quad \equiv \quad 0 \leq i \leq n\quad \land \quad 2a = i\left( {i + 1} \right).`
+Recall from [Session 11](chapter-11/index.html) that an assertion is a predicate on stores, and that $`\{P\}\,c\,\{Q\}` is valid, written $`\models\{P\}\,c\,\{Q\}`, when
 
-At entry the two initialization assignments give $`i = a = 0`, and $`0 \leq n` supplies the upper bound. For preservation, let $`j` and $`A` be the old values of $`i` and $`a`. The guard gives $`j < n`. Because these are integers, $`j + 1 \leq n`. The first assignment writes $`j + 1`. The second reads this *new* index and writes $`A + j + 1`. The required equation follows:
+$$`\forall s,t,\ \bigl(P(s)\land s\vdash c\Downarrow t\bigr)\Rightarrow Q(t).`
 
-$$`2\left( {A + j + 1} \right) = j\left( {j + 1} \right) + 2\left( {j + 1} \right) = \left( {j + 1} \right)\left( {j + 2} \right).`
+In examples we write an assertion as a formula over names, where each name $`x` stands for the integer $`s(x)`. For example, $`2a=i(i+1)` is the assertion that holds at $`s` exactly when $`2s(a)=s(i)\bigl(s(i)+1\bigr)`. An assertion is a mathematical statement about integers, so it may multiply. This does not add multiplication to the expressions of A.1. Programs still use only the four constructors of A.1, and $`\mathrm{eval}` is never applied to an assertion.
 
-At exit, $`i \geq n` from the false guard combines with $`i \leq n` from the invariant to give $`i = n`. Substitution yields the postcondition.
+A guard and an assertion are different objects. A guard $`b` is syntax whose value $`B(b,s)` is a Boolean. An assertion is a proposition about $`s`. To use a guard in an assertion we compare its value with a Boolean constant. For a guard $`b` and assertions $`P,R`, define the *guard assertions* $`\mathrm{T}_b,\mathrm{F}_b` and the conjunction $`P\wedge R` by
 
-*Deriving the accumulator equation.* At a head with index `j`, let `S(j)` be the sum of the integers from 1 through `j`, with `S(0) = 0`. The two assignments implement the recurrence `S(j + 1) = S(j) + j + 1`. This suggests the direct invariant `a = S(i)`. To use the closed arithmetic invariant in the text, prove once by induction that `2S(j) = j(j + 1)` for every natural `j`. The step expands twice the recurrence and factors out `j + 1`. The invariant's bound `i ≥ 0` makes the identity applicable even though the program stores integers.
+$$`\mathrm{T}_b(s)\coloneqq\bigl(B(b,s)=\mathsf{true}\bigr),\qquad\mathrm{F}_b(s)\coloneqq\bigl(B(b,s)=\mathsf{false}\bigr),\qquad(P\wedge R)(s)\coloneqq P(s)\land R(s).`
 
-The doubled equation avoids introducing integer division into the proof. Stating `a = i(i + 1)/2` would require a convention for division and, depending on that convention, a proof that the product is divisible by two. The doubled version needs just addition, multiplication, and equality in the assertion language. The recurrence also predicts which proof would survive changing the summand. If the body accumulated `2i` after incrementing, the recurrence would be `T(j + 1) = T(j) + 2(j + 1)` and the corresponding equation would be `a = i(i + 1)`. The index bounds and the exit argument would be identical.
+This conjunction combines assertions. It is not the guard constructor $`b_1\land b_2` of A.4. Each store satisfies exactly one of $`\mathrm{T}_b` and $`\mathrm{F}_b`, because $`B(b,s)` is one of the two Boolean values. In the example, $`\mathrm{T}_{i<n}(s)` holds when $`s(i)<s(n)`, and $`\mathrm{F}_{i<n}(s)` holds when $`s(n)\le s(i)`.
 
-The preservation calculation has two independent conclusions. The updated index stays within bounds by discreteness of integers; the accumulator equation follows by substituting the old invariant and expanding the two products. Lean's `omega` handles the linear inequalities, while `grind` can normalize the polynomial identity.
+*Definition 12.1 (Loop invariant).* An assertion $`P` is a *loop invariant* of $`\mathsf{while}\ b\ \mathsf{do}\ c` when $`\models\{P\wedge\mathrm{T}_b\}\,c\,\{P\}`, that is,
 
-```lean
-example (i a n : Int) (lo : 0 ≤ i) (guard : i < n)
-    (eqn : 2 * a = i * (i + 1)) :
-    (0 ≤ i + 1 ∧ i + 1 ≤ n) ∧
-      2 * (a + (i + 1)) = (i + 1) * (i + 2) := by
-  constructor
-  · omega
-  · grind
-```
+$$`\forall s,t,\ \bigl(P(s)\land B(b,s)=\mathsf{true}\land s\vdash c\Downarrow t\bigr)\Rightarrow P(t).`
 
-# Deriving the body obligation backwards
+For the summation program take
+
+$$`J\coloneqq\bigl(0\le i\le n\ \land\ 2a=i(i+1)\bigr),\qquad P_{\mathrm{sum}}\coloneqq(0\le n),\qquad Q_{\mathrm{sum}}\coloneqq\bigl(2a=n(n+1)\bigr).`
+
+Three facts about $`J` lead from $`P_{\mathrm{sum}}` to $`Q_{\mathrm{sum}}`.
+
+*Preservation: $`J` is a loop invariant of $`W`.* Assume $`J(s)`, $`B(i<n,s)=\mathsf{true}` and $`s\vdash c\Downarrow t`. Put $`j=s(i)`. [Proposition 2.2](chapter-02/index.html#ch02-s3) splits the execution of $`c` at a store $`m`, and [Lemma 3.1](chapter-03/index.html#ch03-s2) computes both assignments: $`m=s[i\mapsto j+1]` and $`t=m[a\mapsto s(a)+j+1]`. So $`t(i)=j+1`, $`t(a)=s(a)+j+1` and $`t(n)=s(n)`. The guard gives $`j<s(n)`. No integer lies strictly between $`j` and $`j+1`, so $`j+1\le s(n)`, and $`0\le j` gives $`0\le j+1`. The second assignment reads the new index $`j+1`. With $`2s(a)=j(j+1)` from $`J(s)`,
+
+$$`2\bigl(s(a)+j+1\bigr)=j(j+1)+2(j+1)=(j+1)(j+2).`
+
+Hence $`J(t)`.
+
+*Entry.* If $`P_{\mathrm{sum}}(s)`, then $`J` holds at $`s[i\mapsto0][a\mapsto0]`. The bounds read $`0\le0\le s(n)` and the equation reads $`2\cdot0=0\cdot1`.
+
+*Exit.* If $`J(s)` and $`\mathrm{F}_{i<n}(s)`, then $`s(n)\le s(i)` from the guard and $`s(i)\le s(n)` from $`J`. So $`s(i)=s(n)`, and the equation of $`J` becomes $`2s(a)=s(n)\bigl(s(n)+1\bigr)`, which is $`Q_{\mathrm{sum}}(s)`. Only one of the two inequalities comes from the guard.
+
+Informally, a terminating run reaches the loop test finitely often. Entry gives $`J` at the first test, preservation carries $`J` from each test to the next, and exit gives $`Q_{\mathrm{sum}}` at the last test. §12.2 states this argument as a rule. §12.3 replaces "each test" by an induction on the execution derivation of the loop.
+
+# The Hoare proof system
 %%%
-tag := "ch11-s3"
+tag := "ch12-s2"
 %%%
 
-For any postcondition $`R`, the assertion required before $`x ≔ e` is $`R` evaluated in the updated state (Chapter 11). Apply this rule to the two assignments in reverse order. Immediately before $`a ≔ a + i` we need $`0 \leq i \leq n` and $`2\left( {a + i} \right) = i\left( {i + 1} \right)`. Before $`i ≔ i + 1` this becomes $`0 \leq i + 1 \leq n` and $`2\left( {a + i + 1} \right) = \left( {i + 1} \right)\left( {i + 2} \right)`. The old invariant and guard entail precisely these conditions. A verification condition generator computes these formulas once supplied with a loop invariant. Choosing the invariant still requires knowledge of the program.
+Validity is a statement about executions. A proof system derives triples by rules that mention no execution. For an assertion $`Q`, a name $`x` and an expression $`e`, recall the substituted assertion $`Q[e/x]` of [Session 11, Definition 11.5](chapter-11/index.html#ch11-s3):
 
-*Recording the assertion inside the body.* Introduce the name `J` for the assertion immediately after the index increment. One can write `J` as `1 ≤ i ≤ n ∧ 2a = (i − 1)i`. To establish it, let the old index be `j`. The true guard and bounds give `1 ≤ j + 1 ≤ n`. Substituting `j + 1` for `i` in the equation of `J` gives `2a = j(j + 1)`, precisely the old loop invariant. To use `J` at the second assignment, add `2i` to each side. The result is `2(a + i) = (i − 1)i + 2i = i(i + 1)`, the loop-head equation for the updated accumulator.
+$$`Q[e/x](s)\Longleftrightarrow Q\bigl(s[x\mapsto\mathrm{eval}(e,s)]\bigr).`
 
-This written intermediate assertion can locate an error at a specific statement. Suppose an implementation increments the index and then executes `a := a + i + 1`. It still establishes `J` after the increment. Pulling the invariant through the second assignment now requires `2(a + i + 1) = i(i + 1)`. Already at the first iteration with `n = 1`, the intermediate values are `i = 1` and `a = 0`. The left side is four and the right side two. The failing implication gives an actual reachable counterexample to preservation for the modified program.
+By Lemma 3.1 it holds at $`s` exactly when $`Q` holds after $`x:=e` runs from $`s`. For example, by Session 11, Lemma 11.6, $`\bigl(2a=i(i+1)\bigr)[(a+i)/a]` is the assertion $`2(a+i)=i(i+1)`. Repeated substitutions are read from left to right: $`J[(a+i)/a][(i+1)/i]` is $`\bigl(J[(a+i)/a]\bigr)[(i+1)/i]`.
 
-*Soundness and relative completeness.* Soundness takes a proof in the Hoare calculus and establishes semantic validity. Relative completeness starts with a valid triple. For deterministic IMP, if the assertion language can express the required intermediate predicates and true implications between assertions are available in the rule of consequence, the calculus can derive the triple. For a sequence, an intermediate assertion describes exactly the states from which the suffix satisfies the postcondition on termination. The ability to express that assertion matters even when the sequence rule itself is simple. Neither direction asserts that a particular program terminates; Chapter 13 adds that obligation. See Winskel §§7.2–7.4.
+*Definition 12.2 (Hoare proof system).* Write $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}`, and call the triple *derivable*, when it has a finite derivation by the six rules below. The letters $`P,P_1,Q,Q_1,R` range over assertions. To keep these rules apart from the execution rules of A.5, we call them the Hoare skip, Hoare assignment, Hoare sequence and Hoare conditional rules, the while rule and the consequence rule.
+
+$$`\frac{}{\vdash_{\mathrm H}\{P\}\ \mathsf{skip}\ \{P\}}\qquad
+\frac{}{\vdash_{\mathrm H}\{Q[e/x]\}\ x:=e\ \{Q\}}`
+
+$$`\frac{\vdash_{\mathrm H}\{P\}\ c_1\ \{R\}\qquad\vdash_{\mathrm H}\{R\}\ c_2\ \{Q\}}{\vdash_{\mathrm H}\{P\}\ (c_1;c_2)\ \{Q\}}`
+
+$$`\frac{\vdash_{\mathrm H}\{P\wedge\mathrm{T}_b\}\ c_1\ \{Q\}\qquad\vdash_{\mathrm H}\{P\wedge\mathrm{F}_b\}\ c_2\ \{Q\}}{\vdash_{\mathrm H}\{P\}\ \mathsf{if}\ b\ \mathsf{then}\ c_1\ \mathsf{else}\ c_2\ \{Q\}}`
+
+$$`\frac{\vdash_{\mathrm H}\{P\wedge\mathrm{T}_b\}\ c\ \{P\}}{\vdash_{\mathrm H}\{P\}\ \mathsf{while}\ b\ \mathsf{do}\ c\ \{P\wedge\mathrm{F}_b\}}`
+
+$$`\frac{\forall s,\ P(s)\Rightarrow P_1(s)\qquad\vdash_{\mathrm H}\{P_1\}\ c\ \{Q_1\}\qquad\forall t,\ Q_1(t)\Rightarrow Q(t)}{\vdash_{\mathrm H}\{P\}\ c\ \{Q\}}`
+
+The Hoare assignment rule is the rule justified in Session 11. In the conditional and while rules the guard enters only through $`\mathrm{T}_b` and $`\mathrm{F}_b`. The consequence rule is the only rule with premises that are not triples. Its two implications are mathematical facts about all stores and have no derivation in this system. The while rule always yields the postcondition $`P\wedge\mathrm{F}_b`. The consequence rule then replaces it by a weaker postcondition.
+
+*A derivation for the summation program.* Write $`b` for $`i<n`. Each line follows from earlier lines by the rule named at its end.
+
+1. $`\vdash_{\mathrm H}\{J[(a+i)/a]\}\ a:=a+i\ \{J\}`. Hoare assignment rule.
+2. $`\vdash_{\mathrm H}\{J[(a+i)/a][(i+1)/i]\}\ i:=i+1\ \{J[(a+i)/a]\}`. Hoare assignment rule.
+3. $`\vdash_{\mathrm H}\{J[(a+i)/a][(i+1)/i]\}\ c\ \{J\}`. Hoare sequence rule on lines 2 and 1.
+4. $`\vdash_{\mathrm H}\{J\wedge\mathrm{T}_b\}\ c\ \{J\}`. Consequence rule on line 3. Its first implication is $`\forall s,\ (J\wedge\mathrm{T}_b)(s)\Rightarrow J[(a+i)/a][(i+1)/i](s)`. The right side unfolds to $`0\le s(i)+1\le s(n)` and $`2\bigl(s(a)+s(i)+1\bigr)=\bigl(s(i)+1\bigr)\bigl(s(i)+2\bigr)`, which is the preservation calculation of §12.1. The second implication is $`\forall t,\ J(t)\Rightarrow J(t)`.
+5. $`\vdash_{\mathrm H}\{J\}\ W\ \{J\wedge\mathrm{F}_b\}`. While rule on line 4.
+6. $`\vdash_{\mathrm H}\{J\}\ W\ \{Q_{\mathrm{sum}}\}`. Consequence rule on line 5, with $`\forall s,\ J(s)\Rightarrow J(s)` and the exit implication of §12.1.
+7. $`\vdash_{\mathrm H}\{J[0/a]\}\ a:=0\ \{J\}`. Hoare assignment rule.
+8. $`\vdash_{\mathrm H}\{J[0/a]\}\ (a:=0;W)\ \{Q_{\mathrm{sum}}\}`. Hoare sequence rule on lines 7 and 6.
+9. $`\vdash_{\mathrm H}\{J[0/a][0/i]\}\ i:=0\ \{J[0/a]\}`. Hoare assignment rule.
+10. $`\vdash_{\mathrm H}\{J[0/a][0/i]\}\ i:=0;(a:=0;W)\ \{Q_{\mathrm{sum}}\}`. Hoare sequence rule on lines 9 and 8.
+11. $`\vdash_{\mathrm H}\{P_{\mathrm{sum}}\}\ i:=0;(a:=0;W)\ \{Q_{\mathrm{sum}}\}`. Consequence rule on line 10. Its first implication is the entry fact of §12.1, since $`J[0/a][0/i](s)` is $`J\bigl(s[i\mapsto0][a\mapsto0]\bigr)`. Its second implication is $`\forall t,\ Q_{\mathrm{sum}}(t)\Rightarrow Q_{\mathrm{sum}}(t)`.
+
+Apart from the trivial implications $`J\Rightarrow J` and $`Q_{\mathrm{sum}}\Rightarrow Q_{\mathrm{sum}}`, the implications used in lines 4, 6 and 11 are exactly the three facts of §12.1. Stores occur only inside those implications. Nothing yet connects line 11 to executions of the program.
+
+# Soundness of the proof system
+%%%
+tag := "ch12-s3"
+%%%
+
+Line 11 of §12.2 should mean the following. From every store with $`s(n)\ge0`, every terminating execution of the summation program ends in a store $`t` with $`2t(a)=t(n)\bigl(t(n)+1\bigr)`. That is the validity of the triple. The theorem below gives validity for every derivation at once.
+
+*Theorem 12.3 (Soundness) \[Corresponding: CS Lemma 12.2\] \[Paper proof only: proof in this section\].* For all assertions $`P,Q` and every command $`c`, if $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` then $`\models\{P\}\,c\,\{Q\}`.
+
+We prove $`V(H)` for every derivation $`H` by induction on $`H`, as in [Session 1, §1.5](chapter-01/index.html#ch01-s5). For $`H` with conclusion $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` the induction property is
+
+$$`V(H)\coloneqq\forall s,t,\ \bigl(P(s)\land s\vdash c\Downarrow t\bigr)\Rightarrow Q(t).`
+
+Read $`P,c,Q` from the conclusion of $`H`. Each premise derivation $`H_1` or $`H_2` that concludes a triple has the induction hypothesis $`V(H_1)` or $`V(H_2)`. We write the hypotheses with bound stores $`u,v`. Except in the while case, fix $`s,t` with $`P(s)` and $`s\vdash c\Downarrow t`. We must show $`Q(t)`.
+
+*Hoare skip rule.* Then $`c=\mathsf{skip}` and $`Q=P`. Inversion of $`s\vdash\mathsf{skip}\Downarrow t` gives $`t=s`, so $`Q(t)` is $`P(s)`.
+
+*Hoare assignment rule.* Then $`c` is $`x:=e` and $`P=Q[e/x]`. Lemma 3.1 gives $`t=s[x\mapsto\mathrm{eval}(e,s)]`. By the definition of $`Q[e/x]`, $`P(s)` is $`Q(t)`.
+
+*Hoare sequence rule.* Then $`c=(c_1;c_2)`, and the premises are $`H_1:\ \vdash_{\mathrm H}\{P\}\,c_1\,\{R\}` and $`H_2:\ \vdash_{\mathrm H}\{R\}\,c_2\,\{Q\}` for some assertion $`R`. The hypotheses are
+
+$$`\begin{aligned}
+V(H_1)&:\quad\forall u,v,\ \bigl(P(u)\land u\vdash c_1\Downarrow v\bigr)\Rightarrow R(v),\\
+V(H_2)&:\quad\forall u,v,\ \bigl(R(u)\land u\vdash c_2\Downarrow v\bigr)\Rightarrow Q(v).
+\end{aligned}`
+
+Proposition 2.2 gives a store $`m` with $`s\vdash c_1\Downarrow m` and $`m\vdash c_2\Downarrow t`. $`V(H_1)` with $`u=s,v=m` gives $`R(m)`. $`V(H_2)` with $`u=m,v=t` gives $`Q(t)`.
+
+*Hoare conditional rule.* Then $`c=\mathsf{if}\ b\ \mathsf{then}\ c_1\ \mathsf{else}\ c_2`, and the premises are $`H_1:\ \vdash_{\mathrm H}\{P\wedge\mathrm{T}_b\}\,c_1\,\{Q\}` and $`H_2:\ \vdash_{\mathrm H}\{P\wedge\mathrm{F}_b\}\,c_2\,\{Q\}`. The hypotheses are
+
+$$`\begin{aligned}
+V(H_1)&:\quad\forall u,v,\ \bigl(P(u)\land B(b,u)=\mathsf{true}\land u\vdash c_1\Downarrow v\bigr)\Rightarrow Q(v),\\
+V(H_2)&:\quad\forall u,v,\ \bigl(P(u)\land B(b,u)=\mathsf{false}\land u\vdash c_2\Downarrow v\bigr)\Rightarrow Q(v).
+\end{aligned}`
+
+The single conditional rule of A.5 is the only rule that concludes this execution. Inversion gives $`s\vdash k\Downarrow t`, where $`k` is the branch selected by $`B(b,s)`. If $`B(b,s)=\mathsf{true}`, then $`k=c_1` and $`V(H_1)` with $`u=s,v=t` gives $`Q(t)`. Otherwise $`B(b,s)=\mathsf{false}`, $`k=c_2`, and $`V(H_2)` gives $`Q(t)`.
+
+*Consequence rule.* The premises are $`\forall u,\ P(u)\Rightarrow P_1(u)`, a derivation $`H_1:\ \vdash_{\mathrm H}\{P_1\}\,c\,\{Q_1\}` and $`\forall v,\ Q_1(v)\Rightarrow Q(v)`. Only $`H_1` has a hypothesis: $`V(H_1):\ \forall u,v,\ (P_1(u)\land u\vdash c\Downarrow v)\Rightarrow Q_1(v)`. The first implication gives $`P_1(s)`. $`V(H_1)` with $`u=s,v=t` gives $`Q_1(t)`. The second implication gives $`Q(t)`.
+
+*While rule.* Write $`W=\mathsf{while}\ b\ \mathsf{do}\ c_1`. We write $`c_1` for the body because $`c` names the whole command. Suppose $`H` ends with the while rule. Then $`c=W`, $`Q=P\wedge\mathrm{F}_b`, and the premise is $`H_1:\ \vdash_{\mathrm H}\{P\wedge\mathrm{T}_b\}\,c_1\,\{P\}`. Its hypothesis is
+
+$$`V(H_1):\quad\forall u,v,\ \bigl(P(u)\land B(b,u)=\mathsf{true}\land u\vdash c_1\Downarrow v\bigr)\Rightarrow P(v).`
+
+By Definition 12.1, $`V(H_1)` says that $`P` is a loop invariant of $`W`. We must show
+
+$$`V(H):\quad\forall s,t,\ \bigl(P(s)\land s\vdash W\Downarrow t\bigr)\Rightarrow\bigl(P(t)\land B(b,t)=\mathsf{false}\bigr).`
+
+The induction on $`H` gives no hypothesis about $`W` itself. After one execution of the body, the rest of the run is again an execution of $`W`. We therefore prove a claim about execution derivations, by induction on their height as in [Session 3, §3.1](chapter-03/index.html#ch03-s1). For a derivation $`D:s\vdash W\Downarrow t`, with $`s,t` read from its conclusion, the induction property is
+
+$$`L(D)\coloneqq P(s)\Rightarrow\bigl(P(t)\land B(b,t)=\mathsf{false}\bigr).`
+
+We prove $`L(D)` for every derivation $`D` of an execution of $`W`, assuming $`L` for every such derivation of smaller height. $`D` fixes both stores, so unlike Session 3 the property has no inner quantifier. Only the loop exit rule and the loop iteration rule of A.5 conclude an execution of $`W`.
+
+*Loop exit.* Suppose $`D` ends with the loop exit rule. Then $`B(b,s)=\mathsf{false}` and $`t=s`. Assume $`P(s)`. Then $`P(t)` because $`t=s`, and $`B(b,t)=B(b,s)=\mathsf{false}`.
+
+*Loop iteration.* Suppose $`D` ends with the loop iteration rule. Its side condition is $`B(b,s)=\mathsf{true}`, and its premises are $`D_1:s\vdash c_1\Downarrow m` and $`D_2:m\vdash W\Downarrow t` for some store $`m`. The premise $`D_2` again executes $`W` and has smaller height than $`D`. Its induction hypothesis is
+
+$$`L(D_2):\quad P(m)\Rightarrow\bigl(P(t)\land B(b,t)=\mathsf{false}\bigr).`
+
+We must show $`L(D):\ P(s)\Rightarrow\bigl(P(t)\land B(b,t)=\mathsf{false}\bigr)`.
+
+1. Assume $`P(s)`.
+2. The side condition of $`D` gives $`B(b,s)=\mathsf{true}`.
+3. Apply $`V(H_1)` with $`u=s` and $`v=m` to step 1, step 2 and $`D_1`. This gives $`P(m)`.
+4. Apply $`L(D_2)` to step 3. This gives $`P(t)` and $`B(b,t)=\mathsf{false}`.
+
+Step 3 uses the Hoare hypothesis $`V(H_1)` for the body premise $`D_1`, which does not execute $`W`. Step 4 uses the execution hypothesis $`L(D_2)` for the rest of the loop. In Session 3 the body premise also had an execution hypothesis. Here none is needed, because $`V(H_1)` already covers every execution of $`c_1`.
+
+This proves $`L(D)` for every derivation of an execution of $`W`. To prove $`V(H)`, fix $`s,t` with $`P(s)` and a derivation $`D:s\vdash W\Downarrow t`. Then $`L(D)` gives $`P(t)` and $`B(b,t)=\mathsf{false}`, which is $`(P\wedge\mathrm{F}_b)(t)`.
+
+Every rule of Definition 12.2 preserves $`V`, so $`V(H)` holds for every derivation $`H`. $`\square`
+
+Applied to line 11 of §12.2, the theorem covers the run with $`n=3` from the opening. That run ends with $`i=3` and $`a=6`, and indeed $`2\cdot6=3\cdot4`.
+
+*Scope of the theorem.* Validity speaks only about terminating executions. Let $`W_0=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. [Session 2, §2.4](chapter-02/index.html#ch02-s4) shows that $`W_0` has no terminating derivation. Since $`B(\mathsf{true},s)=\mathsf{true}` at every store, the assertion $`\mathrm{F}_{\mathsf{true}}` holds at no store. Exercise 12.4 derives $`\vdash_{\mathrm H}\{P\}\,W_0\,\{Q\}` for all assertions $`P,Q`. Theorem 12.3 makes these triples valid. They are valid because no execution of $`W_0` terminates, so validity has no instance to check. A derivable triple does not promise termination. [Session 13](chapter-13/index.html) adds that obligation.
 
 # Exercises
 %%%
-tag := "ch11-s4"
+tag := "ch12-s4"
 number := false
 %%%
 
-1. Remove $`i \leq n` from the invariant. Exhibit a state satisfying the weakened invariant and the exit guard that violates the postcondition.
-2. Reverse the assignments in the body. Start with $`n = 2` and derive the accumulator equation that the modified body preserves.
-3. Explain why the proof of §12.1 contains no induction hypothesis for a nonterminating execution.
+*12.1.* Remove $`i\le n` from $`J`. Give a store that satisfies the weakened assertion and $`\mathrm{F}_{i<n}` but not $`Q_{\mathrm{sum}}`. Which line of the derivation in §12.2 can no longer be justified?
 
-*Further problem.* Suppose the summation loop accumulates odd numbers by executing `a := a + i + i + 1; i := i + 1` from an initialization `a = i = 0` while `i < n`. For nonnegative integer `n`, find an invariant establishing final `a = n²`. Give the intermediate assertion between assignments and identify which values are read.
+*12.2.* Reverse the assignments in the body, so that it reads $`a:=a+i;\ i:=i+1`. Run the loop with $`n=2`. Find an equation between $`a` and $`i` such that $`0\le i\le n` together with that equation is a loop invariant, and check preservation.
+
+*12.3.* Replace the premise of the while rule by $`\vdash_{\mathrm H}\{P\wedge\mathrm{F}_b\}\,c\,\{P\}`. Let $`P` be the assertion $`x=0`. Use the modified rule to derive $`\vdash_{\mathrm H}\{P\}\ \mathsf{while}\ x<1\ \mathsf{do}\ x:=5\ \{P\wedge\mathrm{F}_{x<1}\}` and show that this triple is not valid. Which step of the iteration case fails?
+
+*12.4.* Let $`W_0=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. For arbitrary assertions $`P,Q`, derive $`\vdash_{\mathrm H}\{P\}\,W_0\,\{Q\}` in four lines in the style of §12.2. Explain why the proof of Theorem 12.3 needs no case for a run that does not terminate.
+
+*Further problem.* A loop accumulates odd numbers. Starting from $`a=i=0`, it executes $`a:=a+i+i+1;\ i:=i+1` while $`i<n`. For $`n\ge0`, find a loop invariant that gives the final value $`a=n^2`. Give the assertion between the two assignments and say which values each assignment reads.
 
 # Reading for the Seminar
 %%%
-tag := "ch11-s5"
+tag := "ch12-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Execute the first two iterations with $`n = 3`. Put the old and new index in separate columns.
+*Definitions · 10 minutes.* Execute the summation loop with $`n=3` and list $`i` and $`a` at each loop test. Write $`\mathrm{T}_b`, $`\mathrm{F}_b` and Definition 12.1. Check preservation for one iteration, with the old and the new index in separate columns.
 
-*Joint proof · 30 minutes.* Write entry, preservation and exit without their proofs. Have one participant obtain the body obligation backwards and another establish it from the old values.
+*Joint proof · 30 minutes.* Write $`V(H)` and go briefly through the Hoare skip, assignment and sequence cases. Then present the while case: write $`V(H_1)`, the claim $`L(D)`, the loop exit case, and steps 1–4 of the iteration case.
 
-*Proof review · 20 minutes.* Test the weakened invariant of Exercise 1. State the directions of soundness and relative completeness and identify the expressibility assumption needed for the latter.
+*Proof review · 20 minutes.* Use Exercise 12.3 to locate the step that fails under a wrong while rule. Try the weakened invariant of Exercise 12.1 and decide whether its failure refutes the program or only the proposed proof.
 
-*Facilitator’s hint.* At exit, ask for the two separate inequalities needed to infer equality. Only one comes from the guard.
+*Facilitator’s hint.* In step 3, ask which hypothesis covers the body and which covers the rest of the loop. In the exit fact of §12.1, ask for the two inequalities that give $`i=n`. Only one comes from the guard.
 
-# Solutions
+# Solutions and Further Reading
 %%%
-tag := "ch11-s6"
+tag := "ch12-s6"
 number := false
 %%%
 
-*1.* Take $`n = 1,i = 2,a = 3`. The guard is false and $`2a = 6 = i\left( {i + 1} \right)`, whereas $`n\left( {n + 1} \right) = 2`. This state need not be reachable. An entailment between assertions must hold at every state satisfying its hypotheses.
+*12.1.* Take $`s(n)=1`, $`s(i)=2` and $`s(a)=3`. Then $`s(n)\le s(i)`, so $`\mathrm{F}_{i<n}(s)` holds. Also $`0\le s(i)` and $`2s(a)=6=s(i)\bigl(s(i)+1\bigr)`. But $`s(n)\bigl(s(n)+1\bigr)=2\ne6`. The exit implication used in line 6 fails. This store need not be reachable. An implication premise of the consequence rule must hold at every store. The failure refutes the proposed proof, not the program.
 
-*2.* The accumulator becomes $`0` and then $`1`. Since the old index is now the summand, the new equation is $`2a = i\left( {i - 1} \right)`. At index $`j + 1` the left side becomes $`j\left( {j - 1} \right) + 2j = j\left( {j + 1} \right)`, as required.
+*12.2.* The loop tests see $`(i,a)=(0,0),(1,0),(2,1)`. The equation is $`2a=i(i-1)`. For preservation let $`j=s(i)` with $`2s(a)=j(j-1)`. The body writes $`s(a)+j` and then $`j+1`, and $`2\bigl(s(a)+j\bigr)=j(j-1)+2j=(j+1)j`. The bounds follow as in §12.1. At exit $`2a=n(n-1)`.
 
-*3.* Partial correctness quantifies over finite terminating derivations. If there is none at an input, that input contributes no final-state obligation. Chapter 13 adds the missing existence argument.
+*12.3.* The assertion $`P\wedge\mathrm{F}_{x<1}` requires $`s(x)=0` and $`1\le s(x)`, so no store satisfies it. The Hoare assignment rule gives $`\vdash_{\mathrm H}\{P[5/x]\}\,x:=5\,\{P\}`. The consequence rule gives the modified premise. Its first implication, $`\forall s,\ (P\wedge\mathrm{F}_{x<1})(s)\Rightarrow P[5/x](s)`, holds because no store satisfies its left side. Its second implication is $`\forall t,\ P(t)\Rightarrow P(t)`. The modified rule then gives the triple. From a store with $`s(x)=0` the guard is true, the body yields $`m=s[x\mapsto5]`, and the guard is false at $`m`. The loop exit rule gives $`t=m`, and $`P(t)` fails. In the iteration case, step 3 needs the hypothesis at a store where $`B(b,s)=\mathsf{true}`. The modified hypothesis covers only stores where the guard is false.
 
-*Further problem.* At the head take `0 ≤ i ≤ n ∧ a = i²`. Initialization establishes this for every `n ≥ 0`. Let `j` be the old index. With a true guard, discreteness gives `j + 1 ≤ n`. The accumulator assignment reads the old `a = j²` and the old `i = j` twice, so the new accumulator is `j² + 2j + 1 = (j + 1)²`. The index still equals `j` at this point. A sufficient intermediate assertion is therefore `0 ≤ i < n ∧ a = (i + 1)²`.
+*12.4.* (1) $`\vdash_{\mathrm H}\{P\wedge\mathrm{T}_{\mathsf{true}}\}\,\mathsf{skip}\,\{P\wedge\mathrm{T}_{\mathsf{true}}\}` by the Hoare skip rule. (2) $`\vdash_{\mathrm H}\{P\wedge\mathrm{T}_{\mathsf{true}}\}\,\mathsf{skip}\,\{P\}` by the consequence rule, with the postcondition implication $`(P\wedge\mathrm{T}_{\mathsf{true}})(t)\Rightarrow P(t)`. (3) $`\vdash_{\mathrm H}\{P\}\,W_0\,\{P\wedge\mathrm{F}_{\mathsf{true}}\}` by the while rule. (4) $`\vdash_{\mathrm H}\{P\}\,W_0\,\{Q\}` by the consequence rule. Its postcondition implication $`(P\wedge\mathrm{F}_{\mathsf{true}})(t)\Rightarrow Q(t)` holds because the left side holds at no store. In (2) and (4) the precondition implication is trivial. The property $`V(H)` quantifies over final stores of terminating executions, and $`L(D)` over finite derivations. A run that does not terminate has no final store and no derivation, so it gives nothing to prove.
 
-The index assignment now writes `j + 1` without changing the accumulator. The intermediate assertion yields both the new bound and equality with the square of the new index. This proves preservation of the loop-head assertion. At exit the unchanged upper bound and the failed test force `i = n`, hence `a = n²`. This is a partial correctness argument. Its algebraic step also explains the choice of summand: increasing the index by one increases its square by exactly the old index doubled plus one.
+*Further problem.* At the loop test take $`0\le i\le n\land a=i^2`. Initialization establishes it for every $`n\ge0`. Let $`j` be the old index. A true guard gives $`j<n`, hence $`j+1\le n`. The first assignment reads the old $`a=j^2` and the old $`i=j` twice, so the new accumulator is $`j^2+2j+1=(j+1)^2`. The index is still $`j` at that point. A sufficient assertion between the assignments is therefore $`0\le i<n\land a=(i+1)^2`. The second assignment writes $`j+1` and leaves $`a` unchanged. The assertion between the assignments gives the new bound and the equality with the square of the new index. At exit the bound and the false guard force $`i=n`, hence $`a=n^2`.
+
+*Reachable stores.* Fix a set of stores at which a loop starts. Let $`\mathrm{Reach}` be the set of stores at which the loop test is reached after finitely many complete iterations, including the starting stores. $`\mathrm{Reach}` contains the starting stores and is closed under one execution of the body from a store where the guard is true. It is the least such set. Every assertion that holds at the starting stores and is a loop invariant holds at every store of $`\mathrm{Reach}`, by induction on the number of iterations. An invariant used in a proof may hold at stores outside $`\mathrm{Reach}`, and preservation and exit must hold there too. For example, start with $`x=0` and run $`x:=x+2` while $`x<9`. Every value reached at the test is even. The assertion $`x\le10` is a loop invariant, but it also holds where $`x` has the unreachable value 9, at which the guard is already false. So it cannot give the exit value 10. Adding "$`x` is even" gives it.
+
+*Finding the accumulator equation.* Let $`S(j)` be the sum of the integers from 1 to $`j`, with $`S(0)=0`. The body implements $`S(j+1)=S(j)+j+1`, which suggests the assertion $`a=S(i)`. Induction on $`j` proves $`2S(j)=j(j+1)` for every natural number $`j`. The bound $`0\le i` in $`J` makes this identity applicable to the integer $`s(i)`. The doubled equation avoids division. The assertion $`a=i(i+1)/2` would need a convention for integer division and a proof that the product is even.
+
+*Locating an error with an intermediate assertion.* Between the two assignments of the summation body the assertion $`R\coloneqq\bigl(1\le i\le n\land 2a=(i-1)i\bigr)` holds. It implies $`J[(a+i)/a]`, because $`2(a+i)=(i-1)i+2i=i(i+1)`. Suppose the second assignment were $`a:=a+i+1`. Then $`R` would have to imply $`2(a+i+1)=i(i+1)`. With $`n=1`, the first iteration reaches $`i=1` and $`a=0` between the assignments. The left side is 4 and the right side is 2. This store is reached by the modified program, so the failed implication is a real counterexample to preservation.
+
+*Completeness and verification conditions.* Nipkow and Klein also prove the converse of soundness for assertions that are predicates on stores: every valid triple is derivable (_Concrete Semantics_, Theorem 12.5, p. 206). The proof uses the weakest precondition of a command, the assertion that holds at $`s` when every terminating execution from $`s` ends in the postcondition (Fact 12.3 and Lemma 12.4, pp. 204–205). §12.3.2 relates this result to Cook’s relative completeness. §12.4 computes the implications of a derivation, such as those of lines 4, 6 and 11 of §12.2, from a program annotated with invariants. [Concrete Semantics, §§12.3–12.4](https://concrete-semantics.org/concrete-semantics.pdf)

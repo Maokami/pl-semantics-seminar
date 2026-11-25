@@ -1,39 +1,15 @@
 # 프로그래밍 언어 이론 스터디
 
-운영적·표시적·공리적 의미론, 타입 이론, 영역 이론, 컴파일러 정확성과 정적 분석을 공부하는 42회 스터디 교재다. 영어판은 42장 전체를, 한국어판은 1–7회에 읽는 1–7장을 수록한다.
+영어 교재는 정규 32회와 조건부 6회로 구성한다. 1부(1–21회)는 IMP의 의미론, 컴파일러 정확성과 정적 분석을 다룬다. 2부(22–32회)는 함수와 타입, 3부(33–38회)는 논리 관계와 PCF를 다룬다. [확정 커리큘럼과 회차별 원전](docs/curriculum.ko.md)
 
-v1.2의 정본은 영어판이다. [시범 장 · Inversion and Determinacy](verso/PLBook/Ch03.lean)는 기존 3장 위치에서 [IMP 언어 카드](verso/PLBook/LanguageCard.lean)와 [영어–한국어 용어집](verso/PLBook/Glossary.lean)을 함께 읽는다. 한국어 3장과 언어 카드는 토론을 위한 초안이다.
-
-[영어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/) · [한국어판](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/) · [42회 읽기 일정](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/seminar/)
-
-## 원고와 빌드 코드
-
-| 작업 | 파일 |
-|---|---|
-| 영어 본문과 Lean 예제 편집 | [verso/PLBook](verso/PLBook) 아래의 Ch01.lean–Ch42.lean |
-| 한국어 본문과 Lean 예제 편집 | [verso/PLBook/Ko](verso/PLBook/Ko) |
-| 회차별 읽을 절, 원전, 발표 문제 변경 | [verso/sessions.json](verso/sessions.json) |
-| Verso 사이트와 언어별 차례 생성 | [build_site.py](verso/build_site.py), [editions.py](verso/editions.py), [seminar.py](verso/seminar.py) |
-| 장별 PDF와 책갈피가 있는 합본 생성 | [print_book.py](verso/print_book.py) |
-| 한국어 강의계획서 조판 | [curriculum.typ](curriculum.typ), [style.typ](style.typ) |
-
-각 장은 본문·수식·Lean 코드 블록을 함께 담은 Verso 문서다. [1장](verso/PLBook/Ch01.lean)은 산술식의 평가 함수와 귀납적 평가 관계를 정의한 뒤 두 정의의 대응을 증명한다. [4장](verso/PLBook/Ch04.lean)은 식 트리의 fold를 정의하고 유일성을 증명한다. Lean은 빌드할 때 코드 블록의 정의와 증명을 검사한다. 본문에 산문으로 전개한 증명도 있다.
+각 장의 첫 페이지에서 대표 정리, 출처, 칠판에서 전개할 증명 경우를 찾을 수 있다. 세 언어 카드에는 정의와 규칙을, 영어–한국어 용어집에는 토론에 쓸 대응어와 처음 정의한 절을 모았다. [교재 원고](verso/PLBook.lean) · [용어집](verso/PLBook/Glossary.lean)
 
 ## 빌드
 
-Lean과 Lake는 elan으로 실행한다. Lean과 Verso 버전은 [lean-toolchain](verso/lean-toolchain)과 [lake-manifest.json](verso/lake-manifest.json)에 고정했다. 전체 출력에는 Python 3.11 이상, uv, Typst, Chrome 또는 Chromium이 필요하다. 현재 인쇄본의 한국어 글꼴은 macOS의 Apple SD Gothic Neo다.
-
-저장소 루트에서 다음 명령을 실행한다.
-
 ```sh
-typst compile curriculum.typ curriculum.pdf
 cd verso
-python3 check_translation.py
 python3 build_site.py
-uv run print_book.py
 python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 ```
 
-브라우저에서 <http://127.0.0.1:8042/>를 열면 영어판, `/ko/`를 열면 한국어판이 나온다. 합본 PDF는 웹 출력 폴더의 `print/pl-study.pdf`와 `ko/print/pl-study-ko.pdf`에 생성된다. 강의계획서 PDF는 `print/syllabus-ko.pdf`에 복사된다.
-
-한 장만 수정했을 때는 `verso/`에서 `lake build +PLBook.Ch01`로 그 장의 본문과 Lean 예제를 검사할 수 있다. 한국어판 1장은 `lake build +PLBook.Ko.Ch01`로 검사한다. 두 언어판의 수식·코드·원전 링크 대조에는 `python3 check_translation.py`를 쓴다.
+로컬 브라우저에서 [교재 첫 화면](http://127.0.0.1:8042/)을 연다. 버전과 개별 장 검사 방법은 [Verso 빌드 안내](verso/README.md)에 있다.

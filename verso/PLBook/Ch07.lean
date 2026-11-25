@@ -1,130 +1,185 @@
 import VersoManual
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Program Equivalence" =>
 %%%
-tag := "ch06"
-file := "chapter-06"
+tag := "ch07"
+file := "chapter-07"
 %%%
 
-[Chapter PDF](print/chapter-06.pdf) · [Session 7](seminar/index.html#week-07)
+* *Definitions.* The six execution rules: skip, assignment, sequence, conditional, loop exit and loop iteration ([IMP language card A.5](imp-card/index.html#imp-a5); Session 2, Definition 2.1). The derived rules for a true guard and for a false guard ([Session 2, §2.2](chapter-02/index.html#ch02-s2)). Inversion ([Session 1, §1.4](chapter-01/index.html#ch01-s4)) and sequence inversion ([Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3)). Determinacy ([Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2)).
+* *New terms.* Program equivalence, observation, loop unfolding. [Glossary and label key](glossary/index.html)
+* *Theorem 7.3 \[This book\] \[Paper proof only: proof in this section\].* For every guard $`b`, command $`c` and stores $`s,t`, $`s\vdash\mathsf{while}\ b\ \mathsf{do}\ c\Downarrow t` if and only if $`s\vdash\mathsf{if}\ b\ \mathsf{then}\ (c;\mathsf{while}\ b\ \mathsf{do}\ c)\ \mathsf{else}\ \mathsf{skip}\Downarrow t`.
+* *Source.* The execution rules follow Leroy’s IMP, as presented in A.5. \[Corresponding: CS Lemma 7.3\] Nipkow and Klein state the same unfolding for their IMP, whose conditional has two rules, with the same definition of equivalence. [Definitions and proof references](imp-card/index.html#imp-sources) · [Concrete Semantics, §7.2.4, p. 82](https://concrete-semantics.org/concrete-semantics.pdf#page=92)
+* *Board case.* The direction from the loop to its unfolding, when the loop derivation ends with the loop iteration rule. Then the short case of the loop exit rule.
+* *Proof outline.* Case analysis on the last rule, with no induction. In each direction, invert the last rule of the given derivation and place its premises under other rules. The loop derivation from the intermediate store $`m` is reused unchanged.
+* *From Session 6.* Session 6 compared two descriptions of the runs of one command: execution trees and paths to skip. Here we compare two different commands by one description, their initial–final store pairs, and ignore the shape and size of the evidence.
 
-A source transformation may change the number of command steps while preserving the final store of every terminating run. To make this claim precise we must choose the input states, the observations at the end of a run, and the executions that contribute observations. We use the deterministic integer IMP of Chapters 2–3 and 5–6.
+A compiler may replace `while b do c` by `if b then (c; while b do c) else skip`. The new command tests the guard and runs the body once before it reaches the loop. Its syntax tree is larger, and its derivations use different rules. In what sense do the two commands do the same thing? This session fixes one answer: from each initial store they reach the same final stores. We then prove that the rewrite meets it.
 
-*Sources.* Nipkow and Klein, _Concrete Semantics_, §7.2.4 on command equivalence. Read the definition as a statement quantified over two stores. The joint theorem is the unfolding of a while command. For a Lean comparison, consult _The Hitchhiker’s Guide to Logical Verification_, chapter 9, exercise Q2.1. Our argument uses the guards and execution rules of Chapter 2. [Concrete Semantics, chapter 7.](https://concrete-semantics.org/concrete-semantics.pdf) [Hitchhiker’s Guide.](https://github.com/lean-forward/logical_verification_2026/tree/460f6be0846eefc3d9441e4e48d75753fcfe1709)
-
-# Equivalence as equality of observations
+# Equivalence of commands
 %%%
-tag := "ch06-s1"
+tag := "ch07-s1"
 %%%
 
-*Definition 7.1.* For a command $`c` and initial state $`s`, put $`R_{c}(s) = \left\{ t \in \Sigma\ \mid s \vdash c \Downarrow t \right\}`, where $`\Sigma` is the set of stores. Commands $`c` and $`d` are equivalent, written $`c \equiv d`, if $`R_{c}(s) = R_{d}(s)` for every $`s`. Equivalently, for every pair $`s,t`, $`s \vdash c \Downarrow t` holds exactly when $`s \vdash d \Downarrow t` does.
+Let $`x` and $`y` be distinct names. Compare `x := 0; x := y + 1` with `x := y + 1`. Fix a store $`s`. In the first command the sequence rule passes through the intermediate store $`m=s[x\mapsto0]`. Since $`x\neq y`, $`m(y)=s(y)`, so the second assignment writes $`\mathrm{eval}(y+1,m)=s(y)+1`. The first command therefore ends in $`m[x\mapsto s(y)+1]` and the second in $`s[x\mapsto s(y)+1]`. Both stores hold $`s(y)+1` at $`x` and $`s(z)` at every other name $`z`, so they are equal. The two commands reach the same final store from every initial store, although only the first passes through $`m`.
 
-Equality of sets gives reflexivity, symmetry and transitivity. The definition also makes sense for relations with several results. In the present language Chapter 3 ensures each result set is empty or a singleton. The observation is the whole final store. Intermediate changes and the number of steps are absent from $`R_{c}`.
+Replace `y + 1` by `x + 1` and the agreement fails. From a store with $`s(x)=4`, the command `x := 0; x := x + 1` ends with 1 in $`x`, and `x := x + 1` ends with 5 in $`x`. The second assignment now reads the value written by the first.
 
-*Example 7.2.* For any state, `x := x + 0` returns that same state. Its value at $`x` is $`s(x) + 0 = s(x)`, and at any other name it agrees by definition of update. Hence it is equivalent to skip. One of the commands takes an assignment step in the small-step semantics and skip takes zero steps. Chapter 6 explains why this is consistent with equivalence.
+*Definition 7.1 (Program equivalence).* For a command $`c`, let
 
-*Removing a dead assignment.* Let `x` and `y` be distinct. Consider the pair `x := 0; x := y + 1` and `x := y + 1`. To prove equivalence, choose an arbitrary input `s`. After the first assignment the store is `u = s[x ↦ 0]`. Since `u(y) = s(y)`, the last assignment writes exactly the value written by the shorter command. At `x` both results contain `s(y) + 1`. At each name distinct from `x` both equal the initial store. Extensional equality of stores and the execution rules give equality of the singleton result sets at every input.
+$$`\mathrm{Exec}(c)=\{(s,t)\in\Sigma\times\Sigma\mid s\vdash c\Downarrow t\}`
 
-Two assumptions do separate work here. The second expression must give the same result after the first write. Replacing `y + 1` by `x + 1` violates that condition, as witnessed by an initial value `s(x) = 4`. The first assignment must also complete. If a language admitted an expression that could diverge, erasing an assignment whose expression diverges could turn an empty result set into a singleton even when the assigned variable is never read. The ordinary integer expressions of this chapter meet the termination condition. This explains which parts of the proof may be reused when the expression language changes.
+be the set of its initial–final store pairs. Commands $`c` and $`d` are *equivalent*, written $`c\equiv d`, if $`\mathrm{Exec}(c)=\mathrm{Exec}(d)`. Spelled out,
+
+$$`c\equiv d\quad\Longleftrightarrow\quad\forall s,t\in\Sigma,\ \bigl(s\vdash c\Downarrow t\iff s\vdash d\Downarrow t\bigr).`
+
+The relation $`\equiv` is *program equivalence*. It is reflexive, symmetric and transitive, because equality of sets is.
+
+An *observation* is what a notion of equivalence compares about a run. Definition 7.1 observes the entire final store of each terminating execution. It does not observe intermediate stores such as $`m` above, the shape of a derivation, or the number of steps. An initial store from which a command has no terminating execution contributes no pair.
+
+By [Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2), each store $`s` is the first component of at most one pair in $`\mathrm{Exec}(c)`. Thus $`c\equiv d` says: from each store $`s`, either neither command has a terminating execution, or both have one and their final stores are equal.
+
+*Example 7.2.* The commands `x := x + 0` and `skip` are equivalent. The only rule whose conclusion has an assignment at the root is the assignment rule. So every execution of `x := x + 0` from $`s` ends in $`s[x\mapsto s(x)+0]`. This store holds $`s(x)` at $`x` and $`s(z)` at every other name $`z`, so it equals $`s`. The only rule for skip also ends in $`s`. Hence both sets of pairs equal $`\{(s,s)\mid s\in\Sigma\}`. In the transitions of [A.6](imp-card/index.html#imp-a6) the assignment takes one step and skip takes none. Definition 7.1 does not observe this difference.
 
 # Loop unfolding
 %%%
-tag := "ch06-s2"
+tag := "ch07-s2"
 %%%
 
-Let $`W` stand for `while b do a` and $`U` for `if b then (a; W) else skip`, where the abbreviation $`W` denotes the original loop. All occurrences of $`b` have the same total, side-effect-free meaning $`B`.
+Throughout this section fix a guard $`b` and a command $`c`, and write
 
-*Theorem 7.3.* $`W \equiv U`.
+$$`W=\mathsf{while}\ b\ \mathsf{do}\ c,\qquad U=\mathsf{if}\ b\ \mathsf{then}\ (c;W)\ \mathsf{else}\ \mathsf{skip}.`
 
-*Forward proof.* Fix two arbitrary states and a derivation of $`s \vdash W \Downarrow t`. If its last rule is the exit rule, then $`B\left( {b,s} \right)` is false and $`t = s`. Use skip and the false conditional rule to derive $`s \vdash U \Downarrow t`. If its last rule is iteration, the premises give $`B\left( {b,s} \right)` true, $`s \vdash a \Downarrow u`, and $`u \vdash W \Downarrow t` for some $`u`. Join the last two derivations by the sequence rule, then use the true conditional rule. The loop subtree from $`u` is already present in the hypothesis.
+We call $`U` the *unfolding* of $`W`, and the rewrite from $`W` to $`U` *loop unfolding*. The command $`U` tests the guard, runs the body once if the guard is true, and then runs the original loop $`W`. The $`W` inside $`U` is the same fixed loop; $`U` is not defined recursively.
 
-*Reverse proof.* Now start with a derivation of $`s \vdash U \Downarrow t`. Invert its conditional rule. The false branch provides $`s \vdash \operatorname{skip} \Downarrow t`, hence $`t = s` and the loop exit rule applies. The true branch provides $`s \vdash a\ \text{;}\ W \Downarrow t`. Invert sequence to obtain its middle state $`u` and a derivation for each side. Together with the true guard, these are the premises of the loop iteration rule. This proves the reverse implication for all states and hence the equivalence. $`\square`
+Take the loop of [Session 2, §2.4](chapter-02/index.html#ch02-s4): $`b` is `x < 1`, $`c` is `x := x + 1`, and $`s(x)=0`. Put $`m=s[x\mapsto1]`. The guard is true in $`s` and false in $`m`. Session 2 derived $`s\vdash W\Downarrow m` with the loop iteration rule at the root:
 
-This argument uses inversion followed by construction. It requires no hypothesis that the two commands terminate on every input. If no terminating derivation exists on one side, the implication from the other side rules out a terminating derivation there as well. The result is a statement about finite execution evidence.
+$$`\frac{B(x<1,s)=\mathsf{true}\qquad\dfrac{}{s\vdash x:=x+1\Downarrow m}\qquad\dfrac{B(x<1,m)=\mathsf{false}}{m\vdash W\Downarrow m}}{s\vdash W\Downarrow m}`
 
-*Finite unfolding as a proof technique.* Define `U₀ = W` and define `Uₙ₊₁` by replacing the recursive loop in one copy of the unfolded conditional by `Uₙ`. For example, `U₂` tests the guard, executes a body if necessary, tests the guard in the resulting store, and on a second true test executes the body followed by `W`. A false test at either site exits through skip. Each test must use its own input state. Hoisting both tests to the entry substitutes a different condition whenever the body changes a name read by the guard.
+The same two subderivations give a derivation for $`U`. Join them with the sequence rule, then apply the derived rule for a true guard:
 
-For a concrete calculation take the guard `x < y`, the body `x := y`, and an initial store with `x = 0` and `y = 2`. The first test is true. The second sees the intermediate store with `x = y = 2` and exits. More generally, if executing the body always makes a true guard false, inversion shows that each terminating run has at most one body execution. In that special case replacing the residual loop after the first body by skip preserves the result, provided the body is allowed to diverge on both sides. The extra fact needed for this stronger rewrite is a property of the body and guard together.
+$$`\frac{B(x<1,s)=\mathsf{true}\qquad\dfrac{\dfrac{}{s\vdash x:=x+1\Downarrow m}\qquad\dfrac{B(x<1,m)=\mathsf{false}}{m\vdash W\Downarrow m}}{s\vdash(x:=x+1;W)\Downarrow m}}{s\vdash U\Downarrow m}`
 
-# Replacement within a larger command
+The leaves are the same. Only the rules that join them differ. In particular, the subderivation of $`m\vdash W\Downarrow m` appears unchanged in both trees. The general proof performs the same rearrangement.
+
+For the command $`U`, the two derived rules of [Session 2, §2.2](chapter-02/index.html#ch02-s2) read as follows. The left one is the derived rule for a true guard, the right one the derived rule for a false guard.
+
+$$`\frac{B(b,s)=\mathsf{true}\qquad s\vdash(c;W)\Downarrow t}{s\vdash U\Downarrow t}\qquad\qquad\frac{B(b,s)=\mathsf{false}\qquad s\vdash\mathsf{skip}\Downarrow t}{s\vdash U\Downarrow t}`
+
+Inversion ([Session 1, §1.4](chapter-01/index.html#ch01-s4)) gives four facts.
+
+1. A derivation of $`s\vdash W\Downarrow t` ends with the loop exit rule or the loop iteration rule. These are the only rules whose conclusion has a loop at the root.
+2. A derivation of $`s\vdash U\Downarrow t` ends with the conditional rule, the only rule whose conclusion has a conditional at the root. Its premise derives $`s\vdash k\Downarrow t`, where $`k` is $`c;W` if $`B(b,s)=\mathsf{true}` and $`\mathsf{skip}` otherwise.
+3. From a derivation of $`s\vdash(c;W)\Downarrow t`, [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash W\Downarrow t`.
+4. A derivation of $`s\vdash\mathsf{skip}\Downarrow t` ends with the skip rule, so $`t=s`.
+
+*Theorem 7.3 (Loop unfolding) \[This book\] \[Corresponding: CS Lemma 7.3\] \[Paper proof only: proof in this section\].* For every guard $`b`, command $`c` and stores $`s,t`,
+
+$$`s\vdash W\Downarrow t\quad\Longleftrightarrow\quad s\vdash U\Downarrow t.`
+
+Hence $`W\equiv U`.
+
+*Proof of the forward direction.* As in Session 1, $`D:J` means that $`D` is a derivation of the judgment $`J`. We must show: if $`D:s\vdash W\Downarrow t`, then $`s\vdash U\Downarrow t`. The proof is by cases on the last rule of $`D`, with no induction. By fact 1 there are two cases.
+
+*Iteration case.* Suppose $`D` ends with the loop iteration rule. Then $`D` has the form
+
+$$`D:\quad\frac{B(b,s)=\mathsf{true}\qquad D_1:s\vdash c\Downarrow m\qquad D_2:m\vdash W\Downarrow t}{s\vdash W\Downarrow t}`
+
+1. The premises of the last rule of $`D` give $`B(b,s)=\mathsf{true}`, a store $`m`, and derivations $`D_1:s\vdash c\Downarrow m` and $`D_2:m\vdash W\Downarrow t`.
+2. Apply the sequence rule to $`D_1` and $`D_2`. This gives $`s\vdash(c;W)\Downarrow t`.
+3. Apply the derived rule for a true guard to $`B(b,s)=\mathsf{true}` and the derivation of step 2. This gives $`s\vdash U\Downarrow t`.
+
+The new derivation is
+
+$$`\frac{B(b,s)=\mathsf{true}\qquad\dfrac{D_1:s\vdash c\Downarrow m\qquad D_2:m\vdash W\Downarrow t}{s\vdash(c;W)\Downarrow t}}{s\vdash U\Downarrow t}`
+
+Step 2 uses $`D_2` as it stands. No induction hypothesis about $`D_2` is needed, because $`D_2` is moved, not transformed.
+
+*Exit case.* Suppose $`D` ends with the loop exit rule.
+
+1. The side condition and the conclusion of that rule give $`B(b,s)=\mathsf{false}` and $`t=s`.
+2. The skip rule gives $`s\vdash\mathsf{skip}\Downarrow s`.
+3. Apply the derived rule for a false guard to $`B(b,s)=\mathsf{false}` and the derivation of step 2. This gives $`s\vdash U\Downarrow s`, that is, $`s\vdash U\Downarrow t`.
+
+*Proof of the reverse direction.* Let $`E:s\vdash U\Downarrow t`. By fact 2, $`E` ends with the conditional rule and has a premise $`E_1:s\vdash k\Downarrow t`. If $`B(b,s)=\mathsf{true}`, then $`k` is $`c;W`. Fact 3 gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash W\Downarrow t`. Together with $`B(b,s)=\mathsf{true}` these are the three premises of the loop iteration rule, which gives $`s\vdash W\Downarrow t`. If $`B(b,s)=\mathsf{false}`, then $`k` is skip, and fact 4 gives $`t=s`. The loop exit rule gives $`s\vdash W\Downarrow s`, that is, $`s\vdash W\Downarrow t`.
+
+Both directions hold for all $`s` and $`t`. So $`\mathrm{Exec}(W)=\mathrm{Exec}(U)`, and $`W\equiv U`. $`\square`
+
+The theorem has no termination hypothesis. Take $`b` to be true and $`c` to be skip. By [Session 2, §2.4](chapter-02/index.html#ch02-s4), $`W` has no terminating execution from any store. By the reverse direction neither has $`U`, since a derivation for $`U` would yield one for $`W`. Both sets of pairs are empty, hence equal.
+
+Compare the loop iteration case of [Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2). There the loop premise had to be compared with a second derivation, and that required an induction hypothesis for it. Here the loop premise is only moved. The unfolding must keep the loop: replacing $`c;W` by $`c` alone gives a command that is not equivalent to $`W` (Exercise 7.2).
+
+# Replacement before a suffix
 %%%
-tag := "ch06-s3"
+tag := "ch07-s3"
 %%%
 
-The unfolded loop often occurs inside another program. Equivalence supports replacement within a suffix because the surrounding sequence can see only the middle store left by its first operand.
+An unfolded loop usually sits inside a larger program. Take the loop of §7.2 followed by `y := x`, for a name $`y\neq x`. From $`s(x)=0` the loop ends in $`m=s[x\mapsto1]`, and the suffix ends in $`m[y\mapsto1]`. By Theorem 7.3 the unfolding $`U` also ends in $`m` from $`s`. The same suffix derivation from $`m` then completes a run of $`U` followed by `y := x`. The next proposition does this for every initial store and every suffix.
 
-*Proposition 7.4.* If $`c \equiv d` then $`c\ \text{;}\ k \equiv d\ \text{;}\ k` for every $`k`.
+*Proposition 7.4 (Replacement before a suffix) \[This book\] \[Paper proof only: proof in this section\].* For all commands $`c,d,a`, if $`c\equiv d` then $`(c;a)\equiv(d;a)`.
 
-*Proof.* Invert $`s \vdash c\ \text{;}\ k \Downarrow t` to obtain $`s \vdash c \Downarrow u` and $`u \vdash k \Downarrow t`. By the hypothesis, $`s \vdash d \Downarrow u` has a derivation. Reuse the execution of $`k` from that same $`u`. The sequence rule gives $`s \vdash d\ \text{;}\ k \Downarrow t`. For the reverse implication interchange $`c` and $`d` using symmetry. $`\square`
+*Proof.* Fix $`s,t` and suppose $`s\vdash(c;a)\Downarrow t`. [Session 2, Proposition 2.2](chapter-02/index.html#ch02-s3) gives a store $`m` with $`s\vdash c\Downarrow m` and $`m\vdash a\Downarrow t`. Since $`c\equiv d`, also $`s\vdash d\Downarrow m`. The sequence rule, applied to this derivation and the given derivation of $`m\vdash a\Downarrow t`, gives $`s\vdash(d;a)\Downarrow t`. The converse is the same argument with $`c` and $`d` exchanged, which is allowed because $`\equiv` is symmetric. $`\square`
 
-Suppose instead we observed only the final value of $`x`. From any initial state, `y := 1` and `y := 2` would agree at $`x` when $`x \neq y`. The suffix `x := y` would distinguish them. Reusing a suffix proof requires enough agreement at the join for the suffix’s later reads. Chapter 42 will make an explicit set of observed variables part of a transformation theorem.
+With Theorem 7.3 this gives $`(W;a)\equiv(U;a)` for every command $`a`.
 
-*Replacement inside a loop.* Suppose `a ≡ a′`, and write `W` and `W′` for the loops with the common guard `b` and these two bodies. A loop may run its body many times, so a single application of the premise to the entry state does not establish the required implication. Fix a derivation of $`s \vdash W \Downarrow t`. Induct on the number of iteration rules down its recursive loop branch. At zero the derivation ends with the exit rule. The unchanged guard is false, so the very same exit proves $`s \vdash W' \Downarrow t`.
-
-At a positive number, inversion exposes a state `u` with $`s \vdash a \Downarrow u` and a derivation of $`u \vdash W \Downarrow t` with one fewer iteration. Equivalence provides $`s \vdash a' \Downarrow u`. Because the result is the same entire store, the induction hypothesis applies to the residual loop starting at exactly `u`. The iteration rule reconstructs $`s \vdash W' \Downarrow t`. Exchanging the bodies proves the converse. This proof permits the number of small steps taken *inside* a body to change. What remains aligned from one iteration to the next is the store passed to the guard. The same reasoning supplies the loop case when proving that replacement is valid in every command context by induction on the surrounding syntax.
-
-For a suffix context, equivalence at *every* potential middle store can be used directly under an existential. This checked proof preserves the witness in both directions. It makes no determinacy assumption.
-
-```lean
-example {S : Type} (R R' K : S → S → Prop)
-    (eqv : ∀ s u, R s u ↔ R' s u) (s t : S) :
-    (∃ u, R s u ∧ K u t) ↔ (∃ u, R' s u ∧ K u t) := by
-  constructor
-  · rintro ⟨u, left, right⟩
-    exact ⟨u, (eqv s u).mp left, right⟩
-  · rintro ⟨u, left, right⟩
-    exact ⟨u, (eqv s u).mpr left, right⟩
-```
-
-*Proposition 7.5 (Observing a store one variable at a time).* Fix a variable `out`. For any variable y, run c from s, append `out := y`, and observe only the final integer in `out`. Let $`O(c,s,y)` be the set of integers this experiment can return; it is empty if c has no terminating run. In deterministic IMP, two commands are equivalent in the sense of Definition 7.1 if and only if $`O(c,s,y)=O(d,s,y)` for every initial store s and every variable y.
-
-*Proof.* The assignment rule gives $`O(c,s,y)=\{t(y)\mid t\in R_c(s)\}`. Equal result sets therefore give equal observations. Conversely suppose all observations agree, and choose a terminating result t of c from s. The experiment y = out returns t(out), so d must terminate from s. Fix its result u. For every y the observation for c contains t(y). Determinacy of d makes its observation set the singleton $`\{u(y)\}`. Hence t(y) = u(y) for every y, and equality of stores as functions gives t = u. This proves one inclusion; interchange c and d for the other. The variable out need not be fresh: the assignment reads y before it writes out.
-
-*Where determinacy enters.* Suppose commands could choose between two outcomes. One command sets (x,y) to either (0,0) or (1,1); another sets it to either (0,1) or (1,0). Take x and y distinct and leave other variables unchanged. Reading any single coordinate gives the same set for both commands. Yet only the first command admits an outcome with x = y. In the proof above, fixing one result u before varying the tested variable is the step that fails. This counterexample concerns the stated family of tests; a suffix that computes x + y distinguishes the commands.
+The proof hands the entire intermediate store $`m` to the suffix. This is why Definition 7.1 observes the entire final store. Suppose instead that we observed only the final value of one name $`x`. For a name $`y\neq x`, the commands `y := 1` and `y := 2` would then count as equivalent, since both leave $`x` unchanged. The suffix `x := y` separates them: it leaves 1 in $`x` after the first and 2 after the second. With that weaker observation Proposition 7.4 would fail. Session 20 observes only a chosen set of names. Its theorem then compares runs from two stores that agree on a computed set of names, not on all names.
 
 # Exercises
 %%%
-tag := "ch06-s4"
+tag := "ch07-s4"
 number := false
 %%%
 
-*7.1.* Use the sequence characterization from Chapter 2 to prove associativity up to equivalence of command sequencing. Name both middle states.
+*7.1.* Prove $`((c_1;c_2);c_3)\equiv(c_1;(c_2;c_3))`. Name both intermediate stores, $`m_1` and $`m_2`.
 
-*7.2.* Refute the proposed equivalence of a while command and `if b then a else skip`. Give a terminating integer example and compute both final stores.
+*7.2.* Refute $`(\mathsf{while}\ b\ \mathsf{do}\ c)\equiv(\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ \mathsf{skip})`. Give a guard, a body and an initial store from which both commands terminate, and compute both final stores.
 
-*7.3.* If one loop emits an output before diverging and another silently diverges, would the definition in §7.1 distinguish them, assuming it records only terminating stores? What additional observation would suffice?
+*7.3.* Suppose the language had an output command. One loop emits an output and then runs forever. Another runs forever without output. Does Definition 7.1 distinguish them? What additional observation would?
 
-*Further problem.* Decide whether `if b then (c; k) else (d; k)` and `(if b then c else d); k` are equivalent for arbitrary commands in IMP. Then examine the proposed counterpart that moves a *prefix* in front of a test. Identify a sufficient condition on the prefix and guard, and exhibit a failure when it is dropped.
+*7.4.* Prove $`(\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ c)\equiv c`. Which property of the single conditional rule makes each direction one step?
+
+*Further problem.* Decide whether $`\mathsf{if}\ b\ \mathsf{then}\ (c;a)\ \mathsf{else}\ (d;a)` and $`(\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d);a` are equivalent for all commands. Then examine the counterpart that moves a common *prefix* out of the branches: compare $`\mathsf{if}\ b\ \mathsf{then}\ (a;c)\ \mathsf{else}\ (a;d)` with $`a;(\mathsf{if}\ b\ \mathsf{then}\ c\ \mathsf{else}\ d)`. Give a sufficient condition on $`a` and $`b`, and a counterexample when it fails.
 
 # Reading for the Seminar
 %%%
-tag := "ch06-s5"
+tag := "ch07-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the two commands in Theorem 7.3 and quantify explicitly over the initial and final stores.
+*Definitions · 10 minutes.* Write $`W` and $`U`, and state Theorem 7.3 with both store quantifiers explicit. Say what Definition 7.1 does not observe, using the example that opens §7.1.
 
-*Joint proof · 30 minutes.* Use Theorem 7.3 and Proposition 7.4 to replace a loop inside a sequence. Derive the observation formula of Proposition 7.5 from the assignment rule.
+*Joint proof · 30 minutes.* The presenter proves the forward direction of Theorem 7.3: the iteration case, then the exit case. A participant proves the reverse direction for a true guard by inverting the conditional rule and then the sequence. Finish by using Theorem 7.3 and Proposition 7.4 to replace a loop inside a sequence.
 
-*Proof review · 20 minutes.* Prove the reverse implication of Proposition 7.5. Mark where one final store is fixed for all variables; test that step on the two nondeterministic commands.
+*Proof review · 20 minutes.* Run the forward proof for the candidate of Exercise 7.2 and locate the step that fails. Ask which property of $`D_2` the proof never used.
 
 *Facilitator’s hint.* Underline the recursive loop judgment already available as a premise. Ask where exactly that same judgment belongs in the target tree.
 
-# Solutions
+# Solutions and Further Reading
 %%%
-tag := "ch06-s6"
+tag := "ch07-s6"
 number := false
 %%%
 
-*7.1.* A run of the left association first executes $`c`, then $`d`, then $`k`, through states $`s,u,v,t`. Two inversions recover the three subderivations. Compose $`d` with $`k` at $`v`, then compose $`c` with that result at $`u`. The reverse direction regroups the same three derivations in the opposite order.
+*7.1.* Let $`s\vdash((c_1;c_2);c_3)\Downarrow t`. Proposition 2.2, applied twice, gives stores $`m_1,m_2` with $`s\vdash c_1\Downarrow m_1`, $`m_1\vdash c_2\Downarrow m_2` and $`m_2\vdash c_3\Downarrow t`. The sequence rule applied to the last two gives $`m_1\vdash(c_2;c_3)\Downarrow t`. The sequence rule applied to the first and this one gives $`s\vdash(c_1;(c_2;c_3))\Downarrow t`. The converse regroups the same three derivations. Nipkow and Klein prove this as Lemma 7.2 (_Concrete Semantics_, §7.2.3). Session 8 proves the same law for a semantics that assigns a function to each command.
 
-*7.2.* Use guard $`x < 2`, body `x := x + 1`, and initial value zero. One conditional execution leaves $`x = 1`. Two loop iterations followed by an exit leave $`x = 2`. All other names agree.
+*7.2.* Take the guard `x < 2`, the body `x := x + 1` and $`s(x)=0`. The conditional runs the body once and ends with 1 in $`x`. The loop runs the body twice, exits, and ends with 2 in $`x`. All other names keep their values in both.
 
-*7.3.* Both result sets would be empty, so the proposed observation identifies them. Observing a finite prefix containing the first output separates them. The choice of observations must be revisited when the language gains output.
+*7.3.* Neither command has a terminating execution. Both sets of pairs are empty, so Definition 7.1 identifies them. An observation that records the outputs produced so far, also on runs that do not terminate, separates them. When a language gains output, the choice of observation must be revisited.
 
-*Further problem.* Fix an initial store. Both commands with the common suffix inspect the guard there. If it is true, a terminating execution on either side consists of a run of `c` to some middle store followed by a run of `k` from there. The same witnesses yield executions in either syntax tree. The false branch replaces `c` by `d` and gives the same argument.
+*7.4.* The premise of the conditional rule is $`s\vdash k\Downarrow t`, where $`k` is the branch selected by $`B(b,s)`. Both branches are $`c`, so $`k=c` whatever the guard. Inverting the conditional rule gives $`s\vdash c\Downarrow t`. Conversely, the conditional rule turns $`s\vdash c\Downarrow t` into an execution of the conditional. Nipkow and Klein state this as Lemma 7.4. With their two conditional rules, the proof splits on the value of the guard.
 
-For the prefix version compare `if b then (k; c) else (k; d)` with `k; (if b then c else d)`. It suffices that every terminating execution of `k` from any `s` to `u` preserves the truth value of `b`. Both derivations then use that same prefix execution, select the same branch, and reuse its derivation. If the prefix diverges neither command yields a result. For a counterexample use `x = 0` as guard, `x := 1` as prefix, and branches assigning 1 or 2 to a distinct `y`. From `x = 0` the two programs end with different values of `y`.
+*Further problem.* Fix $`s`. Both commands test $`b` in $`s`. If $`B(b,s)=\mathsf{true}`, a terminating execution of either command consists of a run of $`c` from $`s` to some $`m` and a run of $`a` from $`m`; inverting the conditional rule and Proposition 2.2 expose them. The same two derivations, regrouped, give an execution of the other command. A false guard gives the same argument with $`d`. So the two commands are equivalent.
+
+For the prefix version it suffices that $`a` preserves the guard: whenever $`s\vdash a\Downarrow m`, $`B(b,m)=B(b,s)`. Both commands then run $`a` from $`s` to the same $`m` and select the same branch. If $`a` has no terminating execution from $`s`, neither command has one. For a counterexample take the guard `x = 0`, the prefix `x := 1`, and the branches `y := 1` and `y := 2`, with $`x\neq y`. From $`s(x)=0` the first command ends with 1 in $`y` and the second with 2 in $`y`.
+
+*Further reading · The small-step view.* In the transitions of [A.6](imp-card/index.html#imp-a6), if $`B(b,s)=\mathsf{true}` then $`\langle W,s\rangle\to\langle c;W,s\rangle` and, by the conditional step, $`\langle U,s\rangle\to\langle c;W,s\rangle`. If the guard is false, both configurations step to $`\langle\mathsf{skip},s\rangle`. Inversion shows that each has exactly this one transition. Neither $`W` nor $`U` is skip, so a finite path from either to $`\langle\mathsf{skip},t\rangle` begins with that transition and continues from the same configuration. Hence $`\langle W,s\rangle\to^*\langle\mathsf{skip},t\rangle` exactly when $`\langle U,s\rangle\to^*\langle\mathsf{skip},t\rangle`, and the paths have equal length. Session 6, Theorem 6.2 turns this into a second proof of Theorem 7.3. The small-step loop rule is itself one loop unfolding. Example 7.2, by contrast, relates two commands whose paths have different lengths.
+
+*Further reading · Replacement inside a loop.* Let $`c\equiv c'` and $`W'=\mathsf{while}\ b\ \mathsf{do}\ c'`. Then $`W\equiv W'`. A loop may run its body many times, so the hypothesis must be used at every iteration. For $`D:s\vdash W\Downarrow t` prove $`P(D)\coloneqq s\vdash W'\Downarrow t` by induction on the height of $`D` (Session 3, §3.1). If $`D` ends with the loop exit rule, then $`B(b,s)=\mathsf{false}` and $`t=s`, and the loop exit rule for $`W'` uses the same guard. If $`D` ends with the loop iteration rule, its premises are $`B(b,s)=\mathsf{true}`, $`D_1:s\vdash c\Downarrow m` and $`D_2:m\vdash W\Downarrow t`, with hypothesis $`P(D_2):m\vdash W'\Downarrow t`. From $`D_1` and $`c\equiv c'` we get $`s\vdash c'\Downarrow m`, and the loop iteration rule gives $`s\vdash W'\Downarrow t`. Exchange $`c` and $`c'` for the converse. Unlike in Theorem 7.3, the loop premise $`D_2` must be transformed, and the induction hypothesis does that. The store passed to each guard test is the same on both sides, while the derivations of the bodies may differ. Nipkow and Klein state this as Lemma 7.5 and derive it from their Lemma 7.6, which they prove by rule induction. With Proposition 7.4 and similar arguments for the right operand of a sequence and for the branches of a conditional, induction on the surrounding command shows that replacing a subcommand by an equivalent one gives an equivalent command. Nipkow and Klein call $`\equiv` a congruence for this reason.
+
+*Further reading · Repeated unfolding.* Theorem 7.3 applies again to the copy of $`W` inside $`U`. With the replacement property just described, $`W\equiv\mathsf{if}\ b\ \mathsf{then}\ (c;U)\ \mathsf{else}\ \mathsf{skip}`. Each copy of the guard is tested in its own store. For the loop of §7.2 from $`s(x)=0`, the first test reads $`s`, where `x < 1` holds, and the second reads $`m=s[x\mapsto1]`, where it fails. The result is $`m`. Evaluating both tests in $`s` instead would run the body twice and end with 2 in $`x`.
+
+*Further reading · Observing one name at a time.* Fix a name $`r`. For a command $`c`, a store $`s` and a name $`y`, let $`O(c,s,y)` be the set of values that $`c;(r:=y)` can leave in $`r` when started in $`s`. Proposition 2.2 and the assignment rule give $`O(c,s,y)=\{t(y)\mid s\vdash c\Downarrow t\}`. In IMP, $`c\equiv d` holds exactly when $`O(c,s,y)=O(d,s,y)` for all $`s` and $`y`. One direction follows from the formula. For the other, let $`s\vdash c\Downarrow t`. Then $`O(c,s,y)` is not empty, so $`d` has a terminating execution from $`s`, say to $`u`. By determinacy, $`O(c,s,y)=\{t(y)\}` and $`O(d,s,y)=\{u(y)\}` for every $`y`. So $`t(y)=u(y)` at every name, and $`t=u`. Determinacy is needed. Add the choice command of Session 3, Exercise 3.2. One command sets the pair of values at $`x,y` to $`(0,0)` or to $`(1,1)`; another sets it to $`(0,1)` or to $`(1,0)`. Each name alone shows the values 0 and 1 after either command, yet only the first can end with equal values at $`x` and $`y`. The step that fails is fixing one final store $`u` for all names $`y`.
+
+Nipkow and Klein define the same equivalence of commands and state Lemmas 7.3–7.6 and 7.8 in _Concrete Semantics_, §7.2.4, pp. 82–83. Exercises 7.5 and 7.6 of that chapter (p. 93) ask for further equivalences of conditionals and loops. [Concrete Semantics, §7.2.4](https://concrete-semantics.org/concrete-semantics.pdf#page=92)

@@ -1,114 +1,161 @@
 import VersoManual
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Compiling Expressions to a Stack Machine" =>
+#doc (Manual) "Computational Adequacy: the Proof" =>
 %%%
 tag := "ch37"
 file := "chapter-37"
 %%%
 
-[Chapter PDF](print/chapter-37.pdf) · [Session 37](seminar/index.html#week-37)
+* *Definitions.* Definition 36.3 (the relations $`\lhd_T`), Lemma 36.4 (the related set is admissible), Lemma 36.5 (closure under evaluation) and the statement of Theorem 36.2 ([Session 36](chapter-36/index.html)). Typing contexts, the typing and evaluation rules, environments $`\rho` with their extension $`\rho[y\mapsto d]`, and the meaning $`\llbracket t\rrbracket \rho` of a term with free variables ([Session 35](chapter-35/index.html)). Scott induction and least fixed points $`\mathrm{lfp}(f)` ([Session 34](chapter-34/index.html)). Substitution $`[x\mapsto u]t` ([C.1](lambda-card/index.html#lambda-c1)) and the substitution lemma for typing ([Session 25](chapter-25/index.html)).
+* *New terms.* Closing substitution, related environment and substitution. [Glossary and label key](glossary/index.html)
+* *Theorem 37.2 \[Paper proof only: §§37.2–37.3\].* Let $`\Gamma=x_1{:}T_1,\ldots,x_k{:}T_k` and $`\Gamma\vdash t:T`. For every environment $`\rho` for $`\Gamma` and all closed terms $`u_1,\ldots,u_k` with $`\vdash u_i:T_i`, if $`\rho(x_i)\lhd_{T_i}u_i` for every $`i`, then $`\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`.
+* *Source.* Cambridge _Denotational Semantics_ lecture notes, 2025–26 edition. Theorem 37.2 is their Theorem 30 and Theorem 36.2 their Theorem 31. Lemmas 36.4 and 36.5 are their Lemmas 33 and 35. [Notes.](https://www.cl.cam.ac.uk/teaching/2526/DenotSem/DenSem-Notes.pdf)
+* *Board case.* The fixed-point case of Theorem 37.2 (§37.3), in eight numbered steps.
+* *Proof outline.* Induction on the typing derivation, with $`P(\Gamma\vdash t:T)\coloneqq\forall\rho,\ \forall\vec{u},\ \rho\lhd_\Gamma\vec{u}\Rightarrow\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`. Application instantiates the arrow clause of the operator’s hypothesis with the operand’s pair. Abstraction applies the body’s hypothesis to an extended pair and returns with Lemma 36.5. The fixed point applies Scott induction to the admissible set of Lemma 36.4 and unfolds once with Lemma 36.5. Adequacy is the case of the empty context.
+* *From Session 36.* Session 36 defined $`\lhd_T` for closed terms and proved Lemmas 36.4 and 36.5. This session uses them as stated and proves Theorem 36.2. The new step is to handle free variables: each variable receives a semantic element on the left and a closed term on the right.
 
-After compiling the left operand of an addition, the machine stack already contains a partial result. A compiler theorem restricted to an empty initial stack cannot justify running the right operand at this point. The arbitrary stack in the statement below is essential even when every complete program starts with an empty one.
+Theorem 36.2 follows once we know $`\llbracket t\rrbracket \lhd_T t` for every closed term $`t` of every type $`T`. A proof by induction on $`t` must pass through the body of an abstraction, and that body has a free variable. So we prove a statement about terms with free variables. Each free variable receives a semantic element on the left of $`\lhd` and a closed term on the right, and the two must be related.
 
-*Sources.* Nipkow and Klein, _Concrete Semantics_, §3.3, on compilation of expressions to stack code. Then read `compile_aexp_correct` in the Lean 4 port of Xavier Leroy’s _Compiler Verification_ course. The latter explicitly tracks both the ambient instruction list and the program counter. We follow its stack order and subtraction sequence. [Concrete Semantics.](https://concrete-semantics.org/concrete-semantics.pdf) [Lean statement and proof.](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Compil.lean#L347-L404)
-
-# Source and target
+# Related environments and substitutions
 %%%
 tag := "ch37-s1"
 %%%
 
-An expression is an integer literal, a variable, a sum or a difference. The direct evaluator reads an integer store $`s` and uses mathematical integer arithmetic. The target has an ambient list $`C` of instructions and configurations $`\langle p,S,s\rangle`, with integer program counter $`p` and stack $`S` written with its top on the left. A constant instruction pushes its literal, a variable instruction pushes a lookup, opposite negates the top, and add replaces the top two values $`v,u` by $`u + v`. Each instruction advances the counter by one and preserves the store. A missing operand gives no such transition.
+Take the context $`y{:}\mathsf{Nat}\to\mathsf{Nat},\,x{:}\mathsf{Nat}` and the term $`y\,x`. Give the variables semantic values by the environment $`\rho(y)=i`, $`\rho(x)=5`, and closed terms by the substitution of $`I` for $`y` and $`\overline{5}` for $`x`, with $`i` and $`I` the identities of [§36.2](chapter-36/index.html#ch36-s2). Both pairs are related: $`i\lhd_{\mathsf{Nat}\to\mathsf{Nat}}I` by §36.2, and $`5\lhd_{\mathsf{Nat}}\overline{5}` since $`\overline{5}\Downarrow\overline{5}`. The meaning of the term is $`\llbracket y\,x\rrbracket \rho=\rho(y)(\rho(x))=i(5)`. The term after substitution is $`I\,\overline{5}`. The arrow clause of $`i\lhd I`, applied to the pair $`(5,\overline{5})`, gives $`i(5)\lhd_{\mathsf{Nat}}I\,\overline{5}`. The argument used nothing about $`i`, $`I`, 5 or $`\overline{5}` except the two relations. The same two lines work for every related choice of values and closed terms.
 
-Let $`K(e)` be the compiled instruction list. For a literal or variable emit the matching push. For a sum concatenate $`K(a)`, $`K(b)`, and a single add. For a difference use the same operand order followed by opposite and add. Write $`|K|` for list length. The predicate `code_at C p K` means that $`C` splits into a prefix of length $`p`, the block $`K`, and a suffix. This premise permits a subexpression to reside inside a larger program.
+*Definition 37.1 (Closing substitution, related environment and substitution).* Let $`\Gamma=x_1{:}T_1,\ldots,x_k{:}T_k`. A *closing substitution* for $`\Gamma` is a list $`\vec{u}=u_1,\ldots,u_k` of closed terms with $`\vdash u_i:T_i`. For a term $`t`, the term $`[\vec{x}\mapsto\vec{u}]t` replaces each free occurrence of each $`x_i` in $`t` by $`u_i`. An environment $`\rho` for $`\Gamma` and a closing substitution $`\vec{u}` for $`\Gamma` are *related*, written $`\rho\lhd_\Gamma\vec{u}`, if $`\rho(x_i)\lhd_{T_i}u_i` for every $`i`.
 
-A block occurrence includes more information than its first instruction. Suppose the compiler emits three instructions for a sum, and the ambient program contains the same push instruction at several addresses. A premise saying just “the instruction at p is the first push” cannot justify the second push or the final add. To use a complete occurrence, decompose the ambient program into a prefix, the emitted list, and a suffix. The prefix length determines p. Moving across the first operand's list extends that prefix by exactly the length of the list and leaves the remaining suffix of the block intact. No assumption about what comes after the block is needed.
+Since the $`u_i` are closed, no variable capture can occur, and replacing the $`x_i` one at a time gives the same term. Two facts about closing substitutions are used below. First, if $`\Gamma\vdash t:T` then $`\vdash[\vec{x}\mapsto\vec{u}]t:T`. This is the substitution lemma of Session 25 applied once for each variable; for PCF its proof has one more case, the fixed point, which goes like the successor case. Second, substitution passes through each term former. For example, $`[\vec{x}\mapsto\vec{u}](t_1\,t_2)=([\vec{x}\mapsto\vec{u}]t_1)\,([\vec{x}\mapsto\vec{u}]t_2)` and $`[\vec{x}\mapsto\vec{u}](\mathsf{fix}\ t_1)=\mathsf{fix}\,([\vec{x}\mapsto\vec{u}]t_1)`. For an abstraction whose parameter $`y` is not among $`x_1,\ldots,x_k`, $`[\vec{x}\mapsto\vec{u}](\lambda y{:}S.\,t_1)=\lambda y{:}S.\,[\vec{x}\mapsto\vec{u}]t_1`, because no $`u_i` contains $`y` free. For the same reason, substituting a closed term $`u` for $`y` afterwards gives $`[y\mapsto u]([\vec{x}\mapsto\vec{u}]t_1)=[\vec{x}\mapsto\vec{u},\,y\mapsto u]t_1`.
 
-Distinguish two possible meanings of an integer at this boundary. The target counter indexes instructions; an integer on the operand stack is a value being computed. Increasing the counter does not change a stack value, and pushing a negative literal does not move execution backwards. The store has a third role, supplying the values of source variables through load instructions. Stating the three components separately makes an expression compiler's contract visible: it advances the counter, extends the stack by one, and preserves the store.
+*Theorem 37.2 (Fundamental theorem for the approximation relation) \[Paper proof only: §§37.2–37.3\].* Let $`\Gamma=x_1{:}T_1,\ldots,x_k{:}T_k` and $`\Gamma\vdash t:T`. For every environment $`\rho` for $`\Gamma` and every closing substitution $`\vec{u}` for $`\Gamma`, if $`\rho\lhd_\Gamma\vec{u}` then $`\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`.
 
-# Correctness
+This is Theorem 30 of the Cambridge notes, which call it the fundamental property. Its shape is that of the fundamental theorem of [Session 33](chapter-33/index.html): every well-typed term is related to itself. Here the meaning of the term stands on the left and its closed instance on the right.
+
+We prove $`P(\mathcal{D})` for every typing derivation $`\mathcal{D}` by induction on $`\mathcal{D}`. For a derivation with conclusion $`\Gamma\vdash t:T`,
+
+$$`P(\Gamma\vdash t:T)\coloneqq\forall\rho,\ \forall\vec{u},\ \rho\lhd_\Gamma\vec{u}\Rightarrow\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t.`
+
+The environment and the substitution are quantified inside $`P`, as the final store was in [Session 3](chapter-03/index.html#ch03-s2). The abstraction case applies the hypothesis for the body to an extended pair, not to the pair fixed at the start of the case.
+
+# The cases other than the fixed point
 %%%
 tag := "ch37-s2"
 %%%
 
-*Theorem 37.1.* For every store, initial stack, ambient code and counter with $`K(e)` at $`p`, the generated block satisfies the following machine judgment, where the arrow denotes a finite sequence of steps in the fixed ambient program.
+In each case fix $`\rho` and $`\vec{u}` with $`\rho\lhd_\Gamma\vec{u}`. For any term $`t'` write $`t'^{*}` for $`[\vec{x}\mapsto\vec{u}]t'`. The clauses of Definition 35.5 and the evaluation rules are those of Session 35.
 
-$$`\langle p,S,s\rangle \to^{*} \langle p + \lvert K(e)\rvert,\operatorname{eval}(e,s)::S,s\rangle.`
+*Variable.* If $`t=x_i`, then $`\llbracket x_i\rrbracket \rho=\rho(x_i)` and $`x_i^{*}=u_i`. The assumption $`\rho(x_i)\lhd_{T_i}u_i` is the claim.
 
-Here $`::` prepends to a list. The theorem stops at the block boundary even when another instruction is present there.
+*Constants.* $`\llbracket 0\rrbracket \rho=0` and $`0^{*}=0`. The only number equal to 0 is 0, and $`0\Downarrow0` because 0 is a value. So $`0\lhd_{\mathsf{Nat}}0`. The constants $`\mathsf{true}` and $`\mathsf{false}` are handled in the same way.
 
-Induct on $`e`, keeping $`p` and $`S` arbitrary. A leaf takes one push step and establishes the result directly. For a sum write $`m = \lvert K(a)\rvert`, $`n = \lvert K(b)\rvert`, $`u = \operatorname{eval}\left( {a,s} \right)` and $`v = \operatorname{eval}\left( {b,s} \right)`. The block decomposition puts the first operand at $`p`, the second at $`p + m`, and add at $`p + m + n`. The first induction hypothesis reaches counter $`p + m` with stack $`u::S`. Apply the second hypothesis with this *new* counter and stack to reach $`p + m + n` with $`v::u::S`. Add now reaches $`p + m + n + 1` with $`\left( {u + v} \right)::S`. Concatenating the three paths proves the sum case.
+*Successor and predecessor.* Let $`t=\mathsf{succ}\ t_1`, with hypothesis $`\llbracket t_1\rrbracket \rho\lhd_{\mathsf{Nat}}t_1^{*}`. If $`\llbracket \mathsf{succ}\ t_1\rrbracket \rho=m`, then $`m=n+1` where $`\llbracket t_1\rrbracket \rho=n`, because the successor of $`\bot` is $`\bot`. The hypothesis gives $`t_1^{*}\Downarrow\overline{n}`, and the successor rule gives $`\mathsf{succ}\ t_1^{*}\Downarrow\overline{n+1}`. For $`t=\mathsf{pred}\ t_1`: if $`\llbracket \mathsf{pred}\ t_1\rrbracket \rho=n`, then $`\llbracket t_1\rrbracket \rho=n+1`, because the predecessor of 0 and of $`\bot` is $`\bot`. The hypothesis gives $`t_1^{*}\Downarrow\mathsf{succ}\ \overline{n}`, and the predecessor rule gives $`\mathsf{pred}\ t_1^{*}\Downarrow\overline{n}`. The zero test is Exercise 37.2.
 
-For a difference use the same two paths. Opposite changes $`v::u::S` to $`\left( {- v} \right)::u::S`. Add returns $`\left( {u - v} \right)::S` at counter $`p + m + n + 2`. In both cases the unchanged suffix of the stack remains available to surrounding code.
+*Conditional.* Let $`t=\mathsf{if}\ t_1\ \mathsf{then}\ t_2\ \mathsf{else}\ t_3` with $`\Gamma\vdash t:T`. The hypotheses give $`\llbracket t_1\rrbracket \rho\lhd_{\mathsf{Bool}}t_1^{*}`, $`\llbracket t_2\rrbracket \rho\lhd_T t_2^{*}` and $`\llbracket t_3\rrbracket \rho\lhd_T t_3^{*}`. If $`\llbracket t_1\rrbracket \rho=\bot`, the meaning of $`t` is $`\bot`, and Lemma 36.4(a) applies. If $`\llbracket t_1\rrbracket \rho=\mathrm{tt}`, the meaning of $`t` is $`\llbracket t_2\rrbracket \rho`, and the first hypothesis gives $`t_1^{*}\Downarrow\mathsf{true}`. With that premise the conditional rule turns every derivation of $`t_2^{*}\Downarrow v` into a derivation of $`t^{*}\Downarrow v`. Lemma 36.5 moves $`\llbracket t_2\rrbracket \rho\lhd_T t_2^{*}` to $`\llbracket t_2\rrbracket \rho\lhd_T t^{*}`. The case $`\mathrm{ff}` is symmetric. The type $`T` may be a function type, so the clause of Definition 36.3 cannot be checked directly; Lemma 36.5 does it at every type.
 
-Compile the expression `(1 + 2) + (4 − 3)` starting at counter 10 with incoming stack `[99]`. The left subexpression occupies three instructions. Its induction hypothesis applies at 10 with stack `[99]` and finishes at 13 with `[3, 99]`. The right subexpression occupies four instructions: the two literals, negation of the top element, and addition. Its hypothesis applies at 13 with that new stack and finishes at 17 with `[1, 3, 99]`. The final add at 17 leaves `[4, 99]` at 18. Quantifying over every starting counter and stack tail in the induction assertion is what licenses the second use of the hypothesis.
+*Application.* Let $`t=t_1\,t_2` with premises $`\Gamma\vdash t_1:S\to T` and $`\Gamma\vdash t_2:S`.
 
-Return to `x + (2 + y)` in §33.2, with `x = 3` and `y = 4`. Starting at counter zero with stack tail `S`, the block `Ivar x, Iconst 2, Ivar y, Iadd, Iadd` leaves `4 :: 2 :: 3 :: S` at counter three. The next two instructions leave `6 :: 3 :: S` and `9 :: S`. At the corresponding lookup in the CPS machine, four meets `[Combine(2), Combine(3)]`. The saved left operands occur on the value stack; the two pending additions are encoded by the remaining instructions. The CPS caller doubles nine only after the expression returns; that operation belongs to the caller in the compiled execution as well.
+1. The hypothesis for $`t_1` gives $`\llbracket t_1\rrbracket \rho\lhd_{S\to T}t_1^{*}`, and the one for $`t_2` gives $`\llbracket t_2\rrbracket \rho\lhd_S t_2^{*}`.
+2. Apply the arrow clause of the first relation to the related pair $`(\llbracket t_2\rrbracket \rho,\,t_2^{*})`. This gives $`\llbracket t_1\rrbracket \rho\,(\llbracket t_2\rrbracket \rho)\lhd_T t_1^{*}\,t_2^{*}`.
+3. The left side is $`\llbracket t_1\,t_2\rrbracket \rho`, and the right side is $`(t_1\,t_2)^{*}`.
 
-There is also a useful list-level version of the continuation argument. A successful run of the operand blocks prepares exactly the stack needed for the next instruction. The following check isolates what the add instruction may do to *any* stack below its operands. Failure on short stacks is represented explicitly by an optional result.
+*Abstraction.* Let $`t=\lambda y{:}S.\,t_1` with premise $`\Gamma,y{:}S\vdash t_1:U` and $`T=S\to U`. Rename $`y` if necessary so that it is not among $`x_1,\ldots,x_k`. The hypothesis for the premise is
 
-```lean
-def execAdd : List Int → Option (List Int)
-  | right :: left :: tail => some ((left + right) :: tail)
-  | _ => none
+$$`P(\Gamma,y{:}S\vdash t_1:U):\quad\forall\rho',\ \forall\vec{u}',\ \rho'\lhd_{\Gamma,y:S}\vec{u}'\Rightarrow\llbracket t_1\rrbracket \rho'\lhd_U[\vec{x},y\mapsto\vec{u}']t_1.`
 
-example (left right : Int) (tail : List Int) :
-    execAdd (right :: left :: tail) = some ((left + right) :: tail) := rfl
+1. We must show $`\llbracket \lambda y{:}S.\,t_1\rrbracket \rho\lhd_{S\to U}\lambda y{:}S.\,t_1^{*}`. Fix a related pair $`(d,u)` at $`S`. We must show $`\llbracket \lambda y{:}S.\,t_1\rrbracket \rho\,(d)\lhd_U(\lambda y{:}S.\,t_1^{*})\,u`.
+2. By the clause for abstraction, $`\llbracket \lambda y{:}S.\,t_1\rrbracket \rho\,(d)=\llbracket t_1\rrbracket (\rho[y\mapsto d])`.
+3. The environment $`\rho[y\mapsto d]` and the closing substitution $`\vec{u},u` are related for $`\Gamma,y{:}S`: at each $`x_i` by assumption, and at $`y` because $`d\lhd_S u`.
+4. Apply the hypothesis to this pair. It gives $`\llbracket t_1\rrbracket (\rho[y\mapsto d])\lhd_U[\vec{x}\mapsto\vec{u},\,y\mapsto u]t_1`, and this term equals $`[y\mapsto u]t_1^{*}`.
+5. Every value of $`[y\mapsto u]t_1^{*}` is a value of $`(\lambda y{:}S.\,t_1^{*})\,u`. The application rule has the first premise $`\lambda y{:}S.\,t_1^{*}\Downarrow\lambda y{:}S.\,t_1^{*}`, since an abstraction is a value, and the second premise $`[y\mapsto u]t_1^{*}\Downarrow v`.
+6. Lemma 36.5, applied to steps 4 and 5, gives $`\llbracket \lambda y{:}S.\,t_1\rrbracket \rho\,(d)\lhd_U(\lambda y{:}S.\,t_1^{*})\,u`.
 
-example : execAdd [5] = none := rfl
-```
-
-The positive equation is used after both induction hypotheses. The negative example explains the stack precondition the compiler must discharge before requesting that step.
-
-# A block inside a program
+# The fixed-point case
 %%%
 tag := "ch37-s3"
 %%%
 
-For `x - (2 + 1)` with $`s(x) = 8`, the block is `Ivar x, Iconst 2, Iconst 1, Iadd, Iopp, Iadd`. Starting at $`p = 4` with stack `[11]`, the successive stacks are `[8,11]`, `[2,8,11]`, `[1,2,8,11]`, `[3,8,11]`, `[-3,8,11]`, and `[5,11]`. The final counter is ten. The caller’s 11 never becomes an operand of any instruction in this block.
+First the case of the closed term $`K=\mathsf{fix}\ G` from Session 36, done by hand. In this paragraph every relation is at $`\mathsf{Nat}\to\mathsf{Nat}`, and we omit the subscript. The hypothesis for the premise $`\vdash G:(\mathsf{Nat}\to\mathsf{Nat})\to(\mathsf{Nat}\to\mathsf{Nat})`, with the empty environment and substitution, gives $`\llbracket G\rrbracket \lhd_{(\mathsf{Nat}\to\mathsf{Nat})\to(\mathsf{Nat}\to\mathsf{Nat})}G`. The approximations are $`g_0=\bot` and $`g_{j+1}=\llbracket G\rrbracket (g_j)`. Lemma 36.4(a) gives $`g_0\lhd K`. If $`g_j\lhd K`, the arrow clause for $`\llbracket G\rrbracket ` applied to the related pair $`(g_j,K)` gives $`g_{j+1}\lhd G\,K`. Every value of $`G\,K` is a value of $`K` ([§36.3](chapter-36/index.html#ch36-s3)), so Lemma 36.5 gives $`g_{j+1}\lhd K`. Hence $`g_j\lhd K` for every $`j`, and Lemma 36.4(b) gives $`\llbracket K\rrbracket =\bigsqcup_j g_j\lhd K`. The term $`K` is the same at every stage. Only the semantic element moves.
 
-Suppose we test the generated block only by reading the top element after execution. A faulty implementation might consume the caller's entire stack and then push the correct answer. It would pass every isolated test that checks only that element. A caller computing “the current result plus an older result” would then fail on its next add. The universal tail in the theorem permits the caller to reason modularly even when the contents of that tail are unknown to the compiler.
+Scott induction from [Session 34](chapter-34/index.html) packages these three steps. For a continuous function $`f` on a domain $`D` and an admissible set $`\mathcal{A}\subseteq D`: if $`f(d)\in\mathcal{A}` for every $`d\in\mathcal{A}`, then $`\mathrm{lfp}(f)\in\mathcal{A}`.
 
-Check this at two depths in the worked difference. Immediately before the inner add the stack contains three live operands above 11: 1, 2 and 8. The top two supply the inner sum, while 8 is reserved by the outer subtraction. After the inner add, negation acts on 3 alone. The final addition consumes negative three and eight and leaves 11 untouched. Reversing the order of the two emitted operand blocks would still make many tests involving only addition succeed because integer addition is commutative. Subtraction and a nonempty tail expose two independent classes of error. Each intermediate assertion in the correctness proof rules out one of them.
+*Fixed point.* Suppose the typing derivation ends with the fixed-point rule. Then $`t=\mathsf{fix}\ t_1`, and the premise is $`\Gamma\vdash t_1:T\to T`. Its induction hypothesis is
 
-# Exercises
+$$`P(\Gamma\vdash t_1:T\to T):\quad\forall\rho',\ \forall\vec{u}',\ \rho'\lhd_\Gamma\vec{u}'\Rightarrow\llbracket t_1\rrbracket \rho'\lhd_{T\to T}[\vec{x}\mapsto\vec{u}']t_1.`
+
+Write $`f=\llbracket t_1\rrbracket \rho`, $`h=t_1^{*}` and $`w=\mathsf{fix}\ h`. Then $`w=(\mathsf{fix}\ t_1)^{*}`. The term $`h` is closed with $`\vdash h:T\to T`, and $`w` is closed with $`\vdash w:T`.
+
+1. We must show $`\llbracket \mathsf{fix}\ t_1\rrbracket \rho\lhd_T w`. By the clause for the fixed point, $`\llbracket \mathsf{fix}\ t_1\rrbracket \rho=\mathrm{lfp}(f)`, where $`f` is a continuous function on $`\llbracket T\rrbracket `. So we must show $`\mathrm{lfp}(f)\lhd_T w`.
+2. Apply the induction hypothesis to the given pair $`\rho,\vec{u}`. This gives $`f\lhd_{T\to T}h`.
+3. Let $`\mathcal{A}=\{d\in\llbracket T\rrbracket \mid d\lhd_T w\}`. Lemma 36.4, applied to the closed term $`w`, says that $`\mathcal{A}` is admissible.
+4. By Scott induction for $`f` and $`\mathcal{A}`, it suffices to show $`f(d)\in\mathcal{A}` for every $`d\in\mathcal{A}`. Fix $`d\in\llbracket T\rrbracket ` with $`d\lhd_T w`.
+5. Apply the arrow clause of step 2 to the related pair $`(d,w)`. This gives $`f(d)\lhd_T h\,w`.
+6. By the fixed-point rule, a derivation of $`h\,(\mathsf{fix}\ h)\Downarrow v` becomes a derivation of $`\mathsf{fix}\ h\Downarrow v`. Since $`\mathsf{fix}\ h=w`, every value of $`h\,w` is a value of $`w`.
+7. Apply Lemma 36.5 to the terms $`h\,w` and $`w`, using step 6, to the relation of step 5. This gives $`f(d)\lhd_T w`, that is, $`f(d)\in\mathcal{A}`.
+8. Scott induction now gives $`\mathrm{lfp}(f)\in\mathcal{A}`, that is, $`\llbracket \mathsf{fix}\ t_1\rrbracket \rho\lhd_T(\mathsf{fix}\ t_1)^{*}`.
+
+This completes the induction and proves Theorem 37.2. $`\square`
+
+In step 5 the term $`w` appears twice: as the term to be approximated and as the argument given to $`h`. This works because $`\mathcal{A}` is the set for the single term $`w`. If the term were allowed to change from stage to stage, Lemma 36.4(b) would not apply. Step 6 is the only use of the fixed-point rule in the whole proof, as §36.1 said there must be one.
+
+# Adequacy
 %%%
 tag := "ch37-s4"
-number := false
 %%%
 
-1. Compile `(x - 2) + 1` and trace it from the same state and stack. Which intermediate stack distinguishes the two source trees?
-2. State exactly why an induction hypothesis that mentions only counter zero also fails at the second recursive call.
-3. Suppose subtraction emitted opposite *before* the right operand code. Find source values showing failure.
+*Proof of Theorem 36.2.* Let $`t` be closed with $`\vdash t:\mathsf{Nat}`, and suppose $`\llbracket t\rrbracket =n`. Apply Theorem 37.2 with the empty context, $`k=0`. There is one environment, the empty one, and one closing substitution, the empty list. They are related, because Definition 37.1 then requires nothing. The empty substitution leaves $`t` unchanged. So the theorem gives $`\llbracket t\rrbracket \lhd_{\mathsf{Nat}}t`. Definition 36.3 at $`\mathsf{Nat}`, used with this $`n`, gives $`t\Downarrow\overline{n}`. For $`\vdash t:\mathsf{Bool}`, the clause at $`\mathsf{Bool}` gives $`t\Downarrow\mathsf{true}` from $`\llbracket t\rrbracket =\mathrm{tt}` and $`t\Downarrow\mathsf{false}` from $`\llbracket t\rrbracket =\mathrm{ff}`. $`\square`
 
-*Further problem.* Let a complete target program run the compiled block for e followed by a fixed instruction sequence J. If starting J with the source value atop a tail S and store s finishes at machine state q, prove that the combined program can reach q. State exactly which ambient-code and counter assumptions are needed.
+For $`K\,\overline{1}`, the computation of approximations in Session 35 gives $`\llbracket K\,\overline{1}\rrbracket =0`, and Theorem 36.2 turns this into the existence of a derivation of $`K\,\overline{1}\Downarrow\overline{0}`. The derivation built by hand in Session 35 is one such derivation, so the two accounts check each other.
 
-# Reading for the Seminar
+At a ground type the meaning $`\bot` is also exact. Let $`\vdash t:\mathsf{Nat}`. If $`t` has a value, that value has type $`\mathsf{Nat}`, because a judgment $`t\Downarrow v` is formed only when $`t` and $`v` have one type (Session 35, Definition 35.3), so it is a numeral $`\overline{n}`. Theorem 36.1 then gives $`\llbracket t\rrbracket =n\ne\bot`. If $`t` has no value, Theorem 36.2 rules out $`\llbracket t\rrbracket =n` for every $`n`, so $`\llbracket t\rrbracket =\bot`. Thus $`\llbracket t\rrbracket =\bot` exactly when $`t` has no value. The first direction uses soundness and the second uses adequacy. The relation $`\bot\lhd_{\mathsf{Nat}}t` alone says nothing (Exercise 37.1).
+
+# Exercises
 %%%
 tag := "ch37-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the instruction preconditions and put a nonempty suffix on the board.
+*37.1.* Let $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket =\bot`. Does $`\llbracket t\rrbracket \lhd_{\mathsf{Nat}}t` by itself imply that $`t` has no value? Which theorem shows that it has none?
 
-*Joint proof · 30 minutes.* Derive the sum case at arbitrary $`p,S`, recording the code-at premise for the second call and the operand order at the final instruction.
+*37.2.* Write the zero-test case of Theorem 37.2 in the style of the successor case. Use both zero-test rules of Session 35.
 
-*Proof review · 20 minutes.* Use the difference example to test the stack discipline and the last counter value.
+*37.3.* Suppose $`\rho` and $`\vec{u}` were fixed before the induction, so that the property of a derivation with conclusion $`\Gamma\vdash t:T` were only $`\llbracket t\rrbracket \rho\lhd_T[\vec{x}\mapsto\vec{u}]t`. Which case of §37.2 can no longer be proved? Name the step that fails.
 
-*Facilitator’s hint.* Write the conclusion of the first induction hypothesis in full. It supplies both inputs that must change when invoking the second one.
+*37.4.* Replace $`\Downarrow` by the judgment $`\Downarrow^{-}` of [§36.1](chapter-36/index.html#ch36-s1), which lacks the fixed-point rule, in Definition 36.3, in Lemmas 36.4 and 36.5 and in the proof of Theorem 37.2. Which proofs still go through? Which step of §37.3 fails? Check the answer against $`K\,\overline{1}`.
 
-# Solutions
+*Further problem.* Let $`t` and $`t'` be closed terms of type $`\mathsf{Nat}\to\mathsf{Nat}` with $`\llbracket t\rrbracket =\llbracket t'\rrbracket `. Show that for every closed term $`u` of type $`\mathsf{Nat}` and every number $`n`, $`t\,u\Downarrow\overline{n}` if and only if $`t'\,u\Downarrow\overline{n}`. Then give two closed terms of type $`\mathsf{Nat}\to\mathsf{Nat}` with the same meaning that do not evaluate to the same value.
+
+# Reading for the Seminar
 %%%
 tag := "ch37-s6"
 number := false
 %%%
 
-*1.* Use `Ivar x, Iconst 2, Iopp, Iadd, Iconst 1, Iadd`. After the third instruction the stack is `[-2,8,11]`, and the final result above the suffix is 7.
+*Definitions · 10 minutes.* Write the induction property $`P` with its two inner quantifiers. Work the example $`y\,x` of §37.1 on the board, and compare it with the application case.
 
-*2.* The second block begins at $`p + \lvert K(a)\rvert` in the original ambient list. The induction hypothesis at zero says nothing about its instructions at that address.
+*Joint proof · 30 minutes.* The fixed-point case. Begin with the hand computation for $`K`: $`g_0,g_1,g_2\lhd K`. Then one person sets up $`f`, $`h`, $`w` and $`\mathcal{A}` (steps 1–4), another applies the hypothesis and the fixed-point rule (steps 5–6), and a third applies Lemma 36.5 and Scott induction (steps 7–8).
 
-*3.* With operands 8 and 3 the erroneous sequence negates 8, then pushes 3, then adds to obtain $`- 5` instead of 5.
+*Proof review · 20 minutes.* Derive Theorem 36.2 (§37.4) and apply it to $`K\,\overline{1}`. Go through the abstraction case and locate the extended pair. Use Exercise 37.4 to locate the one place where the fixed-point rule enters.
 
-*Further problem.* Fix the *same* ambient list C for both paths. Let K be the code for e and assume K occurs at p. State the suffix hypothesis at p plus the length of K, with initial stack consisting of eval(e,s) followed by S, and the same store s. If J is named explicitly, assume it is placed at that suffix address; the actual suffix hypothesis must concern transitions of C. The block theorem constructs the first path and gives exactly the three components of the suffix hypothesis's initial configuration. Finite-path transitivity now reaches q. A suffix proof run in a separate list at counter zero cannot simply be pasted here: instructions and any branch destinations must refer to the common ambient program. This exercise is a small consumer of the compiler theorem, which explains each of its quantified parameters.
+*Facilitator’s hint.* The term $`w` never changes. Only the semantic element moves along the increasing sequence of approximations.
+
+# Solutions and Further Reading
+%%%
+tag := "ch37-s7"
+number := false
+%%%
+
+*37.1.* No. Lemma 36.4(a) gives $`\bot\lhd_{\mathsf{Nat}}t` for every closed $`t`, so the relation carries no information here. Suppose $`t\Downarrow v`. The value is a numeral $`\overline{n}`, and Theorem 36.1 gives $`\llbracket t\rrbracket =n`, contradicting $`\llbracket t\rrbracket =\bot`. So $`t` has no value. The argument uses soundness, not adequacy.
+
+*37.2.* Let $`t=\mathsf{iszero}\ t_1`, with hypothesis $`\llbracket t_1\rrbracket \rho\lhd_{\mathsf{Nat}}t_1^{*}`. The meaning $`\llbracket \mathsf{iszero}\ t_1\rrbracket \rho` is $`\mathrm{tt}` if $`\llbracket t_1\rrbracket \rho=0`, $`\mathrm{ff}` if $`\llbracket t_1\rrbracket \rho=n+1` for some $`n`, and $`\bot` if $`\llbracket t_1\rrbracket \rho=\bot`. If it is $`\mathrm{tt}`, the hypothesis gives $`t_1^{*}\Downarrow0`, and the first zero-test rule gives $`\mathsf{iszero}\ t_1^{*}\Downarrow\mathsf{true}`. If it is $`\mathrm{ff}`, the hypothesis gives $`t_1^{*}\Downarrow\mathsf{succ}\ \overline{n}`, and the second zero-test rule gives $`\mathsf{iszero}\ t_1^{*}\Downarrow\mathsf{false}`.
+
+*37.3.* The abstraction case, at step 4. There the hypothesis for the body is applied to $`\rho[y\mapsto d]` and $`\vec{u},u`, where the pair $`(d,u)` was chosen in step 1, after the induction hypothesis was formed. The premise $`\Gamma,y{:}S\vdash t_1:U` also has a larger context than $`\Gamma`. A fixed $`\rho` is not an environment for it, and fixing a value for $`y` in advance would fix $`d` before step 1 chooses it.
+
+*37.4.* Lemma 36.4 uses no evaluation rule, and Lemma 36.5 uses only the application rule, so both proofs go through for $`\Downarrow^{-}`. The cases of §37.2 use only the rules for values, successor, predecessor, zero test, conditional and application, which $`\Downarrow^{-}` keeps. Step 6 of §37.3 fails: without the fixed-point rule, a value of $`h\,w` need not be a value of $`w`. For $`K`, the relation $`\llbracket K\rrbracket \lhd K` for $`\Downarrow^{-}` would require $`K\,\overline{1}\Downarrow^{-}\overline{0}` at the related pair $`(1,\overline{1})`, and §36.1 showed that $`K\,\overline{1}` has no value under $`\Downarrow^{-}`.
+
+*Further problem.* The clause for application gives $`\llbracket t\,u\rrbracket =\llbracket t\rrbracket (\llbracket u\rrbracket )=\llbracket t'\rrbracket (\llbracket u\rrbracket )=\llbracket t'\,u\rrbracket `. If $`t\,u\Downarrow\overline{n}`, Theorem 36.1 gives $`\llbracket t\,u\rrbracket =n`, so $`\llbracket t'\,u\rrbracket =n`, and Theorem 36.2 gives $`t'\,u\Downarrow\overline{n}`. The converse is symmetric. The terms $`\lambda x{:}\mathsf{Nat}.\,x` and $`\lambda x{:}\mathsf{Nat}.\,(\lambda z{:}\mathsf{Nat}.\,z)\,x` both mean the identity on $`\mathbb{N}_\bot`. Each is a value and evaluates only to itself, and they are different terms. Equal meanings at a function type give equal results on ground observations, not equal values.
+
+*Further reading · Stages and derivations.* Adequacy is an existence result. Let $`t=\mathsf{fix}\ h` be closed of type $`\mathsf{Nat}\to\mathsf{Nat}` and $`f=\llbracket h\rrbracket `. Suppose a program computes the stages $`f^{j}(\bot)(k)` mechanically and finds the number 3 at some stage $`j`. These stages form an increasing sequence in the flat domain $`\mathbb{N}_\bot` whose least upper bound is $`\mathrm{lfp}(f)(k)=\llbracket t\,\overline{k}\rrbracket `, so $`\llbracket t\,\overline{k}\rrbracket =3`, and adequacy supplies a derivation of $`t\,\overline{k}\Downarrow\overline{3}`. Nothing relates the stage $`j` to the size of that derivation. If the first hundred stages give $`\bot`, nothing follows, since an increasing sequence may first reach a number at stage 101. To conclude that a term has no value, one needs a proof that the limit is $`\bot`, and then the argument at the end of §37.4 applies.
+
+*Further reading · Full abstraction.* Adequacy compares meanings only through ground observations. The converse question asks whether two terms that no closed program of ground type can tell apart have equal meanings. For PCF and this semantics the answer is no. See the chapter on full abstraction in the Cambridge notes and Plotkin, “LCF considered as a programming language”, _Theoretical Computer Science_ 5 (1977). Session 38 applies adequacy to new terms.

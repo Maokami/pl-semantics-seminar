@@ -1,36 +1,23 @@
 # Programming Languages
 
-[영어판 42회](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/index.html) · [한국어판 1–7회](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/index.html) · [모임별 읽을 절과 원전](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/seminar/index.html) · [장별 분량 검토](chapter-review.ko.md)
+[교재 첫 화면](site/html-multi/index.html) · [회차별 주제와 원전](../docs/curriculum.ko.md)
 
-한국어판은 1–7장 전체를 수록한다. 기존 인쇄본은 42회 일정에 따른 판본이다. v1.2의 영어 시범 장과 부록은 아래 HTML에서 읽는다.
+영어 장 원고는 `PLBook/Ch01.lean`부터 `PLBook/Ch38.lean`까지다. [루트 문서](PLBook.lean)가 장과 부록의 순서를 정한다. 절 태그 `chNN-sK`는 `chapter-NN/index.html` 안에서 해당 절을 가리킨다.
 
-[영문 PDF](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/print/pl-study.pdf) · [한국어 PDF](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/ko/print/pl-study-ko.pdf) · [한국어 강의계획서](https://pl-semantics-seminar.moonlitwhale2.chatgpt.site/print/syllabus-ko.pdf)
-
-## 원고
-
-v1.2의 기준은 [확정 커리큘럼](../docs/curriculum.ko.md)이다. [기존 영어 3장](PLBook/Ch03.lean)을 같은 자리에서 개정했다. 회차표와 다른 장에서 참조하는 주소, 절 책갈피와 정리 3.2의 번호를 유지하므로 참가자 모두가 같은 장을 연다. [시범 장 HTML](site/html-multi/chapter-03/index.html) 첫 쪽의 회차 카드가 지정 읽기다. [IMP 언어 카드](PLBook/LanguageCard.lean)와 [영어–한국어 용어집](PLBook/Glossary.lean)은 영어판의 번호 없는 부록이다. 영어 용어집의 Korean 열이 모임 대응어의 기준이다.
-
-[한국어 3회](PLBook/Ko/Ch03.lean)와 [한국어 언어 카드](PLBook/Ko/LanguageCard.lean)는 한국어판 초안으로 보존한다. [장별 반영 목록](../docs/imp-alignment.ko.md)은 부록 B의 원전 대조 결과다. [공유 모듈과 증명](PLBook/IMP)은 영어 3장을 빌드할 때 함께 검사한다.
-
-영문 본문은 PLBook/ChNN.lean, 기존 번역은 PLBook/Ko/ChNN.lean에 있다. 기존 번역에서는 수식·Lean 코드·절 태그를 보존한다. sessions.json은 회차, 읽기 범위, 원전 및 문제를 지정한다. 운영 자료는 수학 본문과 별도로 구성한다.
-
-파일명 ChNN.lean의 NN은 차례에 표시되는 장 번호다. 원고의 `file`과 `tag`는 장별 웹 주소·PDF 링크·절 책갈피를 식별한다. 장을 재배치할 때도 이미 공유한 링크가 같은 내용을 열 수 있도록 이 식별자를 유지한다.
-
-## 수식 표기
-
-식의 큰걸음 평가는 `σ ⊢ e ⇓ n`, 명령의 큰걸음 실행은 `σ ⊢ c ⇓ σ′`로 쓴다. 상태를 인자로 받는 평가 함수는 `eval(e,σ)`다. §1.4–1.5에서 판단을 정의하고 함수와의 대응을 증명한다. 작은걸음은 `⟨c,σ⟩ → ⟨c′,σ′⟩`, 영 번 이상의 전이는 `→*`, 정확히 n번의 전이는 `→ⁿ`로 쓴다. 닫힌 항의 평가에는 `t ⇓ v`를 쓴다. 환경이나 저장소를 추가하는 언어는 판단을 정의할 때 그 구성 요소를 명시한다.
-
-타입 판단은 `Γ ⊢ t : A`다(§18.1). 호어 논리에서 `⊢_H {P} c {Q}`는 증명 체계에서의 유도 가능성을, `⊨ {P} c {Q}`는 모든 종료 실행에 대한 부분 정확성을 뜻한다(§11.1). 원전의 다른 규약은 해당 절에서 대조하고 Lean 식별자는 원전의 철자를 따른다.
+| 원고 | 내용 |
+|---|---|
+| [IMP Language Card](PLBook/LanguageCard.lean) | 산술식, 상태, 명령의 실행과 전이, 증명 출처 |
+| [Stack Machine Card](PLBook/MachineCard.lean) | 명령어, 기계 구성, 코드 배치와 컴파일 |
+| [Lambda Language Card](PLBook/LambdaCard.lean) | 바인딩, 평가, 타입 판단과 안전성 표 |
+| [Glossary](PLBook/Glossary.lean) | 검사 표시의 의미, 부별 용어, 한국어 대응어와 정의 위치 |
 
 ## 빌드
 
-Lean과 Verso 버전은 lean-toolchain과 lake-manifest.json에 고정되어 있다. Typst, Python 3, uv, Chrome 또는 Chromium을 사용한다.
+Lean과 Verso 버전은 [lean-toolchain](lean-toolchain)과 [lake-manifest.json](lake-manifest.json)에 고정했다. 이 디렉터리에서 다음 명령을 실행한다.
 
 ```sh
-typst compile ../curriculum.typ ../curriculum.pdf
-python3 build_site.py
-uv run print_book.py
-python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
+lake build +PLBook.Ch03
+python3 build_site.py --edition en
 ```
 
-build_site.py는 두 Verso 책을 생성하고 회차표로 탐색 순서를 정한다. print_book.py는 이 HTML에서 수식과 Lean 코드를 조판한 뒤 pypdf로 실제 장 시작 쪽과 책갈피를 연결한다. 두 스크립트 모두 --edition en 또는 --edition ko를 받는다. 한 장만 검사하려면 lake build +PLBook.Ch18 또는 lake build +PLBook.Ko.Ch03을 사용한다.
+첫 명령은 3회 원고와 그 원고가 가져오는 Lean 증명을 검사한다. 두 번째 명령은 전체 영어 책을 생성하고 첫 화면과 사이드바에 회차별 차례를 붙인다. 출력은 `site/html-multi/index.html`이다. 한국어 초안은 [PLBook/Ko](PLBook/Ko)에 보관한다.

@@ -23,8 +23,7 @@ from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 
-from editions import chapter_link, units
-from seminar import chapter_slug
+from editions import chapter_link, chapter_slug, units
 
 ROOT = Path(__file__).resolve().parent
 TITLE = "Programming Languages"
@@ -186,7 +185,7 @@ def print_current(page):
 
 def contents(chapters, groups, ko):
     entries = {n: (title, start) for n, title, start in chapters}
-    pages = [groups] if ko else [groups[:3],groups[3:]]
+    pages = [groups] if ko else [groups[:1], groups[1:]]
     result = []
     for i, subset in enumerate(pages):
         heading = "차례" if ko else ("Contents" if i == 0 else "Contents, continued")
@@ -223,10 +222,10 @@ def generate(site, chrome, ko=False):
         paragraphs = page.locator("main .titlepage > p")
         intro_parts = [p.inner_text() for p in paragraphs.all() if not p.locator("a").count()]
         if not ko: intro_parts = intro_parts[:2]
-        if len(intro_parts) < 2:
-            raise ValueError("Expected the two introduction paragraphs on the book title page.")
+        if not intro_parts:
+            raise ValueError("Expected an introduction paragraph on the book title page.")
         intro = "".join(f'<p>{html.escape(" ".join(p.split()))}</p>' for p in intro_parts)
-        subtitle = '한국어판 · 1–7회' if ko else 'English edition · Sessions 1–42'
+        subtitle = '한국어판 · 1–7회' if ko else 'English edition · Sessions 1–38'
         cover = (f'<section class="print-front"><p class="chapter-no">{subtitle}</p>'
                  f'<h1>{book_title}</h1>{intro}</section>')
         css = CSS + ('@page {@bottom-left {content:"프로그래밍 언어 이론"}}' if ko else '')
@@ -246,9 +245,7 @@ def generate(site, chrome, ko=False):
             pages = len(PdfReader(io.BytesIO(pdf)).pages)
             chapters.append((number, title, next_page))
             next_page += pages
-            # Existing handout links use the original filenames independently of the HTML URLs.
-            handout = {4: "chapter-25", 5: "chapter-04", 6: "chapter-05", 7: "chapter-06"}.get(
-                number, chapter_slug(number, ko))
+            handout = chapter_slug(number, ko)
             (directory / f"{handout}.pdf").write_bytes(pdf)
             articles.append(page.locator(".print-chapter").evaluate("el => el.outerHTML"))
             print(f"{number:02} {title}: {pages} pages", flush=True)
@@ -291,7 +288,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("site", type=Path, default=ROOT / "site/html-multi", nargs="?")
     parser.add_argument("--chrome")
-    parser.add_argument("--edition", choices=["en","ko","both"], default="both")
+    parser.add_argument("--edition", choices=["en","ko","both"], default="en")
     args = parser.parse_args()
     if args.edition != "ko": generate(args.site.resolve(), chrome_path(args.chrome))
     if args.edition != "en": generate(args.site.resolve() / "ko", chrome_path(args.chrome), True)

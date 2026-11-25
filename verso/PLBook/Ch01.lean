@@ -169,40 +169,6 @@ The final sentence of the reverse proof matters. The induction on syntax produce
 
 The forward proof begins with evidence of evaluation and examines its last rule. The reverse proof begins with syntax and constructs that evidence. In this language an addition has exactly one premise per child. For a command that repeats its body, one premise may concern the very same command in a new store. It is then a smaller premise derivation even though the command itself has the same syntax.
 
-# Substitution · Session 11 reading
-%%%
-tag := "ch01-s6"
-number := false
-%%%
-
-Read this section in Session 11, when assignment is related to substitution in an assertion.
-
-*Definition 1.6 (Substitution).* For $`e,t \in E` and $`x \in V`, write $`e\left\lbrack {t/x} \right\rbrack` for the tree obtained by replacing each occurrence of $`x` in $`e` with $`t`. The replacement is simultaneous. Variable occurrences inside the inserted tree are left as they were.
-
-$$`\begin{matrix} {\operatorname{lit}(n)\left\lbrack {t/x} \right\rbrack} & {= \operatorname{lit}(n)} \\ {\operatorname{var}(y)\left\lbrack {t/x} \right\rbrack} & {= \left\{ \begin{matrix} {t\ } & {\text{if}\ y = x} \\ {\operatorname{var}(y)\ } & {\text{if}\ y \neq x} \end{matrix} \right.} \\ {\operatorname{add}\left( {e_{1},e_{2}} \right)\left\lbrack {t/x} \right\rbrack} & {= \operatorname{add}\left( {e_{1}\left\lbrack {t/x} \right\rbrack,e_{2}\left\lbrack {t/x} \right\rbrack} \right).} \end{matrix}`
-
-For subtraction, $`(e_1-e_2)[t/x]=e_1[t/x]-e_2[t/x]`.
-
-*Example 1.3.* Substitute $`x + 1` for $`x` in $`x + x`. The resulting expression is $`\left( {x + 1} \right) + \left( {x + 1} \right)`. If $`s(x) = 2`, it evaluates to $`6`. Evaluating the original $`x + x` in the updated store $`s\left\lbrack {x\mapsto 3} \right\rbrack` gives the same result. The value assigned to $`x` by this update is computed in the original store.
-
-*Theorem 1.5 (Substitution lemma) \[This book\] \[Paper proof only: proof in this section\].* For $`e,t \in E`, $`x \in V` and $`s \in \Sigma`,
-
-$$`\operatorname{eval}\left( {e\left\lbrack {t/x} \right\rbrack,s} \right) = \operatorname{eval}\left( {e,s\left\lbrack {x\mapsto\operatorname{eval}\left( {t,s} \right)} \right\rbrack} \right).`
-
-*Proof.* Set $`u = \operatorname{eval}\left( {t,s} \right)` and $`s' = s\left\lbrack {x\mapsto u} \right\rbrack`. Use structural induction on $`e`. For a literal, both sides give its integer. For $`\operatorname{var}(y)` with $`y = x`, the left side evaluates the inserted tree to $`u` and the right side reads $`s'(x) = u`. When $`y \neq x`, the original leaf remains, and $`s'(y) = s(y)`. For an addition, the definitions of substitution and evaluation give
-
-$$`\begin{matrix} {\operatorname{eval}\left( {\operatorname{add}\left( {e_{1},e_{2}} \right)\left\lbrack {t/x} \right\rbrack,s} \right)} & {= \operatorname{eval}\left( {e_{1}\left\lbrack {t/x} \right\rbrack,s} \right) + \operatorname{eval}\left( {e_{2}\left\lbrack {t/x} \right\rbrack,s} \right)} \\ & {= \operatorname{eval}\left( {e_{1},s'} \right) + \operatorname{eval}\left( {e_{2},s'} \right)} \\ & {= \operatorname{eval}\left( {\operatorname{add}\left( {e_{1},e_{2}} \right),s'} \right).} \end{matrix}`
-
-The middle equality uses the two induction hypotheses. For subtraction the same two equalities identify the minuends and the subtrahends. Subtracting gives the desired equality.$`\square`
-
-In an imperative language an assignment to $`x` changes the store in which subsequent expressions are evaluated. The lemma gives a way to calculate their values in the original store by substituting the right-hand side of the assignment.
-
-*Substitution under a binder.* Reynolds §1.4 treats languages with binding. For example, let $`P` be a predicate of two integers and consider the formula $`\forall y,P\left( {x,y} \right)` with $`x \neq y`. Substituting the free variable $`y` for $`x` should preserve the inserted variable’s dependence on the surrounding store. A literal replacement gives $`\forall y,P\left( {y,y} \right)`, where the quantifier captures it. Choose a fresh name $`z`, rename the bound variable, and then substitute to get $`\forall z,P\left( {y,z} \right)`. Definition 1.6 needs no renaming step because none of our arithmetic constructors binds a name.
-
-Successive substitutions can expose a dependency between two assignments. Let the expression to observe be `x + y`, with distinct names, and consider the instructions `x := y; y := 1`. Starting from a store giving `x = 9` and `y = 4`, the final expression has value 5. To express the observation in the original store, eliminate the *later* assignment first. Replacing `y` by 1 in the observed expression gives `x + 1`. Now eliminate the earlier assignment by replacing `x` by `y`, giving `y + 1`. Its value at the original store is indeed 5.
-
-Doing the two textual replacements in program order would first give `y + y` and then `1 + 1`. The loss of the old lookup of `y` identifies the error. The instructions update stores in their execution order. An observation of the final store is transported in the opposite direction, from the final observation back across each update. Each transport step is one application of the substitution lemma. This same calculation will reappear for a Boolean observation when a postcondition is moved back across a sequence of assignments.
-
 # Exercises
 %%%
 tag := "ch01-s7"
@@ -224,7 +190,7 @@ Call $`S \subseteq V` sufficient for $`e` if agreement on $`S` implies equal eva
 
 *1.4 (Derivations).* Extend the grammar with $`\operatorname{neg}(e)` for integer negation. Add one equation to Definition 1.3 and one rule to Definition 1.5. Prove the new case in each direction of Theorem 1.3. Write down exactly what your induction hypothesis supplies in each proof.
 
-*1.5 (Substitution · Session 11).* For distinct names $`x` and $`y`, take $`e = x + y` and $`t = y + 1`. Compare $`e\left\lbrack {t/x} \right\rbrack` and $`e\left\lbrack {x/y} \right\rbrack` in a store with $`s(x) = 4` and $`s(y) = 2`. For each substitution identify the single store update that yields the same result on the original tree.
+*1.5 (Substitution · [Session 11](chapter-11/index.html#ch11-s1)).* For distinct names $`x` and $`y`, take $`e = x + y` and $`t = y + 1`. Compare $`e\left\lbrack {t/x} \right\rbrack` and $`e\left\lbrack {x/y} \right\rbrack` in a store with $`s(x) = 4` and $`s(y) = 2`. For each substitution identify the single store update that yields the same result on the original tree.
 
 *Further problem.* Now include binary subtraction, as in Definition 1.1. Say that a name is essential to an expression if two stores differing only at that name can give different values. Does membership in the set of free variables characterize essential names? Give an exact decision procedure for the full language and justify both directions.
 
@@ -328,7 +294,7 @@ Glynn Winskel, [_The Formal Semantics of Programming Languages: An Introduction_
 
 Tobias Nipkow and Gerwin Klein, [_Concrete Semantics with Isabelle/HOL_](https://concrete-semantics.org/), chapter 3, §§3.1.1–3.1.2, pp. 27–29. To revisit the computation in §1.2, start at the datatype for arithmetic expressions and stop after the equations for aval. The authors take variable names to be strings. The IMP syntax of Definition 1.1 makes the same choice. [Isabelle theory and worked evaluations.](https://isabelle.in.tum.de/library/HOL/HOL-IMP/AExp.html)
 
-John C. Reynolds, [_Theories of Programming Languages_](https://www.cs.cmu.edu/~jcr/tpl-toc.html) (Cambridge University Press, 1998), chapter 1, §§1.1–1.2, pp. 1–11, and §1.4, starting p. 15. For §1.2 and the Session 11 reading above. Follow how an interpretation is specified on constructors. For binding, track which variable occurrences remain free after substitution.
+John C. Reynolds, [_Theories of Programming Languages_](https://www.cs.cmu.edu/~jcr/tpl-toc.html) (Cambridge University Press, 1998), chapter 1, §§1.1–1.2, pp. 1–11, and §1.4, starting p. 15. For §1.2 and [Session 11, §11.1](chapter-11/index.html#ch11-s1). Follow how an interpretation is specified on constructors. For binding, track which variable occurrences remain free after substitution.
 
 Benjamin C. Pierce, [_Types and Programming Languages_](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf) (MIT Press, 2002), chapter 3, §§3.2–3.3, pp. 26–31. Optional for §1.1 here. Derive the induction cases from Pierce’s grammar, then do the same for Definition 1.1.
 

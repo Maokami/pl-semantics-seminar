@@ -1,124 +1,191 @@
 import VersoManual
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Finite Approximations of a Loop" =>
 %%%
-tag := "ch08"
-file := "chapter-08"
+tag := "ch09"
+file := "chapter-09"
 %%%
 
-[Chapter PDF](print/chapter-08.pdf) · [Session 9](seminar/index.html#week-09)
+* *Definitions.* Stores and guard values $`B(b,s)` ([IMP language card A.2 and A.4](imp-card/index.html#imp-a4)). Outcomes $`\Sigma_\bot`, state transformers, strict extension $`h^\dagger`, and the meanings $`f_c` of skip, assignment, sequencing and conditionals ([Session 8, §§8.1–8.2](chapter-08/index.html#ch08-s1)). The information order on outcomes and on state transformers, increasing sequences and least upper bounds ([Session 8, Definitions 8.7 and 8.9](chapter-08/index.html#ch08-s4)). The form of an increasing sequence of outcomes and its least upper bound ([Session 8, Lemma 8.10](chapter-08/index.html#ch08-s4)).
+* *New terms.* Unfolding operator, approximation, fixed point, least fixed point, continuous operator. [Glossary and label key](glossary/index.html)
+* *Theorem 9.5 \[Paper proof only: proof in this section\].* For every loop $`W=\mathsf{while}\ b\ \mathsf{do}\ c`, the least upper bound $`f_W` of the approximations $`w_0\sqsubseteq w_1\sqsubseteq\cdots` satisfies $`F(f_W)=f_W`, and $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
+* *Source.* Reynolds, _Theories of Programming Languages_, §2.4, proves the least fixed-point theorem for continuous functions and uses it to define the meaning of a loop as a state transformer. We prove the instance for the unfolding operator of a loop directly. \[Corresponding: CS Theorem 11.12\] Nipkow and Klein prove the same statement for continuous functions on sets and apply it to loop meanings that are relations between stores. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1.2, p. 185](https://concrete-semantics.org/concrete-semantics.pdf#page=195)
+* *Board case.* Part (a), that $`f_W` is a fixed point. Fix a store $`s` and split on the three cases of Definition 9.1. In the third case the outcomes at $`s` are the outcomes at the body’s result $`m`, one stage later.
+* *Proof outline.* (a) At each store, compare the sequence $`w_n(s)` with the sequence $`w_n(m)` using $`w_{n+1}(s)=w_n(m)` and Lemma 8.10. (b) Prove $`Q(n)\coloneqq w_n\sqsubseteq g` by induction on $`n` with Lemma 9.2, then take the least upper bound at each store.
+* *From Session 8.* Session 8 gave a meaning to every command except the loop. Here the meaning of a loop is the least upper bound of an increasing sequence of state transformers, computed store by store with Lemma 8.10.
 
-The equation “execute the body, then execute the loop again” admits spurious solutions. For an always-true loop whose body is skip, the equation merely requires that a proposed meaning equal itself. To choose the meaning determined by finite terminating executions, start with no known results and unfold the loop a finite number of times.
+Session 8 gave a meaning $`f_c:\Sigma\to\Sigma_\bot` to every command except the loop. [Session 7](chapter-07/index.html) showed that $`W=\mathsf{while}\ b\ \mathsf{do}\ c` has the same executions as $`\mathsf{if}\ b\ \mathsf{then}\ (c;W)\ \mathsf{else}\ \mathsf{skip}`. So $`f_W` should satisfy an equation in which $`f_W` occurs on both sides. For $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}` that equation says $`f_W(s)=f_W(s)` at every store. Every state transformer satisfies it, including the identity, which would claim that the loop returns at once. This session chooses one solution. Start from a state transformer that knows no results, unfold the loop a finite number of times, and take the limit.
 
-*Sources.* Reynolds, _Theories of Programming Languages_, §§2.3–2.4, especially the least fixed-point theorem. Fix the meaning of the body before varying the meaning of the recursive occurrence. The joint theorem identifies exactly which finite runs are visible at a particular unfolding depth. [Reynolds, chapter 2.](https://www.cs.cmu.edu/~jcr/tpl-toc.html)
-
-# The unfolding operation
+# The unfolding operator
 %%%
-tag := "ch08-s1"
-%%%
-
-Fix a guard $`b` with truth value $`B\left( {b,s} \right)` in each state and a body meaning $`g:\Sigma\rightarrow\Sigma_{\bot}`. The flat lifted outcomes and their pointwise function order are those of Chapter 8. For a proposed meaning $`h` of the recursive occurrence, define $`F(h)` by
-
-$$`F(h)(s) = \left\{ \begin{matrix} {s\ } & {\text{if the guard is false at}\ s} \\ {\bot\ } & {\text{if the guard is true and}\ g(s) = \bot} \\ {h(u)\ } & {\text{if the guard is true and}\ g(s) = u \in \Sigma} \end{matrix} \right..`
-
-An *iteration* counts one completed body execution. Testing the false guard at exit executes zero bodies. Let $`w_{0}(s) = \bot` at every input and put $`w_{n + 1} = F\left( w_{n} \right)` for natural $`n`. The first approximation $`w_{1}` can already discover an exit without executing a body. In the true case it consults $`w_{0}` on the successor state, so it cannot yet report a terminating state there.
-
-*Monotonicity.* If $`h \sqsubseteq h'`, then $`F(h) \sqsubseteq F\left( h' \right)`. At an input taking either of the first two cases the results are identical. In the remaining case compare $`h(u)` and $`h'(u)`. Since $`w_{0}` is least, $`w_{0} \sqsubseteq w_{1}`. Monotonicity propagates the inequality to every adjacent pair.
-
-*Body divergence and recursive divergence.* Take a body that returns its input whenever `y = 0` and diverges otherwise. Such a meaning is realizable with a loop that repeatedly executes skip while `y ≠ 0`. Use `x > 0` as the guard of the outer loop. On an input with `x = 0` and `y = 1`, every positive approximation returns the input. The guard bypasses the body. On an input with `x = 1` and `y = 1`, every positive approximation gives bottom because the body gives bottom. In this branch changing the proposed recursive meaning `h` can have no effect.
-
-There is a third case. At `x = 1` and `y = 0` the body returns the same state `s` and the guard stays true. Consequently `F(h)(s) = h(s)` for *every* proposal `h`. Starting the iteration at bottom again gives bottom at every stage, this time by induction rather than by inspecting the body alone. Both diverging inputs ultimately have the same denotation. The defining equation distinguishes their explanations: one never reaches a recursive call, the other repeatedly reaches one. A proof of monotonicity compares proposed recursive meanings only in this last branch.
-
-# Counting completed bodies
-%%%
-tag := "ch08-s2"
+tag := "ch09-s1"
 %%%
 
-A loop terminates after exactly $`k` body executions in this model when there exist states $`s_{0},\ldots,s_{k}` starting at $`s_{0} = s`, with the guard true and $`g\left( s_{i} \right) = s_{i + 1}` at each $`i < k`, and the guard false at $`s_{k}`. These states determine the final result $`s_{k}`. If $`k = 0`, the starting state already satisfies the exit condition.
+Take $`W=\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1`. By [A.4](imp-card/index.html#imp-a4) the guard $`x<2` abbreviates $`\neg(2\le x)`, so $`B(x<2,s)=\mathsf{true}` exactly when $`s(x)<2`. The body returns $`s[x\mapsto s(x)+1]`. If $`f_W` is to respect the unfolding of Session 7, it must satisfy
 
-*Theorem 9.1.* For any such run and any $`n`, the result $`w_{n}(s)` is bottom for $`n \leq k` and equals $`s_{k}` for $`n \geq k + 1`.
+$$`f_W(s)=\begin{cases} s & \text{if } s(x)\ge2,\\ f_W\bigl(s[x\mapsto s(x)+1]\bigr) & \text{if } s(x)<2.\end{cases}`
 
-*Proof.* Induct on $`k`, stating the claim for all allowed starting states and all $`n`. For $`k = 0`, $`w_{0}` gives bottom. Every positive stage tests the false guard and returns $`s = s_{0}`. For a run of length $`k + 1`, the initial guard is true and $`g(s) = u` begins a run of length $`k`. Stage zero returns bottom. At stage $`n + 1`, the equation gives $`w_{n + 1}(s) = w_{n}(u)`. The induction hypothesis applied at $`u` gives bottom for $`n \leq k` and the final state for $`n \geq k + 1`. Shifting the stage index back by one proves the claim for length $`k + 1`. $`\square`
+The right side uses $`f_W` at another store. Replace $`f_W` on the right by a proposed meaning $`h` and read the right side as an operation on $`h`.
 
-*Converse.* If $`w_{n}(s) = t` is a state, there is a finite run to $`t` with fewer than $`n` body executions. Induct on $`n`. The premise is impossible at zero. At the next stage a false guard gives an immediate exit. A true guard must yield an ordinary body result $`u` and a state result from the preceding approximation at $`u`. Prepend this body execution to the shorter run supplied by induction. This argument excludes a fabricated state result at any finite depth.
+*Definition 9.1 (Unfolding operator and approximations).* Fix $`W=\mathsf{while}\ b\ \mathsf{do}\ c` and the meaning $`f_c` of its body. For a state transformer $`h:\Sigma\to\Sigma_\bot`, define the state transformer $`F(h)` by
 
-*Example.* Let the body increment $`x` and the guard be $`x < 2`. At the state with $`x = 2`, stage 1 already returns that state. From $`x = 1`, stage 1 gives bottom and stage 2 returns the state with $`x = 2`. From $`x = 0`, the first state result is at stage 3. These are three distinct inputs to the *same* functions $`w_{n}`. Store coordinates other than $`x` are preserved.
+$$`F(h)(s)=\begin{cases} h^\dagger\bigl(f_c(s)\bigr) & \text{if } B(b,s)=\mathsf{true},\\ s & \text{if } B(b,s)=\mathsf{false}.\end{cases}`
 
-*Which computation does the counter measure?* Consider an outer loop with guard `x > 0` and body `(while y > 0 do y := y − 1); x := 0`. Let the input have `x = 1` and `y = 100`. The inner loop completes one hundred body executions. The assignment then changes `x` to zero, and the outer guard becomes false. The outer run has exactly one completed body. Its result first occurs in `w₂`. The entire inner computation is included in the already fixed meaning `g` of the outer body.
+The function $`F` from state transformers to state transformers is the *unfolding operator* of $`W`. The *approximations* of $`W` are the state transformers $`w_n` defined by $`w_0(s)=\bot` for every store $`s` and $`w_{n+1}=F(w_n)`. We call $`n` the *stage* of $`w_n`.
 
-Taking the inner loop in isolation gives a different calculation. At the same input its own first state result occurs at its stage 101. There is no contradiction between the two indices: each approximating sequence belongs to a specific occurrence of a loop, with its own fixed body meaning. Neither index measures machine time or counts all execution-rule applications. A single outer body can also fail to complete, in which case there is no successor state to which a smaller outer approximation can be applied. This example explains why the statement of Theorem 9.1 specifies a sequence of *completed* body executions and includes a final false test.
+The state transformer $`F(h)` is the meaning that Session 8 gives to $`\mathsf{if}\ b\ \mathsf{then}\ (c;W)\ \mathsf{else}\ \mathsf{skip}` when $`h` is used as the meaning of $`W`. Expanding the strict extension gives three cases at each store $`s`.
 
-A single natural-valued counter suffices to check the stage shift. The loop decrements a positive counter. Stage zero has no known outcome, a positive stage recognizes an exit at zero, and a positive counter consumes one stage to execute a body. In the successor case of the proof the smaller counter has precisely one fewer available unfolding.
+1. If $`B(b,s)=\mathsf{false}`, then $`F(h)(s)=s`.
+2. If $`B(b,s)=\mathsf{true}` and $`f_c(s)=\bot`, then $`F(h)(s)=\bot`.
+3. If $`B(b,s)=\mathsf{true}` and $`f_c(s)=m` with $`m\in\Sigma`, then $`F(h)(s)=h(m)`.
 
-```lean
-def countdownApprox : Nat → Nat → Option Nat
-  | 0, _ => none
-  | _ + 1, 0 => some 0
-  | stage + 1, counter + 1 => countdownApprox stage counter
+Only case 3 consults $`h`, and only at the single store $`m`. Case 2 occurs only when the body has no result.
 
-example (k : Nat) :
-    countdownApprox k k = none ∧ countdownApprox (k + 1) k = some 0 := by
-  induction k with
-  | zero => exact ⟨rfl, rfl⟩
-  | succ k ih => exact ih
-```
+Return to the example. Its body always returns a store, so case 2 never occurs. Take $`s(x)=1` and put $`m=s[x\mapsto2]`. Case 3 gives $`w_2(s)=w_1(m)`. The guard is false at $`m`, so case 1 gives $`w_1(m)=F(w_0)(m)=m`. Thus $`w_2(s)=s[x\mapsto2]`. The same calculation at three inputs gives the following table.
 
-# Least fixed point
+$$`\begin{array}{c|cccc} s(x) & w_0(s) & w_1(s) & w_2(s) & w_3(s)\\ \hline 2 & \bot & s & s & s\\ 1 & \bot & \bot & s[x\mapsto2] & s[x\mapsto2]\\ 0 & \bot & \bot & \bot & s[x\mapsto2] \end{array}`
+
+A store in the table is a final result. An entry $`\bot` says that the stage is too small to reach the exit. A store first appears at stage 1 from $`s(x)=2`, which needs no execution of the body, at stage 2 from $`s(x)=1`, which needs one, and at stage 3 from $`s(x)=0`, which needs two. In general, if the loop exits from $`s` after exactly $`k` completed executions of the body, then $`w_n(s)=\bot` for $`n\le k` and $`w_n(s)` is the store at the exit for $`n\ge k+1`. If $`w_n(s)` is a store, the loop exits from $`s` after fewer than $`n` executions of the body. Solutions and Further Reading states and proves this count.
+
+# The increasing sequence of approximations
 %%%
-tag := "ch08-s3"
+tag := "ch09-s2"
 %%%
 
-For an increasing sequence $`h_{n}` define its supremum pointwise as in Chapter 8. Call $`F` continuous here if it preserves suprema of such sequences. Our $`F` is continuous: for fixed $`s`, the exit and diverging-body branches are constant in $`h_{n}`, and the ordinary true branch evaluates the sequence at one fixed $`u`. In all three cases, taking the pointwise supremum before or after applying $`F` gives the same outcome.
+Read each row of the table from left to right. Each entry is $`\bot` or equal to the entry on its right. In the information order of Session 8, Definition 8.7, this says $`w_0\sqsubseteq w_1\sqsubseteq w_2\sqsubseteq w_3` at these three stores. A later stage never revises a result found at an earlier stage. It can only add results. The next two lemmas prove this for every loop.
 
-Set $`w` equal to the supremum of the $`w_{n}`. Continuity gives $`F(w) = \sup_{n}F\left( w_{n} \right) = \sup_{n}w_{n + 1} = w`. Dropping the first, least element leaves the same upper bounds. To prove leastness, take any fixed point $`p = F(p)`. By induction, $`w_{0} \sqsubseteq p` and $`w_{n} \sqsubseteq p` implies $`F\left( w_{n} \right) \sqsubseteq F(p) = p`. Thus $`p` bounds the chain, and $`w \sqsubseteq p`. This is the Kleene construction for this loop operator.
+*Lemma 9.2 (Monotonicity of unfolding) \[This book\] \[Corresponding: CS Lemma 11.3\] \[Paper proof only: proof in this section\].* For all state transformers $`h,h'`, if $`h\sqsubseteq h'` then $`F(h)\sqsubseteq F(h')`.
 
-*What leastness rules out.* Let `W` be `while x > 0 do skip`. For states where `x ≤ 0` its defining equation forces any fixed point `p` to return its input. For states with `x > 0` the equation reduces to `p(s) = p(s)`. At these inputs one may freely choose bottom or any state at all and still obtain a mathematical solution. In particular the everywhere-identity function is a fixed point. Assigning that meaning to the loop would allow an execution to return immediately at `x = 1`.
+*Proof.* Fix a store $`s` and use the three cases of Definition 9.1. In case 1 both sides equal $`s`. In case 2 both sides equal $`\bot`. In case 3 we have $`F(h)(s)=h(m)` and $`F(h')(s)=h'(m)`, and $`h(m)\sqsubseteq h'(m)` is the assumption $`h\sqsubseteq h'` at the store $`m`. $`\square`
 
-To identify the least solution, compute the stages as functions of the input. The first positive stage returns `s` on `x ≤ 0` and bottom on `x > 0`. Applying the operator again leaves this function unchanged. Its pointwise supremum is thus already attained at stage one. It lies below every fixed point since they agree on every forced exit and bottom lies below every outcome on the other inputs. Notice that the order compares complete results only at the same state. The proof never ranks stores according to how small their `x` value is. The order used to choose a denotation and an integer order used to prove termination serve different purposes.
+*Lemma 9.3 (Increasing approximations) \[This book\] \[Paper proof only: proof in this section\].* For every natural number $`n`, $`w_n\sqsubseteq w_{n+1}`.
+
+*Proof.* By induction on $`n` with the property
+
+$$`P(n)\quad\coloneqq\quad w_n\sqsubseteq w_{n+1}.`
+
+For $`P(0)`, $`w_0(s)=\bot\sqsubseteq w_1(s)` at every store $`s`. For the step, the induction hypothesis is $`P(n):\ w_n\sqsubseteq w_{n+1}`. Lemma 9.2 gives $`F(w_n)\sqsubseteq F(w_{n+1})`. By Definition 9.1 this is $`w_{n+1}\sqsubseteq w_{n+2}`, which is $`P(n+1)`. $`\square`
+
+*Definition 9.4 (Meaning of a loop).* At each store $`s` the outcomes $`w_0(s)\sqsubseteq w_1(s)\sqsubseteq\cdots` increase by Lemma 9.3. Define $`f_W(s)` as their least upper bound:
+
+$$`f_W(s)=\bigsqcup_{n\ge0}w_n(s).`
+
+By Lemma 8.10, $`f_W(s)=t` if some $`w_n(s)` is the store $`t`, and $`f_W(s)=\bot` if every $`w_n(s)` is $`\bot`. The state transformer $`f_W` is the least upper bound of the $`w_n` in the information order. Each $`w_n\sqsubseteq f_W`. If $`w_n\sqsubseteq h` for every $`n`, then at each store $`h(s)` bounds the outcomes $`w_n(s)`, so $`f_W(s)\sqsubseteq h(s)`. With Session 8 this gives a meaning $`f_c` to every command by structural recursion, since the body $`c` is an immediate part of $`W`.
+
+In the example, $`f_W(s)=s[x\mapsto\max(s(x),2)]`. From $`s(x)=j\le 2` the store first appears at stage $`3-j`. Hence for each $`n`, every store $`s` with $`s(x)=2-n` has $`w_n(s)=\bot`, while $`f_W(s)` is a store. No single approximation equals $`f_W`.
+
+# The least fixed point
+%%%
+tag := "ch09-s3"
+%%%
+
+Take $`W=\mathsf{while}\ 0<x\ \mathsf{do}\ \mathsf{skip}`. By A.4 the guard abbreviates $`\neg(x\le0)`. The body returns its input, so case 3 of Definition 9.1 has $`m=s`, and
+
+$$`F(h)(s)=\begin{cases} s & \text{if } s(x)\le0,\\ h(s) & \text{if } s(x)>0.\end{cases}`
+
+A *fixed point* of $`F` is a state transformer $`g` with $`F(g)=g`. Here $`F(g)=g` says $`g(s)=s` when $`s(x)\le0` and $`g(s)=g(s)` when $`s(x)>0`. The second condition holds for every $`g`. So the identity state transformer $`\mathrm{id}(s)=s` is a fixed point. So is the state transformer $`\ell` of [Session 8, §8.1](chapter-08/index.html#ch08-s1), with $`\ell(s)=s` when $`s(x)\le0` and $`\ell(s)=\bot` when $`s(x)>0`. The identity claims that the loop returns at once from a store with $`s(x)=1`. The least-height argument of [Session 2, §2.4](chapter-02/index.html#ch02-s4), applied to this loop, shows that no terminating derivation exists there.
+
+The approximations select $`\ell`. Stage 1 gives $`w_1=F(w_0)=\ell`, and $`F(\ell)=\ell`, so $`w_n=\ell` for every $`n\ge1` and $`f_W=\ell`. Moreover $`\ell\sqsubseteq g` for every fixed point $`g`. Both return $`s` when $`s(x)\le0`, and $`\ell(s)=\bot` lies below $`g(s)` otherwise. A fixed point that lies below every fixed point is a *least fixed point*. There is at most one, since two least fixed points lie below each other and the information order is antisymmetric. The order compares two outcomes at the same store. It never compares stores by the size of $`x`.
+
+*Theorem 9.5 (Least fixed point) \[Paper proof only: proof in this section\].* Let $`W=\mathsf{while}\ b\ \mathsf{do}\ c` have unfolding operator $`F` and approximations $`w_n` (Definition 9.1), and let $`f_W=\bigsqcup_n w_n` (Definition 9.4). Then (a) $`F(f_W)=f_W`, and (b) $`f_W\sqsubseteq g` for every state transformer $`g` with $`F(g)=g`.
+
+Part (a) says that $`f_W` solves the loop equation. Part (b) says that it is the least solution.
+
+*Proof of (a).* We must show $`F(f_W)(s)=f_W(s)` for every store $`s`. Fix $`s`. By Definition 9.1, for every $`n`,
+
+$$`w_0(s)=\bot,\qquad w_{n+1}(s)=F(w_n)(s).`
+
+Split on the three cases of Definition 9.1 at $`s`.
+
+*Case 1.* $`B(b,s)=\mathsf{false}`.
+
+1. Case 1 gives $`F(h)(s)=s` for every $`h`. With $`h=f_W` this is $`F(f_W)(s)=s`. With $`h=w_n` it is $`w_{n+1}(s)=s` for every $`n`.
+2. The outcomes at $`s` are $`\bot,s,s,\ldots`. By Lemma 8.10 their least upper bound is $`s`. So $`f_W(s)=s=F(f_W)(s)`.
+
+*Case 2.* $`B(b,s)=\mathsf{true}` and $`f_c(s)=\bot`.
+
+1. Case 2 gives $`F(h)(s)=\bot` for every $`h`. With $`h=f_W` this is $`F(f_W)(s)=\bot`. With $`h=w_n` it is $`w_{n+1}(s)=\bot` for every $`n`.
+2. Every outcome at $`s` is $`\bot`, so $`f_W(s)=\bot=F(f_W)(s)`.
+
+*Case 3.* $`B(b,s)=\mathsf{true}` and $`f_c(s)=m` with $`m\in\Sigma`. Case 3 gives $`F(h)(s)=h(m)` for every $`h`. With $`h=w_n` this is the shift $`w_{n+1}(s)=w_n(m)` for every $`n`. The outcomes at $`s` are the outcomes at $`m`, one stage later:
+
+$$`\begin{array}{c|ccccc} n & 0 & 1 & 2 & 3 & \cdots\\ \hline w_n(s) & \bot & w_0(m) & w_1(m) & w_2(m) & \cdots \end{array}`
+
+1. With $`h=f_W`, case 3 gives $`F(f_W)(s)=f_W(m)`. We must show $`f_W(s)=f_W(m)`.
+2. By Lemma 9.3 the outcomes $`w_n(m)` increase. Lemma 8.10 leaves two possibilities: either $`w_n(m)=\bot` for every $`n`, or $`w_k(m)=t` for some $`k` and some store $`t`.
+3. Suppose $`w_n(m)=\bot` for every $`n`. Then $`f_W(m)=\bot`. Also $`w_0(s)=\bot` and $`w_{n+1}(s)=w_n(m)=\bot`, so every outcome at $`s` is $`\bot` and $`f_W(s)=\bot=f_W(m)`.
+4. Suppose $`w_k(m)=t`. Then $`f_W(m)=t` by Lemma 8.10. The shift gives $`w_{k+1}(s)=w_k(m)=t`. The outcomes at $`s` increase by Lemma 9.3 and include the store $`t`, so Lemma 8.10 gives $`f_W(s)=t=f_W(m)`.
+
+In every case $`F(f_W)(s)=f_W(s)`. Since $`s` was arbitrary, $`F(f_W)=f_W`. $`\square`
+
+*Proof of (b).* Let $`F(g)=g`. We prove by induction on $`n`
+
+$$`Q(n)\quad\coloneqq\quad w_n\sqsubseteq g.`
+
+For $`Q(0)`, $`w_0(s)=\bot\sqsubseteq g(s)` at every store $`s`. For the step, the induction hypothesis is $`Q(n):\ w_n\sqsubseteq g`. Lemma 9.2 gives $`F(w_n)\sqsubseteq F(g)`. The left side is $`w_{n+1}` and the right side is $`g`, so $`Q(n+1)` holds. Now fix $`s`. By $`Q(n)` for every $`n`, $`g(s)` is an upper bound of the outcomes $`w_n(s)`. Their least upper bound satisfies $`f_W(s)\sqsubseteq g(s)`. Hence $`f_W\sqsubseteq g`. $`\square`
+
+*Continuity.* Part (b) used only Lemma 9.2. Part (a) used one more property of $`F`: in case 3, $`F(h)(s)` depends on $`h` only through the single outcome $`h(m)`. An operator $`\Phi` on state transformers is monotone if $`h\sqsubseteq h'` implies $`\Phi(h)\sqsubseteq\Phi(h')`; Lemma 9.2 says that $`F` is monotone. Call a monotone operator $`\Phi` on state transformers *continuous* if $`\Phi(\bigsqcup_n h_n)=\bigsqcup_n\Phi(h_n)` for every increasing sequence $`h_0\sqsubseteq h_1\sqsubseteq\cdots` of state transformers, where $`\bigsqcup_n h_n` is taken store by store as in Definition 9.4. Monotonicity makes the sequence $`\Phi(h_n)` increase, so the right side exists. For the approximations, $`\bigsqcup_n F(w_n)=\bigsqcup_n w_{n+1}=f_W`, because dropping the first outcome of an increasing sequence does not change its least upper bound (Lemma 8.10). So part (a) is this equation for the sequence $`w_n`. Reynolds proves the theorem for every continuous function on an order with a least element in which every increasing sequence has a least upper bound. In _Concrete Semantics_ the order is inclusion of sets, the iteration starts from the empty relation, and Lemma 11.13 shows that the relational loop operator is continuous.
 
 # Exercises
 %%%
-tag := "ch08-s4"
+tag := "ch09-s4"
 number := false
 %%%
 
-*9.1.* For a false guard and a body that would diverge on every input, compute $`w_{0},w_{1},w_{2}`.
+*9.1.* For a loop whose guard is false at every store and whose body gives $`\bot` at every store, compute $`w_0`, $`w_1`, $`w_2` and $`f_W`.
 
-*9.2.* For a true guard and a skip body, exhibit two different fixed points and identify the least one.
+*9.2.* For $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`, exhibit two different fixed points of $`F` and identify the least one. Compare it with $`f_W`.
 
-*9.3.* Explain why an ordinary state at the supremum must already occur at some finite stage in this model.
+*9.3.* Show that if $`f_W(s)` is a store $`t`, then $`w_n(s)=t` for some $`n`. Which property of the information order does the argument use?
 
-*Further problem.* Let one integer variable `x` be decremented by two while `x > 0`. Derive an explicit positive stage at which each input returns and compute its final value. Does the increasing chain of transformers stabilize at a single finite stage on all integer inputs?
+*9.4.* Suppose only $`F(g)\sqsubseteq g`. Show that $`f_W\sqsubseteq g`. Which step of the proof of Theorem 9.5(b) changes?
+
+*Further problem.* Let $`W=\mathsf{while}\ 0<x\ \mathsf{do}\ x:=x-2`. Using the count at the end of §9.1, find for each input the first stage at which $`w_n(s)` is a store, and compute that store. Does the increasing sequence of approximations stop changing at a single finite stage on all inputs?
 
 # Reading for the Seminar
 %%%
-tag := "ch08-s5"
+tag := "ch09-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write the three branches of the unfolding operation, including the exit case.
+*Definitions · 10 minutes.* Write the three cases of the unfolding operator. Fill the table of stages 0 to 3 at $`s(x)=0,1,2` for $`\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1`.
 
-*Joint proof · 30 minutes.* Fill a table of stages 0 to 3 at inputs with x equal to 0, 1 and 2. State and prove the general stage bound. Check the base case by drawing a run with zero bodies.
+*Joint proof · 30 minutes.* Prove Theorem 9.5(a). Give one case to each of three people. In case 3, write the outcomes at $`s` and at $`m` in two rows and shift the second row one stage to the right.
 
-*Proof review · 20 minutes.* Prove the converse by induction on the stage index. Identify the specific equality in the fixed-point proof that needs continuity.
+*Proof review · 20 minutes.* Prove part (b) by induction on $`n`, writing $`Q(n)` and its induction hypothesis. Use $`\mathsf{while}\ 0<x\ \mathsf{do}\ \mathsf{skip}` to show why part (a) alone does not determine the meaning of a loop. Identify the step of part (a) that uses the fact that case 3 consults $`h` at a single store.
 
-*Facilitator’s hint.* Use separate indices for the number of bodies and the approximation stage. After one body the remaining run and the available stage both decrease.
+*Facilitator’s hint.* Fix one store before comparing two state transformers. Keep the stage $`n` of an approximation separate from the number of completed bodies of a run. After one body, both decrease by one.
 
-# Solutions
+# Solutions and Further Reading
 %%%
-tag := "ch08-s6"
+tag := "ch09-s6"
 number := false
 %%%
 
-*9.1.* Stage zero is constantly bottom. Both positive stages return the original input state. No branch evaluates the body.
+*9.1.* Case 1 applies at every store, so $`F(h)(s)=s` for every $`h`. Stage 0 is constantly $`\bot`. Stages 1 and 2 return the input store, and so does $`f_W`. The body is never consulted.
 
-*9.2.* Here $`F(h) = h`. Both the constantly bottom function and the identity on states are fixed points, and every function lies above the constantly bottom function.
+*9.2.* Here $`F(h)(s)=h^\dagger(s)=h(s)`, so every state transformer is a fixed point. The constantly $`\bot` state transformer and the identity are two of them. The constantly $`\bot` state transformer lies below every state transformer, so it is the least fixed point. Every $`w_n` is constantly $`\bot`, so $`f_W` is constantly $`\bot`, as Theorem 9.5 requires.
 
-*9.3.* On each input the chain lies in a flat order. A chain consisting only of bottoms has supremum bottom. If the supremum is a state, some chain element is a state, and every later element equals it. This deduction uses flatness of the result space.
+*9.3.* The outcomes $`w_n(s)` increase by Lemma 9.3. By Lemma 8.10 either all of them are $`\bot`, and then $`f_W(s)=\bot`, or some $`w_n(s)` is a store and $`f_W(s)` is that store. Since $`f_W(s)=t` is a store, the second possibility holds and $`w_n(s)=t`. The argument uses the fact that a store lies below only itself: an increasing sequence that reaches a store stays there, so its least upper bound occurs at a finite stage.
 
-*Further problem.* At an input with `x ≤ 0` the guard is initially false. The loop returns its input at stage one. For `x > 0`, write its value as either `2j` with `j ≥ 1` or `2j + 1` with `j ≥ 0`. In the even case, after `j` completed bodies the value is zero, and each preceding head is positive. Theorem 9.1 gives the first successful stage `j + 1`. In the odd case one reaches 1 after `j` bodies; one more produces −1 and exits. The first successful stage is `j + 2`. Every other store coordinate is preserved.
+*9.4.* Only the induction step changes. From $`Q(n)`, Lemma 9.2 gives $`w_{n+1}=F(w_n)\sqsubseteq F(g)`, and $`F(g)\sqsubseteq g` gives $`w_{n+1}\sqsubseteq g` by transitivity. The final paragraph is unchanged. _Concrete Semantics_, Theorem 10.29, defines the least fixed point as the intersection of all such $`g` for monotone functions on sets.
 
-These formulas yield a finite stage for each input. Nevertheless, for each natural `n ≥ 1` choose `x = 2n`. The stage `n` output on that input is bottom whereas stage `n + 1` returns an ordinary store. Stages zero and one also differ at an initially false guard. Hence no two consecutive transformer stages coincide, even though the least fixed point is defined at every input.
+*Further problem.* If $`s(x)\le0`, the guard is false and $`w_n(s)=s` for every $`n\ge1`. If $`s(x)=2j` with $`j\ge1`, then after $`j` completed bodies the value of $`x` is $`0`, and every earlier guard test sees a positive value. The count gives first stage $`j+1` and result $`s[x\mapsto0]`. If $`s(x)=2j+1` with $`j\ge0`, then after $`j` bodies the value is $`1`, and one more body gives $`-1` and exits. The first stage is $`j+2` and the result is $`s[x\mapsto-1]`.
+
+Each input has a finite first stage, yet no single stage serves all inputs. For $`n\ge1` take $`s(x)=2n`. Then $`w_n(s)=\bot` but $`w_{n+1}(s)=s[x\mapsto0]`. Stages 0 and 1 also differ at any store with $`s(x)\le0`. Hence $`w_n\ne w_{n+1}` for every $`n`, although $`f_W(s)` is a store at every input.
+
+*Further reading · Counting completed bodies.* Fix $`W=\mathsf{while}\ b\ \mathsf{do}\ c`. A list of stores $`s_0,\ldots,s_k` is a *run* of $`k` completed bodies from $`s` if $`s_0=s`, if $`B(b,s_i)=\mathsf{true}` and $`f_c(s_i)=s_{i+1}` for each $`i<k`, and if $`B(b,s_k)=\mathsf{false}`. The count stated in §9.1 is the following property, proved by induction on $`k`.
+
+$$`R(k)\quad\coloneqq\quad\forall s,\ \text{for every run } s_0,\ldots,s_k \text{ from } s,\ \forall n,\quad w_n(s)=\begin{cases}\bot & \text{if } n\le k,\\ s_k & \text{if } n\ge k+1.\end{cases}`
+
+For $`R(0)`, stage 0 gives $`\bot`, and every positive stage is in case 1 at $`s` and returns $`s=s_0`. For the step, assume $`R(k)` and take a run $`s_0,\ldots,s_{k+1}` from $`s`. The guard is true at $`s` and $`f_c(s)=s_1`, and $`s_1,\ldots,s_{k+1}` is a run of $`k` completed bodies from $`s_1`. Stage 0 gives $`\bot`. Case 3 gives $`w_{n+1}(s)=w_n(s_1)`. By $`R(k)` at $`s_1`, this is $`\bot` for $`n\le k` and $`s_{k+1}` for $`n\ge k+1`. Shifting the index by one gives $`R(k+1)`.
+
+Conversely, if $`w_n(s)=t` is a store, there is a run from $`s` ending in $`t` with fewer than $`n` completed bodies. Induct on $`n`. Stage 0 gives no store. At stage $`n+1`, case 1 gives the run of zero bodies with $`t=s`. Case 2 gives $`\bot` and cannot occur. Case 3 gives $`w_n(m)=t`. The induction hypothesis supplies a run from $`m` with fewer than $`n` bodies, and placing $`s` in front gives a run from $`s` with fewer than $`n+1`. No stage produces a result that the loop does not reach.
+
+*Further reading · Which loop the count measures.* Consider $`\mathsf{while}\ 0<x\ \mathsf{do}\ \bigl((\mathsf{while}\ 0<y\ \mathsf{do}\ y:=y-1);\ x:=0\bigr)` from a store with $`s(x)=1` and $`s(y)=100`. The inner loop completes one hundred bodies, and the assignment sets $`x` to zero. The outer loop completes one body, so its result first appears at its stage 2. The inner loop by itself first returns at its own stage 101. Each sequence of approximations belongs to one loop, whose body meaning is fixed. Neither index counts machine steps.
+
+*Further reading · Two ways to diverge.* Let the body be $`\mathsf{while}\ y\ne0\ \mathsf{do}\ \mathsf{skip}`, which returns its input when $`y=0` and gives $`\bot` otherwise, and let the outer guard be $`0<x`. At $`s(x)=0`, case 1 returns the input at every positive stage. At $`s(x)=1` and $`s(y)=1`, case 2 gives $`\bot` at every stage without consulting $`h`. At $`s(x)=1` and $`s(y)=0`, case 3 applies with $`m=s`, so $`F(h)(s)=h(s)` for every $`h`, and induction on $`n` gives $`w_n(s)=\bot`. Both diverging inputs have meaning $`\bot`. The first never reaches the recursive occurrence. The second reaches it at every stage.
+
+*Further reading · Sources.* Reynolds, _Theories of Programming Languages_, §§2.3–2.4, defines domains and continuous functions and proves the least fixed-point theorem in general. _Concrete Semantics_, §11.1, defines loop meanings as relations: Example 11.2 is the loop $`\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`, and Example 11.14 computes the approximations of a countdown loop. Leroy’s course, §9.1, computes a least fixed point by iterating from a least element when every strictly increasing sequence is finite. The iteration then stops at a finite stage, which the further problem shows cannot be expected for loop meanings. [Reynolds, contents](https://www.cs.cmu.edu/~jcr/tpl-toc.html) · [Concrete Semantics, §11.1](https://concrete-semantics.org/concrete-semantics.pdf#page=190) · [Leroy’s course, fixed points](https://github.com/leanprover/LeroyCompilerVerificationCourse/blob/a2730e7f9228b9d7ecf4510f1f8652f2cae7ba01/LeroyCompilerVerificationCourse/Fixpoints.lean)
