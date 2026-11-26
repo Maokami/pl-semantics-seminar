@@ -31,10 +31,10 @@
   for (const h of sections) select.add(new Option(nameOf(h), h.id));
   const publicChapter = new URL("https://maokami.github.io/pl-semantics-seminar/chapter-" + session + "/");
   let copiedBody;
-  let mode, quoted, focusOrigin;
+  let mode, quoted, passage, focusOrigin;
   const draftKey = () => 'pl-composer:' + session + ':' + mode;
   function storeDraft() {
-    try { sessionStorage.setItem(draftKey(), JSON.stringify({text:message.value, section:select.value, quote:quoted})); } catch {}
+    try { sessionStorage.setItem(draftKey(), JSON.stringify({text:message.value, section:select.value, quote:quoted, passage})); } catch {}
   }
   function open(modeName, selection) {
     focusOrigin = document.activeElement;
@@ -44,6 +44,7 @@
     select.value = selection?.id || draft.section || sections[0].id;
     if (select.selectedIndex < 0) select.selectedIndex = 0;
     quoted = selection?.quote || (draft.section === select.value && draft.quote) || '';
+    passage = selection ? selection.passage : draft.section === select.value && draft.passage;
     message.value = draft.text || '';
     quoteBox.textContent = quoted; quoteBox.hidden = !quoted;
     const question = mode === 'question';
@@ -55,7 +56,7 @@
     update();
   }
   function payload() {
-    const sectionURL = new URL(publicChapter); sectionURL.hash = select.value;
+    const sectionURL = new URL(publicChapter); sectionURL.hash = passage || select.value;
     const titleLine = message.value.trim().split(/\n/)[0];
     const body = [message.value.trim(), quoted && '> ' + quoted.replaceAll('\n', '\n> '),
       sectionURL.href, 'Revision: ' + revision].filter(Boolean).join('\n\n');
@@ -74,7 +75,7 @@
     storeDraft();
   }
   message.addEventListener('input', update);
-  select.onchange = () => { quoted = ''; quoteBox.hidden = true; update(); };
+  select.onchange = () => { quoted = ''; passage = ''; quoteBox.hidden = true; update(); };
   dialog.querySelector('.copy').onclick = async () => {
     const {body} = payload();
     try { await navigator.clipboard.writeText(body); }
