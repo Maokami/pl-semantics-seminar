@@ -41,14 +41,14 @@ def chapter_tools(number, title, revision):
             prompt += f'<details><summary>{label}</summary><p>{step}</p></details>'
         prompt += f'<p><a href="https://github.com/Maokami/pl-semantics-labs/blob/main/Exercises/Session{number:02}.lean">Try the Lean exercise</a></p></details>'
     if number in PROOFS:
-        return f"""<aside class="study study-pilot" lang="ko" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="장별 스터디">
-<header class="study-head"><div><h2>함께 읽기</h2><p>읽다가 막힌 곳이나 고치고 싶은 문장을 남겨 주세요.</p></div></header>
-<div class="study-actions"><a data-compose="question" href="{node(ask)}">질문 쓰기</a><a data-compose="correction" href="{node(issue)}">수정 제안</a><a data-discuss href="{node(discussion)}">의견·답글 쓰기</a></div>
-<details class="comments"><summary>이 장의 대화</summary><p>짧은 의견은 아래에 남겨 주세요. GitHub로 로그인하면 이 페이지에서 답글을 쓸 수 있습니다.</p><p><a href="{node(discussion)}">GitHub에서 대화 열기 ↗</a></p><div class="giscus"></div></details>
+        return f"""<aside class="study study-pilot" lang="en" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="Chapter study group">
+<div class="study-head"><h2>Read together</h2><p>Select a passage to include it with your question or correction.</p></div>
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a data-compose="correction" href="{node(issue)}">Suggest a correction</a><a data-discuss href="{node(discussion)}">Join the discussion</a></div>
+<details class="comments"><summary>Chapter discussion</summary><p>Leave a comment in English or Korean. Sign in with GitHub to reply here.</p><p><a href="{node(discussion)}">Open discussion on GitHub ↗</a></p><div class="giscus"></div></details>
 {prompt}
-<details class="presenter"><summary>발표 준비</summary><div class="study-links"></div><p><a href="{node(unanswered)}">미해결 질문</a> · <a href="{node(discussion)}">장별 토론</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">발표 브리프</a></p></details>
-<details class="saved"><summary>다시 읽을 문장</summary><div></div></details>
-<footer><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">원고 이력</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">처리된 제안</a></footer>
+<details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{node(discussion)}">Chapter thread</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
+<details class="saved"><summary>Saved passages</summary><div></div></details>
+<footer><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">Chapter history</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">Resolved suggestions</a></footer>
 </aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script><script defer src="static/study.js"></script>"""
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>

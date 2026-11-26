@@ -6,20 +6,20 @@
   const root = 'https://github.com/Maokami/pl-semantics-seminar';
   const nameOf = h => h.textContent.replace(/🔗/g, '').trim();
   const bar = document.createElement('nav');
-  bar.className = 'study-inline'; bar.lang = 'ko'; bar.ariaLabel = '이 장에 참여하기';
-  bar.innerHTML = '<button type="button" data-compose="question">질문 쓰기</button><button type="button" data-compose="correction">수정 제안</button><button type="button" data-discuss>의견·답글 쓰기</button>';
+  bar.className = 'study-inline'; bar.lang = 'en'; bar.ariaLabel = 'Chapter participation';
+  bar.innerHTML = '<button type="button" data-compose="question">Ask a question</button><button type="button" data-compose="correction">Suggest a correction</button><button type="button" data-discuss>Join the discussion</button>';
   sections[0].after(bar);
   const dialog = document.createElement('dialog');
-  dialog.className = 'reader-composer'; dialog.lang = 'ko';
+  dialog.className = 'reader-composer'; dialog.lang = 'en';
   dialog.setAttribute('aria-labelledby', 'composer-title');
   dialog.innerHTML = `<form>
-    <header><div><small></small><h2 id="composer-title"></h2></div><button type="button" class="dismiss" aria-label="작성 창 닫기">×</button></header>
-    <label>어느 절에 관한 글인가요?<select name="section"></select></label>
+    <div class="composer-heading"><div><small></small><h2 id="composer-title"></h2></div><button type="button" class="dismiss" aria-label="Close editor">×</button></div>
+    <label>Section<select name="section"></select></label>
     <blockquote hidden></blockquote>
     <label><span class="prompt"></span><textarea name="message" rows="5" required></textarea></label>
-    <p class="handoff">다음 화면에서 내용을 확인한 뒤 공개 게시합니다. GitHub 로그인이 필요합니다.</p>
-    <p class="long-draft" hidden>긴 글은 복사한 뒤 GitHub 본문에 붙여 넣어 주세요. <button type="button" class="copy">본문 복사</button></p>
-    <footer><button type="button" class="cancel">닫기</button><button type="submit" class="primary">GitHub에서 확인 ↗</button></footer>
+    <p class="handoff">Write in English or Korean. Sign in to GitHub to review and post publicly.</p>
+    <p class="long-draft" hidden>Copy this longer draft, then paste it into the GitHub form. <button type="button" class="copy">Copy draft</button></p>
+    <footer><button type="button" class="cancel">Close</button><button type="submit" class="primary">Review on GitHub ↗</button></footer>
   </form>`;
   document.body.append(dialog);
   const form = dialog.querySelector('form');
@@ -48,9 +48,9 @@
     quoteBox.textContent = quoted; quoteBox.hidden = !quoted;
     const question = mode === 'question';
     dialog.querySelector('small').textContent = nameOf(sections[0]);
-    dialog.querySelector('h2').textContent = question ? '질문 쓰기' : '수정 제안';
-    dialog.querySelector('.prompt').textContent = question ? '어느 부분이 궁금한가요?' : '어떻게 바꾸면 좋을까요?';
-    message.placeholder = question ? '어디까지 이해했고, 어느 단계에서 막혔나요?' : '현재 문장에서 고칠 부분과 그 이유를 적어 주세요.';
+    dialog.querySelector('h2').textContent = question ? 'Ask a question' : 'Suggest a correction';
+    dialog.querySelector('.prompt').textContent = question ? 'What would you like to ask?' : 'What would you change?';
+    message.placeholder = question ? 'Which step is unclear?' : 'Describe the change and why it would help.';
     dialog.showModal(); message.focus();
     update();
   }
@@ -69,7 +69,7 @@
     const {target, body} = payload();
     const needsCopy = target.href.length >= 7000;
     dialog.querySelector('.long-draft').hidden = !needsCopy;
-    dialog.querySelector('.copy').textContent = copiedBody === body ? '복사됨' : '본문 복사';
+    dialog.querySelector('.copy').textContent = copiedBody === body ? 'Copied' : 'Copy draft';
     dialog.querySelector('.primary').disabled = !message.value.trim() || (needsCopy && copiedBody !== body);
     storeDraft();
   }
@@ -78,7 +78,7 @@
   dialog.querySelector('.copy').onclick = async () => {
     const {body} = payload();
     try { await navigator.clipboard.writeText(body); }
-    catch { if (window.prompt('전체 본문을 복사한 뒤 확인을 누르세요.', body) === null) return; }
+    catch { if (window.prompt('Copy the full draft, then choose OK.', body) === null) return; }
     copiedBody = body;
     update();
   };
