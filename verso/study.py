@@ -28,6 +28,8 @@ def chapter_tools(number, title, revision):
     tag = f"Session {number:02}"
     thread = THREADS.get(str(number))
     discussion = f"{REPO}/discussions/{thread}" if thread else f"{REPO}/discussions?{urlencode({'discussions_q': tag})}"
+    ask = f"{REPO}/discussions/new?{urlencode({'category': 'q-a', 'title': f'[{tag}] '})}"
+    unanswered = f"{REPO}/discussions?{urlencode({'discussions_q': f'category:Q&A is:unanswered "{tag}"'})}"
     issue = f"{REPO}/issues/new?{urlencode({'title': f'[{tag}] ', 'labels': 'textbook feedback', 'body': f'Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n'})}"
     node = lambda url: html.escape(url, quote=True)
     prompt = ""
@@ -39,10 +41,10 @@ def chapter_tools(number, title, revision):
         prompt += f'<p><a href="https://github.com/Maokami/pl-semantics-labs/blob/main/Exercises/Session{number:02}.lean">Try the Lean exercise</a></p></details>'
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>
-<p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(issue)}">Suggest a correction</a></p>
+<p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(ask)}">Ask a question</a> · <a href="{node(issue)}">Suggest a correction</a></p>
 {prompt}
 <details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div>
-<p><a href="{node(discussion)}">Read the chapter questions</a> · <a href="{REPO}/issues?q=is%3Aissue+is%3Aopen+%22%5BSession+{number:02}%5D%22">Open chapter issues</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
+<p><a href="{node(discussion)}">Read the chapter thread</a> · <a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aissue+is%3Aopen+%22%5BSession+{number:02}%5D%22">Open chapter issues</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
 <details class="saved"><summary>My reading notes</summary><div></div></details>
 <details class="comments"><summary>Discuss this chapter</summary><div class="giscus"></div></details>
 <small><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">Chapter history</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">Resolved feedback</a></small>
