@@ -20,7 +20,7 @@ if (location.protocol === 'file:') {
   ]);
   const disclosures = [];
   for (const heading of document.querySelectorAll('main section > h2[id]')) {
-    const name = heading.textContent.replace(/🔗/g, '').trim();
+    const name = heading.textContent.replace(/🔗/g, '').trim().replace(/^\d+(?:\.\d+)*\.?\s+/, '');
     if (!kinds.has(name)) continue;
     const section = heading.parentElement;
     const details = document.createElement('details');

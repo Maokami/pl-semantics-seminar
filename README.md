@@ -19,7 +19,7 @@ python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 Open **Exercises** after reading the chapter. In Sessions 1–3, the proof hints
 and **Lean workbook** are here. The editor loads the matching learner sheet and
 its IMP definitions from one pinned workbook revision into Lean 4.35.0. Use
-the editor's download option to keep a proof. Choose **Work across files → Open or resume workspace** for
+the editor's download option to keep a proof. Choose **Open project workspace** for
 multi-file development, repository tests and later labs with additional dependencies.
 Only self-contained exercises with a tested playground project get an inline editor.
 

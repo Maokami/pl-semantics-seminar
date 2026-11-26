@@ -33,11 +33,24 @@
       fullScreen.target = '_blank';
       fullScreen.rel = 'noopener';
       fullScreen.textContent = 'Open starter in a new tab ↗';
-      button.replaceWith(fullScreen);
+      button.after(fullScreen);
       const frame = document.createElement('iframe');
       frame.src = url;
       frame.title = 'Interactive Lean workbook, Session ' + session;
       lab.append(frame);
+      frame.id = 'workbook-editor';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'lab-start';
+      toggle.textContent = 'Hide editor';
+      toggle.setAttribute('aria-controls', frame.id);
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.onclick = () => {
+        frame.hidden = !frame.hidden;
+        toggle.textContent = frame.hidden ? 'Show editor' : 'Hide editor';
+        toggle.setAttribute('aria-expanded', String(!frame.hidden));
+      };
+      button.replaceWith(toggle);
       status.textContent = '';
     } catch {
       status.textContent = 'The browser editor could not load the workbook. Retry or open the workbook source.';
