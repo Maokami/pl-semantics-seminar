@@ -17,6 +17,8 @@
 
 댓글과 답글은 교재와 GitHub Discussions에서 함께 보이는 공개 글입니다. 읽기는 로그인 없이 가능하고, 교재에서 처음 글을 쓸 때는 **Sign in with GitHub**를 눌러 댓글 도구인 giscus를 승인합니다. 댓글창을 불러올 수 없는 환경에서는 **View on GitHub**를 이용하세요. [1장 토론 바로가기](https://maokami.github.io/pl-semantics-seminar/chapter-01/#chapter-discussion)
 
+GitHub에서 질문을 올리거나 삭제한 뒤 교재 탭으로 돌아오면 **Questions from readers** 목록을 다시 불러옵니다. 같은 화면에 머무는 동안 다른 사람이 바꾼 내용은 목록 옆의 **Refresh**로 확인하세요.
+
 ## 직접 해 보기
 
 장 끝 **Exercises**를 펼쳐 문제를 먼저 풀어 보고 **Solutions and Further Reading**에서 풀이를 대조하세요. 1–3회에는 **Exercises → Open Lean editor**가 있습니다. 1회에서는 상태에서 변수 x의 값이 3일 때 x + 4가 7로 평가된다는 증명을 완성합니다. 편집기에서 `plusFour`를 찾아 `sorry`를 증명으로 바꿔 보세요. 작성한 코드는 편집기의 다운로드 기능으로 보관할 수 있습니다. 여러 파일을 함께 보려면 **Open project workspace**에서 실습 저장소 전체를 열 수 있습니다. [Lean 실습 저장소](https://github.com/Maokami/pl-semantics-labs)

@@ -53,13 +53,20 @@
     }, {rootMargin:'300px'});
     observer.observe(element);
   }
+  const feed = panel.querySelector('.question-feed');
+  const refresh = panel.querySelector('.refresh-questions');
+  let listRequest = 0;
   async function loadQuestions() {
-    const feed = panel.querySelector('.question-feed');
-    feed.textContent = 'Loading recent questions…';
+    const request = ++listRequest;
+    refresh.hidden = false;
+    refresh.disabled = true;
+    feed.setAttribute('aria-busy', 'true');
+    if (!feed.textContent) feed.textContent = 'Loading recent questions…';
     try {
-      const response = await fetch(api + '?per_page=100&sort=updated&direction=desc');
+      const response = await fetch(api + '?per_page=100&sort=updated&direction=desc&_=' + Date.now(), {cache:'no-store'});
       if (!response.ok) throw new Error();
       const discussions = await response.json();
+      if (request !== listRequest) return;
       const questions = discussions.filter(q => isChapterQuestion(q) && (q.state === 'open' || q.answer_chosen_at));
       const list = document.createElement('ul');
       for (const q of questions.slice(0, 6)) {
@@ -73,10 +80,28 @@
       else feed.textContent = discussions.length < 100 ? 'No open or answered questions for this chapter yet.'
         : 'No chapter questions among the latest 100 discussions.';
     } catch {
-      feed.textContent = 'Recent questions could not be loaded. Use All chapter questions below.';
+      if (request === listRequest) feed.textContent = 'Recent questions could not be loaded. Try Refresh or open All chapter questions.';
+    } finally {
+      if (request === listRequest) {
+        refresh.disabled = false;
+        feed.setAttribute('aria-busy', 'false');
+      }
     }
   }
-  whenVisible(panel.querySelector('.question-feed'), loadQuestions);
+  refresh.onclick = loadQuestions;
+  whenVisible(feed, loadQuestions);
+  // Returning from GitHub can leave the same document alive, including in the back/forward cache.
+  let away = false;
+  function resume() {
+    if (!away || document.hidden || !listRequest) return;
+    away = false;
+    loadQuestions();
+  }
+  window.addEventListener('blur', () => { away = true; });
+  window.addEventListener('focus', resume);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) away = true; else resume(); });
+  window.addEventListener('pageshow', event => { if (event.persisted) { away = true; resume(); } });
+
 
   async function loadComments() {
     const help = comments.querySelector('.discussion-help');
@@ -85,7 +110,7 @@
       const back = link('Back to chapter discussion', discussionURL());
       try {
         if (!/^[1-9]\d{0,9}$/.test(requested)) throw new Error();
-        const response = await fetch(api + '/' + requested);
+        const response = await fetch(api + '/' + requested + '?_=' + Date.now(), {cache:'no-store'});
         if (!response.ok) throw new Error();
         const q = await response.json();
         if (!isChapterQuestion(q)) throw new Error();

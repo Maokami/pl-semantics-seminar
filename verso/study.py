@@ -42,7 +42,7 @@ def chapter_tools(number, title, revision):
 <h3>Chapter discussion</h3>
 <p class="discussion-help">Read and reply here in English or Korean. Sign in with GitHub to post publicly. <a href="{node(discussion)}">View on GitHub ↗</a></p>
 <div class="giscus"></div></div>
-<div class="chapter-questions"><h3>Questions from readers</h3>
+<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
 <div class="question-feed" aria-live="polite"></div>
 <div class="study-actions"><a{compose} href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>"""
     prompt = ""

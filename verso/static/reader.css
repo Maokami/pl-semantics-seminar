@@ -80,3 +80,6 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .study .question-body {white-space:pre-wrap;overflow-wrap:anywhere;margin:.75rem 0;padding:.6rem 1rem;border-inline-start:3px solid #8495a3}
 .study .giscus-frame {display:block;width:100%;border:0}
 .study .question-feed small {margin-inline-start:.45rem}
+.questions-heading {display:flex;justify-content:space-between;align-items:baseline;gap:.65rem;flex-wrap:wrap}
+.questions-heading button {font:inherit;font-size:.85rem;text-decoration:underline;color:inherit;background:none;border:0;cursor:pointer}
+.questions-heading button:disabled {opacity:.6;cursor:wait}
