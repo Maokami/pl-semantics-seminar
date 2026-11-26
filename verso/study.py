@@ -31,7 +31,7 @@ def chapter_tools(number, title, revision):
     ask = REPO + "/discussions/new?" + urlencode({"category": "q-a", "title": f"[{tag}] "})
     unanswered = REPO + "/discussions?" + urlencode({"discussions_q": f'category:"Q&A" is:unanswered "{tag}"'})
     issue_body = f"Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n"
-    issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "labels": "textbook feedback", "body": issue_body})
+    issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "template": "correction.md", "body": issue_body})
     node = lambda url: html.escape(url, quote=True)
     prompt = ""
     if number in PROOFS:

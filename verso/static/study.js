@@ -63,7 +63,7 @@
     const h = sectionAt(sel.getRangeAt(0).startContainer);
     selected = {id:h.id, quote};
     const u = new URL(repo + '/issues/new');
-    u.search = new URLSearchParams({title:'['+tag+'] ',labels:'textbook feedback',body:
+    u.search = new URLSearchParams({title:'['+tag+'] ',template:'correction.md',body:
       'Section: '+sectionURL(h)+'\nRevision: '+revision+'\n\n'+quote.split('\n').map(s=>'> '+s).join('\n')+'\n\nSuggested change and reason:\n'});
     propose.href = u.href; menu.hidden = false;
   }
