@@ -41,3 +41,19 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .study-selection:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; position: fixed; z-index: 100; bottom: 1rem; left: 50%; transform: translateX(-50%); background: Canvas; color: CanvasText; border: 1px solid GrayText; padding: .7rem; width: max-content; max-width: 92vw; box-sizing: border-box; }
 .study-selection a { color: LinkText; }
 @media print { .study, .study-selection { display: none !important; } }
+.chapter-appendix {margin:0;border-top:1px solid #bdc9c7}
+.chapter-appendix>summary {cursor:pointer;display:flex;align-items:baseline;gap:.75rem;padding:.85rem 0;list-style:none}
+.chapter-appendix>summary::-webkit-details-marker {display:none}
+.chapter-appendix>summary::before {content:"▸";color:#476963}
+.chapter-appendix[open]>summary::before {content:"▾"}
+.chapter-appendix>summary h2 {font-size:1.12rem;line-height:1.45;margin:0;scroll-margin-block-start:5rem}
+.chapter-appendix>summary:focus-visible {outline:2px solid #528278;outline-offset:2px}
+.chapter-appendix[open] {padding-bottom:1rem}
+.chapter-appendix .board {margin:.5rem 0 1rem}
+.lean-lab {padding:1rem;margin:.75rem 0 1.2rem;border-inline-start:3px solid #528278;background:#edf5f2;color:#203f47}
+.lean-lab h3 {font-size:1.1rem;margin:0}
+.lean-lab p {margin:.35rem 0 .7rem}.lean-lab .lab-status:empty {display:none}
+.lab-actions {display:flex;align-items:center;gap:.6rem 1rem;flex-wrap:wrap;font-size:.92rem}
+.lab-actions a {color:#234f49}.lab-start {font:inherit;padding:.45rem .85rem;border:0;border-radius:.35rem;background:#23584c;color:white;cursor:pointer}
+.lean-lab iframe {display:block;width:100%;height:clamp(28rem,75vh,50rem);margin-top:.8rem;border:1px solid #a3b8b1;box-sizing:border-box}
+@media print {.chapter-appendix>summary::before,.lean-lab,.seminar-links,.chapter-appendix .board {display:none}}

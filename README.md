@@ -16,15 +16,21 @@ python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 
 ## Reading with the seminar
 
-In Sessions 1–3, choose **Ask a question** or **Suggest a correction** at the chapter heading, or select a passage first to quote it. Write in the book, then review and post on GitHub. The current tab keeps your draft when you close the form. Choose **Join the discussion** to join the chapter conversation on the page.
+Open **Exercises** after reading the chapter. In Sessions 1–3, the proof hints
+and **Lean workbook** are here. The editor loads the matching learner sheet and
+its IMP definitions from one pinned workbook revision into Lean 4.35.0. Use
+the editor's download option to keep a proof. Choose **Full Lake project** for
+multi-file development, repository tests and later labs with additional dependencies.
+Only self-contained exercises with a tested playground project get an inline editor.
 
-Read the same chapter before the meeting. Use **Chapter discussion** for a shared
-conversation or **Ask a question** to open a Q&A thread whose answer can be marked.
-Select a passage and choose **Suggest a correction** to include the quote, section
-and source revision in a public GitHub issue. Korean and English are both welcome.
-**Save for rereading** keeps a note in the current browser on the current host.
-The presenter can open **Prepare to present** for readings, unanswered questions
-and meeting briefs. Sessions 1–3 include proof prompts and Lean exercises.
+Open **Reading for the Seminar** for the session agenda, outstanding questions
+and meeting briefs. Solutions and source notes have separate disclosures. Direct
+section links open the referenced material, and printing includes the chapter text.
+
+Use **Study together** in Sessions 1–3 to read existing questions or start one.
+Selecting a passage attaches the quote and section to a question or correction;
+the correction also records the manuscript revision. Comments may be in Korean
+or English. Saved passages are private to the current browser on each host.
 
 [Textbook on Sites](https://pl-semantics-textbook.moonlitwhale2.chatgpt.site/) ·
 [GitHub Pages mirror](https://maokami.github.io/pl-semantics-seminar/) ·
@@ -46,8 +52,11 @@ Actionable results become issues labeled `seminar agenda`. Configure the Actions
 secret `ANTHROPIC_API_KEY` for this repository. The primary Claude session has
 a ten-minute workflow timeout, a ten-turn limit and a USD 0.50 CLI budget.
 
-**Copilot feedback check** is a manually dispatched second opinion on an open
-issue labeled `textbook feedback`. Its suggested reply is staged in the run
-report for a maintainer. Set the repository secret `COPILOT_GITHUB_TOKEN` to
-a personal fine-grained token with the account permission **Copilot Requests:
-Read**. The workflow uses automatic model selection and a five-AI-credit cap.
+**Reader correction review** is a manual, read-only Claude Haiku workflow for an
+open issue labeled `textbook feedback`. It stages one suggested response for a
+maintainer and skips unrelated issues before model inference. It uses the same
+repository secret and USD 0.50 CLI budget as the reading brief. The companion
+workbook audits changed labs on the first and sixteenth of each month.
+
+For an optional Copilot second opinion, use the official Copilot CLI locally
+with `--model auto`. Its availability is independent of the scheduled workflows.
