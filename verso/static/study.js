@@ -26,6 +26,33 @@
   });
   for (const a of definitions) presenter.append(link(a.textContent, a.href), ' ');
 
+  const prep = panel.querySelector('.presenter');
+  const questionList = document.createElement('div');
+  questionList.setAttribute('aria-live', 'polite');
+  prep.append(questionList);
+  prep.addEventListener('toggle', async () => {
+    if (!prep.open || questionList.dataset.loading) return;
+    questionList.dataset.loading = 'true';
+    questionList.textContent = 'Loading recent questions…';
+    const api = 'https://api.github.com/repos/Maokami/pl-semantics-seminar';
+    try {
+      const latest = await fetch(api + '/discussions?per_page=100&sort=updated&direction=desc');
+      if (!latest.ok) throw new Error('GitHub unavailable');
+      const questions = (await latest.json()).filter(d => d.category?.slug === 'q-a' &&
+        d.state === 'open' && !d.answer_chosen_at && d.title.includes('[' + tag + ']'));
+      const list = document.createElement('ul');
+      for (const q of questions.slice(0, 6)) {
+        const li = document.createElement('li');
+        li.append(link(q.title, q.html_url)); list.append(li);
+      }
+      if (list.children.length) questionList.replaceChildren(list);
+      else questionList.textContent = 'No unanswered chapter questions among the latest discussions.';
+    } catch {
+      questionList.textContent = 'Open Unanswered questions above to read the list on GitHub.';
+      delete questionList.dataset.loading;
+    }
+  });
+
   const key = 'pl-study-notes:' + session;
   const saved = panel.querySelector('.saved div');
   let notes = [];
