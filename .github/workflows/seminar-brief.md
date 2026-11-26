@@ -21,14 +21,18 @@ on:
         HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
       run: |
         if [ "$HAS_KEY" != true ]; then
-          echo "Set the ANTHROPIC_API_KEY repository secret to enable reading briefs." >> "$GITHUB_STEP_SUMMARY"
+          echo "Missing ANTHROPIC_API_KEY." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+        if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+          echo 'run=true' >> "$GITHUB_OUTPUT"
           exit 0
         fi
         since=$(date -u -d '7 days ago' +%FT%TZ)
         feedback=$(gh api -X GET "repos/$GITHUB_REPOSITORY/issues" -f labels='textbook feedback' -f state=open -f since="$since" --jq 'length')
         # Ignore empty chapter threads and include replies to earlier questions.
         threads=$(gh api graphql -f query='query($o:String!,$r:String!){repository(owner:$o,name:$r){discussions(first:100,orderBy:{field:UPDATED_AT,direction:DESC}){nodes{updatedAt category{slug} comments{totalCount}}}}}' -f o="${GITHUB_REPOSITORY%/*}" -f r="${GITHUB_REPOSITORY#*/}" --jq ".data.repository.discussions.nodes | map(select(.updatedAt >= \"$since\" and (.comments.totalCount > 0 or .category.slug == \"q-a\"))) | length")
-        if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] || [ "$feedback" -gt 0 ] || [ "$threads" -gt 0 ]; then
+        if [ "$feedback" -gt 0 ] || [ "$threads" -gt 0 ]; then
           echo 'run=true' >> "$GITHUB_OUTPUT"
         else
           echo 'No new reader feedback this week.' >> "$GITHUB_STEP_SUMMARY"

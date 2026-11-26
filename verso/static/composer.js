@@ -2,13 +2,16 @@
   const panel = document.querySelector('.study-pilot');
   if (!panel) return;
   const {session, revision} = panel.dataset;
-  const sections = [...panel.closest('main').querySelectorAll('h1[id], h2[id], h3[id]')];
+  const sections = [...panel.closest('main').querySelectorAll('h1[id], h2[id], h3[id]')].filter(h => !panel.contains(h));
   const root = 'https://github.com/Maokami/pl-semantics-seminar';
   const nameOf = h => h.textContent.replace(/🔗/g, '').trim();
-  const bar = document.createElement('nav');
-  bar.className = 'study-inline'; bar.lang = 'en'; bar.ariaLabel = 'Chapter participation';
-  bar.innerHTML = '<button type="button" data-compose="question">Ask a question</button><button type="button" data-compose="correction">Suggest a correction</button><button type="button" data-discuss>Join the discussion</button>';
-  sections[0].after(bar);
+  const entry = document.createElement('a');
+  const studyURL = new URL(location.href);
+  studyURL.hash = 'study-together';
+  entry.className = 'study-inline';
+  entry.href = studyURL.href;
+  entry.textContent = 'Study together ↓';
+  sections[0].after(entry);
   const dialog = document.createElement('dialog');
   dialog.className = 'reader-composer'; dialog.lang = 'en';
   dialog.setAttribute('aria-labelledby', 'composer-title');
@@ -33,15 +36,12 @@
   function storeDraft() {
     try { sessionStorage.setItem(draftKey(), JSON.stringify({text:message.value, section:select.value, quote:quoted})); } catch {}
   }
-  function currentSection() {
-    return sections.filter(h => h.getBoundingClientRect().top <= 100).pop() || sections[0];
-  }
   function open(modeName, selection) {
     focusOrigin = document.activeElement;
     mode = modeName;
     let draft = {};
     try { draft = JSON.parse(sessionStorage.getItem(draftKey())) || {}; } catch {}
-    select.value = selection?.id || draft.section || currentSection().id;
+    select.value = selection?.id || draft.section || sections[0].id;
     if (select.selectedIndex < 0) select.selectedIndex = 0;
     quoted = selection?.quote || (draft.section === select.value && draft.quote) || '';
     message.value = draft.text || '';
@@ -91,15 +91,11 @@
   };
   for (const b of dialog.querySelectorAll('.cancel,.dismiss')) b.onclick = () => dialog.close();
   dialog.addEventListener('close', () => { focusOrigin?.focus?.(); });
-  document.addEventListener('click', event => {
-    const el = event.target.closest('[data-compose],[data-discuss]');
-    if (!el || !(panel.contains(el) || bar.contains(el))) return;
+  panel.addEventListener('click', event => {
+    const el = event.target.closest('[data-compose]');
+    if (!el) return;
     event.preventDefault();
-    if (el.dataset.compose) open(el.dataset.compose);
-    else {
-      const comments = panel.querySelector('.comments');
-      comments.open = true; comments.querySelector('summary').focus(); comments.scrollIntoView({block:'start'});
-    }
+    open(el.dataset.compose);
   });
   panel.addEventListener('compose', e => open(e.detail.mode, e.detail.selected));
 })();

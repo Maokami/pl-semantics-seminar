@@ -106,6 +106,12 @@ EXTRACT = """
  const original = document.querySelector('main section');
  if (!original) throw Error('Missing chapter body');
  const body = original.cloneNode(true);
+ body.querySelectorAll('.study-inline,.lean-lab,.board,.seminar-links').forEach(el => el.remove());
+ for (const details of body.querySelectorAll('details.chapter-appendix')) {
+   const summary = details.querySelector('summary');
+   summary.replaceWith(...summary.childNodes);
+   details.replaceWith(...details.childNodes);
+ }
  body.querySelectorAll('.permalink-widget,.tactic-state,.tactic-toggle,.split-toc,.section-toc,button,input,nav,script').forEach(el => el.remove());
  for (const link of body.querySelectorAll('a[href^="print/"]')) {
    const paragraph = link.closest('p');
