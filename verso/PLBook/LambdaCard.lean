@@ -386,9 +386,9 @@ number := false
 The premise $`\vdash t:T` of progress types $`t` in the empty context. Every free variable of a typed term lies in $`\mathrm{dom}(\Gamma)`, so $`t` is closed. The premise cannot be dropped: $`x{:}\mathsf{Nat}\to\mathsf{Nat}\vdash x\ 0:\mathsf{Nat}`, and $`x\ 0` is neither a value nor able to step. From Session 30 the statements read as follows.
 
 * *Progress.* For every term $`t`, type $`T` and store typing $`\Sigma`: if $`\varnothing\mid\Sigma\vdash t:T`, then $`t` is a value or, for every store $`\mu` with $`\varnothing\mid\Sigma\vdash\mu`, there are $`t'` and $`\mu'` with $`t\mid\mu\to t'\mid\mu'`.
-* *Preservation.* For every $`\Gamma`, $`\Sigma`, $`\mu`, $`t`, $`t'`, $`\mu'` and $`T`: if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`.
+* *Preservation.* In the typed language of Session 30, let $`\Gamma` be any context. In the language extended with type abstraction (Session 31), take $`\Gamma=\varnothing` for every row of the table. For all $`\Sigma,\mu,t,t',\mu',T`, if $`\Gamma\mid\Sigma\vdash t:T`, $`\Gamma\mid\Sigma\vdash\mu` and $`t\mid\mu\to t'\mid\mu'`, then there is a store typing $`\Sigma'` with $`\Sigma\subseteq\Sigma'`, $`\Gamma\mid\Sigma'\vdash t':T` and $`\Gamma\mid\Sigma'\vdash\mu'`. The [allocation example in §31.3](chapter-31/index.html#ch31-s3) explains the restriction.
 
-The store typing may grow, because allocation adds a location. With $`\Sigma=\varnothing`, without stores and without the constructs of C.6, the two statements are the earlier ones.
+The store typing may grow, because allocation adds a location. For the typed languages of Sessions 24–29, take $`\Sigma=\varnothing` in the Session 30 statements and omit the stores.
 
 *Safety.* If $`\varnothing\mid\Sigma\vdash t:T`, $`\varnothing\mid\Sigma\vdash\mu` and $`t\mid\mu\to^*t'\mid\mu'`, then $`t'` is a value or $`t'\mid\mu'` takes a step. Before Session 30: if $`\vdash t:T` and $`t\to^*t'`, then $`t'` is a value or $`t'` takes a step. Safety follows from progress and from preservation with $`\Gamma=\varnothing`, by induction on the number of steps. Thus the evaluation of a well-typed program never gets stuck.
 

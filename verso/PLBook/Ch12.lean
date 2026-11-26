@@ -47,7 +47,7 @@ This conjunction combines assertions. It is not the guard constructor $`b_1\land
 
 $$`\forall\sigma,\sigma',\ \bigl(P(\sigma)\land B(b,\sigma)=\mathsf{true}\land\sigma\vdash c\Downarrow\sigma'\bigr)\Rightarrow P(\sigma').`
 
-For the summation program take
+To find an invariant for the summation program, look at the loop test. Initially $`i=a=0`. When the index goes from $`j` to $`j+1`, the body adds $`j+1` to the accumulator. Thus $`a` tracks the sum $`S(i)=1+\cdots+i`, with $`S(0)=0`. The sum formula $`2S(i)=i(i+1)` gives the equation we want to preserve. We also need a bound on the index to recover $`i=n` when the loop exits. Take
 
 $$`J\coloneqq\bigl(0\le i\le n\ \land\ 2a=i(i+1)\bigr),\qquad P_{\mathrm{sum}}\coloneqq(0\le n),\qquad Q_{\mathrm{sum}}\coloneqq\bigl(2a=n(n+1)\bigr).`
 
@@ -233,7 +233,7 @@ number := false
 
 *Further reading · Reachable states.* Fix a set of states at which a loop starts. Let $`\mathrm{Reach}` be the set of states at which the loop test is reached after finitely many complete iterations, including the starting states. $`\mathrm{Reach}` contains the starting states and is closed under one execution of the body from a state where the guard is true. It is the least such set. Every assertion that holds at the starting states and is a loop invariant holds at every state of $`\mathrm{Reach}`, by induction on the number of iterations. An invariant used in a proof may hold at states outside $`\mathrm{Reach}`, and preservation and exit must hold there too. For example, start with $`x=0` and run $`x:=x+2` while $`x<9`. Every value reached at the test is even. The assertion $`x\le10` is a loop invariant, but it also holds where $`x` has the unreachable value 9, at which the guard is already false. So it cannot give the exit value 10. Adding "$`x` is even" gives it.
 
-*Further reading · Finding the accumulator equation.* Let $`S(j)` be the sum of the integers from 1 to $`j`, with $`S(0)=0`. The body implements $`S(j+1)=S(j)+j+1`, which suggests the assertion $`a=S(i)`. Induction on $`j` proves $`2S(j)=j(j+1)` for every natural number $`j`. The bound $`0\le i` in $`J` makes this identity applicable to the integer $`\sigma(i)`. The doubled equation avoids division. The assertion $`a=i(i+1)/2` would need a convention for integer division and a proof that the product is even.
+*Further reading · The accumulator equation.* To derive the sum formula used in §12.1, start with $`2S(0)=0`. If $`2S(j)=j(j+1)`, then $`2S(j+1)=2S(j)+2(j+1)=(j+1)(j+2)`. This proves the formula for every natural number $`j`. The bound $`0\le i` in $`J` makes it applicable to the integer $`\sigma(i)`. The doubled equation avoids division. The assertion $`a=i(i+1)/2` would need a convention for integer division and a proof that the product is even.
 
 *Further reading · Locating an error with an intermediate assertion.* Between the two assignments of the summation body the assertion $`R\coloneqq\bigl(1\le i\le n\land 2a=(i-1)i\bigr)` holds. It implies $`J[(a+i)/a]`, because $`2(a+i)=(i-1)i+2i=i(i+1)`. Suppose the second assignment were $`a:=a+i+1`. Then $`R` would have to imply $`2(a+i+1)=i(i+1)`. With $`n=1`, the first iteration reaches $`i=1` and $`a=0` between the assignments. The left side is 4 and the right side is 2. This state is reached by the modified program, so the failed implication is a real counterexample to preservation.
 

@@ -151,7 +151,9 @@ Drop the escape condition from T-Unpack. Then $`\mathsf{let}\ \{X,d\}=p_{\mathsf
 
 In line 10 of Proposition 31.1, $`\Gamma` and $`\Delta` are empty, $`\Sigma=\varnothing`, $`S=\mathsf{Nat}`, and the premise is line 6. In an unpacking, $`\Delta` is the binding $`x{:}T_{12}` of the package’s term variable.
 
-*Theorem 31.5 (Row 6 · Universal and existential types).* The entries are read as in [C.8](lambda-card/index.html#lambda-c8). This session states them without proof.
+Why does preservation for this language use the empty context? In the context $`X`, the identity $`\lambda x{:}X.x` has type $`X\to X` (§31.1). Starting with an empty store, $`\mathsf{ref}\ (\lambda x{:}X.x)` has type $`\mathsf{Ref}\ (X\to X)` and steps to a fresh location $`l`. By T-Loc, giving $`l` that same reference type requires $`\Sigma'(l)=X\to X`. But $`X` is free in this cell type, and [C.7](lambda-card/index.html#lambda-c7) requires every cell type to be closed. In the empty context every well-formed type is closed, so allocation can extend the store typing with the type of the stored value.
+
+*Theorem 31.5 (Row 6 · Universal and existential types).* The entries are read as in [C.8](lambda-card/index.html#lambda-c8), with $`\Gamma=\varnothing` for preservation. This session states them without proof.
 
 * *Canonical forms.* If $`v` is a value and $`\varnothing\mid\Sigma\vdash v:\forall X.T_{12}`, then $`v=\lambda X.t_{12}` for some $`t_{12}`. If $`v` is a value and $`\varnothing\mid\Sigma\vdash v:\{\exists X,T_{12}\}`, then $`v=\{{*}T_{11},v_{12}\}\ \mathsf{as}\ \{\exists X,T_{12}\}` for a type $`T_{11}` and a value $`v_{12}`.
 * *Progress.* T-TAbs: the term is a value. T-TApp: steps by E-TApp or E-TappTabs. T-Pack: the term is a value or steps by E-Pack. T-Unpack: steps by E-Unpack or E-UnpackPack.
