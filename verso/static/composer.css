@@ -19,13 +19,13 @@
 
 a.study-inline {display:inline-block;margin:0 0 1rem;font:inherit;font-size:.88em;color:inherit;text-underline-offset:.2em}
 .study {font:400 1rem/1.5 system-ui,sans-serif;border:0;border-top:2px solid var(--ink);border-radius:0;background:transparent;padding:1.25rem 0}
-.study .study-head h2 {font-size:1.45rem;margin:0 0 1rem;scroll-margin-top:5rem}.study-head h2:focus {outline:2px solid #528278;outline-offset:3px}
-.chapter-questions {padding:1rem 1.2rem;background:var(--tint);color:#203f47;border-radius:.45rem}
+.study .study-head h2 {font-size:1.45rem;margin:0 0 1rem;scroll-margin-top:5rem}.study-head h2:focus-visible {outline:2px solid #528278;outline-offset:3px}
+.chapter-questions {padding:.85rem 0 1.25rem;border-bottom:1px solid var(--line);color:var(--ink)}
 .chapter-questions h3 {margin:0;font-size:1.05rem}.chapter-questions .study-actions {margin:.65rem 0 0}
 .chapter-questions .study-actions a:not([data-compose]) {background:transparent;border:0;text-decoration:underline}
 .question-feed {font-size:.95em;margin:.4rem 0}.question-feed ul {padding:0;list-style:none}.question-feed li {display:flex;align-items:baseline;gap:.5rem;justify-content:space-between;margin:.4rem 0}
 .question-feed li a {color:inherit;overflow-wrap:anywhere}.question-feed small {white-space:nowrap}
-.study .comments {border:0;padding:.9rem .2rem}
+.study .comments {border:0;padding:1.25rem 0 .5rem}
 .study .giscus-frame {display:block;width:100%;border:0}
 .meeting-tools {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;border-top:1px solid var(--line);padding:.8rem 0}
 .meeting-tools>details {margin:0;padding:.65rem .85rem;border:1px solid var(--line);border-radius:.45rem;min-width:0}.meeting-tools>details>summary small {display:block;padding-left:1rem;font-weight:400;font-size:.83em;opacity:.82}.reply-count {font-weight:400;font-size:.82em;margin-left:.4rem}.meeting-tools>details[open] {grid-column:1/-1}
@@ -44,3 +44,14 @@ a.study-inline {display:inline-block;margin:0 0 1rem;font:inherit;font-size:.88e
 .reader-composer .math-preview {background:#f3f6f5;padding:.5rem .7rem;border-radius:.3rem;margin:.5rem 0}
 .math-preview>div,.reader-composer blockquote {white-space:pre-wrap;overflow-wrap:anywhere;overflow-x:auto}
 .math-preview>div {max-height:10rem;overflow:auto}
+
+.study .passage-help {margin:.25rem 0 .8rem}
+.study :is(.passage-help, .discussion-help, footer) a, .study .passage-picker, .seminar-links a, .lean-lab a {color:#26594f;text-underline-offset:.18em}
+.study .questions-heading h3,.study .comments h3 {font-size:1.08rem;margin:0}
+.study .refresh-questions {min-height:2rem}
+.study footer {gap:.6rem 1.2rem}
+@media (max-width:42rem) {
+  .study .chapter-questions .study-actions {row-gap:.5rem}
+  .study .passage-help {line-height:1.7}
+  .reader-composer .math-help button {min-height:2.4rem}
+}

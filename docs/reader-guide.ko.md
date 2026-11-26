@@ -23,7 +23,7 @@ GitHub에서 질문을 올리거나 삭제한 뒤 교재 탭으로 돌아오면 
 
 ## 직접 해 보기
 
-모든 장에서 **Exercises → Reconstruct the proof**를 펼쳐 이번 장의 칠판 문제를 직접 풀어 보세요. 4–38장에서는 **Show proof outline**을 눌러 원고의 증명 개요와 대조할 수 있습니다. 나머지 연습문제도 먼저 풀어 보고 **Solutions and Further Reading**에서 풀이를 대조하세요. 1–3회에는 **Exercises → Open Lean editor**가 있습니다. 1회에서는 상태에서 변수 x의 값이 3일 때 x + 4가 7로 평가된다는 증명을 완성합니다. 편집기에서 `plusFour`를 찾아 `sorry`를 증명으로 바꿔 보세요. 작성한 코드는 편집기의 다운로드 기능으로 보관할 수 있습니다. 여러 파일을 함께 보려면 **Open project workspace**에서 실습 저장소 전체를 열 수 있습니다. [Lean 실습 저장소](https://github.com/Maokami/pl-semantics-labs)
+각 장의 **Exercises**에는 번호가 붙은 연습문제가 먼저 나오고, 그 아래에 **Reconstruct the proof**가 있습니다. 이를 펼쳐 이번 장의 칠판 문제를 직접 풀어 보세요. 4–38장에서는 **Show proof outline**을 눌러 원고의 증명 개요와 대조할 수 있습니다. 나머지 연습문제도 먼저 풀어 보고 **Solutions and Further Reading**에서 풀이를 대조하세요. 1–3회에는 **Exercises → Open Lean editor**가 있습니다. 1회에서는 상태에서 변수 x의 값이 3일 때 x + 4가 7로 평가된다는 증명을 완성합니다. 편집기에서 `plusFour`를 찾아 `sorry`를 증명으로 바꿔 보세요. 작성한 코드는 편집기의 다운로드 기능으로 보관할 수 있습니다. 여러 파일을 함께 보려면 **Open project workspace**에서 실습 저장소 전체를 열 수 있습니다. [Lean 실습 저장소](https://github.com/Maokami/pl-semantics-labs)
 
 ## 발표를 맡은 주
 

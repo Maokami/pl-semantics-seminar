@@ -8,8 +8,9 @@
   const button = lab.querySelector('.lab-start');
   const status = lab.querySelector('.lab-status');
   button.hidden = false;
-  lab.querySelector('.lab-instruction').textContent =
-    'Find ' + firstTheorem + ' in the editor and replace sorry with a proof. Use the editor’s download option to keep your changes.';
+  const theorem = document.createElement('code');
+  theorem.textContent = firstTheorem;
+  lab.querySelector('.lab-instruction').replaceChildren('Complete the proof of ', theorem, '.');
   async function loadFile(path, expectedImport) {
     const response = await fetch(base + path);
     if (!response.ok) throw new Error(path);
@@ -51,7 +52,7 @@
         toggle.setAttribute('aria-expanded', String(!frame.hidden));
       };
       button.replaceWith(toggle);
-      status.textContent = '';
+      status.textContent = 'Use the editor’s download option to keep your work.';
     } catch {
       status.textContent = 'The browser editor could not load the workbook. Retry or open the workbook source.';
       button.disabled = false;

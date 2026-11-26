@@ -50,7 +50,7 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .chapter-appendix>summary:focus-visible {outline:2px solid #528278;outline-offset:2px}
 .chapter-appendix[open] {padding-bottom:1rem}
 .chapter-appendix .board {margin:.5rem 0 1rem}
-.lean-lab {padding:1rem;margin:.75rem 0 1.2rem;border-inline-start:3px solid #528278;background:#edf5f2;color:#203f47}
+.lean-lab {padding:.85rem 1rem;margin:.75rem 0 1.2rem;border-inline-start:2px solid #669084;background:#f4f7f6;color:#203f47}
 .lean-lab h3 {font-size:1.1rem;margin:0}
 .lean-lab p {margin:.35rem 0 .7rem}.lean-lab .lab-status:empty {display:none}
 .lab-actions {display:flex;align-items:center;gap:.6rem 1rem;flex-wrap:wrap;font-size:.92rem}
@@ -83,3 +83,22 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .questions-heading {display:flex;justify-content:space-between;align-items:baseline;gap:.65rem;flex-wrap:wrap}
 .questions-heading button {font:inherit;font-size:.85rem;text-decoration:underline;color:inherit;background:none;border:0;cursor:pointer}
 .questions-heading button:disabled {opacity:.6;cursor:wait}
+
+@media screen {
+  header .header-title h1 {font-size:clamp(1.08rem, 1.2vw + .55rem, 1.45rem);line-height:1.2}
+  .chapter-appendix .board {margin:1.2rem 0 .65rem;padding:.8rem 0;border-top:1px solid #c7d1ce}
+  .chapter-appendix .agenda-label {display:block;margin:1.25rem 0 .3rem;color:#284e49}
+  .chapter-appendix .facilitator-hint {padding:.65rem .9rem;border-inline-start:2px solid #9bb1ab;background:#f6f8f7}
+  .seminar-links {border-top:1px solid #d3ddda;padding-top:.7rem;font-size:.92rem}
+}
+@media screen {
+  header .header-title-wrapper {min-width:0}
+  header .header-title h1 {overflow:hidden;text-overflow:ellipsis}
+  header #search-wrapper {position:static;flex:none;--search-bar-width:clamp(7rem,16vw,18rem)}
+}
+@media screen and (max-width:700px) {
+  header #search-wrapper {--search-bar-width:clamp(4.6rem,22vw,9rem)}
+  header #search-wrapper [role=listbox] {width:min(24rem,calc(100vw - 1rem));right:0;left:auto}
+}
+/* Keep KaTeX's positioned accessibility layer inside each scrollable formula. */
+main .math {position:relative}

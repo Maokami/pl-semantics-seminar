@@ -30,6 +30,12 @@ if (location.protocol === 'file:') {
     const content = [...section.childNodes];
     summary.append(heading);
     details.append(summary, ...content.filter(node => node !== heading));
+    if (details.dataset.kind === 'seminar') {
+      for (const label of details.querySelectorAll(':scope > p > strong:first-child')) {
+        if (/·\s*\d+\s*minutes?\./i.test(label.textContent)) label.classList.add('agenda-label');
+        else if (/^Facilitator[’']s hint/i.test(label.textContent)) label.parentElement.classList.add('facilitator-hint');
+      }
+    }
     section.append(details);
     disclosures.push(details);
   }

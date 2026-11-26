@@ -23,7 +23,7 @@
   const exercises = main.querySelector('.chapter-appendix[data-kind="exercises"]');
   const board = panel.querySelector('.board');
   if (board && exercises) {
-    exercises.insertBefore(board, exercises.querySelector('summary').nextSibling);
+    exercises.append(board);
     const lab = panel.querySelector('.lean-lab');
     if (lab) board.after(lab);
     const tools = panel.querySelector('.meeting-tools');
@@ -134,8 +134,8 @@
     s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
     Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
       category, categoryId, mapping:number ? 'number' : 'specific',
-      term:number || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',
-      inputPosition:'top',theme:'preferred_color_scheme',lang:'en'});
+      term:number || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'0',
+      inputPosition:'top',theme:'light',lang:'en'});
     s.onerror = () => help.append(' The embedded comments could not load. Use the GitHub link above.');
     comments.querySelector('.giscus').append(s);
   }

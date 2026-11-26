@@ -33,6 +33,7 @@ for i in range(1, 39):
     assert all(anchor.startswith(f"ch{i:02}") for anchor in chapter.passages), i
     assert page.count('class="passage-picker"') == 1
     assert page.count('id="chapter-discussion"') == 1 and '<details class="comments">' not in page
+    assert page.index('class="chapter-questions"') < page.index('id="chapter-discussion"'), i
     assert page.count('class="giscus"') == page.count('class="question-feed"') == 1
     assert "docs/reader-guide.ko.md" in page
     if i == 1:

@@ -54,15 +54,15 @@ def chapter_tools(number, title, revision, page):
     issue_body = f"Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n"
     issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "template": "correction.md", "body": issue_body})
     node = lambda url: html.escape(url, quote=True)
-    picker = '<p class="passage-help">Select text to share a link or quote it in a discussion. <button type="button" class="passage-picker">Choose a passage</button> · <a href="https://github.com/Maokami/pl-semantics-seminar/blob/curriculum-v1.2/docs/reader-guide.ko.md" lang="ko">스터디 이용 안내</a></p>'
+    picker = '<p class="passage-help">Select text in the chapter to share it. <button type="button" class="passage-picker">Choose a passage</button> · <a href="https://github.com/Maokami/pl-semantics-seminar/blob/curriculum-v1.2/docs/reader-guide.ko.md" lang="ko">스터디 이용 안내</a></p>'
     questions = f"{REPO}/discussions?" + urlencode({"discussions_q": f'category:"Q&A" "{tag}"'})
-    discussion_tools = f"""<div class="comments" id="chapter-discussion" tabindex="-1">
-<h3>Chapter discussion</h3>
-<p class="discussion-help">Read and reply here in English or Korean. Sign in with GitHub to post publicly. <a href="{node(discussion)}">View on GitHub ↗</a></p>
-<div class="giscus"></div></div>
-<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
+    discussion_tools = f"""<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
 <div class="question-feed" aria-live="polite"></div>
-<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>"""
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>
+<div class="comments" id="chapter-discussion" tabindex="-1">
+<h3>Chapter discussion</h3>
+<p class="discussion-help">Reply in English or Korean using your GitHub account. <a href="{node(discussion)}">View on GitHub ↗</a></p>
+<div class="giscus"></div></div>"""
     prompt = board_exercise(number, page)
     lab = workbook_script = ""
     if number <= 3:
@@ -71,7 +71,7 @@ def chapter_tools(number, title, revision, page):
 <h3>Lean workbook</h3><p class="lab-instruction"></p>
 <div class="lab-actions"><button class="lab-start" type="button" hidden>Open Lean editor</button>
 <a href="https://codespaces.new/Maokami/pl-semantics-labs?quickstart=1">Open project workspace ↗</a></div>
-<p class="lab-path">In Codespaces, open <a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean"><code>Exercises/Session{number:02}.lean</code></a> to work with the full project and Lake.</p>
+<p class="lab-path"><a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean"><code>Exercises/Session{number:02}.lean</code></a></p>
 <p role="status" class="lab-status"></p></div>"""
     source = f"{REPO}/blob/{revision}/verso/PLBook/Ch{number:02}.lean"
     history = f"{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean"
