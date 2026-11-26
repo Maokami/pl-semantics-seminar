@@ -1,6 +1,8 @@
 """Apply seminar order to the navigation of the rendered Verso editions."""
 import html
 import re
+import subprocess
+from study import chapter_tools
 from functools import lru_cache
 from pathlib import Path
 
@@ -75,6 +77,7 @@ def course_nav(groups, names, current, sidebar):
 
 
 def update_pages(site):
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     groups = list(units())
     names = titles()
     order = [n for *_, chapters in groups for n in chapters]
@@ -99,4 +102,6 @@ def update_pages(site):
             if k != 1: raise ValueError(f'Root navigation missing in {p}')
         if ch or p == site/'index.html':
             s = reader_buttons(s, ch, order, names)
+        if ch:
+            s = s.replace("</main>", chapter_tools(ch, names[ch], revision) + "</main>", 1)
         p.write_text(s.replace('<html>', '<html lang="en">', 1))
