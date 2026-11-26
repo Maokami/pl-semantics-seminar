@@ -9,7 +9,7 @@ tag := "ch10"
 file := "chapter-10"
 %%%
 
-Take $`\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1` and a state with $`x=0`. The rules of Session 2 derive a final state with $`x=2`. The meaning computed in Session 9 returns the same state, first at stage 3. This session proves that the two accounts agree for every command and every pair of states. The intermediate state in sequencing is where they meet. For a loop the bridge is the number of finite unfoldings needed by an execution.
+Take $`\mathsf{while}\ x<2\ \mathsf{do}\ x:=x+1` and a state with $`x=0`. The rules of Session 2 derive a final state with $`x=2`. The meaning computed in Session 9 returns the same state, first at stage 3. This session connects the operational and denotational semantics of IMP. Given an initial state $`\sigma`, the meaning of a command returns a final state $`\sigma'` exactly when the execution rules derive a run from $`\sigma` to $`\sigma'`. The intermediate state in sequencing is where they meet. For a loop the bridge is the number of finite unfoldings needed by an execution.
 
 *In this session.*
 

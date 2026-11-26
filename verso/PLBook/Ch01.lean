@@ -9,7 +9,7 @@ tag := "ch01"
 file := "chapter-01"
 %%%
 
-In a state where the variable $`x` holds $`3`, the expression $`x + 4` has value $`7`. This chapter gives two precise accounts of that sentence. The first is a function that computes the value from the leaves of the expression up. The second is a set of rules that justify a proposed value step by step. We shall prove that a proposed value has a justification by the rules exactly when the function returns it. The same example runs through every section.
+In a state where the variable $`x` holds $`3`, the expression $`x + 4` has value $`7`. This chapter gives two precise accounts of that sentence. The first is a function that computes the value from the leaves of the expression up. The second is a set of rules that justify a proposed value step by step. We shall prove that a proposed value has a justification by the rules exactly when the function returns it. Part 1 takes these questions from expressions to whole programs. Once commands can change the state, we can also ask which properties of the final state follow from assumptions about the initial one.
 
 *In this session.*
 
@@ -83,7 +83,7 @@ $$`\begin{aligned}
 
 In $`\sigma[x\mapsto8]` only the lookup at $`\operatorname{var}(x)` changes, and the result is $`8+4=12`.
 
-Keeping the expression fixed and allowing the state to vary gives its *denotation*, the function $`\llbracket e\rrbracket:\Sigma\to\mathbb Z` with $`\llbracket e\rrbracket(\sigma)=\mathrm{eval}(e,\sigma)`. Thus $`x+4` denotes the function sending each state to $`\sigma(x)+4`. The addition equation defines the meaning of a sum by adding its two operand functions pointwise, that is, at the same input state. This is a *compositional* definition: the constructor acts on the meanings of its children.
+Keeping the expression fixed and allowing the state to vary gives its *denotation*, the function $`\llbracket e\rrbracket:\Sigma\to\mathbb Z` with $`\llbracket e\rrbracket(\sigma)=\mathrm{eval}(e,\sigma)`. Thus $`x+4` denotes the function sending each state to $`\sigma(x)+4`. The addition equation defines the meaning of a sum by adding its two operand functions pointwise, that is, at the same input state. This is a *compositional* definition because the constructor acts on the meanings of its children. Giving an expression its meaning in this way is a simple instance of *denotational semantics*. [Session 8](chapter-08/index.html#ch08-s1) takes the same approach to commands, whose execution may change the state or continue forever.
 
 # Free variables and the coincidence lemma
 %%%
@@ -152,8 +152,6 @@ tag := "ch01-s4"
 
 Why is $`7` a possible result for $`x+4` in $`\sigma`, and could $`8` also be justified? We answer by rules that justify proposed results without running $`\mathrm{eval}`. Write $`\sigma \vdash e \Downarrow n` for the claim that $`e` evaluates to $`n` in $`\sigma`. Such a claim is a *judgment*. The turnstile $`\vdash` separates the input state from the expression, and the result after $`\Downarrow` is an integer. Both $`\sigma\vdash x+4\Downarrow7` and $`\sigma\vdash x+4\Downarrow8` are judgments; the rules decide which can be justified.
 
-These rules give a *big-step operational semantics*. The judgment relates the entire expression to its result. A derivation records how the values of the children justify the value at the root.
-
 An *inference rule* puts its premises above the line and its conclusion below. Once every premise is justified, so is the conclusion. A rule with no premises is an *axiom*. Four rules govern evaluation. Like $`n`, the letters $`n_1` and $`n_2` stand for integers.
 
 *Definition 1.5 (Evaluation judgment).* Write $`\sigma\vdash e\Downarrow n` when the judgment has a finite derivation by the following rules.
@@ -174,6 +172,8 @@ We refer to the four rules as the literal axiom, the variable axiom, the additio
 Writing each conclusion under the judgments that justify its premises gives a tree. The integer $`7` enters only at the root, as the sum $`n_1+n_2`.
 
 $$`\frac{\frac{}{\sigma \vdash \operatorname{var}(x) \Downarrow 3}\quad\frac{}{\sigma \vdash \operatorname{lit}(4) \Downarrow 4}}{\sigma \vdash \operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right) \Downarrow 7}`
+
+The rules describe how an expression evaluates. This is *operational semantics*. Each judgment gives the result of a whole expression, as the root does for $`x+4`, so this form is called *big-step*. [Session 5](chapter-05/index.html#ch05-s1) gives rules for a single step of a command.
 
 Could $`8` be justified? Read the construction backwards. Suppose any tree built in this way ends with $`\sigma\vdash x+4\Downarrow n`.
 
