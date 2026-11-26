@@ -31,6 +31,8 @@ Let $`W` be `while 0 < x do skip`. By [A.4](imp-card/index.html#imp-a4) its guar
 
 *Definition 8.2 (State transformer).* A *state transformer* is a total function $`f:\Sigma\to\Sigma_{\bot}`. Two state transformers $`f,g` are equal when $`f(\sigma)=g(\sigma)` for every state $`\sigma`.
 
+In the *denotational semantics* of IMP the mathematical meaning, or *denotation*, of each command $`c` is a state transformer $`f_c`. A sequence uses the meanings of its two parts to compute its own meaning (§8.2). A loop must also account for the possibility of arbitrarily many iterations. [Section 9.3](chapter-09/index.html#ch09-s3) uses the information order to determine which solution of the loop equation describes execution.
+
 For $`W` above, define the state transformer $`\ell` by $`\ell(\sigma)=\sigma` if $`\sigma(x)\le0` and $`\ell(\sigma)=\bot` if $`\sigma(x)>0`. Session 9 gives $`W` exactly this meaning. A partial function on states and a state transformer carry the same information: the partial function is undefined at $`\sigma` exactly when the state transformer returns $`\bot` at $`\sigma`. The difference is that a state transformer returns a value at every state. We can pass that value to another function and split on it by cases.
 
 # Meanings of commands

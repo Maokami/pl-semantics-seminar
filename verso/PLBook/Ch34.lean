@@ -112,6 +112,8 @@ $$`\bigl(\forall n,\ P(d_n)\bigr)\Rightarrow P\Bigl(\bigsqcup_n d_n\Bigr).`
 
 It is *admissible* if it is chain-closed and $`P(\bot)` holds. A function $`f:D\to D` *preserves* $`P` if $`P(d)\Rightarrow P(f(d))` for every $`d\in D`. A set $`\mathcal A\subseteq D` is *admissible* if the property $`d\in\mathcal A` is admissible.
 
+In structural induction every finite tree is reached by the constructor cases. Here induction on $`n` reaches every finite approximation $`f^n(\bot)`. The least upper bound can differ from all of them, so chain closure supplies a further step. Compare [the coinduction argument for infinite paths](chapter-05/index.html#ch05-s3): there a set of configurations with successors in the same set witnesses membership in a greatest fixed point.
+
 *Theorem 34.8 (Scott induction, also called fixed-point induction).* Let $`D` be a domain, $`f:D\to D` continuous, and $`P` an admissible property of elements of $`D`. If $`f` preserves $`P`, then $`P(\mathrm{lfp}(f))`.
 
 *Proof.* We must show $`P(\mathrm{lfp}(f))`, where $`\mathrm{lfp}(f)=\bigsqcup_n f^n(\bot)` (Proposition 34.4). We first prove $`Q(n)` for every $`n` by induction on $`n`, with the induction property

@@ -117,6 +117,8 @@ Determinacy states that there is *at most one* final state. As [Session 1, Corol
 
 A *partial function* from states to states gives at most one output for each input. At some inputs it may give none. Its *graph* is the set of its input–output pairs. Fix a command $`c`. By Theorem 3.2, for each state $`\sigma` the set of states $`\sigma'` with $`\sigma\vdash c\Downarrow\sigma'` is empty or has one element. So the pairs $`(\sigma,\sigma')` with $`\sigma\vdash c\Downarrow\sigma'` form the graph of a partial function. At $`\sigma` take the unique $`\sigma'` if there is one, and leave the function undefined otherwise.
 
+For a statement about the *next* configuration one must compare individual steps. That proof examines the transition rules in [Session 5](chapter-05/index.html#ch05-s2). The present theorem applies only once two executions with final states have been supplied.
+
 # Exercises
 %%%
 tag := "ch03-s4"

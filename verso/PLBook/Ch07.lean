@@ -45,6 +45,8 @@ By [Session 3, Theorem 3.2](chapter-03/index.html#ch03-s2), each state $`\sigma`
 
 *Example 7.2.* The commands `x := x + 0` and `skip` are equivalent. The only rule whose conclusion has an assignment at the root is the assignment rule. So every execution of `x := x + 0` from $`\sigma` ends in $`\sigma[x\mapsto \sigma(x)+0]`. This state holds $`\sigma(x)` at $`x` and $`\sigma(z)` at every other name $`z`, so it equals $`\sigma`. The only rule for skip also ends in $`\sigma`. Hence both sets of pairs equal $`\{(\sigma,\sigma)\mid \sigma\in\Sigma\}`. In the transitions of [A.6](imp-card/index.html#imp-a6) the assignment takes one step and skip takes none. Definition 7.1 does not observe this difference.
 
+Equality in Definition 7.1 requires both inclusions between the sets of observations. A common specification of *refinement* requires just one: every behavior the implementation exhibits must be permitted by the specification. One must say what counts as a behavior and which program supplies it. [Theorem 16.2](chapter-16/index.html#ch16-s2), for example, starts with a terminating source run and constructs a target run. Its direction and its observation are part of its statement.
+
 # Loop unfolding
 %%%
 tag := "ch07-s2"

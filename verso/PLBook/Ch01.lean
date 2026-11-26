@@ -37,6 +37,8 @@ A *constructor* builds a tree from its parts. We write $`\operatorname{lit}(n)`,
 
 $$`\begin{matrix} & \operatorname{add} & \\ \swarrow & & \searrow \\ \operatorname{var}(x) & & \operatorname{lit}(4) \end{matrix}`
 
+The characters we write, including parentheses, are *concrete syntax*. The tree they specify is *abstract syntax*. Extra parentheses around the entire expression change the text while leaving the tree unchanged.
+
 Every expression has exactly one outermost constructor, and the children of a binary node are uniquely determined and ordered. So in a definition or proof by cases on the root, each expression falls under exactly one case. Write $`V=\mathrm{Name}` for the set of strings, $`\mathbb Z` for the set of integers and $`E` for the set of expression trees.
 
 *Structural induction* proves a property $`P(e)` by considering each constructor. At a binary node, the claims $`P(e_1)` and $`P(e_2)` for its two immediate children are the *induction hypotheses*. The property $`P` is the *induction property*. To prove $`\forall e\in E,\ P(e)`, that is, $`P(e)` for every expression $`e`, it suffices to prove
@@ -67,7 +69,7 @@ $$`\begin{aligned}
 \mathrm{eval}(e_1-e_2,\sigma)&=\mathrm{eval}(e_1,\sigma)-\mathrm{eval}(e_2,\sigma).
 \end{aligned}`
 
-Here $`\mathrm{eval}:E\times\Sigma\to\mathbb Z`. On the left of the first equation, $`n` is the leaf $`\operatorname{lit}(n)`; on the right it is an integer. On the left of the third equation, $`+` constructs a tree. On the right it adds two integers. Both recursive calls use the given state.
+Here $`\mathrm{eval}:E\times\Sigma\to\mathbb Z`. On the left of the first equation, $`n` is the leaf $`\operatorname{lit}(n)`; on the right it is an integer. The expression on the left of the third equation belongs to the *object language*, the language being described. Its plus sign constructs a tree. We write the equations in a *metalanguage*, here the mathematics of functions and integers. The plus sign on the right adds two integers. The Lean formalization encodes the same distinction between an expression constructor and an operation on its values.
 
 Calling $`\mathrm{eval}` only on immediate children is what makes the equations a definition. For each fixed state, the first two equations give the value at every leaf, and a binary equation gives the value at a node from the values at its two children. Every tree is built from its leaves in finitely many steps, so the equations determine a unique total function.
 
@@ -80,6 +82,8 @@ $$`\begin{aligned}
 \end{aligned}`
 
 In $`\sigma[x\mapsto8]` only the lookup at $`\operatorname{var}(x)` changes, and the result is $`8+4=12`.
+
+Keeping the expression fixed and allowing the state to vary gives its *denotation*, the function $`\llbracket e\rrbracket:\Sigma\to\mathbb Z` with $`\llbracket e\rrbracket(\sigma)=\mathrm{eval}(e,\sigma)`. Thus $`x+4` denotes the function sending each state to $`\sigma(x)+4`. The addition equation defines the meaning of a sum by adding its two operand functions pointwise, that is, at the same input state. This is a *compositional* definition: the constructor acts on the meanings of its children.
 
 # Free variables and the coincidence lemma
 %%%
@@ -147,6 +151,8 @@ tag := "ch01-s4"
 %%%
 
 Why is $`7` a possible result for $`x+4` in $`\sigma`, and could $`8` also be justified? We answer by rules that justify proposed results without running $`\mathrm{eval}`. Write $`\sigma \vdash e \Downarrow n` for the claim that $`e` evaluates to $`n` in $`\sigma`. Such a claim is a *judgment*. The turnstile $`\vdash` separates the input state from the expression, and the result after $`\Downarrow` is an integer. Both $`\sigma\vdash x+4\Downarrow7` and $`\sigma\vdash x+4\Downarrow8` are judgments; the rules decide which can be justified.
+
+These rules give a *big-step operational semantics*. The judgment relates the entire expression to its result. A derivation records how the values of the children justify the value at the root.
 
 An *inference rule* puts its premises above the line and its conclusion below. Once every premise is justified, so is the conclusion. A rule with no premises is an *axiom*. Four rules govern evaluation. Like $`n`, the letters $`n_1` and $`n_2` stand for integers.
 

@@ -148,6 +148,8 @@ For a loop, then, two facts about the single abstract state $`X` must be shown. 
 
 Theorem 17.8 speaks only about terminating executions, and it gives an inclusion. In the opening example the result $`\{x\mapsto7\}` also describes states with 5 at $`z`, which no run reaches. Soundness says that every recorded fact is true. It does not say that every true fact is recorded (Exercise 17.3).
 
+Compare this with the [loop denotation in §9.3](chapter-09/index.html#ch09-s3). There an increasing chain in the information order determines the exact outcome at each input. Here $`\gamma(X)` is a *set* of concrete states. For soundness it suffices that it contain the entry states and remain closed under the body from states satisfying the guard. Including extra states can cost the analysis a constant, but preserves this guarantee.
+
 # Exercises
 %%%
 tag := "ch17-s4"

@@ -160,6 +160,8 @@ This proves the three inclusions. $`\square`
 
 The proof uses neither the number 20 nor any fact about which post-fixed point the iteration found. The choice of $`D` matters only in the second alternative, for (1), (2) and step 4 (Exercise 19.3). Session 20 uses the three inclusions as §19.2 describes: (1) in both loop cases of its proof to compare the guard values, (2) in the loop exit case and (3) in the loop iteration case.
 
+The operator here acts on sets of names. A set satisfying $`F(H)\subseteq H` contains everything demanded by a further pass around the loop. A smaller such set can allow the transformation to delete more assignments. Safety of deletion needs only the three inclusions above. This is where the analysis differs from the denotation of a loop in [§9.3](chapter-09/index.html#ch09-s3), for which the choice of the least fixed point determines whether an input has a result.
+
 # Exercises
 %%%
 tag := "ch19-s4"

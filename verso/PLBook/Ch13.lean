@@ -56,6 +56,8 @@ The triple $`\{P\wedge\mathrm{T}_b\wedge(\mu=j)\}\,c\,\{P\wedge(\mu<j)\}` says t
 
 $$`\frac{\forall j\in\mathbb N,\ \vdash_{\mathrm{tot}}\{P\wedge\mathrm{T}_b\wedge(\mu=j)\}\ c\ \{P\wedge(\mu<j)\}}{\vdash_{\mathrm{tot}}\{P\}\ \mathsf{while}\ b\ \mathsf{do}\ c\ \{P\wedge\mathrm{F}_b\}}`
 
+There are two well-founded arguments in the soundness proof. One passes from the proof of a triple to a proof of one of its premises. Inside the loop case another passes from the current value of the variant to a smaller natural number. Only the second argument needs the measure supplied by the program proof.
+
 The total while rule has one premise for each natural number $`j`. So a derivation in this system is not a finite tree as in [A.3](imp-card/index.html#imp-a3): it can branch infinitely often at this rule. Every path from its root still ends after finitely many rules, and in this session a derivation means such a tree. Induction on derivations ([Session 1, §1.5](chapter-01/index.html#ch01-s5)) still applies; "Derivations with infinitely many premises" in the Solutions and Further Reading gives the reason. At the total while rule there is one induction hypothesis for each $`j`. In practice one derives the premise once, for an arbitrary fixed $`j`.
 
 *A derivation for $`W_{\mathrm{dec}}`.* Write $`b` for $`0<x`, $`P` for $`0\le x`, and $`\mu(\sigma)=\max(\sigma(x),0)`. Fix $`j\in\mathbb N`. Each line follows from earlier lines by the rule named at its end.

@@ -162,6 +162,8 @@ The final states agree on $`L`, and in general nowhere else. In §20.1 they diff
 
 Expressions and guards always terminate and change no state. So deleting a dead assignment can change only the final value of a name outside $`L`. If evaluating an expression could also print or fail, the deletion could remove that effect (Exercise 20.4).
 
+Compare [Definition 7.1](chapter-07/index.html#ch07-s1): it asks for the same terminating pairs in both directions and observes all names. Theorem 20.2 starts with an original execution, requires initial agreement on the names selected by liveness, and constructs a transformed execution with final agreement on $`L`. An inclusion of complete target behaviors in source behaviors would quantify in the other direction and would need a definition of what counts as a behavior.
+
 # Exercises
 %%%
 tag := "ch20-s4"

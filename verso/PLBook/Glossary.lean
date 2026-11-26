@@ -38,6 +38,31 @@ number := false
   * Meaning
   * First use
 *
+  * abstract syntax / concrete syntax
+  * 추상 구문 / 구체 구문
+  * The tree of program constructs / the notation used to write a program.
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
+*
+  * object language / metalanguage
+  * 대상 언어 / 메타언어
+  * The language being described / the language used to state its syntax, rules and mathematical interpretation.
+  * Session 1 · [§1.2](chapter-01/index.html#ch01-s2)
+*
+  * denotation / denotational semantics
+  * 표시 / 표시적 의미론
+  * A program’s mathematical meaning / its definition by interpreting constructs in terms of the meanings of their parts. An IMP expression denotes a function from states to integers. For commands see [§8.1](chapter-08/index.html#ch08-s1).
+  * Session 1 · [§1.2](chapter-01/index.html#ch01-s2)
+*
+  * compositionality
+  * 합성성
+  * The meaning of a compound expression is determined by its constructor and the meanings of its immediate parts.
+  * Session 1 · [§1.2](chapter-01/index.html#ch01-s2)
+*
+  * operational semantics
+  * 운영적 의미론
+  * Rules describing the execution of programs. Big-step rules relate a computation to its result. Small-step rules relate successive configurations.
+  * Session 1 · [§1.4](chapter-01/index.html#ch01-s4)
+*
   * arithmetic expression
   * 산술식
   * A literal, a variable, or a sum or difference of two expressions.
@@ -136,7 +161,7 @@ number := false
   * big-step semantics
   * 큰걸음 의미론
   * Rules relating a complete computation to its result.
-  * Session 2 · [§2.2](chapter-02/index.html#ch02-s2)
+  * Session 1 · [§1.4](chapter-01/index.html#ch01-s4). Commands in [§2.2](chapter-02/index.html#ch02-s2).
 *
   * Boolean expression
   * 조건식
@@ -193,6 +218,11 @@ number := false
   * A function defined on a subset of its inputs, with one output at each input where it is defined. Its graph is the set of its input–output pairs.
   * Session 3 · [§3.3](chapter-03/index.html#ch03-s3)
 *
+  * initial algebra / catamorphism
+  * 초기 대수 / 카타모피즘
+  * An algebra with exactly one operation-preserving map to each algebra of the same signature / that unique map. For the expression trees, the map is the fold.
+  * Session 4 · [§4.3](chapter-04/index.html#ch04-s3)
+*
   * constructor equation
   * 생성자 등식
   * An equation giving the result at one constructor in terms of its fields and the results at its children.
@@ -228,6 +258,16 @@ number := false
   * The command describing the work still to do.
   * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
 *
+  * small-step semantics
+  * 작은걸음 의미론
+  * An operational semantics that specifies individual transitions. Paths of transitions describe runs.
+  * Session 5 · [§5.1](chapter-05/index.html#ch05-s1)
+*
+  * coinduction
+  * 공귀납법
+  * To establish an infinite IMP path, exhibit a set containing its start in which each configuration has a successor in the set.
+  * Session 5 · [§5.3](chapter-05/index.html#ch05-s3)
+*
   * transition
   * 전이
   * A single step between configurations allowed by the small-step rules.
@@ -256,6 +296,11 @@ number := false
   * observation
   * 관찰
   * What an equivalence compares about a run. In Definition 7.1 it is the entire final state of each terminating execution.
+  * Session 7 · [§7.1](chapter-07/index.html#ch07-s1)
+*
+  * refinement
+  * 정제
+  * With behaviors ordered by inclusion, every behavior of the implementation is permitted by the specification. The chosen observation determines which behaviors are compared.
   * Session 7 · [§7.1](chapter-07/index.html#ch07-s1)
 *
   * program equivalence
@@ -348,6 +393,11 @@ number := false
   * The set of pairs $`(\sigma,\sigma')` such that some intermediate state $`\sigma_1` has $`(\sigma,\sigma_1)` in the first relation and $`(\sigma_1,\sigma')` in the second.
   * Session 10 · [§10.1](chapter-10/index.html#ch10-s1)
 *
+  * axiomatic semantics
+  * 공리적 의미론
+  * A semantics given by axioms and inference rules for assertions about programs. Hoare logic derives precondition–command–postcondition triples.
+  * Session 11 · [§11.2](chapter-11/index.html#ch11-s2)
+*
   * assertion
   * 단언
   * A statement about a state that is true or false at each state
@@ -422,6 +472,11 @@ number := false
   * 루프 불변식
   * An assertion P with ⊨ \{P ∧ T\_b\} c \{P\} for the loop `while b do c`.
   * Session 12 · [§12.1](chapter-12/index.html#ch12-s1)
+*
+  * relative completeness (Hoare logic)
+  * 상대적 완전성
+  * Every valid expressible triple can be derived, given sufficient expressive power for intermediate assertions and access to true implications of the assertion theory.
+  * Session 12 · [§12.3](chapter-12/index.html#ch12-s3)
 *
   * soundness
   * 건전성
@@ -802,6 +857,16 @@ number := false
   * A set of one-step rules that decides which redex is contracted next
   * Session 23 · [§23.1](chapter-23/index.html#ch23-s1)
 *
+  * confluence
+  * 합류성
+  * For a fixed reduction relation, any two finite paths from the same term have endpoints that can reduce to a common term.
+  * Session 23 · [Further reading](chapter-23/index.html#ch23-s6)
+*
+  * weak / strong normalization
+  * 약정규화 / 강정규화
+  * For the chosen relation, some reduction reaches a normal form / every reduction path is finite.
+  * Session 23 · [Further reading](chapter-23/index.html#ch23-s6)
+*
   * normal form
   * 정규형
   * A term with no step
@@ -821,6 +886,11 @@ number := false
   * 값
   * A term in one of the value forms of the card
   * Session 23 · [C.1](lambda-card/index.html#lambda-c1)
+*
+  * static semantics / dynamic semantics
+  * 정적 의미론 / 동적 의미론
+  * Rules that classify terms before execution, such as typing rules / rules describing their run-time behavior.
+  * Session 24 · [§24.2](chapter-24/index.html#ch24-s2)
 *
   * canonical form
   * 정준형
@@ -1311,9 +1381,14 @@ number := false
   * `ρ(x_i) ◁_{T_i} u_i` for every variable `x_i` of the context.
   * Session 37 · [§37.1](chapter-37/index.html#ch37-s1)
 *
+  * contextual equivalence
+  * 문맥 동치
+  * Two closed terms of the same PCF type give the same ground observations in every well-typed closing context of ground result type.
+  * Session 38 · [§38.3](chapter-38/index.html#ch38-s3)
+*
   * full abstraction
   * 완전 추상화
-  * The property that two closed terms which no closed program of ground type can tell apart have the same meaning. A semantics with it is \*fully abstract\*. PCF with the semantics of Session 35 does not have it.
+  * Equality of denotations holds exactly when terms are contextually equivalent for the chosen observations. The PCF model of Session 35 validates the direction from equality of denotations to contextual equivalence.
   * Session 38 · [§38.3](chapter-38/index.html#ch38-s3)
 *
   * parallel or

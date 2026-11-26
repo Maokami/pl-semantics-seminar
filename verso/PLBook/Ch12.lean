@@ -183,6 +183,8 @@ Applied to line 11 of §12.2, the theorem covers the run with $`n=3` from the op
 
 *Scope of the theorem.* Validity speaks only about terminating executions. Let $`W_0=\mathsf{while}\ \mathsf{true}\ \mathsf{do}\ \mathsf{skip}`. [Session 2, §2.4](chapter-02/index.html#ch02-s4) shows that $`W_0` has no terminating derivation. Since $`B(\mathsf{true},\sigma)=\mathsf{true}` at every state, the assertion $`\mathrm{F}_{\mathsf{true}}` holds at no state. Exercise 12.4 derives $`\vdash_{\mathrm H}\{P\}\,W_0\,\{Q\}` for all assertions $`P,Q`. Theorem 12.3 makes these triples valid. They are valid because no execution of $`W_0` terminates, so validity has no instance to check. A derivable triple does not promise termination. [Session 13](chapter-13/index.html) adds that obligation.
 
+Soundness starts with a proof tree and concludes something about every terminating execution. *Completeness* asks for the opposite direction: given a valid triple, can one construct a proof? For a logic with assertions written in a fixed language, *relative completeness* asks this question assuming the language can express the assertions needed in the proof and that true implications between assertions are available. Theorem 12.3 establishes the soundness direction. The [further reading](chapter-12/index.html#ch12-s6) explains the role of weakest preconditions in the converse.
+
 # Exercises
 %%%
 tag := "ch12-s4"

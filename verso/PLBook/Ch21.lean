@@ -19,16 +19,18 @@ Run `y := x + 1; x := 0` from a state with $`x=4`. Four theorems of Part 1 speak
 * *Proof outline.* No induction. Each theorem is applied in three moves: instantiate its quantifiers, check its premises, read off its conclusion. The runs of the example are computed with the rules of A.5, A.6 and B.4.
 * *From Session 20.* Session 20 proved that removing dead assignments keeps the final values of the observed names. That is the last correctness theorem of Part 1. Here it is set beside the theorems of Sessions 6, 10 and 16.
 
-# Four theorems and their premises
+# Terminating executions and Hoare soundness
 %%%
 tag := "ch21-s1"
 %%%
 
-[Session 7, §7.1](chapter-07/index.html#ch07-s1) calls what a notion of equivalence compares about a run its *observation*. Program equivalence (Definition 7.1) observes the whole final state. We use the word in the same sense for each theorem below. The four theorems are restated with all their quantifiers. Two paragraphs then name their observations and their premises.
+[Session 7, §7.1](chapter-07/index.html#ch07-s1) calls what a notion of equivalence compares about a run its *observation*. Program equivalence (Definition 7.1) observes the whole final state. We use the word in the same sense for each theorem below. Four results below describe the run of the example in §21.2. Hoare soundness gives a fifth kind of statement about that program, with a proof of a triple as its premise.
 
 *Theorem 6.2 (Equivalence of terminating executions), restated.* For every command $`c` and states $`\sigma,\sigma'`, $`\sigma\vdash c\Downarrow\sigma'` if and only if $`\langle c,\sigma\rangle\to^*\langle\mathsf{skip},\sigma'\rangle`.
 
 *Theorem 10.2 (Correspondence), restated.* For every command $`c` and states $`\sigma,\sigma'\in\Sigma`, $`\sigma\vdash c\Downarrow\sigma'` if and only if $`f_c(\sigma)=\sigma'`.
+
+[Hoare soundness (Theorem 12.3)](chapter-12/index.html#ch12-s3) begins with a different kind of evidence. For any assertions $`P,Q` and command $`c`, a derivation of $`\vdash_{\mathrm H}\{P\}\,c\,\{Q\}` implies $`\models\{P\}\,c\,\{Q\}`. Take any initial state satisfying $`P` and any terminating execution from it. Soundness guarantees that its final state satisfies $`Q`. A single execution can refute a triple by violating its postcondition. Even a successful execution supplies no derivation of a triple about all initial states.
 
 *Theorem 16.2 (Compiled commands meet the contract), restated.* For every command $`c` and states $`\sigma,\sigma'`, if $`\sigma\vdash c\Downarrow\sigma'`, then for every code $`C`, position $`\mathit{pc}` and stack $`S` with $`\mathrm{at}(C,\mathit{pc},\mathrm{ccom}(c))`, $`C\vdash\langle\mathit{pc},S,\sigma\rangle\to^*\langle\mathit{pc}+|\mathrm{ccom}(c)|,S,\sigma'\rangle`.
 
@@ -36,7 +38,7 @@ tag := "ch21-s1"
 
 *Observations.* Theorem 6.2 equates final states: the state at the root of a derivation is the state beside skip at the end of a path. Theorem 10.2 equates the final state with the normal result of the meaning, that is, the outcome $`f_c(\sigma)` when it is a state. Theorem 16.2 preserves the final state and observes two more things: the run of the code reaches the position just after the block, and the stack there is the $`S` it started with. Theorem 20.2 preserves only the final values of the names in $`L`.
 
-*Premises.* Theorem 6.2 has none besides its quantifiers. Theorem 10.2 hides two in its notation. The final $`\sigma'` is a state, never $`\bot`. The meaning $`f_W` of a loop is the least fixed point of its unfolding operator (Session 9, Definition 9.4 and Theorem 9.5); with another fixed point the direction from meanings to derivations fails ([Session 10, §10.4](chapter-10/index.html#ch10-s4)). Session 10, Corollary 10.3 adds that $`f_c(\sigma)=\bot` exactly when no state $`\sigma'` satisfies $`\sigma\vdash c\Downarrow\sigma'`. Theorem 16.2 needs a terminating source execution and the code at $`\mathit{pc}`. [Session 16, Corollary 16.3](chapter-16/index.html#ch16-s4) takes $`C=\mathrm{ccom}(c)\mathbin{+\!\!+}[\mathsf{halt}]`, $`\mathit{pc}=0` and $`S=[\,]`: the whole program terminates with final state $`\sigma'` (B.9). Theorem 20.2 needs a terminating run of the original command and agreement of the two initial states on the live set. Its external check assumes one axiom about finite sets ([Session 20, §20.2](chapter-20/index.html#ch20-s2)), which the paper proof does not need.
+*Premises.* Theorems 6.2 and 10.2 are biconditionals. Either side can serve as the premise for the other. Two choices in Theorem 10.2 matter for that reading. The final $`\sigma'` is a state, never $`\bot`. The meaning $`f_W` of a loop is the least fixed point of its unfolding operator (Session 9, Definition 9.4 and Theorem 9.5); with another fixed point the direction from meanings to derivations fails ([Session 10, §10.4](chapter-10/index.html#ch10-s4)). Session 10, Corollary 10.3 adds that $`f_c(\sigma)=\bot` exactly when no state $`\sigma'` satisfies $`\sigma\vdash c\Downarrow\sigma'`. Theorem 16.2 needs a terminating source execution and the code at $`\mathit{pc}`. [Session 16, Corollary 16.3](chapter-16/index.html#ch16-s4) takes $`C=\mathrm{ccom}(c)\mathbin{+\!\!+}[\mathsf{halt}]`, $`\mathit{pc}=0` and $`S=[\,]`: the whole program terminates with final state $`\sigma'` (B.9). Theorem 20.2 needs a terminating run of the original command and agreement of the two initial states on the live set. Its external check assumes one axiom about finite sets ([Session 20, §20.2](chapter-20/index.html#ch20-s2)), which the paper proof does not need.
 
 The table adds [Session 18, Theorem 18.4](chapter-18/index.html#ch18-s3): if $`\sigma\in\gamma(A)` and $`\sigma\vdash c\Downarrow\sigma'`, then $`\sigma\vdash\mathrm{cp}(A,c)\Downarrow\sigma'`. Theorems 16.2, 18.4 and 20.2 share the premise $`\sigma\vdash c\Downarrow\sigma'`.
 
@@ -48,14 +50,19 @@ The table adds [Session 18, Theorem 18.4](chapter-18/index.html#ch18-s3): if $`\
   * Not said
 *
   * Theorem 6.2
-  * The quantifiers only.
+  * For each command, input state and candidate final state, either form of terminating execution supplies the premise for the other.
   * The final state, at the root of a derivation and beside skip at the end of a path.
   * The length of the path or the height of the derivation. Intermediate configurations. An infinite path when no derivation exists.
 *
   * Theorem 10.2
-  * $`\sigma'` is a state. $`f_W` is the least fixed point.
+  * For each input and final state, either a terminating derivation or the corresponding denotational equality. Loop meanings use the least fixed point.
   * The outcome $`f_c(\sigma)` when it is a state.
   * Intermediate states and numbers of steps. By Corollary 10.3, $`f_c(\sigma)=\bot` says only that no terminating execution exists.
+*
+  * [Theorem 12.3](chapter-12/index.html#ch12-s3)
+  * A Hoare derivation of $`\{P\}\,c\,\{Q\}`.
+  * Every terminating execution from a state satisfying $`P` ends in one satisfying $`Q`.
+  * Termination from those states. Derivability from validity.
 *
   * Theorem 16.2
   * $`\sigma\vdash c\Downarrow\sigma'`. $`\mathrm{at}(C,\mathit{pc},\mathrm{ccom}(c))`.

@@ -9,7 +9,7 @@ tag := "ch05"
 file := "chapter-05"
 %%%
 
-A debugger can stop between the two assignments of a sequence. At the stopping point there is a current state and a remaining command. The one-step rules describe which pair may come next. It can describe a computation even when there is no final state. Rules of this kind form a small-step semantics, in contrast with the big-step semantics of Session 2, Definition 2.1, whose judgment relates a command directly to its final state.
+A debugger can stop between the two assignments of a sequence. At the stopping point there is a current state and a remaining command. The one-step rules describe which pair may come next. These rules give a *small-step operational semantics*. The big-step judgment of Session 2 records a final state. A sequence of small steps also describes intermediate configurations and can continue indefinitely.
 
 *In this session.*
 
@@ -73,7 +73,9 @@ $$`P(c)\coloneqq\forall \sigma,\quad c=\mathsf{skip}\ \lor\ \exists d,\sigma',\ 
 
 For skip the equality in the first alternative holds. An assignment can step by the first rule. For a conditional, the single rule steps to the selected branch. For a loop, evaluation of the guard gives either the exit edge or the edge exposing the body. This completes the cases. $`\square`
 
-An irreducible configuration has no successor. An irreducible configuration with a residual command other than skip would be *stuck*. The lemma excludes stuck configurations for this grammar. Extending the language with a partial expression such as integer division would require a decision about division by zero and a new progress argument.
+An irreducible configuration has no successor. An irreducible configuration with a residual command other than skip would be *stuck*. The lemma excludes stuck configurations for this grammar.
+
+Progress gives a successor. Determinacy of a step says that there is at most one successor. Command determinacy in [Theorem 3.2](chapter-03/index.html#ch03-s2) compares the final states of complete executions. The loop in §5.3 always has exactly one next step. It therefore satisfies progress and step determinacy, and the absence of a final state is consistent with command determinacy. Extending the language with a partial expression such as integer division would require a decision about division by zero and a new progress argument.
 
 For a one-edge example, an assignment steps directly to skip. Its two endpoint configurations form a sequence with two entries. The following lemma relates the two path notations even when no length is given.
 
@@ -93,6 +95,8 @@ tag := "ch05-s3"
 An *infinite path* from $`p` is witnessed by a function $`f` from natural numbers to configurations with $`f(0)=p` and $`f(i)\to f(i+1)` for every $`i`. The coinductive presentation uses a predicate on configurations: the greatest predicate $`X`, under inclusion, satisfying $`X(p)\iff\exists q,\ p\to q\land X(q)`.
 
 *Example 5.5 (An infinite path indexed by the natural numbers).* Fix any state $`\sigma` and let $`W` be `while true do skip`. Put $`p=\langle W,\sigma\rangle` and $`p'=\langle\mathsf{skip};W,\sigma\rangle`. The small-step loop iteration rule gives $`p\to p'`. The skip-discarding rule gives $`p'\to p`. Set $`f(2i)=p` and $`f(2i+1)=p'`. At an even index the required edge is $`p\to p'`; at an odd index the next index is $`2(i+1)`, giving $`p'\to p`. Thus the function supplies every required edge, starting at $`p`.
+
+To prove membership in the greatest predicate by *coinduction*, it suffices to find a set containing the starting configuration in which every member can step to some member of the same set. This proof obligation supplies a successor however far execution has already gone.
 
 The function gives the configuration at an index of our choice. With the predicate presentation we can instead exhibit a set closed under taking some next step: each member of $`\{p,p'\}` has a successor in that set. To see why this suffices, take the union $`U` of all sets with this property. Every member of $`U` has a successor in $`U`. Conversely, if $`p` has a successor in $`U`, adjoining $`p` to $`U` preserves the property, so $`p` already belongs to $`U`. Thus $`U` satisfies the displayed equation and contains every other solution. In particular both configurations satisfy the coinductive predicate.
 

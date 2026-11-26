@@ -73,6 +73,8 @@ tag := "ch04-s3"
 
 Now allow the state to vary. Choose $`A=\Sigma\to\mathbb Z`, where $`\Sigma` is the set of states of Session 1, Definition 1.2. A literal produces the constant function at its integer. A variable produces the function taking $`\sigma` to $`\sigma(x)`. For two functions $`q,r`, their sum takes $`\sigma` to $`q(\sigma)+r(\sigma)` and their difference takes $`\sigma` to $`q(\sigma)-r(\sigma)`. The fold now takes a tree to a function. Applying the fold of `add(var(x),lit(4))` to a state with $`\sigma(x)=3` gives $`3+4=7`. By Definition 1.3, the function sending $`e` to $`(\sigma\mapsto\mathrm{eval}(e,\sigma))` satisfies all four equations. Theorem 4.1 identifies it with this fold on every tree.
 
+This is compositionality for the expression language. Once we know the two functions denoted by the children of an addition node, their pointwise sum determines the meaning of the parent. In the language of algebra, a set equipped with the four operations of §4.1 is an *algebra* for this signature. A map between two such algebras is a *homomorphism* if it preserves each operation. The four equations of §4.1 say exactly this for a map out of the expression trees. Theorem 4.1 says there is a unique such map into each algebra. This makes the trees with their constructors an *initial algebra*. The unique map, the fold, is also called a *catamorphism*. The [S1 lecture](static/slides/s1/index.html#/15) gives the general statement.
+
 The tree `add(lit(1),lit(2))` and `lit(3)` receive the same evaluation function. The node counts are three and one. Imposing integer arithmetic identities on trees themselves would remove the possibility of counting their nodes in this way.
 
 Return to the fixed state of §4.1. There are now two routes from an expression to an integer. One can interpret the whole tree as a function and apply the resulting function to $`\sigma`. Alternatively, one can fold directly into the integers using lookup in $`\sigma`. To compare them, consider the map sending any function $`q` to $`q(\sigma)`. It preserves literal and variable interpretations by evaluation. Evaluating a pointwise sum at $`\sigma` gives $`q(\sigma)+r(\sigma)`, and evaluating a pointwise difference gives $`q(\sigma)-r(\sigma)`. Thus the first route satisfies the four equations for the second. Uniqueness identifies the two routes.
@@ -133,6 +135,6 @@ tag := "ch04-notes"
 number := false
 %%%
 
-The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here it is stated without that vocabulary, for the string names and four expression constructors of Leroy’s IMP. [Source and proof references](imp-card/index.html#imp-sources)
+The uniqueness argument is the one of the organizer’s special lecture S1 on initial algebras, given after this session. Here the four constructor equations give the result for the string names and expression trees of Leroy’s IMP. [Source and proof references](imp-card/index.html#imp-sources)
 
 * *Theorem 4.1.* Formulated in this book. Checked in Lean ([`uniqueFold`](lean/Fold.html#uniqueFold) · [IMP card references](imp-card/index.html#imp-sources)).

@@ -49,6 +49,8 @@ This session uses the typing rules of C.2 with the empty context and writes $`\v
 
 $$`\dfrac{\dfrac{\dfrac{}{\vdash 0:\mathsf{Nat}}\;\textsf{T-Zero}}{\vdash\mathsf{iszero}\ 0:\mathsf{Bool}}\;\textsf{T-IsZero}\qquad\dfrac{\dfrac{}{\vdash 0:\mathsf{Nat}}\;\textsf{T-Zero}}{\vdash\mathsf{succ}\ 0:\mathsf{Nat}}\;\textsf{T-Succ}\qquad\dfrac{}{\vdash 0:\mathsf{Nat}}\;\textsf{T-Zero}}{\vdash\mathsf{if}\ \mathsf{iszero}\ 0\ \mathsf{then}\ \mathsf{succ}\ 0\ \mathsf{else}\ 0:\mathsf{Nat}}\;\textsf{T-If}`
 
+The grammar determines which trees are terms. The typing rules are the *static semantics* of this language: they classify those trees without running them. The evaluation rules are its *dynamic semantics*: they determine how a term steps. The opening conditional illustrates why these questions have different answers.
+
 The stuck term $`\mathsf{if}\ 0\ \mathsf{then}\ \mathsf{true}\ \mathsf{else}\ \mathsf{false}` has no type. A derivation would have to end with T-If, the only typing rule whose conclusion is a conditional. Its first premise would be $`\vdash 0:\mathsf{Bool}`. But T-Zero is the only rule whose conclusion types $`0`, and it gives Nat. In the same way $`\mathsf{pred}\ (\mathsf{succ}\ \mathsf{false})` has no type, since T-Succ would need $`\vdash\mathsf{false}:\mathsf{Nat}`. The next lemma records this reasoning once for every form of term.
 
 *Lemma 24.1 (Inversion of typing).* For every type $`T` and all terms $`t_1,t_2,t_3`:

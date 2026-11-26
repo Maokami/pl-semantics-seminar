@@ -143,6 +143,8 @@ Each condition on $`z` is used. The conditions $`z\neq x` and $`z\notin\mathrm{F
 
 The corollary applies to the rule E-AppAbs of C.1, used from Session 23 on, which takes $`(\lambda x.t_{12})\,v_2` to $`[x\mapsto v_2]t_{12}`. If $`(\lambda x.t_{12})\,v_2` is closed, so are $`\lambda x.t_{12}` and $`v_2`, and the step gives a closed term. Theorem 22.3 speaks only about the set of free variables. It does not say that each occurrence is bound by the right abstraction. The faulty renaming at the end of §22.2 produces the right set $`\{y\}` and the wrong term.
 
+In an object-language abstraction the parameter is a variable that occurs in a syntax tree. Substitution in this chapter is an operation on such trees, so it must account for binding and capture. Later, interpreting an abstraction as a mathematical function will require an environment giving a meaning to each free variable.
+
 # Exercises
 %%%
 tag := "ch22-s4"

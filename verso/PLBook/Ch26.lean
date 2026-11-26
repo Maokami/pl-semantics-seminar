@@ -229,7 +229,7 @@ number := false
 
 *Further reading · Closed instances of open terms.* Progress could also be stated for closed instances of open typed terms. The term $`x\ 0` with $`x{:}\mathsf{Nat}\to\mathsf{Nat}` cannot step, but its instance $`[x\mapsto\mathit{inc}](x\ 0)=\mathit{inc}\ 0` can. Such a statement needs, for each free variable, a closed value of its type to substitute.
 
-*Further reading · Normalization.* In the typed language of this session every closed well-typed term evaluates to a value. This is a separate theorem, proved by a different method (TAPL §12.1). Progress and preservation do not bound the number of steps, as the Further problem shows. TAPL §11.11 adds a typed fixed-point operator, which keeps safety and loses termination.
+*Further reading · Normalization.* In the typed language of this session every closed well-typed term evaluates to a value. This is normalization for the evaluation strategy of this language, a separate theorem proved by a different method (TAPL §12.1). [Section 23’s further reading](chapter-23/index.html#ch23-s6) explains how the choice of reduction relation affects what counts as a normal form. Progress and preservation do not bound the number of steps, as the Further problem shows. TAPL §11.11 adds a typed fixed-point operator, which keeps safety and loses termination.
 
 TAPL §9.3 proves the theorems of this session for functions with Booleans. TAPL §11.2 adds Unit. [Table of contents.](https://www.cis.upenn.edu/~bcpierce/tapl/contents.pdf)
 

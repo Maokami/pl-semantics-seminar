@@ -278,6 +278,8 @@ Then $`\llbracket t\rrbracket_A\rho=\llbracket t\rrbracket_{A'}\rho'` for every 
 
 *Proof.* By Definition 33.5, $`\rho\mathrel{R_{\Gamma_{\mathrm{ctr}}}}\rho'` requires $`\rho(\mathit{start})\mathrel{R_X}\rho'(\mathit{start})`, $`\rho(\mathit{tick})\mathrel{R_{X\to X}}\rho'(\mathit{tick})` and $`\rho(\mathit{get})\mathrel{R_{X\to\mathsf{Nat}}}\rho'(\mathit{get})`. Since $`R_X=R` and $`R_{\mathsf{Nat}}` is equality, the arrow clause turns these three requirements into (i), (ii) and (iii). So $`\rho\mathrel{R_{\Gamma_{\mathrm{ctr}}}}\rho'`. Theorem 33.6 with $`\Gamma=\Gamma_{\mathrm{ctr}}` and $`T=\mathsf{Nat}` gives $`\llbracket t\rrbracket_A\rho\mathrel{R_{\mathsf{Nat}}}\llbracket t\rrbracket_{A'}\rho'`, which is the claimed equality. It remains to check (i)–(iii) for the two counters.
 
+The quantifier over clients in Corollary 33.7 ranges over the typed fragment of Definition 33.3. In that fragment a client can manipulate the hidden type through the supplied operations. At the hidden type $`X` the two representations need only be related; at the observable type $`\mathsf{Nat}` the relation is equality. Extending this result to clients using references or type abstraction would require cases for those constructs in the fundamental theorem.
+
 *Board case: the increment.* We must show (ii) for $`\rho_{\mathrm N}`, $`\rho_{\mathrm P}` and $`\approx`, that is, $`\rho_{\mathrm N}(\mathit{tick})\approx_{X\to X}\rho_{\mathrm P}(\mathit{tick})`.
 
 1. Here $`A=\mathbb N` and $`A'=\mathbb N\times\mathbb N`. Fix $`n\in\mathbb N` and $`(a,b)\in\mathbb N\times\mathbb N` with $`n\approx(a,b)`. By the definition of $`\approx`, $`n=a`.

@@ -189,6 +189,8 @@ The operand $`t_2` is never evaluated. Its meaning enters only through Lemma 35.
 
 *Scope of the theorem.* Theorem 35.8 runs from evaluation to meaning. It can still show that a term has no evaluation. If $`\Omega\Downarrow v`, then $`\vdash v:\mathsf{Nat}`, so $`v` is a numeral $`\overline{m}` by canonical forms, and the theorem gives $`\llbracket\Omega\rrbracket=m`. But $`\llbracket\Omega\rrbracket` is the least fixed point of the identity on $`\mathbb{N}_\bot`, which is $`\bot`. So $`\Omega` has no evaluation, as §35.1 showed with heights. The converse of the theorem fails at function types. The values $`\lambda x{:}\mathsf{Nat}.x` and $`\lambda x{:}\mathsf{Nat}.\mathsf{pred}\ (\mathsf{succ}\ x)` have the same meaning, the identity on $`\mathbb{N}_\bot`, but each evaluates only to itself. At type Nat the converse holds: if $`\vdash t:\mathsf{Nat}` and $`\llbracket t\rrbracket=n`, then $`t\Downarrow\overline{n}`. This is computational adequacy, proved in [Sessions 36–37](chapter-36/index.html).
 
+For the countdown term of §35.2 we started with an evaluation and computed the same result in the model. Suppose instead that only the mathematical calculation is available. To recover a derivation from the calculation requires [computational adequacy](chapter-36/index.html#ch36-s1), whose conclusion is about observable ground results.
+
 # Exercises
 %%%
 tag := "ch35-s5"

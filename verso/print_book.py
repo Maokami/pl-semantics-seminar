@@ -220,8 +220,10 @@ def generate(site, chrome, ko=False):
         page.emulate_media(media="print")
         page.goto(base + "/", wait_until="load")
         paragraphs = page.locator("main .titlepage > p")
-        intro_parts = [p.inner_text() for p in paragraphs.all() if not p.locator("a").count()]
-        if not ko: intro_parts = intro_parts[:2]
+        if ko:
+            intro_parts = [p.inner_text() for p in paragraphs.all() if not p.locator("a").count()]
+        else:
+            intro_parts = [p.inner_text() for p in paragraphs.all()[:2]]
         if not intro_parts:
             raise ValueError("Expected an introduction paragraph on the book title page.")
         intro = "".join(f'<p>{html.escape(" ".join(p.split()))}</p>' for p in intro_parts)

@@ -182,6 +182,10 @@ number := false
 
 *Further reading · Which strategy terminates more often.* If a closed term of C.1 reaches a value under call by value, it also reaches a value under call by name, though the values may differ (Exercise 23.2). So no closed term behaves as $`u` does with the two strategies exchanged. This follows from the standardization theorem of the lambda calculus. See G. D. Plotkin, “Call-by-name, call-by-value and the λ-calculus”, _Theoretical Computer Science_ 1 (1975). This book does not prove it. Part 3 returns to call by name: the language PCF of Session 35 evaluates by name.
 
+*Confluence and normalization.* For a chosen reduction relation, *confluence* means that whenever a term reduces in finitely many steps to each of two terms, both can reduce further, in zero or more steps, to a common term. Determinacy asks only about the uniqueness of the immediate successor. Under full beta-reduction the two distinct successors in §23.1 can both reduce to $`\lambda z.z`. This joins that particular fork. The Church–Rosser theorem establishes confluence for every fork of full beta-reduction. [Kozen’s proof, §3](https://www.cs.cornell.edu/kozen/Papers/ChurchRosser.pdf).
+
+A term is *weakly normalizing* for a relation if some finite path reaches a normal form, and *strongly normalizing* if every reduction path is finite. Under full beta-reduction the term $`u` of Theorem 23.4 can reach $`\mathsf{id}` by contracting the outer applications, or keep reducing $`\Omega` forever. It is weakly normalizing and fails strong normalization for that relation. Under call by value the outer application must wait for its operand, so this same term has no path to a normal form.
+
 # Sources and Formalization
 %%%
 tag := "ch23-notes"

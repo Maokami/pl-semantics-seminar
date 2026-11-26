@@ -87,6 +87,15 @@ This notion of validity is called *partial correctness*. It constrains only the 
 
 Most assertions in this book read the state only through expressions. Let $`a_1,\ldots,a_j` be expressions and let $`\varphi` be a statement about $`j` integers $`n_1,\ldots,n_j` that mentions no names. The assertion *written* $`\varphi(a_1,\ldots,a_j)` holds at $`\sigma` when $`\varphi(\mathrm{eval}(a_1,\sigma),\ldots,\mathrm{eval}(a_j,\sigma))` is true. Thus a name $`x` in a concrete assertion stands for its value $`\sigma(x)`. For example, $`x\le y` is written $`\varphi(x,y)` with $`\varphi(n_1,n_2)\coloneqq(n_1\le n_2)`.
 
+In *axiomatic semantics* we describe a command by the assertions that rules allow us to prove about it. Hoare logic uses triples for this purpose. Definition 11.4 tells us how to test a triple against executions. [Section 12.2](chapter-12/index.html#ch12-s2) will give rules for deriving triples, and §12.3 will prove the rules sound.
+
+Take $`c=(x:=x+1)`. Let $`\sigma(x)=3` and write $`\sigma'=\sigma[x\mapsto4]`. The four readings below use the same command.
+
+* *Big-step execution.* $`\sigma\vdash c\Downarrow\sigma'`. The assignment rule gives the whole final state.
+* *Small-step execution.* $`\langle c,\sigma\rangle\to\langle\mathsf{skip},\sigma'\rangle`. Assignment takes one command step because the rule uses the evaluation function on the right-hand side to compute the new state directly.
+* *Denotation.* For every state $`\rho`, $`f_c(\rho)=\rho[x\mapsto\rho(x)+1]`, viewed as an element of $`\Sigma_\bot`. Applying this function to $`\sigma` gives $`\sigma'`.
+* *Hoare specification.* $`\models\{x=3\}\,c\,\{x=4\}`. For every initial state satisfying the precondition, every terminating execution ends with 4 at $`x`. The assignment also preserves $`y` for $`y\ne x`, but that fact cannot be read from this postcondition.
+
 An invalid triple has a witness: states $`\sigma,\sigma'` with $`P(\sigma)`, $`\sigma\vdash c\Downarrow\sigma'` and not $`Q(\sigma')`. The two states in the opening example of this section are such a witness. Partial correctness asks nothing of a state from which no execution terminates. Let $`W=\mathsf{while\ true\ do\ skip}`. By [Session 2, §2.4](chapter-02/index.html#ch02-s4), no state has a terminating execution of $`W`. Hence $`\models\{P\}\,W\,\{Q\}` for all assertions $`P,Q`, even when $`Q` holds at no state. Session 13 adds termination to the specification.
 
 # Validity of assignment triples

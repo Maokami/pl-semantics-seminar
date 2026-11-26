@@ -46,6 +46,8 @@ Parentheses fix the parse of nested commands. A state records the values of *all
 tag := "ch02-s2"
 %%%
 
+The execution rules give an operational semantics for commands. We first describe a complete, terminating execution by a single judgment. [Section 5.1](chapter-05/index.html#ch05-s1) will describe what remains to be executed after one step.
+
 Session 1 wrote $`\sigma\vdash e\Downarrow n` for evaluation. For a command $`c`, the *execution judgment* $`\sigma\vdash c\Downarrow\sigma'` asserts that $`c`, started in state $`\sigma`, terminates in state $`\sigma'`.
 
 *Definition 2.1 (Execution judgment).* In a *big-step semantics*, a judgment relates an entire computation to its result. The following six rules define $`\sigma\vdash c\Downarrow\sigma'`. The judgment holds precisely when it has a finite derivation. Skip leaves the state unchanged. Assignment evaluates the right-hand side in the initial state. *Sequencing* runs the second command from the final state of the first: the sequence rule binds its two premises through the intermediate state $`\sigma_1`.
