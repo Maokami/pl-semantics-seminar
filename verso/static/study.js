@@ -28,60 +28,119 @@
     board.after(lab);
     panel.querySelector('.meeting-tools')?.remove();
   }
-  const questionList = document.createElement('div');
-  questionList.setAttribute('aria-live', 'polite');
-  const feed = panel.querySelector('.question-feed');
-  (feed || prep || presenter).append(questionList);
-  async function loadQuestions() {
-    if (questionList.dataset.loading) return;
-    questionList.dataset.loading = 'true';
-    questionList.textContent = 'Loading recent questions…';
-    const api = 'https://api.github.com/repos/Maokami/pl-semantics-seminar';
-    try {
-      const latest = await fetch(api + '/discussions?per_page=100&sort=updated&direction=desc');
-      if (!latest.ok) throw new Error('GitHub unavailable');
-      const discussions = await latest.json();
-      if (feed) {
-        const chapterThread = discussions.find(d => String(d.number) === thread);
-        if (chapterThread) panel.querySelector('.reply-count').textContent =
-          chapterThread.comments === 1 ? '1 comment' : chapterThread.comments + ' comments';
-      }
-      const questions = discussions.filter(d => d.category?.slug === 'q-a' &&
-        (feed ? (d.state === 'open' || d.answer_chosen_at) : (d.state === 'open' && !d.answer_chosen_at)) &&
-        d.title.startsWith('[' + tag + ']'));
-      const list = document.createElement('ul');
-      for (const q of questions.slice(0, 6)) {
-        const li = document.createElement('li');
-        const label = feed ? q.title.replace('[' + tag + ']', '').trim() || q.title : q.title;
-        li.append(link(label, q.html_url));
-        if (feed) {
-          const status = document.createElement('small');
-          status.textContent = q.answer_chosen_at ? 'Answered' : q.comments === 1 ? '1 reply' : q.comments + ' replies';
-          li.append(status);
-        }
-        list.append(li);
-      }
-      if (list.children.length) questionList.replaceChildren(list);
-      else if (feed) questionList.textContent = discussions.length < 100
-        ? 'No open or answered questions for this chapter yet.'
-        : 'No chapter questions among the latest 100 discussions.';
-      else questionList.textContent = 'No unanswered chapter questions among the latest discussions.';
-    } catch {
-      if (feed) questionList.textContent = 'The preview is unavailable. All chapter questions are still available on GitHub.';
-      else questionList.textContent = 'Open Unanswered questions above to read the list on GitHub.';
-      delete questionList.dataset.loading;
-    }
+  const comments = panel.querySelector('.comments');
+  const api = 'https://api.github.com/repos/Maokami/pl-semantics-seminar/discussions';
+  const requested = url.searchParams.get('question');
+  function discussionURL(number) {
+    const dest = new URL(location.pathname, location.href);
+    if (number) dest.searchParams.set('question', number);
+    dest.hash = 'chapter-discussion';
+    return dest.href;
   }
-  if (feed && 'IntersectionObserver' in window) {
+  function isChapterQuestion(q) {
+    return q.category?.slug === 'q-a' && q.title.startsWith('[' + tag + ']');
+  }
+  function questionTitle(q) {
+    return q.title.slice(tag.length + 2).trim() || q.title;
+  }
+  function whenVisible(element, run) {
+    if (!('IntersectionObserver' in window)) { run(); return; }
     const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) {
         observer.disconnect();
-        loadQuestions();
+        run();
       }
-    }, {rootMargin: '300px'});
-    observer.observe(feed);
-  } else if (feed) loadQuestions();
-  else (prep || presenter).addEventListener('toggle', e => { if (e.currentTarget.open) loadQuestions(); });
+    }, {rootMargin:'300px'});
+    observer.observe(element);
+  }
+  const feed = panel.querySelector('.question-feed');
+  const refresh = panel.querySelector('.refresh-questions');
+  let listRequest = 0;
+  async function loadQuestions() {
+    const request = ++listRequest;
+    refresh.hidden = false;
+    refresh.disabled = true;
+    feed.setAttribute('aria-busy', 'true');
+    if (!feed.textContent) feed.textContent = 'Loading recent questions…';
+    try {
+      const response = await fetch(api + '?per_page=100&sort=updated&direction=desc&_=' + Date.now(), {cache:'no-store'});
+      if (!response.ok) throw new Error();
+      const discussions = await response.json();
+      if (request !== listRequest) return;
+      const questions = discussions.filter(q => isChapterQuestion(q) && (q.state === 'open' || q.answer_chosen_at));
+      const list = document.createElement('ul');
+      for (const q of questions.slice(0, 6)) {
+        const li = document.createElement('li');
+        const status = document.createElement('small');
+        status.textContent = q.answer_chosen_at ? 'Answered' : q.comments === 1 ? '1 reply' : q.comments + ' replies';
+        li.append(link(questionTitle(q), discussionURL(q.number)), ' ', status);
+        list.append(li);
+      }
+      if (list.children.length) feed.replaceChildren(list);
+      else feed.textContent = discussions.length < 100 ? 'No open or answered questions for this chapter yet.'
+        : 'No chapter questions among the latest 100 discussions.';
+    } catch {
+      if (request === listRequest) feed.textContent = 'Recent questions could not be loaded. Try Refresh or open All chapter questions.';
+    } finally {
+      if (request === listRequest) {
+        refresh.disabled = false;
+        feed.setAttribute('aria-busy', 'false');
+      }
+    }
+  }
+  refresh.onclick = loadQuestions;
+  whenVisible(feed, loadQuestions);
+  // Returning from GitHub can leave the same document alive, including in the back/forward cache.
+  let away = false;
+  function resume() {
+    if (!away || document.hidden || !listRequest) return;
+    away = false;
+    loadQuestions();
+  }
+  window.addEventListener('blur', () => { away = true; });
+  window.addEventListener('focus', resume);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) away = true; else resume(); });
+  window.addEventListener('pageshow', event => { if (event.persisted) { away = true; resume(); } });
+
+
+  async function loadComments() {
+    const help = comments.querySelector('.discussion-help');
+    let number = thread, category = 'General', categoryId = 'DIC_kwDOV5jDy84DMBZ9';
+    if (requested !== null) {
+      const back = link('Back to chapter discussion', discussionURL());
+      try {
+        if (!/^[1-9]\d{0,9}$/.test(requested)) throw new Error();
+        const response = await fetch(api + '/' + requested + '?_=' + Date.now(), {cache:'no-store'});
+        if (!response.ok) throw new Error();
+        const q = await response.json();
+        if (!isChapterQuestion(q)) throw new Error();
+        number = String(q.number);
+        category = q.category.name;
+        categoryId = q.category.node_id;
+        comments.querySelector('h3').textContent = questionTitle(q);
+        const body = document.createElement('blockquote');
+        body.className = 'question-body';
+        for (const piece of (q.body || '').split(/(https?:\/\/[^\s<>]+)/g)) {
+          body.append(/^https?:\/\//.test(piece) ? link(piece, piece) : document.createTextNode(piece));
+        }
+        help.before(body);
+        help.replaceChildren(back, ' · ', link('View question on GitHub ↗', q.html_url),
+          ' · Sign in with GitHub to reply here.');
+      } catch {
+        help.replaceChildren('This question could not be loaded for this chapter. ', back);
+        return;
+      }
+    }
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
+    Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
+      category, categoryId, mapping:number ? 'number' : 'specific',
+      term:number || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',
+      inputPosition:'top',theme:'preferred_color_scheme',lang:'en'});
+    s.onerror = () => help.append(' The embedded comments could not load. Use the GitHub link above.');
+    comments.querySelector('.giscus').append(s);
+  }
+  whenVisible(comments, loadComments);
 
   const key = 'pl-study-notes:' + session;
   const saved = panel.querySelector('.saved div');
@@ -93,7 +152,7 @@
   }
   function draw() {
     saved.replaceChildren();
-    if (feed) {
+    if (panel.classList.contains('study-pilot')) {
       const details = saved.closest('details');
       details.hidden = !notes.length;
       details.querySelector('summary').textContent = 'Saved on this device (' + notes.length + ')';
@@ -108,7 +167,6 @@
     }
   }
   draw();
-  const comments = panel.querySelector('.comments');
   const menu = document.createElement('div');
   menu.className = 'study-selection';
   menu.hidden = true;
@@ -149,8 +207,8 @@
     const text = markdownQuote(selected.quote) + '\n\n[' + tag + ' · passage](' + copy.href + ')';
     if (!await write(text)) return;
     hide();
-    comments.open = true;
-    comments.querySelector('summary').focus();
+    if (requested !== null) { location.assign(discussionURL()); return; }
+    comments.focus({preventScroll:true});
     comments.scrollIntoView({block:'center'});
     announce('Quote and link copied. Paste them into your chapter comment.');
   };
@@ -242,13 +300,4 @@
     }
   });
 
-  comments.addEventListener('toggle', () => {
-    if (!comments.open || comments.querySelector('script, iframe')) return;
-    const s = document.createElement('script');
-    s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
-    Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
-      category:'General', categoryId:'DIC_kwDOV5jDy84DMBZ9',mapping:thread ? 'number' : 'specific',
-      term:thread || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',inputPosition:'top',theme:'preferred_color_scheme',lang:panel.classList.contains('study-pilot') ? 'en' : 'ko'});
-    comments.querySelector('.giscus').append(s);
-  });
 })();

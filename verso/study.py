@@ -35,7 +35,16 @@ def chapter_tools(number, title, revision):
     issue_body = f"Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n"
     issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "template": "correction.md", "body": issue_body})
     node = lambda url: html.escape(url, quote=True)
-    picker = '<p class="passage-help">Select text to share a link or quote it in a discussion. <button type="button" class="passage-picker">Choose a passage</button></p>'
+    picker = '<p class="passage-help">Select text to share a link or quote it in a discussion. <button type="button" class="passage-picker">Choose a passage</button> · <a href="https://github.com/Maokami/pl-semantics-seminar/blob/curriculum-v1.2/docs/reader-guide.ko.md" lang="ko">스터디 이용 안내</a></p>'
+    questions = f"{REPO}/discussions?" + urlencode({"discussions_q": f'category:"Q&A" "{tag}"'})
+    compose = ' data-compose="question"' if number in PROOFS else ''
+    discussion_tools = f"""<div class="comments" id="chapter-discussion" tabindex="-1">
+<h3>Chapter discussion</h3>
+<p class="discussion-help">Read and reply here in English or Korean. Sign in with GitHub to post publicly. <a href="{node(discussion)}">View on GitHub ↗</a></p>
+<div class="giscus"></div></div>
+<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
+<div class="question-feed" aria-live="polite"></div>
+<div class="study-actions"><a{compose} href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>"""
     prompt = ""
     if number in PROOFS:
         q, *steps = PROOFS[number]
@@ -50,17 +59,13 @@ def chapter_tools(number, title, revision):
 <p class="lab-path">In Codespaces, open <a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean"><code>Exercises/Session{number:02}.lean</code></a> to work with the full project and Lake.</p>
 <p role="status" class="lab-status"></p></div>"""
     if number in PROOFS:
-        questions = f"{REPO}/discussions?" + urlencode({"discussions_q": f'category:"Q&A" "{tag}"'})
         source = f"{REPO}/blob/{revision}/verso/PLBook/Ch{number:02}.lean"
         history = f"{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean"
         corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
         return f"""<aside class="study study-pilot" lang="en" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="Study together">
 <div class="study-head"><h2 id="study-together" tabindex="-1">Study together</h2></div>
 {picker}
-<div class="chapter-questions"><h3>Questions from readers</h3>
-<div class="question-feed" aria-live="polite"></div>
-<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>
-<details class="comments"><summary>Read or leave a comment <small class="reply-count"></small></summary><p>Use this chapter thread for ideas and replies in English or Korean. <a href="{node(discussion)}">Open on GitHub ↗</a></p><div class="giscus"></div></details>
+{discussion_tools}
 <div class="meeting-tools" aria-label="Seminar preparation">{prompt}{lab}
 <details class="presenter"><summary>Prepare to present<small>Readings and meeting agenda</small></summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details></div>
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
@@ -70,11 +75,11 @@ def chapter_tools(number, title, revision):
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>
 {picker}
-<p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(ask)}">Ask a question</a> · <a href="{node(issue)}">Suggest a correction</a></p>
+{discussion_tools}
+<p><a href="{node(issue)}">Suggest a correction</a></p>
 {prompt}
 <details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div>
 <p><a href="{node(discussion)}">Read the chapter thread</a> · <a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aissue+is%3Aopen+%22%5BSession+{number:02}%5D%22">Open chapter issues</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
 <details class="saved"><summary>My reading notes</summary><div></div></details>
-<details class="comments"><summary>Discuss this chapter</summary><div class="giscus"></div></details>
 <small><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">Chapter history</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">Resolved feedback</a></small>
 </aside><script defer src="static/study.js"></script>"""
