@@ -1,5 +1,5 @@
 (() => {
-  const panel = document.querySelector('.study-pilot');
+  const panel = document.querySelector('.study');
   if (!panel) return;
   const {session, revision} = panel.dataset;
   const sections = [...panel.closest('main').querySelectorAll('h1[id], h2[id], h3[id]')].filter(h => !panel.contains(h));

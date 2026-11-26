@@ -18,8 +18,8 @@ python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 
 ## Reading with the seminar
 
-Open **Exercises** after reading the chapter. In Sessions 1–3, the proof hints
-and **Lean workbook** are here. The editor loads the matching learner sheet and
+Open **Exercises → Reconstruct the proof** to try the chapter’s board case.
+Sessions 1–3 also include a **Lean workbook**. The editor loads the matching learner sheet and
 its IMP definitions from one pinned workbook revision into Lean 4.35.0. Use
 the editor's download option to keep a proof. Choose **Open project workspace** for
 multi-file development, repository tests and later labs with additional dependencies.
@@ -29,7 +29,7 @@ Open **Reading for the Seminar** for the session agenda, outstanding questions
 and meeting briefs. Solutions and source notes have separate disclosures. Direct
 section links open the referenced material, and printing includes the chapter text.
 
-Use **Study together** in Sessions 1–3 to read existing questions or start one.
+Use **Study together** in any chapter to read existing questions or start one.
 Selecting a passage attaches the quote and section to a question or correction;
 the correction also records the manuscript revision. Comments may be in Korean
 or English. Saved passages are private to the current browser on each host.

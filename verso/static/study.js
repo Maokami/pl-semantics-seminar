@@ -25,8 +25,9 @@
   if (board && exercises) {
     exercises.insertBefore(board, exercises.querySelector('summary').nextSibling);
     const lab = panel.querySelector('.lean-lab');
-    board.after(lab);
-    panel.querySelector('.meeting-tools')?.remove();
+    if (lab) board.after(lab);
+    const tools = panel.querySelector('.meeting-tools');
+    if (!tools.children.length) tools.remove();
   }
   const comments = panel.querySelector('.comments');
   const api = 'https://api.github.com/repos/Maokami/pl-semantics-seminar/discussions';
@@ -152,11 +153,9 @@
   }
   function draw() {
     saved.replaceChildren();
-    if (panel.classList.contains('study-pilot')) {
-      const details = saved.closest('details');
-      details.hidden = !notes.length;
-      details.querySelector('summary').textContent = 'Saved on this device (' + notes.length + ')';
-    }
+    const details = saved.closest('details');
+    details.hidden = !notes.length;
+    details.querySelector('summary').textContent = 'Saved on this device (' + notes.length + ')';
     if (!notes.length) saved.textContent = 'Select a passage to save it on this device.';
     for (const [i, note] of notes.entries()) {
       const row = document.createElement('p');
@@ -212,14 +211,12 @@
     comments.scrollIntoView({block:'center'});
     announce('Quote and link copied. Paste them into your chapter comment.');
   };
-  if (panel.classList.contains('study-pilot')) {
-    for (const [control, mode] of [[ask, 'question'], [propose, 'correction']]) {
-      control.onclick = event => {
-        event.preventDefault();
-        hide();
-        panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
-      };
-    }
+  for (const [control, mode] of [[ask, 'question'], [propose, 'correction']]) {
+    control.onclick = event => {
+      event.preventDefault();
+      hide();
+      panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
+    };
   }
   save.onclick = () => { persist([...notes, selected]); hide(); announce('Passage saved on this device.'); };
   close.onclick = hide;

@@ -105,12 +105,9 @@ def update_pages(site):
             s = reader_buttons(s, ch, order, names)
         if ch:
             s = address_passages(s)
-            tools = chapter_tools(ch, names[ch], revision)
-            if ch <= 3:
-                before, nav, after = s.rpartition('<nav class="prev-next-buttons">')
-                if not nav:
-                    raise ValueError(f'Chapter navigation missing in {p}')
-                s = before + tools + nav + after
-            else:
-                s = s.replace("</main>", tools + "</main>", 1)
+            tools = chapter_tools(ch, names[ch], revision, s)
+            before, nav, after = s.rpartition('<nav class="prev-next-buttons">')
+            if not nav:
+                raise ValueError(f'Chapter navigation missing in {p}')
+            s = before + tools + nav + after
         p.write_text(s.replace('<html>', '<html lang="en">', 1))
