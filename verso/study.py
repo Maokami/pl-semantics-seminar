@@ -43,8 +43,8 @@ def chapter_tools(number, title, revision):
     if number in PROOFS:
         return f"""<aside class="study study-pilot" lang="ko" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="장별 스터디">
 <header class="study-head"><div><h2>함께 읽기</h2><p>읽다가 막힌 곳이나 고치고 싶은 문장을 남겨 주세요.</p></div></header>
-<div class="study-actions"><a data-compose="question" href="{node(ask)}">질문 쓰기</a><a data-compose="correction" href="{node(issue)}">수정 제안</a><a data-discuss href="{node(discussion)}">의견·답글 보기</a></div>
-<details class="comments"><summary>이 장의 대화</summary><p><a href="{node(discussion)}">GitHub에서 대화 열기 ↗</a></p><div class="giscus"></div></details>
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">질문 쓰기</a><a data-compose="correction" href="{node(issue)}">수정 제안</a><a data-discuss href="{node(discussion)}">의견·답글 쓰기</a></div>
+<details class="comments"><summary>이 장의 대화</summary><p>짧은 의견은 아래에 남겨 주세요. GitHub로 로그인하면 이 페이지에서 답글을 쓸 수 있습니다.</p><p><a href="{node(discussion)}">GitHub에서 대화 열기 ↗</a></p><div class="giscus"></div></details>
 {prompt}
 <details class="presenter"><summary>발표 준비</summary><div class="study-links"></div><p><a href="{node(unanswered)}">미해결 질문</a> · <a href="{node(discussion)}">장별 토론</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">발표 브리프</a></p></details>
 <details class="saved"><summary>다시 읽을 문장</summary><div></div></details>

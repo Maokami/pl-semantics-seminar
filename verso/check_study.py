@@ -10,11 +10,14 @@ class Chapter(HTMLParser):
         super().__init__()
         self.panels = []
         self.links = []
+        self.scripts = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         if tag == "aside" and "data-session" in a:
             self.panels.append(a)
+        if tag == "script":
+            self.scripts.append(a.get("src"))
         if tag == "a" and "href" in a:
             self.links.append(a["href"])
 
@@ -24,8 +27,11 @@ for i in range(1, 39):
     chapter.feed((ROOT / f"chapter-{i:02}/index.html").read_text())
     assert len(chapter.panels) == 1 and chapter.panels[0]["data-session"] == f"{i:02}"
     assert any("pl-semantics-seminar/issues/new?" in link for link in chapter.links)
+    assert ("study-pilot" in chapter.panels[0]["class"].split()) == (i <= 3)
+    assert ("static/composer.js" in chapter.scripts) == (i <= 3)
     if i <= 3:
         assert any(link.endswith(f"Exercises/Session{i:02}.lean") for link in chapter.links)
         assert any(link.endswith("/discussions/" + chapter.panels[0]["data-thread"]) for link in chapter.links)
-assert (ROOT / "static/study.js").is_file()
+for asset in ("study.js", "composer.js", "composer.css"):
+    assert (ROOT / "static" / asset).is_file(), asset
 print("38 chapters checked, including the three Lean exercises and discussion threads.")

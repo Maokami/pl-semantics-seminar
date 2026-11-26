@@ -7,7 +7,7 @@
   const nameOf = h => h.textContent.replace(/🔗/g, '').trim();
   const bar = document.createElement('nav');
   bar.className = 'study-inline'; bar.lang = 'ko'; bar.ariaLabel = '이 장에 참여하기';
-  bar.innerHTML = '<button type="button" data-compose="question">질문 쓰기</button><button type="button" data-compose="correction">수정 제안</button><button type="button" data-discuss>대화 보기 ↓</button>';
+  bar.innerHTML = '<button type="button" data-compose="question">질문 쓰기</button><button type="button" data-compose="correction">수정 제안</button><button type="button" data-discuss>의견·답글 쓰기</button>';
   sections[0].after(bar);
   const dialog = document.createElement('dialog');
   dialog.className = 'reader-composer'; dialog.lang = 'ko';
@@ -26,7 +26,8 @@
   const select = form.elements.section, message = form.elements.message;
   const quoteBox = dialog.querySelector('blockquote');
   for (const h of sections) select.add(new Option(nameOf(h), h.id));
-  const now = new URL(location.href);
+  const publicChapter = new URL("https://maokami.github.io/pl-semantics-seminar/chapter-" + session + "/");
+  let copiedBody;
   let mode, quoted, focusOrigin;
   const draftKey = () => 'pl-composer:' + session + ':' + mode;
   function storeDraft() {
@@ -54,7 +55,7 @@
     update();
   }
   function payload() {
-    const sectionURL = new URL(location.href); sectionURL.hash = select.value;
+    const sectionURL = new URL(publicChapter); sectionURL.hash = select.value;
     const titleLine = message.value.trim().split(/\n/)[0];
     const body = [message.value.trim(), quoted && '> ' + quoted.replaceAll('\n', '\n> '),
       sectionURL.href, 'Revision: ' + revision].filter(Boolean).join('\n\n');
@@ -65,18 +66,25 @@
     return {target, body};
   }
   function update() {
-    dialog.querySelector('.long-draft').hidden = payload().target.href.length < 7000;
-    dialog.querySelector('.primary').disabled = !message.value.trim();
+    const {target, body} = payload();
+    const needsCopy = target.href.length >= 7000;
+    dialog.querySelector('.long-draft').hidden = !needsCopy;
+    dialog.querySelector('.copy').textContent = copiedBody === body ? '복사됨' : '본문 복사';
+    dialog.querySelector('.primary').disabled = !message.value.trim() || (needsCopy && copiedBody !== body);
     storeDraft();
   }
   message.addEventListener('input', update);
   select.onchange = () => { quoted = ''; quoteBox.hidden = true; update(); };
   dialog.querySelector('.copy').onclick = async () => {
-    try { await navigator.clipboard.writeText(payload().body); dialog.querySelector('.copy').textContent = '복사됨'; }
-    catch { window.prompt('본문을 복사하세요.', payload().body); }
+    const {body} = payload();
+    try { await navigator.clipboard.writeText(body); }
+    catch { if (window.prompt('전체 본문을 복사한 뒤 확인을 누르세요.', body) === null) return; }
+    copiedBody = body;
+    update();
   };
   form.onsubmit = e => {
     e.preventDefault();
+    if (dialog.querySelector('.primary').disabled) return;
     const {target} = payload();
     if (target.href.length >= 7000) target.searchParams.delete('body');
     window.open(target.href, '_blank', 'noopener,noreferrer');
