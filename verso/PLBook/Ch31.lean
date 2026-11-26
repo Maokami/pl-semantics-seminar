@@ -8,7 +8,7 @@ tag := "ch31"
 file := "chapter-31"
 %%%
 
-The terms $`\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.\lambda x{:}\mathsf{Nat}.f\ (f\ x)` and $`\lambda f{:}\mathsf{Bool}\to\mathsf{Bool}.\lambda x{:}\mathsf{Bool}.f\ (f\ x)` both apply a function twice. They differ only in their annotations, yet the typed language of Session 30 needs both, because an abstraction has one parameter type. This session adds a type parameter. The single term $`\mathit{twice}` takes a type as its first argument, and its caller writes $`\mathit{twice}\ [\mathsf{Nat}]` or $`\mathit{twice}\ [\mathsf{Bool}]`. The session also adds the reverse arrangement, in which the implementer chooses a type and hides it. A counter represented by a number is given to clients that know only that some type has a start value, an increment and a read operation. A client may read the counter. It may not return the counter itself, because the type of the result would name the hidden type outside the place where that name is valid.
+The terms $`\lambda f{:}\mathsf{Nat}\to\mathsf{Nat}.\lambda x{:}\mathsf{Nat}.f\ (f\ x)` and $`\lambda f{:}\mathsf{Bool}\to\mathsf{Bool}.\lambda x{:}\mathsf{Bool}.f\ (f\ x)` both apply a function twice. They differ only in their annotations, yet the typed language of Session 30 needs both, because an abstraction has one parameter type. This session adds a type parameter. The single term $`\mathit{twice}` takes a type as its first argument, and its caller writes $`\mathit{twice}\ [\mathsf{Nat}]` or $`\mathit{twice}\ [\mathsf{Bool}]`. The session also adds the reverse arrangement, in which the implementer chooses a type and hides it. A counter represented by a number is given to clients that know only that some type has a start value, an increment and a read operation. It can return a number through the read operation. Returning the raw start value would expose the locally bound representation type in the result type.
 
 *In this session.*
 
@@ -187,11 +187,11 @@ tag := "ch31-s5"
 number := false
 %%%
 
-*Definitions · 10 minutes.* Write T-TAbs, T-TApp, E-TappTabs, T-Pack, T-Unpack and E-UnpackPack. Mark the binders in $`\mathit{twice}` and in $`\mathit{client}`, and say which binder each of the two steps removes.
+*Definitions · 10 minutes.* Instantiate the type parameter of the twice function at Nat. Identify who chooses the type in that application and who chooses the representation when packaging the counter.
 
-*Joint proof · 30 minutes.* Do the three board computations. For Proposition 31.1, write lines 1–8 and the step. For Proposition 31.2, write lines 1–12 and the step. For Proposition 31.3, write the five inversion steps. After each step, write the type of the result.
+*Joint proof · 30 minutes.* Open the counter of §31.2. Write the types of the start value, increment and read operations under the abstract type variable. First type a client that increments once and returns the observation. Then replace the entire client body with the start value. Circle the result type in each derivation and apply the escape condition of T-Unpack. Explain why one result can cross the package boundary.
 
-*Proof review · 20 minutes.* Do Exercise 31.4. Then drop the escape condition and run the application of §31.3 to the stuck term. Read Theorem 31.5 aloud, and match its preservation entries for E-TappTabs and E-UnpackPack with the steps of Propositions 31.1 and 31.2.
+*Proof review · 20 minutes.* Reconstruct the first reduction step of the successful client. Identify where the implementation uses Nat and where the client must reason with an arbitrary representation. Use the derivation of Proposition 31.1 and the stuck term in §31.3 for further practice after the meeting.
 
 *Facilitator’s hint.* Keep two columns on the board: the type that the implementer chose (Nat) and the type that the client may assume ($`X`). A type application lets the caller choose. A package lets the implementer choose.
 

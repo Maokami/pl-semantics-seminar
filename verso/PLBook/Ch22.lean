@@ -145,6 +145,8 @@ The corollary applies to the rule E-AppAbs of C.1, used from Session 23 on, whic
 
 In an object-language abstraction the parameter is a variable that occurs in a syntax tree. Substitution in this chapter is an operation on such trees, so it must account for binding and capture. Later, interpreting an abstraction as a mathematical function will require an environment giving a meaning to each free variable.
 
+An interpreter can implement lexical scope by retaining bindings. An *environment* maps variable names to values. A *closure* pairs a function abstraction with the environment in which it was evaluated. For example, suppose the environment maps $`x` to the identity function when $`\lambda y.x` is evaluated. Later a caller binds $`x` to another function and applies the closure to a value $`v`. The evaluator extends the saved environment with $`y\mapsto v`, then looks up $`x` there. The result is the identity function. In a substitution account, replacing the free $`x` by the identity abstraction before the call gives $`\lambda y.(\lambda z.z)`; substituting the argument for $`y` in its body gives the same identity abstraction. The caller's binding of $`x` enters neither calculation. This example illustrates the implementation choice; the free-variable theorem above concerns substitution on syntax.
+
 # Exercises
 %%%
 tag := "ch22-s4"

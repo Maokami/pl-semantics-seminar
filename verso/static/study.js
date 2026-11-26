@@ -79,6 +79,19 @@
   const close = Object.assign(document.createElement('button'), {textContent:'Close', type:'button'});
   menu.append(propose, save, close); document.body.append(menu);
   let selected;
+  if (panel.classList.contains('study-pilot')) {
+    const compose = (mode, event) => {
+      event.preventDefault();
+      menu.hidden = true;
+      panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
+    };
+    const ask = link('이 문장 질문', '#');
+    ask.onclick = event => compose('question', event);
+    propose.textContent = '수정 제안';
+    propose.onclick = event => compose('correction', event);
+    save.textContent = '저장'; close.textContent = '닫기';
+    menu.prepend(ask);
+  }
   save.onclick = () => { if (selected) persist([...notes, selected]); menu.hidden = true; };
   close.onclick = () => { menu.hidden = true; };
   function selectionChanged() {

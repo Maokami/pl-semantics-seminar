@@ -40,6 +40,16 @@ def chapter_tools(number, title, revision):
         for label, step in zip(("Hint", "Premises", "Conclusion"), steps):
             prompt += f'<details><summary>{label}</summary><p>{step}</p></details>'
         prompt += f'<p><a href="https://github.com/Maokami/pl-semantics-labs/blob/main/Exercises/Session{number:02}.lean">Try the Lean exercise</a></p></details>'
+    if number in PROOFS:
+        return f"""<aside class="study study-pilot" lang="ko" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="장별 스터디">
+<header class="study-head"><div><h2>함께 읽기</h2><p>읽다가 막힌 곳이나 고치고 싶은 문장을 남겨 주세요.</p></div></header>
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">질문 쓰기</a><a data-compose="correction" href="{node(issue)}">수정 제안</a><a data-discuss href="{node(discussion)}">의견·답글 보기</a></div>
+<details class="comments"><summary>이 장의 대화</summary><p><a href="{node(discussion)}">GitHub에서 대화 열기 ↗</a></p><div class="giscus"></div></details>
+{prompt}
+<details class="presenter"><summary>발표 준비</summary><div class="study-links"></div><p><a href="{node(unanswered)}">미해결 질문</a> · <a href="{node(discussion)}">장별 토론</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">발표 브리프</a></p></details>
+<details class="saved"><summary>다시 읽을 문장</summary><div></div></details>
+<footer><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">원고 이력</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">처리된 제안</a></footer>
+</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script><script defer src="static/study.js"></script>"""
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>
 <p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(ask)}">Ask a question</a> · <a href="{node(issue)}">Suggest a correction</a></p>
