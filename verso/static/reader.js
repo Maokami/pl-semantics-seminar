@@ -36,7 +36,22 @@ if (location.protocol === 'file:') {
   function reveal(hash) {
     let id;
     try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
-    const target = document.getElementById(id);
+    let target = document.getElementById(id);
+    if (!target && id.includes('-p-')) {
+      const section = document.getElementById(id.split('-p-')[0]);
+      if (section) {
+        target = section;
+        let notice = document.querySelector('.passage-moved');
+        if (!notice) {
+          notice = document.createElement('p');
+          notice.className = 'passage-moved';
+          notice.setAttribute('role', 'status');
+        }
+        notice.textContent = 'This passage has changed. The link opens its section.';
+        section.after(notice);
+        section.scrollIntoView();
+      }
+    }
     const details = target?.closest('.chapter-appendix');
     if (details) {
       details.open = true;

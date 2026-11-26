@@ -58,3 +58,18 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .lean-lab .lab-path {font-size:.88rem;margin:.65rem 0 0}.lean-lab iframe[hidden] {display:none}
 .lean-lab iframe {display:block;width:100%;height:clamp(28rem,75vh,50rem);margin-top:.8rem;border:1px solid #a3b8b1;box-sizing:border-box}
 @media print {.chapter-appendix>summary::before,.lean-lab,.seminar-links,.chapter-appendix .board {display:none}}
+
+[data-passage] { scroll-margin-block-start: 5rem; }
+[data-passage]:target, .picking-passage [data-passage]:is(:hover,:focus) {
+  outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px;
+  background: color-mix(in srgb, #edbc48 20%, transparent);
+}
+.picking-passage [data-passage] { cursor: pointer; }
+.passage-help { font-size: .9rem; }
+.passage-picker { font: inherit; color: LinkText; text-decoration: underline; background: none; border: 0; padding: .2rem; cursor: pointer; }
+.study-selection:not([hidden]) { gap: .25rem; justify-content: center; border-radius: .6rem; box-shadow: 0 3px 14px #0002; bottom: max(.7rem, env(safe-area-inset-bottom)); }
+.study-selection :is(a,button) { font: inherit; font-size: .9rem; line-height: 1.4; color: CanvasText; background: none; border: none; padding: .4rem .55rem; text-decoration: none; cursor: pointer; border-radius: .3rem; }
+.study-selection :is(a,button):is(:hover,:focus-visible) { text-decoration: underline; }
+.study-selection a:first-child { background: CanvasText; color: Canvas; }
+.passage-status:not(:empty) { position: fixed; z-index: 102; bottom: 1rem; left: 50%; transform: translateX(-50%); max-width: 84vw; background: CanvasText; color: Canvas; padding: .55rem .9rem; border-radius: .4rem; pointer-events: none; }
+@media print { .passage-help, .passage-status, .passage-moved { display: none; } [data-passage]:target { outline: none; background: none; } }

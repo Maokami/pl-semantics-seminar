@@ -35,6 +35,7 @@ def chapter_tools(number, title, revision):
     issue_body = f"Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n"
     issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "template": "correction.md", "body": issue_body})
     node = lambda url: html.escape(url, quote=True)
+    picker = '<p class="passage-help">Select text to share a link or quote it in a discussion. <button type="button" class="passage-picker">Choose a passage</button></p>'
     prompt = ""
     if number in PROOFS:
         q, *steps = PROOFS[number]
@@ -55,6 +56,7 @@ def chapter_tools(number, title, revision):
         corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
         return f"""<aside class="study study-pilot" lang="en" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="Study together">
 <div class="study-head"><h2 id="study-together" tabindex="-1">Study together</h2></div>
+{picker}
 <div class="chapter-questions"><h3>Questions from readers</h3>
 <div class="question-feed" aria-live="polite"></div>
 <div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>
@@ -67,6 +69,7 @@ def chapter_tools(number, title, revision):
 </aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script><script defer src="static/workbook.js"></script><script defer src="static/study.js"></script>"""
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>
+{picker}
 <p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(ask)}">Ask a question</a> · <a href="{node(issue)}">Suggest a correction</a></p>
 {prompt}
 <details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div>

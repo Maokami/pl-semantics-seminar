@@ -12,10 +12,6 @@
   function sectionAt(node) {
     return headings.filter(h => h.contains(node) || (h.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)).pop() || headings[0];
   }
-  function sectionURL(h) {
-    const u = new URL(url); u.hash = h.id; return u.href;
-  }
-
   const prep = main.querySelector('.chapter-appendix[data-kind="seminar"]');
   const presenter = panel.querySelector('.presenter');
   if (prep) {
@@ -107,49 +103,145 @@
       const row = document.createElement('p');
       const remove = Object.assign(document.createElement('button'), {textContent: 'Remove', type: 'button'});
       remove.onclick = () => persist(notes.filter((_, j) => j !== i));
-      const u = new URL(url); u.hash = note.id;
+      const u = new URL(url); u.hash = note.passage || note.id;
       row.append(link(note.quote, u.href), ' ', remove); saved.append(row);
     }
   }
   draw();
-  const menu = document.createElement('div'); menu.className = 'study-selection'; menu.hidden = true;
-  const propose = link('Suggest a correction', '#');
-  const save = Object.assign(document.createElement('button'), {textContent:'Save for rereading', type:'button'});
-  const close = Object.assign(document.createElement('button'), {textContent:'Close', type:'button'});
-  menu.append(propose, save, close); document.body.append(menu);
-  let selected;
-  if (panel.classList.contains('study-pilot')) {
-    const compose = (mode, event) => {
-      event.preventDefault();
-      menu.hidden = true;
-      panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
-    };
-    const ask = link('Ask about this passage', '#');
-    ask.onclick = event => compose('question', event);
-    propose.textContent = 'Suggest a correction';
-    propose.onclick = event => compose('correction', event);
-    save.textContent = 'Save passage'; close.textContent = 'Close';
-    menu.prepend(ask);
+  const comments = panel.querySelector('.comments');
+  const menu = document.createElement('div');
+  menu.className = 'study-selection';
+  menu.hidden = true;
+  menu.setAttribute('role', 'group');
+  menu.setAttribute('aria-label', 'Share selected passage');
+  const button = label => Object.assign(document.createElement('button'), {type:'button', textContent:label});
+  const copy = link('Copy link', '#');
+  const ask = link('Ask a question', '#');
+  const propose = link('Suggest edit', '#');
+  const discuss = button('Quote for discussion');
+  const save = button('Save');
+  const close = button('Close');
+  menu.append(copy, ask, propose, discuss, save, close);
+  const status = document.createElement('div');
+  status.className = 'passage-status';
+  status.setAttribute('role', 'status');
+  document.body.append(menu, status);
+  let selected, trigger, timer;
+  function announce(text) {
+    clearTimeout(timer);
+    status.textContent = text;
+    timer = setTimeout(() => { status.textContent = ''; }, 5500);
   }
-  save.onclick = () => { if (selected) persist([...notes, selected]); menu.hidden = true; };
-  close.onclick = () => { menu.hidden = true; };
+  async function write(text) {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch { return window.prompt('Copy the text below, then choose OK.', text) !== null; }
+  }
+  function hide() {
+    menu.hidden = true;
+    if (trigger?.isConnected) trigger.focus({preventScroll:true});
+    trigger = null;
+  }
+  copy.onclick = async event => {
+    event.preventDefault();
+    if (await write(copy.href)) { hide(); announce('Passage link copied.'); }
+  };
+  discuss.onclick = async () => {
+    const text = markdownQuote(selected.quote) + '\n\n[' + tag + ' · passage](' + copy.href + ')';
+    if (!await write(text)) return;
+    hide();
+    comments.open = true;
+    comments.querySelector('summary').focus();
+    comments.scrollIntoView({block:'center'});
+    announce('Quote and link copied. Paste them into your chapter comment.');
+  };
+  if (panel.classList.contains('study-pilot')) {
+    for (const [control, mode] of [[ask, 'question'], [propose, 'correction']]) {
+      control.onclick = event => {
+        event.preventDefault();
+        hide();
+        panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
+      };
+    }
+  }
+  save.onclick = () => { persist([...notes, selected]); hide(); announce('Passage saved on this device.'); };
+  close.onclick = hide;
+  const markdownQuote = text => text.split('\n').map(line => '> ' + line).join('\n');
+
+  function choose(block, quote) {
+    status.textContent = '';
+    const h = sectionAt(block);
+    selected = {id:h.id, passage:block.id, quote};
+    const u = new URL('https://maokami.github.io/pl-semantics-seminar/chapter-' + session + '/');
+    u.hash = block.id;
+    copy.href = u.href;
+    const context = markdownQuote(quote) + '\n\n' + u.href + '\nRevision: ' + revision;
+    const draft = (path, fields) => repo + path + '?' + new URLSearchParams({
+      ...fields, title:'[' + tag + '] ', body:context,
+    });
+    ask.href = draft('/discussions/new', {category:'q-a'});
+    propose.href = draft('/issues/new', {template:'correction.md'});
+    menu.hidden = false;
+  }
+  function blockOf(node) {
+    return (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest('[data-passage]');
+  }
+  function quoteOf(fragment) {
+    // KaTeX renders both visual and accessible copies of a formula.
+    for (const math of fragment.querySelectorAll('.katex')) {
+      const tex = math.querySelector('annotation')?.textContent;
+      if (tex) math.replaceWith('$' + tex + '$');
+    }
+    return fragment.textContent.trim().replace(/\s+/g, ' ').slice(0, 750);
+  }
   function selectionChanged() {
     const sel = getSelection();
-    if (!sel.rangeCount || sel.isCollapsed || !main.contains(sel.anchorNode) || !main.contains(sel.focusNode)
-        || panel.contains(sel.anchorNode) || panel.contains(sel.focusNode)) { if (!menu.matches(':focus-within,:hover')) menu.hidden = true; return; }
-    const quote = sel.toString().trim().slice(0, 750);
-    if (!quote) return;
-    const h = sectionAt(sel.getRangeAt(0).startContainer);
-    selected = {id:h.id, quote};
-    const u = new URL(repo + '/issues/new');
-    u.search = new URLSearchParams({title:'['+tag+'] ',template:'correction.md',body:
-      'Section: '+sectionURL(h)+'\nRevision: '+revision+'\n\n'+quote.split('\n').map(s=>'> '+s).join('\n')+'\n\nSuggested change and reason:\n'});
-    propose.href = u.href; menu.hidden = false;
+    if (!sel.rangeCount || sel.isCollapsed) {
+      if (!trigger && !menu.matches(':focus-within,:hover')) menu.hidden = true;
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const block = blockOf(range.startContainer);
+    if (!block || !blockOf(range.endContainer)) return;
+    const quote = quoteOf(range.cloneContents());
+    if (quote) { trigger = null; choose(block, quote); }
   }
   document.addEventListener('selectionchange', selectionChanged);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') menu.hidden = true; });
 
-  const comments = panel.querySelector('.comments');
+  // A picker works with a tap or keyboard when dragging over typeset math is difficult.
+  const picker = panel.querySelector('.passage-picker');
+  const blocks = [...main.querySelectorAll('[data-passage]')];
+  let picking = false;
+  function stopPicking() {
+    picking = false;
+    main.classList.remove('picking-passage');
+    for (const block of blocks) block.removeAttribute('tabindex');
+  }
+  picker.onclick = () => {
+    picking = true;
+    main.classList.add('picking-passage');
+    for (const block of blocks) block.tabIndex = 0;
+    blocks[0].focus();
+    announce('Choose a passage. Use Tab and Enter, or tap a paragraph. Escape cancels.');
+  };
+  function pick(event) {
+    if (!picking || (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ')) return;
+    const block = blockOf(event.target);
+    if (!block) return;
+    event.preventDefault();
+    stopPicking();
+    trigger = picker;
+    choose(block, quoteOf(block.cloneNode(true)));
+    copy.focus({preventScroll:true});
+  }
+  main.addEventListener('click', pick, true);
+  main.addEventListener('keydown', pick);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (picking) { stopPicking(); picker.focus(); }
+      if (!menu.hidden) hide();
+    }
+  });
+
   comments.addEventListener('toggle', () => {
     if (!comments.open || comments.querySelector('script, iframe')) return;
     const s = document.createElement('script');

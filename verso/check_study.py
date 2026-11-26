@@ -8,12 +8,15 @@ ROOT = Path(__file__).resolve().parent / "site/html-multi"
 class Chapter(HTMLParser):
     def __init__(self):
         super().__init__()
+        self.passages = []
         self.panels = []
         self.links = []
         self.scripts = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if "data-passage" in a:
+            self.passages.append(a["id"])
         if tag == "aside" and "data-session" in a:
             self.panels.append(a)
         if tag == "script":
@@ -26,6 +29,11 @@ for i in range(1, 39):
     chapter = Chapter()
     page = (ROOT / f"chapter-{i:02}/index.html").read_text()
     chapter.feed(page)
+    assert len(chapter.passages) == len(set(chapter.passages)) >= 10, i
+    assert all(anchor.startswith(f"ch{i:02}") for anchor in chapter.passages), i
+    assert page.count('class="passage-picker"') == 1
+    if i == 1:
+        assert 'ch01-s1-p-definition-1-2' in chapter.passages
     assert len(chapter.panels) == 1 and chapter.panels[0]["data-session"] == f"{i:02}"
     assert any("pl-semantics-seminar/issues/new?" in link for link in chapter.links)
     assert ("study-pilot" in chapter.panels[0]["class"].split()) == (i <= 3)

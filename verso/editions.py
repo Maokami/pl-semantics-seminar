@@ -3,6 +3,7 @@ import html
 import re
 import subprocess
 from study import chapter_tools
+from passages import address_passages
 from functools import lru_cache
 from pathlib import Path
 
@@ -103,6 +104,7 @@ def update_pages(site):
         if ch or p == site/'index.html':
             s = reader_buttons(s, ch, order, names)
         if ch:
+            s = address_passages(s)
             tools = chapter_tools(ch, names[ch], revision)
             if ch <= 3:
                 before, nav, after = s.rpartition('<nav class="prev-next-buttons">')
