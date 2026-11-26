@@ -46,7 +46,9 @@ def chapter_tools(number, title, revision):
 <h3>Lean workbook</h3><p class="lab-instruction"></p>
 <div class="lab-actions"><button class="lab-start" type="button" hidden>Open Lean editor</button>
 <a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean">Workbook source</a>
-<a href="{LAB_REPO}">Full Lake project ↗</a></div>
+</div>
+<details class="lab-project"><summary>Work across files</summary><p>Open <code>Exercises/Session{number:02}.lean</code> in your personal browser workspace. It includes the Lean infoview, the complete project and a terminal for Lake checks.</p>
+<a href="https://codespaces.new/Maokami/pl-semantics-labs?quickstart=1">Open or resume workspace ↗</a> · <a href="{LAB_REPO}">Clone the workbook</a></details>
 <p role="status" class="lab-status"></p></div>"""
     if number in PROOFS:
         questions = f"{REPO}/discussions?" + urlencode({"discussions_q": f'category:"Q&A" "{tag}"'})

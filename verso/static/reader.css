@@ -55,5 +55,6 @@ main .course-toc section p {margin:.1rem 0 .65rem; color:#43576b}
 .lean-lab p {margin:.35rem 0 .7rem}.lean-lab .lab-status:empty {display:none}
 .lab-actions {display:flex;align-items:center;gap:.6rem 1rem;flex-wrap:wrap;font-size:.92rem}
 .lab-actions a {color:#234f49}.lab-start {font:inherit;padding:.45rem .85rem;border:0;border-radius:.35rem;background:#23584c;color:white;cursor:pointer}
+.lab-project {margin-top:.85rem}.lab-project summary {cursor:pointer;font-weight:600}
 .lean-lab iframe {display:block;width:100%;height:clamp(28rem,75vh,50rem);margin-top:.8rem;border:1px solid #a3b8b1;box-sizing:border-box}
 @media print {.chapter-appendix>summary::before,.lean-lab,.seminar-links,.chapter-appendix .board {display:none}}
