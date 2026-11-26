@@ -32,6 +32,9 @@ for i in range(1, 39):
     assert len(chapter.passages) == len(set(chapter.passages)) >= 10, i
     assert all(anchor.startswith(f"ch{i:02}") for anchor in chapter.passages), i
     assert page.count('class="passage-picker"') == 1
+    assert page.count('id="chapter-discussion"') == 1 and '<details class="comments">' not in page
+    assert page.count('class="giscus"') == page.count('class="question-feed"') == 1
+    assert "docs/reader-guide.ko.md" in page
     if i == 1:
         assert 'ch01-s1-p-definition-1-2' in chapter.passages
     assert len(chapter.panels) == 1 and chapter.panels[0]["data-session"] == f"{i:02}"

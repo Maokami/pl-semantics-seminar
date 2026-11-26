@@ -4,6 +4,8 @@
 
 각 장의 첫 페이지에서 대표 정리, 출처, 칠판에서 전개할 증명 경우를 찾을 수 있다. 세 언어 카드에는 정의와 규칙을, 영어–한국어 용어집에는 토론에 쓸 대응어와 처음 정의한 절을 모았다. [교재 원고](verso/PLBook.lean) · [용어집](verso/PLBook/Glossary.lean)
 
+[공개 교재](https://maokami.github.io/pl-semantics-seminar/) · [스터디원 이용 안내](docs/reader-guide.ko.md)
+
 ## 빌드
 
 ```sh
