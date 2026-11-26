@@ -72,7 +72,7 @@
 
   const comments = panel.querySelector('.comments');
   comments.addEventListener('toggle', () => {
-    if (!comments.open || comments.querySelector('script')) return;
+    if (!comments.open || comments.querySelector('script, iframe')) return;
     const s = document.createElement('script');
     s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
     Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
