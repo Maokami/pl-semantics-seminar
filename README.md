@@ -13,3 +13,39 @@ python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 ```
 
 로컬 브라우저에서 [교재 첫 화면](http://127.0.0.1:8042/)을 연다. 버전과 개별 장 검사 방법은 [Verso 빌드 안내](verso/README.md)에 있다.
+
+## Reading with the seminar
+
+Read the same chapter before the meeting. Use **Chapter discussion** for a shared
+conversation or **Ask a question** to open a Q&A thread whose answer can be marked.
+Select a passage and choose **Suggest a correction** to include the quote, section
+and source revision in a public GitHub issue. Korean and English are both welcome.
+**Save for rereading** keeps a note in the current browser on the current host.
+The presenter can open **Prepare to present** for readings, unanswered questions
+and meeting briefs. Sessions 1–3 include proof prompts and Lean exercises.
+
+[Textbook on Sites](https://pl-semantics-textbook.moonlitwhale2.chatgpt.site/) ·
+[GitHub Pages mirror](https://maokami.github.io/pl-semantics-seminar/) ·
+[Reader discussions](https://github.com/Maokami/pl-semantics-seminar/discussions)
+
+The Pages workflow rebuilds the English edition when book sources change on
+`curriculum-v1.2`. The Sites edition uses the same static output. Both sites use
+the same GitHub discussion identifiers. To resolve a correction, review the
+proposed change in a manuscript PR, then reply with the published chapter and
+commit. Use the issue's close reason to distinguish an applied correction from
+a declined proposal.
+
+### Presenter briefs and editing
+
+**Seminar reading brief** checks for new feedback on Thursday at 09:13 KST.
+Maintainers can also run it for a chosen session before a meeting. It reads the
+chapter source, groups open questions and suggests up to three topics in Korean.
+Actionable results become issues labeled `seminar agenda`. Configure the Actions
+secret `ANTHROPIC_API_KEY` for this repository. The primary Claude session has
+a ten-minute workflow timeout, a ten-turn limit and a USD 0.50 CLI budget.
+
+**Copilot feedback check** is a manually dispatched second opinion on an open
+issue labeled `textbook feedback`. Its suggested reply is staged in the run
+report for a maintainer. Set the repository secret `COPILOT_GITHUB_TOKEN` to
+a personal fine-grained token with the account permission **Copilot Requests:
+Read**. The workflow uses automatic model selection and a five-AI-credit cap.
