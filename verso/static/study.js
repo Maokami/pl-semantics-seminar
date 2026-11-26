@@ -79,6 +79,19 @@
   const close = Object.assign(document.createElement('button'), {textContent:'Close', type:'button'});
   menu.append(propose, save, close); document.body.append(menu);
   let selected;
+  if (panel.classList.contains('study-pilot')) {
+    const compose = (mode, event) => {
+      event.preventDefault();
+      menu.hidden = true;
+      panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
+    };
+    const ask = link('Ask about this passage', '#');
+    ask.onclick = event => compose('question', event);
+    propose.textContent = 'Suggest a correction';
+    propose.onclick = event => compose('correction', event);
+    save.textContent = 'Save passage'; close.textContent = 'Close';
+    menu.prepend(ask);
+  }
   save.onclick = () => { if (selected) persist([...notes, selected]); menu.hidden = true; };
   close.onclick = () => { menu.hidden = true; };
   function selectionChanged() {
@@ -104,7 +117,7 @@
     s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
     Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
       category:'General', categoryId:'DIC_kwDOV5jDy84DMBZ9',mapping:thread ? 'number' : 'specific',
-      term:thread || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',inputPosition:'top',theme:'preferred_color_scheme',lang:'ko'});
+      term:thread || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',inputPosition:'top',theme:'preferred_color_scheme',lang:panel.classList.contains('study-pilot') ? 'en' : 'ko'});
     comments.querySelector('.giscus').append(s);
   });
 })();

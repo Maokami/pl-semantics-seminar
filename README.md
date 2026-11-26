@@ -16,6 +16,8 @@ python3 -m http.server 8042 --bind 127.0.0.1 --directory site/html-multi
 
 ## Reading with the seminar
 
+In Sessions 1–3, choose **Ask a question** or **Suggest a correction** at the chapter heading, or select a passage first to quote it. Write in the book, then review and post on GitHub. The current tab keeps your draft when you close the form. Choose **Join the discussion** to join the chapter conversation on the page.
+
 Read the same chapter before the meeting. Use **Chapter discussion** for a shared
 conversation or **Ask a question** to open a Q&A thread whose answer can be marked.
 Select a passage and choose **Suggest a correction** to include the quote, section

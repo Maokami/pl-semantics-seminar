@@ -81,6 +81,8 @@ Return to the fixed state of §4.1. There are now two routes from an expression 
 
 This argument also explains when a variable can be interpreted by a fixed integer. Such a choice is legitimate if the interpretation is meant for one specified state. Suppose instead that the required result is the meaning of the variable at every state. Two states assigning respectively two and five to the same name demand distinct results. A single integer cannot answer both queries. A function can retain this dependence while still letting addition operate on the meanings of immediate subexpressions.
 
+Consider the tree for $`x+4` in a state with $`\sigma(x)=3`. With integers as results, the variable leaf gives $`3`, the literal leaf gives $`4`, and the root gives $`7`. Now take lists of stack instructions as results. The same leaves give $`[\mathsf{load}(x)]` and $`[\mathsf{push}(4)]`. At the root, concatenate the lists in order and append $`\mathsf{plus}`. The resulting code first copies $`3` from the state, pushes $`4`, then replaces the top two integers by their sum. The two folds have different result types. To compare them, [Session 14](chapter-14/index.html#ch14-s1) interprets the code as an operation on a stack and proves that it pushes the value of the expression onto any initial stack.
+
 # Exercises
 %%%
 tag := "ch04-s4"

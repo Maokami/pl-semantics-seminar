@@ -40,6 +40,16 @@ def chapter_tools(number, title, revision):
         for label, step in zip(("Hint", "Premises", "Conclusion"), steps):
             prompt += f'<details><summary>{label}</summary><p>{step}</p></details>'
         prompt += f'<p><a href="https://github.com/Maokami/pl-semantics-labs/blob/main/Exercises/Session{number:02}.lean">Try the Lean exercise</a></p></details>'
+    if number in PROOFS:
+        return f"""<aside class="study study-pilot" lang="en" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="Chapter study group">
+<div class="study-head"><h2>Read together</h2><p>Select a passage to include it with your question or correction.</p></div>
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a data-compose="correction" href="{node(issue)}">Suggest a correction</a><a data-discuss href="{node(discussion)}">Join the discussion</a></div>
+<details class="comments"><summary>Chapter discussion</summary><p>Leave a comment in English or Korean. Sign in with GitHub to reply here.</p><p><a href="{node(discussion)}">Open discussion on GitHub ↗</a></p><div class="giscus"></div></details>
+{prompt}
+<details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{node(discussion)}">Chapter thread</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
+<details class="saved"><summary>Saved passages</summary><div></div></details>
+<footer><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">Chapter history</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">Resolved suggestions</a></footer>
+</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script><script defer src="static/study.js"></script>"""
     return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
 <h2>Study group</h2>
 <p><a href="{node(discussion)}">Chapter discussion</a> · <a href="{node(ask)}">Ask a question</a> · <a href="{node(issue)}">Suggest a correction</a></p>
