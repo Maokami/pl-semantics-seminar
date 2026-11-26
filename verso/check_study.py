@@ -40,6 +40,7 @@ for i in range(1, 39):
     assert len(chapter.panels) == 1 and chapter.panels[0]["data-session"] == f"{i:02}"
     assert any("pl-semantics-seminar/issues/new?" in link for link in chapter.links)
     assert chapter.scripts.count("static/composer.js") == 1
+    assert chapter.scripts.index("static/study-math.js") < chapter.scripts.index("static/composer.js")
     assert ("static/workbook.js" in chapter.scripts) == (i <= 3)
     for section_name in ("Exercises", "Reading for the Seminar", "Solutions and Further Reading", "Sources and Formalization"):
         assert section_name in page, (i, section_name)
@@ -56,6 +57,6 @@ for i in range(1, 39):
     thread = chapter.panels[0]["data-thread"]
     if thread:
         assert any(link.endswith("/discussions/" + thread) for link in chapter.links)
-for asset in ("study.js", "composer.js", "composer.css", "workbook.js"):
+for asset in ("study.js", "study-math.js", "composer.js", "composer.css", "workbook.js"):
     assert (ROOT / "static" / asset).is_file(), asset
 print("38 chapters checked, including the three Lean exercises and discussion threads.")

@@ -33,3 +33,14 @@ a.study-inline {display:inline-block;margin:0 0 1rem;font:inherit;font-size:.88e
 .study .source-revision {font-family:monospace}
 @media(max-width:42rem){.meeting-tools {grid-template-columns:1fr;gap:.5rem}.study footer {display:grid}}
 @media print {a.study-inline {display:none}}
+
+.reader-composer .math-help {margin:.45rem 0;font-size:.9rem}
+.math-help summary {width:fit-content;cursor:pointer;text-decoration:underline;text-underline-offset:.2em}
+.math-help[open] {padding-bottom:.4rem}
+.math-help .quote-choices,.math-help .math-examples {margin-block:.4rem}
+.math-help .quote-choices>div,.math-help .math-examples {display:flex;flex-wrap:wrap;gap:.3rem}
+.math-help button {max-width:100%;overflow-x:auto}
+.math-help p {margin:.35rem 0}
+.reader-composer .math-preview {background:#f3f6f5;padding:.5rem .7rem;border-radius:.3rem;margin:.5rem 0}
+.math-preview>div,.reader-composer blockquote {white-space:pre-wrap;overflow-wrap:anywhere;overflow-x:auto}
+.math-preview>div {max-height:10rem;overflow:auto}

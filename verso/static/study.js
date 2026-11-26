@@ -121,9 +121,7 @@
         comments.querySelector('h3').textContent = questionTitle(q);
         const body = document.createElement('blockquote');
         body.className = 'question-body';
-        for (const piece of (q.body || '').split(/(https?:\/\/[^\s<>]+)/g)) {
-          body.append(/^https?:\/\//.test(piece) ? link(piece, piece) : document.createTextNode(piece));
-        }
+        studyMath.render(body, q.body || '', true);
         help.before(body);
         help.replaceChildren(back, ' · ', link('View question on GitHub ↗', q.html_url),
           ' · Sign in with GitHub to reply here.');
@@ -254,7 +252,12 @@
       if (!trigger && !menu.matches(':focus-within,:hover')) menu.hidden = true;
       return;
     }
-    const range = sel.getRangeAt(0);
+    const range = sel.getRangeAt(0).cloneRange();
+    // A selection ending inside KaTeX's visual tree still quotes the whole formula.
+    const formulaAt = node => (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest('.katex');
+    const firstMath = formulaAt(range.startContainer), lastMath = formulaAt(range.endContainer);
+    if (firstMath) range.setStartBefore(firstMath);
+    if (lastMath) range.setEndAfter(lastMath);
     const block = blockOf(range.startContainer);
     if (!block || !blockOf(range.endContainer)) return;
     const quote = quoteOf(range.cloneContents());

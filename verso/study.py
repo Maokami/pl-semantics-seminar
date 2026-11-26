@@ -85,4 +85,4 @@ def chapter_tools(number, title, revision, page):
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
 <footer><div><a data-compose="correction" href="{node(issue)}">Suggest a correction</a> · <a href="{node(corrections)}">Track corrections</a></div>
 <div>Manuscript <a class="source-revision" href="{node(source)}">{revision[:7]}</a> · <a href="{node(history)}">Chapter history</a></div></footer>
-</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script>{workbook_script}<script defer src="static/study.js"></script>"""
+</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/study-math.js"></script><script defer src="static/composer.js"></script>{workbook_script}<script defer src="static/study.js"></script>"""

@@ -15,6 +15,8 @@
 
 예를 들어 1장을 읽다가 “변수 이름이 무한히 많은데 상태가 모든 변수의 값을 준다는 건 무슨 뜻인가요?”라는 의문이 들면, 정의 1.2의 첫 문장을 선택한 뒤 질문을 남겨 주세요. 읽는 사람도 같은 정의에서 출발할 수 있습니다. [정의 1.2 · States](https://maokami.github.io/pl-semantics-seminar/chapter-01/#ch01-s1-p-definition-1-2)
 
+질문이나 수정 제안에 본문의 수식을 다시 쓰려면 **Insert a formula → From this passage**에서 수식을 고르세요. **Common notation**에서는 평가 판단, 상태 갱신, 타입 판단 등의 예를 넣어 기호만 수정할 수 있습니다. 직접 입력한 `$…$` 또는 `$$…$$`도 **Math preview**에서 확인한 뒤 게시할 수 있습니다.
+
 댓글과 답글은 교재와 GitHub Discussions에서 함께 보이는 공개 글입니다. 읽기는 로그인 없이 가능하고, 교재에서 처음 글을 쓸 때는 **Sign in with GitHub**를 눌러 댓글 도구인 giscus를 승인합니다. 댓글창을 불러올 수 없는 환경에서는 **View on GitHub**를 이용하세요. [1장 토론 바로가기](https://maokami.github.io/pl-semantics-seminar/chapter-01/#chapter-discussion)
 
 GitHub에서 질문을 올리거나 삭제한 뒤 교재 탭으로 돌아오면 **Questions from readers** 목록을 다시 불러옵니다. 같은 화면에 머무는 동안 다른 사람이 바꾼 내용은 목록 옆의 **Refresh**로 확인하세요.
