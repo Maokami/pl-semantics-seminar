@@ -1,5 +1,5 @@
 (() => {
-  const panel = document.querySelector('.study-pilot');
+  const panel = document.querySelector('.study');
   if (!panel) return;
   const {session, revision} = panel.dataset;
   const sections = [...panel.closest('main').querySelectorAll('h1[id], h2[id], h3[id]')].filter(h => !panel.contains(h));
@@ -20,6 +20,12 @@
     <label>Section<select name="section"></select></label>
     <blockquote hidden></blockquote>
     <label><span class="prompt"></span><textarea name="message" rows="5" required></textarea></label>
+    <details class="math-help"><summary>Insert a formula</summary>
+      <div class="quote-choices"><span>From this passage</span><div></div></div>
+      <span>Common notation</span><div class="math-examples"></div>
+      <p>Choose a formula and edit its letters, or type LaTeX between <code>$</code> signs. Use <code>$$</code> on separate lines for display math.</p>
+    </details>
+    <div class="math-preview" hidden><small>Math preview</small><div></div></div>
     <p class="handoff">Write in English or Korean. Sign in to GitHub to review and post publicly.</p>
     <p class="long-draft" hidden>Copy this longer draft, then paste it into the GitHub form. <button type="button" class="copy">Copy draft</button></p>
     <footer><button type="button" class="cancel">Close</button><button type="submit" class="primary">Review on GitHub ↗</button></footer>
@@ -28,6 +34,35 @@
   const form = dialog.querySelector('form');
   const select = form.elements.section, message = form.elements.message;
   const quoteBox = dialog.querySelector('blockquote');
+  const help = dialog.querySelector('.math-help');
+  const choices = help.querySelector('.quote-choices');
+  const preview = dialog.querySelector('.math-preview');
+  function formulaButton(tex, label) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Insert ' + label);
+    button.title = label;
+    studyMath.typeset(button, tex);
+    button.onclick = () => {
+      message.setRangeText('$' + tex + '$', message.selectionStart, message.selectionEnd, 'end');
+      message.focus();
+      update();
+    };
+    return button;
+  }
+  for (const [label, tex] of [
+    ['evaluation judgment', String.raw`\sigma \vdash e \Downarrow v`],
+    ['one transition', String.raw`\langle c,\sigma\rangle \to \langle c',\sigma'\rangle`],
+    ['state update', String.raw`\sigma[x \mapsto v]`],
+    ['typing judgment', String.raw`\Gamma \vdash t : T`],
+    ['lambda abstraction', String.raw`\lambda x.\,t`],
+  ]) help.querySelector('.math-examples').append(formulaButton(tex, label));
+  function showQuote() {
+    const formulas = studyMath.render(quoteBox, quoted);
+    quoteBox.hidden = !quoted;
+    choices.hidden = !formulas.length;
+    choices.querySelector('div').replaceChildren(...formulas.map(tex => formulaButton(tex, tex)));
+  }
   for (const h of sections) select.add(new Option(nameOf(h), h.id));
   const publicChapter = new URL("https://maokami.github.io/pl-semantics-seminar/chapter-" + session + "/");
   let copiedBody;
@@ -46,7 +81,9 @@
     quoted = selection?.quote || (draft.section === select.value && draft.quote) || '';
     passage = selection ? selection.passage : draft.section === select.value && draft.passage;
     message.value = draft.text || '';
-    quoteBox.textContent = quoted; quoteBox.hidden = !quoted;
+    help.open = false;
+    showQuote();
+    quoteBox.scrollTop = 0;
     const question = mode === 'question';
     dialog.querySelector('small').textContent = nameOf(sections[0]);
     dialog.querySelector('h2').textContent = question ? 'Ask a question' : 'Suggest a correction';
@@ -67,6 +104,8 @@
     return {target, body};
   }
   function update() {
+    const formulas = studyMath.render(preview.lastElementChild, message.value);
+    preview.hidden = !formulas.length;
     const {target, body} = payload();
     const needsCopy = target.href.length >= 7000;
     dialog.querySelector('.long-draft').hidden = !needsCopy;
@@ -75,7 +114,7 @@
     storeDraft();
   }
   message.addEventListener('input', update);
-  select.onchange = () => { quoted = ''; passage = ''; quoteBox.hidden = true; update(); };
+  select.onchange = () => { quoted = ''; passage = ''; showQuote(); update(); };
   dialog.querySelector('.copy').onclick = async () => {
     const {body} = payload();
     try { await navigator.clipboard.writeText(body); }

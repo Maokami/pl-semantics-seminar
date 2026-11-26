@@ -23,10 +23,11 @@
   const exercises = main.querySelector('.chapter-appendix[data-kind="exercises"]');
   const board = panel.querySelector('.board');
   if (board && exercises) {
-    exercises.insertBefore(board, exercises.querySelector('summary').nextSibling);
+    exercises.append(board);
     const lab = panel.querySelector('.lean-lab');
-    board.after(lab);
-    panel.querySelector('.meeting-tools')?.remove();
+    if (lab) board.after(lab);
+    const tools = panel.querySelector('.meeting-tools');
+    if (!tools.children.length) tools.remove();
   }
   const comments = panel.querySelector('.comments');
   const api = 'https://api.github.com/repos/Maokami/pl-semantics-seminar/discussions';
@@ -120,9 +121,7 @@
         comments.querySelector('h3').textContent = questionTitle(q);
         const body = document.createElement('blockquote');
         body.className = 'question-body';
-        for (const piece of (q.body || '').split(/(https?:\/\/[^\s<>]+)/g)) {
-          body.append(/^https?:\/\//.test(piece) ? link(piece, piece) : document.createTextNode(piece));
-        }
+        studyMath.render(body, q.body || '', true);
         help.before(body);
         help.replaceChildren(back, ' · ', link('View question on GitHub ↗', q.html_url),
           ' · Sign in with GitHub to reply here.');
@@ -135,8 +134,8 @@
     s.src = 'https://giscus.app/client.js'; s.crossOrigin = 'anonymous'; s.async = true;
     Object.assign(s.dataset, {repo:'Maokami/pl-semantics-seminar', repoId:'R_kgDOV5jDyw',
       category, categoryId, mapping:number ? 'number' : 'specific',
-      term:number || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'1',
-      inputPosition:'top',theme:'preferred_color_scheme',lang:'en'});
+      term:number || tag + ' · ' + title(headings[0]), strict:'1', reactionsEnabled:'0',
+      inputPosition:'top',theme:'light',lang:'en'});
     s.onerror = () => help.append(' The embedded comments could not load. Use the GitHub link above.');
     comments.querySelector('.giscus').append(s);
   }
@@ -152,11 +151,9 @@
   }
   function draw() {
     saved.replaceChildren();
-    if (panel.classList.contains('study-pilot')) {
-      const details = saved.closest('details');
-      details.hidden = !notes.length;
-      details.querySelector('summary').textContent = 'Saved on this device (' + notes.length + ')';
-    }
+    const details = saved.closest('details');
+    details.hidden = !notes.length;
+    details.querySelector('summary').textContent = 'Saved on this device (' + notes.length + ')';
     if (!notes.length) saved.textContent = 'Select a passage to save it on this device.';
     for (const [i, note] of notes.entries()) {
       const row = document.createElement('p');
@@ -212,14 +209,12 @@
     comments.scrollIntoView({block:'center'});
     announce('Quote and link copied. Paste them into your chapter comment.');
   };
-  if (panel.classList.contains('study-pilot')) {
-    for (const [control, mode] of [[ask, 'question'], [propose, 'correction']]) {
-      control.onclick = event => {
-        event.preventDefault();
-        hide();
-        panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
-      };
-    }
+  for (const [control, mode] of [[ask, 'question'], [propose, 'correction']]) {
+    control.onclick = event => {
+      event.preventDefault();
+      hide();
+      panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
+    };
   }
   save.onclick = () => { persist([...notes, selected]); hide(); announce('Passage saved on this device.'); };
   close.onclick = hide;
@@ -257,7 +252,12 @@
       if (!trigger && !menu.matches(':focus-within,:hover')) menu.hidden = true;
       return;
     }
-    const range = sel.getRangeAt(0);
+    const range = sel.getRangeAt(0).cloneRange();
+    // A selection ending inside KaTeX's visual tree still quotes the whole formula.
+    const formulaAt = node => (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest('.katex');
+    const firstMath = formulaAt(range.startContainer), lastMath = formulaAt(range.endContainer);
+    if (firstMath) range.setStartBefore(firstMath);
+    if (lastMath) range.setEndAfter(lastMath);
     const block = blockOf(range.startContainer);
     if (!block || !blockOf(range.endContainer)) return;
     const quote = quoteOf(range.cloneContents());

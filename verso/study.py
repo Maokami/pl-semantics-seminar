@@ -1,6 +1,7 @@
 """Add chapter discussions to the rendered textbook."""
 import html
 import json
+import re
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -26,7 +27,25 @@ PROOFS = {
 }
 
 
-def chapter_tools(number, title, revision):
+def board_exercise(number, page):
+    if number in PROOFS:
+        question, *steps = PROOFS[number]
+        hints = zip(("Hint", "Premises", "Conclusion"), steps)
+    else:
+        # Reuse the edited session card, including Verso's links and math markup.
+        card = page.partition('<strong>In this session.</strong>')[2].partition('</ul>')[0]
+        def card_item(label):
+            match = re.search(r'<strong>' + re.escape(label) + r'</strong>\s*(.*?)</p>', card, re.S)
+            if not match:
+                raise ValueError(f"Session {number} is missing its {label} card entry")
+            return match[1]
+        question = card_item("Board case.")
+        hints = [("Show proof outline", card_item("Proof outline."))]
+    details = "".join(f'<details><summary>{label}</summary><p>{step}</p></details>' for label, step in hints)
+    return f'<details class="board"><summary>Reconstruct the proof</summary><p>{question}</p>{details}</details>'
+
+
+def chapter_tools(number, title, revision, page):
     tag = f"Session {number:02}"
     thread = THREADS.get(str(number))
     discussion = f"{REPO}/discussions/{thread}" if thread else f"{REPO}/discussions?{urlencode({'discussions_q': tag})}"
@@ -35,34 +54,29 @@ def chapter_tools(number, title, revision):
     issue_body = f"Chapter: {title}\nRevision: {revision}\n\nCurrent text or section:\n\nSuggested change and reason:\n"
     issue = REPO + "/issues/new?" + urlencode({"title": f"[{tag}] ", "template": "correction.md", "body": issue_body})
     node = lambda url: html.escape(url, quote=True)
-    picker = '<p class="passage-help">Select text to share a link or quote it in a discussion. <button type="button" class="passage-picker">Choose a passage</button> · <a href="https://github.com/Maokami/pl-semantics-seminar/blob/curriculum-v1.2/docs/reader-guide.ko.md" lang="ko">스터디 이용 안내</a></p>'
+    picker = '<p class="passage-help">Select text in the chapter to share it. <button type="button" class="passage-picker">Choose a passage</button> · <a href="https://github.com/Maokami/pl-semantics-seminar/blob/curriculum-v1.2/docs/reader-guide.ko.md" lang="ko">스터디 이용 안내</a></p>'
     questions = f"{REPO}/discussions?" + urlencode({"discussions_q": f'category:"Q&A" "{tag}"'})
-    compose = ' data-compose="question"' if number in PROOFS else ''
-    discussion_tools = f"""<div class="comments" id="chapter-discussion" tabindex="-1">
-<h3>Chapter discussion</h3>
-<p class="discussion-help">Read and reply here in English or Korean. Sign in with GitHub to post publicly. <a href="{node(discussion)}">View on GitHub ↗</a></p>
-<div class="giscus"></div></div>
-<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
+    discussion_tools = f"""<div class="chapter-questions"><div class="questions-heading"><h3>Questions from readers</h3><button type="button" class="refresh-questions" aria-label="Refresh chapter questions" hidden>Refresh</button></div>
 <div class="question-feed" aria-live="polite"></div>
-<div class="study-actions"><a{compose} href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>"""
-    prompt = ""
-    if number in PROOFS:
-        q, *steps = PROOFS[number]
-        prompt = '<details class="board"><summary>Reconstruct the proof</summary><p>' + q + '</p>'
-        for label, step in zip(("Hint", "Premises", "Conclusion"), steps):
-            prompt += f'<details><summary>{label}</summary><p>{step}</p></details>'
-        prompt += '</details>'
+<div class="study-actions"><a data-compose="question" href="{node(ask)}">Ask a question</a><a href="{node(questions)}">All chapter questions ↗</a></div></div>
+<div class="comments" id="chapter-discussion" tabindex="-1">
+<h3>Chapter discussion</h3>
+<p class="discussion-help">Reply in English or Korean using your GitHub account. <a href="{node(discussion)}">View on GitHub ↗</a></p>
+<div class="giscus"></div></div>"""
+    prompt = board_exercise(number, page)
+    lab = workbook_script = ""
+    if number <= 3:
+        workbook_script = '<script defer src="static/workbook.js"></script>'
         lab = f"""<div class="lean-lab" data-session="{number:02}" data-revision="{LAB_REVISION}">
 <h3>Lean workbook</h3><p class="lab-instruction"></p>
 <div class="lab-actions"><button class="lab-start" type="button" hidden>Open Lean editor</button>
 <a href="https://codespaces.new/Maokami/pl-semantics-labs?quickstart=1">Open project workspace ↗</a></div>
-<p class="lab-path">In Codespaces, open <a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean"><code>Exercises/Session{number:02}.lean</code></a> to work with the full project and Lake.</p>
+<p class="lab-path"><a href="{LAB_REPO}/blob/{LAB_REVISION}/Exercises/Session{number:02}.lean"><code>Exercises/Session{number:02}.lean</code></a></p>
 <p role="status" class="lab-status"></p></div>"""
-    if number in PROOFS:
-        source = f"{REPO}/blob/{revision}/verso/PLBook/Ch{number:02}.lean"
-        history = f"{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean"
-        corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
-        return f"""<aside class="study study-pilot" lang="en" data-session="{number:02}" data-thread="{thread}" data-revision="{revision}" aria-label="Study together">
+    source = f"{REPO}/blob/{revision}/verso/PLBook/Ch{number:02}.lean"
+    history = f"{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean"
+    corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
+    return f"""<aside class="study" lang="en" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study together">
 <div class="study-head"><h2 id="study-together" tabindex="-1">Study together</h2></div>
 {picker}
 {discussion_tools}
@@ -71,15 +85,4 @@ def chapter_tools(number, title, revision):
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
 <footer><div><a data-compose="correction" href="{node(issue)}">Suggest a correction</a> · <a href="{node(corrections)}">Track corrections</a></div>
 <div>Manuscript <a class="source-revision" href="{node(source)}">{revision[:7]}</a> · <a href="{node(history)}">Chapter history</a></div></footer>
-</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/composer.js"></script><script defer src="static/workbook.js"></script><script defer src="static/study.js"></script>"""
-    return f"""<aside class="study" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study group">
-<h2>Study group</h2>
-{picker}
-{discussion_tools}
-<p><a href="{node(issue)}">Suggest a correction</a></p>
-{prompt}
-<details class="presenter"><summary>Prepare to present</summary><div class="study-links"></div>
-<p><a href="{node(discussion)}">Read the chapter thread</a> · <a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aissue+is%3Aopen+%22%5BSession+{number:02}%5D%22">Open chapter issues</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details>
-<details class="saved"><summary>My reading notes</summary><div></div></details>
-<small><a href="{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean">Chapter history</a> · <a href="{REPO}/issues?q=is%3Aclosed+label%3A%22textbook+feedback%22+%22%5BSession+{number:02}%5D%22">Resolved feedback</a></small>
-</aside><script defer src="static/study.js"></script>"""
+</aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/study-math.js"></script><script defer src="static/composer.js"></script>{workbook_script}<script defer src="static/study.js"></script>"""
