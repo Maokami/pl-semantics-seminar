@@ -64,7 +64,9 @@ with `--model auto`. Its availability is independent of the scheduled workflows.
 
 ### Continuous reader feedback
 
-Reader discussions and correction issues are checked daily at 09:37 KST. The AI
+Relevant issue and chapter-discussion changes trigger review after a short batching
+delay. Closing or merging a proposal checks the waiting queue. Daily review at
+09:37 KST remains as a fallback. Bot notifications do not trigger review. The AI
 prepares a bounded manuscript PR for the maintainer; it never merges its own work.
 Approve with **Merge** after the **Reader feedback / book** check, or leave a reason
 and use **Comment and close pull request**. Source threads link to the decision,

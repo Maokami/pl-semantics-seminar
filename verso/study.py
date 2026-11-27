@@ -87,7 +87,7 @@ def chapter_tools(number, title, revision, page):
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
 <section class="feedback-progress" aria-label="Correction review status">
 <h3>Corrections and review</h3>
-<p>Reader feedback is checked daily. Proposed edits need a maintainer’s approval before publication.</p>
+<p>New or changed reader feedback triggers review. Pending proposals wait for a maintainer’s decision; a daily check catches missed feedback. Proposed edits need approval before publication.</p>
 <div class="correction-feed" aria-live="polite"></div>
 <p><a href="{node(proposals)}">Chapter review decisions</a> · <a href="{node(corrections)}">All chapter corrections</a></p>
 <details><summary>How review works</summary><p>Suggest a correction with its section and reason. AI compares it with the current manuscript and prepares a proposal. The maintainer checks the changes and build result, then merges or closes the proposal. The original discussion links to the decision; a merged change appears after a successful textbook build.</p>
