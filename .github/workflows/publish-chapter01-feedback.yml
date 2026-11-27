@@ -1,0 +1,37 @@
+name: Publish approved Chapter 1 feedback
+on:
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: publish-approved-chapter01-feedback
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      discussions: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: curriculum-v1.2
+          persist-credentials: false
+      - name: Publish the fixed approved text once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish_approved_feedback.py
+  request_review:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: write
+    steps:
+      # GITHUB_TOKEN comments do not emit another Actions event. Request the
+      # existing review explicitly; its usual deduplication/approval gate applies.
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/reader-feedback.lock.yml/dispatches" \
+            --method POST -f ref=curriculum-v1.2

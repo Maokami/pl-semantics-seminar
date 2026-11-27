@@ -36,6 +36,10 @@ AI가 PR 본문의 연결 표식을 빠뜨린 경우에도, 변경된 `feedback/
 
 ## 운영과 확인
 
+관리자가 승인한 1장 검토 원고는 `feedback/submissions/chapter01-review.ko.md`에 보관합니다. **Publish approved Chapter 1 feedback → Run workflow**는 이 원고만 Discussion #1에 `github-actions[bot]` 명의로 게시하며, 관리자 요청 게시물임을 표시합니다. 같은 원고가 이미 있으면 중복 댓글을 만들지 않습니다. 게시 뒤 기존 **Continuous reader feedback**를 명시적으로 요청합니다. Actions 토큰으로 작성한 댓글은 일반 이벤트를 다시 발생시키지 않기 때문입니다.
+
+의견 수집에서는 Discussion #1의 해당 봇 댓글이 기본 브랜치의 승인 원고와 정확히 일치하는 경우만 예외적으로 읽습니다. 다른 봇 알림, 표식만 복사한 글, 다른 토론에 올린 글은 이 예외에 포함하지 않습니다. 원고의 변경도 관리자 검토를 거쳐야 하며, AI 수정 제안 워크플로에는 이 경로의 쓰기를 허용하지 않습니다. 이 게시 경로는 ChatGPT GitHub 연결의 권한을 변경하거나 개인 토큰을 저장하지 않습니다.
+
 Issue·PR의 해결 후보, 중복, 승인 대기와 운영 장애는 별도의 [정리 현황 #27](https://github.com/Maokami/pl-semantics-seminar/issues/27)에서 확인합니다. 이 자동화는 원고 수정이나 항목 종료를 수행하지 않습니다. [실행 조건과 관리자 결정 방법](maintenance-triage.ko.md)을 참고하세요.
 
 필수 기존 Secret: `ANTHROPIC_API_KEY`. PR 생성은 저장소의 **Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests** 설정이 허용해야 합니다. 개인 토큰을 원고나 사이트에 넣지 않습니다.
