@@ -1,0 +1,100 @@
+name: Reader feedback checks and decisions
+on:
+  workflow_run:
+    workflows: [Continuous reader feedback, Publish textbook]
+    types: [completed]
+    branches: [curriculum-v1.2]
+  pull_request_target:
+    types: [closed, reopened, synchronize]
+    branches: [curriculum-v1.2]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: reader-feedback-followup-${{ github.event.pull_request.number || github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
+      discussions: write
+      statuses: write
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      has_prs: ${{ steps.plan.outputs.has_prs }}
+    steps:
+      # Never check out a PR head in the privileged planning/notification job.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: curriculum-v1.2
+          persist-credentials: false
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/feedback_actions.py
+  book:
+    needs: plan
+    if: needs.plan.outputs.has_prs == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ matrix.sha }}
+          persist-credentials: false
+      - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee
+        with:
+          lake-package-directory: verso
+          auto-config: 'false'
+          build: 'false'
+      - run: python3 verso/build_site.py
+      - run: python3 verso/check_study.py
+      - name: Readable preview for the maintainer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reader-preview-${{ matrix.number }}
+          path: verso/site/html-multi
+      # This file is consumed as data by an isolated write-only status job.
+      - name: Record result
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+        run: printf '%s' "$RESULT" > /tmp/book-result.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: reader-result-${{ matrix.number }}
+          path: /tmp/book-result.txt
+  status:
+    needs: [plan, book]
+    if: always() && needs.plan.outputs.has_prs == 'true'
+    strategy:
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        continue-on-error: true
+        with:
+          name: reader-result-${{ matrix.number }}
+          path: result
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ matrix.sha }}
+        run: |
+          state=failure
+          if [ -f result/book-result.txt ] && [ "$(cat result/book-result.txt)" = success ]; then state=success; fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" --method POST \
+            -f state="$state" -f context='Reader feedback / book' \
+            -f description='Textbook build and study-link checks' \
+            -f target_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

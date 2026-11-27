@@ -75,6 +75,8 @@ def chapter_tools(number, title, revision, page):
 <p role="status" class="lab-status"></p></div>"""
     source = f"{REPO}/blob/{revision}/verso/PLBook/Ch{number:02}.lean"
     history = f"{REPO}/commits/{revision}/verso/PLBook/Ch{number:02}.lean"
+    proposals = f"{REPO}/pulls?" + urlencode({"q": f'is:pr label:"reader proposal" "[Session {number:02}]"'})
+    queue = f"{REPO}/pulls?" + urlencode({"q": 'is:pr is:open label:"reader proposal"'})
     corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
     return f"""<aside class="study" lang="en" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study together">
 <div class="study-head"><h2 id="study-together" tabindex="-1">Study together</h2></div>
@@ -83,6 +85,14 @@ def chapter_tools(number, title, revision, page):
 <div class="meeting-tools" aria-label="Seminar preparation">{prompt}{lab}
 <details class="presenter"><summary>Prepare to present<small>Readings and meeting agenda</small></summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details></div>
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
+<section class="feedback-progress" aria-label="Correction review status">
+<h3>Corrections and review</h3>
+<p>Reader feedback is checked daily. Proposed edits need a maintainer’s approval before publication.</p>
+<div class="correction-feed" aria-live="polite"></div>
+<p><a href="{node(proposals)}">Chapter review decisions</a> · <a href="{node(corrections)}">All chapter corrections</a></p>
+<details><summary>How review works</summary><p>Suggest a correction with its section and reason. AI compares it with the current manuscript and prepares a proposal. The maintainer checks the changes and build result, then merges or closes the proposal. The original discussion links to the decision; a merged change appears after a successful textbook build.</p>
+<p><a href="{node(queue)}">Maintainer review queue</a> · <a href="{REPO}/blob/curriculum-v1.2/docs/feedback-maintenance.ko.md" lang="ko">승인·거부 안내</a></p></details>
+</section>
 <footer><div><a data-compose="correction" href="{node(issue)}">Suggest a correction</a> · <a href="{node(corrections)}">Track corrections</a></div>
 <div>Manuscript <a class="source-revision" href="{node(source)}">{revision[:7]}</a> · <a href="{node(history)}">Chapter history</a></div></footer>
 </aside><link rel="stylesheet" href="static/composer.css"><script defer src="static/study-math.js"></script><script defer src="static/composer.js"></script>{workbook_script}<script defer src="static/study.js"></script>"""

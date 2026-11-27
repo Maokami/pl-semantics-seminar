@@ -51,6 +51,9 @@ for i in range(1, 39):
         assert page.count(f'data-compose="{action}"') == 1
     revision = chapter.panels[0]["data-revision"]
     assert any(link.endswith(f"/blob/{revision}/verso/PLBook/Ch{i:02}.lean") for link in chapter.links)
+    assert page.count('class="correction-feed"') == 1
+    assert 'Maintainer review queue' in page and 'Chapter review decisions' in page
+    assert 'docs/feedback-maintenance.ko.md' in page
     assert page.count('class="board"') == 1
     assert (f'Exercises/Session{i:02}.lean' in page) == (i <= 3)
     assert ('class="lean-lab"' in page) == (i <= 3)
