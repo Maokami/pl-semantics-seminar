@@ -1,8 +1,9 @@
 """Deterministic, paginated intake for the human-reviewed textbook workflow.
 
-Reader text is data, never executable code. Only trusted automation PR markers
+Reader text is data, never executable code. Only trusted automation PR records
 suppress a revision; closing a proposal records a decision without deleting input.
 """
+import base64
 import hashlib
 import json
 import os
@@ -65,9 +66,38 @@ def blocked_proposals():
             and '<!-- gh-aw-workflow-id: reader-feedback -->' in (issue.get('body') or '')]
 
 
+def proposal_records(pr):
+    """Read bounded JSON blobs as data; never check out or execute PR content."""
+    if not trusted_proposal(pr):
+        return []
+    records = []
+    for changed in pages(f'repos/{REPO}/pulls/{pr["number"]}/files'):
+        match = re.fullmatch(r'feedback/reviews/([a-f0-9]{64})\.json', changed['filename'])
+        if not match or changed['status'] == 'removed':
+            continue
+        if len(records) >= 8:
+            raise ValueError('Too many review records')
+        blob = api(f'repos/{REPO}/git/blobs/{changed["sha"]}')
+        if blob.get('encoding') != 'base64' or blob['size'] > 262144:
+            raise ValueError('Invalid review record encoding or size')
+        record = json.loads(base64.b64decode(blob['content']))
+        if not isinstance(record, dict) or record.get('key') != match[1]:
+            raise ValueError('Review record key does not match its path')
+        source = re.fullmatch(r'https://github\.com/' + re.escape(REPO)
+                              + r'/(issues|discussions)/([1-9][0-9]*)', record.get('source_url', ''))
+        if not source:
+            raise ValueError('Review source must be an issue/discussion in this repository')
+        records.append({'key': match[1], 'kind': {'issues': 'issue', 'discussions': 'discussion'}[source[1]],
+                        'number': source[2]})
+    return records
+
+
 def pending(candidates, proposals):
-    seen = {key for pr in proposals if trusted_proposal(pr)
-            for key in MARKER.findall(pr.get('body') or '')}
+    seen = set()
+    for pr in proposals:
+        if trusted_proposal(pr):
+            keys = MARKER.findall(pr.get('body') or '')
+            seen.update(keys or [record['key'] for record in proposal_records(pr)])
     return [item for item in candidates if item['key'] not in seen]
 
 

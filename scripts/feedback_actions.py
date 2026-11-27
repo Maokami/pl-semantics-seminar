@@ -2,13 +2,14 @@
 import json
 import os
 import sys
-from reader_feedback import api, pages, trusted_proposal, blocked_proposals, SOURCE, REPO
+from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, SOURCE, REPO
 
 CONTEXT = 'Reader feedback / book'
 
 
 def sources(pr):
-    return sorted(set(SOURCE.findall(pr.get('body') or '')))
+    markers = SOURCE.findall(pr.get('body') or '')
+    return sorted(set(markers or [(r['kind'], r['number']) for r in proposal_records(pr)]))
 
 
 def notification(pr, published=False):

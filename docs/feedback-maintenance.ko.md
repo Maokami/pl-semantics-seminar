@@ -24,6 +24,8 @@
 
 제안 생성, 승인, 거부, GitHub Pages 게시 완료를 구분해 원래 글의 봇 댓글 하나를 갱신합니다. 승인만으로 게시 완료라고 표시하지 않습니다. **Chapter review decisions**에는 거부/승인한 PR도 남습니다.
 
+AI가 PR 본문의 연결 표식을 빠뜨린 경우에도, 변경된 `feedback/reviews/<key>.json`을 데이터로 읽어 원래 의견과 연결하고 중복 검토를 막습니다. 파일명과 키가 같은지, 출처가 이 저장소의 Issue/Discussion인지 검증하며 PR 코드를 실행하지 않습니다.
+
 GitHub Actions의 기본 토큰으로 만든 PR은 일반 `pull_request` CI를 자동 실행하지 않습니다. 따라서 **Reader feedback checks and decisions**가 AI 실행 완료 뒤 검사하며, 사람의 PR 업데이트에도 다시 검사합니다. PR 코드는 읽기 전용 빌드 작업에서만 실행하고, 알림/검사 상태 쓰기는 신뢰된 기본 브랜치의 별도 작업에서 수행합니다.
 
 ## 운영과 확인
