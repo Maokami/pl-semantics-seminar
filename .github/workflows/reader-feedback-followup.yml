@@ -18,6 +18,7 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.name == 'Continuous reader feedback' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
       pull-requests: read
       issues: write
@@ -26,6 +27,7 @@ jobs:
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
       has_prs: ${{ steps.plan.outputs.has_prs }}
+      wake_queue: ${{ steps.plan.outputs.wake_queue }}
     steps:
       # Never check out a PR head in the privileged planning/notification job.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -36,6 +38,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/feedback_actions.py
+  resume_queue:
+    needs: plan
+    if: needs.plan.outputs.wake_queue == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      # Only a verified closed bot proposal reaches this isolated dispatch job.
+      # workflow_dispatch can trigger a workflow using GITHUB_TOKEN; the
+      # receiving workflow's intake still checks current content and open PRs.
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/reader-feedback.lock.yml/dispatches" \
+            --method POST -f ref=curriculum-v1.2
   book:
     needs: plan
     if: needs.plan.outputs.has_prs == 'true'

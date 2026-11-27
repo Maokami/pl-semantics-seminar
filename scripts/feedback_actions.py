@@ -2,9 +2,33 @@
 import json
 import os
 import sys
+import re
 from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, SOURCE, REPO
 
 CONTEXT = 'Reader feedback / book'
+
+
+def decision_releases_queue(event_name, event, pr):
+    return (event_name == 'pull_request_target' and event.get('action') == 'closed'
+            and trusted_proposal(pr) and pr.get('state') == 'closed'
+            and pr.get('base', {}).get('ref') == 'curriculum-v1.2'
+            and (pr.get('head', {}).get('repo') or {}).get('full_name') == REPO)
+
+
+def needs_book_check(existing, *, retry=False):
+    if not existing:
+        return True
+    if existing['state'] == 'success':
+        return False
+    if existing['state'] == 'pending':
+        match = re.fullmatch(r'https://github\.com/' + re.escape(REPO)
+                             + r'/actions/runs/([0-9]+)', existing.get('target_url') or '')
+        if match:
+            run = api(f'repos/{REPO}/actions/runs/{match[1]}')
+            if run['status'] != 'completed':
+                return False
+        return True  # Recover a stale pending status after interruption.
+    return retry  # Reader activity must not repeatedly rebuild a failing SHA.
 
 
 def sources(pr):
@@ -83,6 +107,7 @@ def main():
     else:
         proposals = pages(f'repos/{REPO}/pulls?state={"closed" if is_publish else "open"}')
     selected = []
+    wake_queue = False
     for pr in proposals:
         if not trusted_proposal(pr) or pr['base']['ref'] != 'curriculum-v1.2' or pr['head']['repo']['full_name'] != REPO:
             continue
@@ -96,11 +121,13 @@ def main():
             notify(pr, published=True)
             continue
         notify(pr)
+        wake_queue = wake_queue or decision_releases_queue(event_name, event, pr)
         if pr['state'] != 'open':
             continue
         statuses = api(f'repos/{REPO}/commits/{pr["head"]["sha"]}/status')['statuses']
         existing = next((s for s in statuses if s['context'] == CONTEXT), None)
-        if existing and existing['state'] == 'success':
+        retry = event_name == 'workflow_dispatch' or (event_name == 'pull_request_target' and event.get('action') == 'reopened')
+        if not needs_book_check(existing, retry=retry):
             continue
         selected.append({'number': pr['number'], 'sha': pr['head']['sha']})
         api(f'repos/{REPO}/statuses/{pr["head"]["sha"]}', {'state': 'pending', 'context': CONTEXT,
@@ -109,6 +136,7 @@ def main():
     with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
         out.write('matrix=' + json.dumps({'include': selected}) + '\n')
         out.write('has_prs=' + str(bool(selected)).lower() + '\n')
+        out.write('wake_queue=' + str(wake_queue).lower() + '\n')
 
 
 if __name__ == '__main__':

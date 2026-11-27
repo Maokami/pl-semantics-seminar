@@ -10,11 +10,40 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import time
 
 REPO = os.environ.get('GITHUB_REPOSITORY', 'Maokami/pl-semantics-seminar')
 MARKER = re.compile(r'<!-- reader-feedback: ([a-f0-9]{64}) -->')
 SOURCE = re.compile(r'<!-- reader-source: (issue|discussion):(\d+) -->')
 LABEL = 'reader proposal'
+
+
+def event_qualifies(name, event):
+    """Select wake-ups, not instructions. Human text is fetched later as data."""
+    if name in ('schedule', 'workflow_dispatch'):
+        return True
+    sender = event.get('sender', {})
+    if sender.get('type') != 'User' or not human({'user': sender}):
+        return False
+    action = event.get('action')
+    if name in ('issues', 'issue_comment'):
+        issue = event.get('issue', {})
+        if ('pull_request' in issue or issue.get('state') != 'open'
+                or not any(label.get('name') == 'textbook feedback' for label in issue.get('labels', []))):
+            return False
+        if name == 'issues':
+            if action == 'labeled':
+                return event.get('label', {}).get('name') == 'textbook feedback'
+            return action in ('opened', 'reopened') or (action == 'edited' and bool({'title', 'body'} & event.get('changes', {}).keys()))
+    elif name in ('discussion', 'discussion_comment'):
+        discussion = event.get('discussion', {})
+        if discussion.get('state', 'open') != 'open' or not re.search(r'\bSession\s+\d{1,2}\b', discussion.get('title', '')):
+            return False
+        if name == 'discussion':
+            return action in ('created', 'category_changed') or (action == 'edited' and bool({'title', 'body'} & event.get('changes', {}).keys()))
+    else:
+        return False
+    return action in ('created', 'edited', 'deleted') and human(event.get('comment', {}))
 
 
 def api(path, payload=None):
@@ -145,14 +174,24 @@ def collect():
 
 
 def main():
+    event_name = os.environ.get('GITHUB_EVENT_NAME', 'workflow_dispatch')
+    event_path = os.environ.get('GITHUB_EVENT_PATH')
+    event = json.loads(Path(event_path).read_text()) if event_path else {}
+    eligible = event_qualifies(event_name, event)
     smoke = os.environ.get('SMOKE_TEST') == 'true'
-    blocked = [] if smoke else blocked_proposals()
-    items = [] if smoke or blocked else collect()
     # One outstanding proposal keeps review load bounded; input is picked up later.
-    proposals = pages(f'repos/{REPO}/pulls?state=open')
+    proposals = pages(f'repos/{REPO}/pulls?state=open') if eligible else []
     outstanding = any(trusted_proposal(pr) for pr in proposals)
-    items = [] if outstanding and not smoke else items[:3]
-    run = smoke or bool(items)
+    blocked = [] if not eligible or smoke or outstanding else blocked_proposals()
+    items = []
+    if eligible and not smoke and not outstanding and not blocked:
+        if event_name not in ('schedule', 'workflow_dispatch'):
+            # Workflow-level concurrency serializes intake through publication.
+            # One active run + the latest pending run coalesce bursts; never
+            # cancel an active agent or safe-output write because of a comment.
+            time.sleep(min(120, max(0, int(os.environ.get('FEEDBACK_DEBOUNCE_SECONDS', '0')))))
+        items = collect()[:3]
+    run = eligible and (smoke or bool(items))
     if run and os.environ.get('HAS_KEY') == 'false':
         raise RuntimeError('ANTHROPIC_API_KEY is required when feedback is ready')
     values = {'run': str(run).lower(), 'items': json.dumps(items, ensure_ascii=False), 'smoke': str(smoke).lower()}
@@ -161,6 +200,7 @@ def main():
             for key, value in values.items():
                 out.write(f'{key}={value}\n')
     print(json.dumps({'run': run, 'selected': items, 'outstanding_proposal': outstanding,
+                      'event': event_name, 'eligible_event': eligible,
                       'blocked_proposal_issues': [i['html_url'] for i in blocked]}, ensure_ascii=False))
     if blocked:
         print('::warning::PR creation is blocked. Resolve and close the linked fallback issue before resuming normal AI reviews.')

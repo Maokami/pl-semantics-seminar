@@ -1,6 +1,16 @@
 ---
 name: Continuous reader feedback
 on:
+  # Public reader text is data. Only trusted default-branch code is executed.
+  roles: all
+  issues:
+    types: [opened, edited, reopened, labeled]
+  issue_comment:
+    types: [created, edited, deleted]
+  discussion:
+    types: [created, edited, category_changed]
+  discussion_comment:
+    types: [created, edited, deleted]
   schedule:
     - cron: "37 0 * * *"
   workflow_dispatch:
@@ -17,6 +27,7 @@ on:
   steps:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        ref: curriculum-v1.2
         persist-credentials: false
     - name: Collect unreviewed feedback revisions
       id: intake
@@ -24,6 +35,7 @@ on:
         GH_TOKEN: ${{ github.token }}
         HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
         SMOKE_TEST: ${{ inputs.smoke_test || false }}
+        FEEDBACK_DEBOUNCE_SECONDS: '60'
       run: python3 scripts/reader_feedback.py
 jobs:
   pre-activation:
