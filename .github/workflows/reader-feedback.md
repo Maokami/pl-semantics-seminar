@@ -72,6 +72,9 @@ safe-outputs:
       - verso/PLBook/LanguageCard.lean
       - verso/PLBook/MachineCard.lean
       - verso/PLBook/LambdaCard.lean
+      - verso/PLBook/Ko/Ch*.lean
+      - verso/PLBook/Ko/Glossary.lean
+      - verso/PLBook/Ko/LanguageCard.lean
       - feedback/reviews/*.json
     max-patch-files: 8
     max-patch-size: 256
@@ -95,7 +98,9 @@ change outside the allowed files, record that it needs maintainer work instead.
 
 Use native Write/Edit tools for files and run local git commands separately.
 Prepare ONE small PR for the selected items. Prefer precise, justified edits over
-adding new theory. For each item create feedback/reviews/<key>.json with fields
+adding new theory. Keep an existing Korean counterpart consistent when the same
+passage is affected; do not create new chapter translations. For each item create
+feedback/reviews/<key>.json with fields
 key, source_url, disposition (change/no-change/needs-discussion), reason_ko,
 sections (array), validation (array of actually performed checks).
 For a request that is already addressed or unsupported, record a reason instead of
