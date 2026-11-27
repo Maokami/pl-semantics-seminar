@@ -89,6 +89,36 @@
       }
     }
   }
+  const correctionFeed = panel.querySelector('.correction-feed');
+  let correctionRequest = 0;
+  async function loadCorrections() {
+    if (!correctionFeed) return;
+    const request = ++correctionRequest;
+    correctionFeed.setAttribute('aria-busy', 'true');
+    if (!correctionFeed.textContent) correctionFeed.textContent = 'Loading correction status…';
+    try {
+      const query = 'repo:Maokami/pl-semantics-seminar is:issue label:"textbook feedback" "[' + tag + ']" in:title';
+      const response = await fetch('https://api.github.com/search/issues?q=' + encodeURIComponent(query) + '&sort=updated&per_page=6', {cache:'no-store'});
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      if (request !== correctionRequest) return;
+      const list = document.createElement('ul');
+      for (const issue of data.items.filter(item => item.title.startsWith('[' + tag + ']'))) {
+        const row = document.createElement('li');
+        const status = document.createElement('small');
+        status.textContent = issue.state === 'open' ? 'Open · see review updates' : issue.state_reason === 'not_planned' ? 'Closed · see decision' : 'Closed';
+        row.append(link(issue.title.slice(tag.length + 2).trim(), issue.html_url), ' ', status);
+        list.append(row);
+      }
+      if (list.children.length) correctionFeed.replaceChildren(list);
+      else correctionFeed.textContent = 'No corrections recorded for this chapter yet.';
+    } catch {
+      if (request === correctionRequest) correctionFeed.textContent = 'Correction status could not be loaded. Open All chapter corrections to check on GitHub.';
+    } finally {
+      if (request === correctionRequest) correctionFeed.setAttribute('aria-busy', 'false');
+    }
+  }
+  if (correctionFeed) whenVisible(correctionFeed, loadCorrections);
   refresh.onclick = loadQuestions;
   whenVisible(feed, loadQuestions);
   // Returning from GitHub can leave the same document alive, including in the back/forward cache.
@@ -97,6 +127,7 @@
     if (!away || document.hidden || !listRequest) return;
     away = false;
     loadQuestions();
+    if (correctionRequest) loadCorrections();
   }
   window.addEventListener('blur', () => { away = true; });
   window.addEventListener('focus', resume);

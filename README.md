@@ -62,3 +62,13 @@ workbook audits changed labs on the first and sixteenth of each month.
 
 For an optional Copilot second opinion, use the official Copilot CLI locally
 with `--model auto`. Its availability is independent of the scheduled workflows.
+
+### Continuous reader feedback
+
+Reader discussions and correction issues are checked daily at 09:37 KST. The AI
+prepares a bounded manuscript PR for the maintainer; it never merges its own work.
+Approve with **Merge** after the **Reader feedback / book** check, or leave a reason
+and use **Comment and close pull request**. Source threads link to the decision,
+and publication is reported only after a successful GitHub Pages deployment.
+[Review queue](https://github.com/Maokami/pl-semantics-seminar/pulls?q=is%3Apr+is%3Aopen+label%3A%22reader+proposal%22)
+· [관리자 운영 안내](docs/feedback-maintenance.ko.md)
