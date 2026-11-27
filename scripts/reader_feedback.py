@@ -57,6 +57,14 @@ def trusted_proposal(pr):
         label['name'] == LABEL for label in pr.get('labels', []))
 
 
+def blocked_proposals():
+    # gh-aw 1.2.2 creates a review issue on PR permission failure even when
+    # fallback-as-issue is false. Do not spend money recreating that proposal.
+    return [issue for issue in pages(f'repos/{REPO}/issues?state=open&labels=reader%20proposal')
+            if 'pull_request' not in issue and trusted_proposal(issue)
+            and '<!-- gh-aw-workflow-id: reader-feedback -->' in (issue.get('body') or '')]
+
+
 def pending(candidates, proposals):
     seen = {key for pr in proposals if trusted_proposal(pr)
             for key in MARKER.findall(pr.get('body') or '')}
@@ -108,7 +116,8 @@ def collect():
 
 def main():
     smoke = os.environ.get('SMOKE_TEST') == 'true'
-    items = [] if smoke else collect()
+    blocked = [] if smoke else blocked_proposals()
+    items = [] if smoke or blocked else collect()
     # One outstanding proposal keeps review load bounded; input is picked up later.
     proposals = pages(f'repos/{REPO}/pulls?state=open')
     outstanding = any(trusted_proposal(pr) for pr in proposals)
@@ -121,7 +130,10 @@ def main():
         with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
             for key, value in values.items():
                 out.write(f'{key}={value}\n')
-    print(json.dumps({'run': run, 'selected': items, 'outstanding_proposal': outstanding}, ensure_ascii=False))
+    print(json.dumps({'run': run, 'selected': items, 'outstanding_proposal': outstanding,
+                      'blocked_proposal_issues': [i['html_url'] for i in blocked]}, ensure_ascii=False))
+    if blocked:
+        print('::warning::PR creation is blocked. Resolve and close the linked fallback issue before resuming normal AI reviews.')
 
 
 if __name__ == '__main__':

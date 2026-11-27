@@ -33,6 +33,26 @@ class IntakeTests(unittest.TestCase):
             self.assertEqual(len(f.pages('repos/a/b/issues?state=open')), 101)
             self.assertIn('&per_page=100&page=2', call.call_args.args[0])
 
+    def test_only_trusted_workflow_fallback_issues_block(self):
+        issue = {'html_url': 'https://example.com/17',
+                 'user': {'login': 'github-actions[bot]'},
+                 'labels': [{'name': f.LABEL}],
+                 'body': '<!-- gh-aw-workflow-id: reader-feedback -->'}
+        forged = dict(issue, user={'login': 'reader'})
+        pr = dict(issue, pull_request={})
+        unrelated = dict(issue, body='Other workflow')
+        with patch.object(f, 'pages', return_value=[issue, forged, pr, unrelated]):
+            self.assertEqual(f.blocked_proposals(), [issue])
+
+    def test_blocked_intake_does_not_collect_or_run_ai(self):
+        with patch.dict(f.os.environ, {'SMOKE_TEST': 'false', 'GITHUB_OUTPUT': ''}), \
+                patch.object(f, 'blocked_proposals', return_value=[{'html_url': 'https://example.com/17'}]), \
+                patch.object(f, 'collect') as collect, \
+                patch.object(f, 'pages', return_value=[]), patch('builtins.print') as output:
+            f.main()
+            collect.assert_not_called()
+            self.assertFalse(f.json.loads(output.call_args_list[0].args[0])['run'])
+
     def test_graphql_paginates_replies_and_root_comments(self):
         def conn(nodes, more=False, cursor=None):
             return {'nodes': nodes, 'pageInfo': {'hasNextPage': more, 'endCursor': cursor}}
