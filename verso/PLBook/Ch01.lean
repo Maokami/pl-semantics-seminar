@@ -171,7 +171,7 @@ We refer to the four rules as the literal axiom, the variable axiom, the additio
 
 Writing each conclusion under the judgments that justify its premises gives a tree. The integer $`7` enters only at the root, as the sum $`n_1+n_2`.
 
-$$`\frac{\frac{}{\sigma \vdash \operatorname{var}(x) \Downarrow 3}\quad\frac{}{\sigma \vdash \operatorname{lit}(4) \Downarrow 4}}{\sigma \vdash \operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right) \Downarrow 7}`
+$$`\dfrac{\dfrac{\vphantom{\sigma}}{\sigma \vdash \operatorname{var}(x) \Downarrow 3}\qquad\dfrac{\vphantom{\sigma}}{\sigma \vdash \operatorname{lit}(4) \Downarrow 4}}{\sigma \vdash \operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right) \Downarrow 7}`
 
 The rules describe how an expression evaluates. This is *operational semantics*. Each judgment gives the result of a whole expression, as the root does for $`x+4`, so this form is called *big-step*. [Session 5](chapter-05/index.html#ch05-s1) gives rules for a single step of a command.
 
