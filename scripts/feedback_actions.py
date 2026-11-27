@@ -2,7 +2,7 @@
 import json
 import os
 import sys
-from reader_feedback import api, pages, trusted_proposal, SOURCE, REPO
+from reader_feedback import api, pages, trusted_proposal, blocked_proposals, SOURCE, REPO
 
 CONTEXT = 'Reader feedback / book'
 
@@ -71,6 +71,11 @@ def notify(pr, published=False):
 def main():
     event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
     event_name = os.environ['GITHUB_EVENT_NAME']
+    if event.get('workflow_run', {}).get('name') == 'Continuous reader feedback':
+        blocked = blocked_proposals()
+        if blocked:
+            raise RuntimeError('PR creation did not complete; resolve and close fallback issues: '
+                               + ', '.join(i['html_url'] for i in blocked))
     is_publish = event.get('workflow_run', {}).get('name') == 'Publish textbook'
     if event_name == 'pull_request_target':
         proposals = [api(f'repos/{REPO}/pulls/{event["number"]}')]
