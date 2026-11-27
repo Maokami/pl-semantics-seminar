@@ -50,7 +50,9 @@ concurrency:
   cancel-in-progress: false
 tools:
   edit:
-  bash: ["cat:*", "ls:*", "find:*", "rg:*", "git diff:*", "git status:*", "git checkout:*", "git branch:*", "git add:*", "git commit:*", "mkdir:*", "printf:*", "python3:*"]
+  # The disposable agent workspace needs ordinary local editing/git commands.
+  # Remote writes remain isolated in safe_outputs, limited to the paths below.
+  bash: [":*"]
   github:
     read-only: true
     toolsets: [repos, issues, discussions, pull_requests]
