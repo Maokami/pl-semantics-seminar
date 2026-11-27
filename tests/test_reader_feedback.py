@@ -85,6 +85,34 @@ class IntakeTests(unittest.TestCase):
         self.assertNotIn('게시가 완료', actions.notification(pr))
         self.assertIn('게시가 완료', actions.notification(pr, published=True))
 
+    def test_review_records_recover_omitted_markers_for_dedup_and_notification(self):
+        item = f.snapshot('issue', self.item(), [])
+        pr = {'number': 24, 'body': 'No machine-readable markers',
+              'user': {'login': 'github-actions[bot]'}, 'labels': [{'name': f.LABEL}]}
+        changed = {'filename': f'feedback/reviews/{item["key"]}.json', 'status': 'added', 'sha': 'blob-sha'}
+        record = {'key': item['key'], 'source_url': f'https://github.com/{f.REPO}/issues/13'}
+        blob = {'encoding': 'base64', 'size': 300,
+                'content': f.base64.b64encode(f.json.dumps(record).encode()).decode()}
+        with patch.object(f, 'pages', return_value=[changed]), patch.object(f, 'api', return_value=blob):
+            self.assertEqual(f.pending([item], [pr]), [])
+            self.assertEqual(actions.sources(pr), [('issue', '13')])
+            record['source_url'] = 'https://github.com/someone/else/issues/13'
+            blob['content'] = f.base64.b64encode(f.json.dumps(record).encode()).decode()
+            with self.assertRaises(ValueError):
+                f.proposal_records(pr)
+            record['source_url'] = f'https://github.com/{f.REPO}/issues/13'
+            record['key'] = '0' * 64
+            blob['content'] = f.base64.b64encode(f.json.dumps(record).encode()).decode()
+            with self.assertRaises(ValueError):
+                f.proposal_records(pr)
+
+    def test_smoke_record_is_not_a_reader_source(self):
+        pr = {'number': 21, 'user': {'login': 'github-actions[bot]'}, 'labels': [{'name': f.LABEL}]}
+        with patch.object(f, 'pages', return_value=[{'filename': 'feedback/reviews/smoke-123.json', 'status': 'added'}]), \
+                patch.object(f, 'api') as api:
+            self.assertEqual(f.proposal_records(pr), [])
+            api.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()
