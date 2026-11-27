@@ -12,8 +12,8 @@ import maintenance_intake as m
 
 class MaintenanceTests(unittest.TestCase):
     def test_snapshot_key_survives_prompt_compilation(self):
-        # gh-aw strips author HTML comments before binding expressions. A key
-        # referenced only in such a comment silently disappears from the prompt.
+        # A normal audit link preserves the snapshot through gh-aw sanitization;
+        # HTML comments were removed both from the prompt and from output.
         root = Path(__file__).resolve().parents[1]
         lock = (root / '.github/workflows/maintenance-triage.lock.yml').read_text()
         self.assertIn('GH_AW_NEEDS_PRE_ACTIVATION_OUTPUTS_KEY: ${{ needs.pre_activation.outputs.key }}', lock)
@@ -66,8 +66,12 @@ class MaintenanceTests(unittest.TestCase):
 
     def test_identical_queue_and_closed_dashboard_skip_ai(self):
         key = 'a' * 64
+        root = Path(__file__).resolve().parents[1]
+        guidance = {name: (root / 'docs' / name).read_text() for name in
+                    ('feedback-maintenance.ko.md', 'maintenance-triage.ko.md')}
+        published_key = m.digest({'queue': key, 'guidance': guidance})
         board = {'title': m.DASHBOARD_TITLE, 'state': 'open',
-                 'body': '<!-- maintenance-snapshot: ' + key + ' -->'}
+                 'body': '[검토 기록](https://github.com/' + m.REPO + '/actions/runs/123#maintenance-snapshot-' + published_key + ')'}
         with tempfile.TemporaryDirectory() as tmp:
             output = str(Path(tmp) / 'output')
             env = {'MAINTENANCE_ISSUE': '99', 'GITHUB_EVENT_NAME': 'workflow_dispatch',

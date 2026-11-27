@@ -29,8 +29,8 @@ jobs:
           jobs = api('actions/runs/' + run + '/jobs?per_page=100')['jobs']
           if any(j['name'] == 'agent' and j['conclusion'] == 'success' for j in jobs):
               body = api('issues/27').get('body') or ''
-              assert '<!-- maintenance-run: ' + run + ' -->' in body, 'AI completed without publishing a dashboard for this run; inspect safe_outputs logs'
-              assert re.search(r'<!-- maintenance-snapshot: [a-f0-9]{64} -->', body), 'Published dashboard is missing its snapshot marker'
+              audit = re.escape('https://github.com/' + repo + '/actions/runs/' + run + '#maintenance-snapshot-') + r'[a-f0-9]{64}\b'
+              assert re.search(audit, body), 'AI completed without publishing the run-specific snapshot audit link; inspect safe_outputs logs'
               print('Verified actual dashboard publication for run', run)
           else:
               print('No AI execution: no dashboard publication expected')

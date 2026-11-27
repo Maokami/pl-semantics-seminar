@@ -9,7 +9,7 @@ import time
 from reader_feedback import api, pages, human, REPO
 
 DASHBOARD_TITLE = '[Maintenance] Issue·PR 정리 현황'
-MARKER = re.compile(r'<!-- maintenance-snapshot: ([a-f0-9]{64}) -->')
+MARKER = re.compile(r'#maintenance-snapshot-([a-f0-9]{64})\b')
 PRODUCERS = {'Reader feedback checks and decisions', 'Publish textbook'}
 
 
@@ -88,7 +88,7 @@ def main():
     event_path = os.environ.get('GITHUB_EVENT_PATH')
     event = json.loads(Path(event_path).read_text()) if event_path else {}
     name = os.environ.get('GITHUB_EVENT_NAME', 'workflow_dispatch')
-    run, key, refs = False, '', []
+    run, key, refs, guidance = False, '', [], {}
     eligible = qualifies(name, event, dashboard)
     if eligible:
         if name not in ('schedule', 'workflow_dispatch'):
@@ -98,12 +98,17 @@ def main():
             raise ValueError('Maintenance dashboard identity does not match')
         if board['state'] == 'open':
             key, refs = snapshot(dashboard)
+            root = Path(__file__).resolve().parents[1]
+            guidance = {name: (root / 'docs' / name).read_text() for name in
+                        ('feedback-maintenance.ko.md', 'maintenance-triage.ko.md')}
+            key = digest({'queue': key, 'guidance': guidance})
             run = key not in MARKER.findall(board.get('body') or '')
     if run and os.environ.get('HAS_KEY') == 'false':
         raise RuntimeError('ANTHROPIC_API_KEY is required')
     with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
         out.write(f'run={str(run).lower()}\nkey={key}\n')
         out.write('items=' + json.dumps(refs) + '\n')
+        out.write('guidance=' + json.dumps(guidance, ensure_ascii=False) + '\n')
     print(json.dumps({'run': run, 'eligible_event': eligible, 'dashboard': dashboard, 'items': refs}))
 
 
