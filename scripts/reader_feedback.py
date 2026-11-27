@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import time
+from approved_feedback import approved_post
 
 REPO = os.environ.get('GITHUB_REPOSITORY', 'Maokami/pl-semantics-seminar')
 MARKER = re.compile(r'<!-- reader-feedback: ([a-f0-9]{64}) -->')
@@ -71,10 +72,16 @@ def human(post):
     return user.get('type', user.get('__typename')) != 'Bot' and not user.get('login', '').endswith('[bot]')
 
 
+def reader_post(post, kind, number):
+    # The default-branch source is the authorization record. Do not admit bot
+    # notifications, copied markers, other discussions, or edited bot text.
+    return human(post) or (kind == 'discussion' and number == 1 and approved_post(post))
+
+
 def snapshot(kind, item, comments):
     # Do not hash updated_at: automation labels, status changes and notifications
     # must not cause the exact same reader text to be reviewed repeatedly.
-    posts = [{'id': p['id'], 'body': p.get('body') or ''} for p in comments if human(p)]
+    posts = [{'id': p['id'], 'body': p.get('body') or ''} for p in comments if reader_post(p, kind, item['number'])]
     data = {'kind': kind, 'number': item['number'], 'title': item['title'],
             'body': item.get('body') or '', 'comments': sorted(posts, key=lambda p: str(p['id']))}
     key = hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -166,7 +173,7 @@ def collect():
             continue
         comments = discussion_comments(thread['number'])
         # Empty pre-created General chapter threads are navigation, not feedback.
-        if thread.get('category', {}).get('slug') == 'general' and not any(human(p) for p in comments):
+        if thread.get('category', {}).get('slug') == 'general' and not any(reader_post(p, 'discussion', thread['number']) for p in comments):
             continue
         candidates.append(snapshot('discussion', thread, comments))
     proposals = pages(f'repos/{REPO}/pulls?state=all&sort=created&direction=desc')
