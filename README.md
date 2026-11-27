@@ -64,6 +64,10 @@ with `--model auto`. Its availability is independent of the scheduled workflows.
 
 ### Continuous reader feedback
 
+Repository housekeeping is summarized in the [Issue/PR maintenance dashboard](https://github.com/Maokami/pl-semantics-seminar/issues/27).
+The separate continuous triage workflow recommends next actions and closure/duplicate candidates;
+it does not close issues or merge PRs. See the [maintenance guide](docs/maintenance-triage.ko.md).
+
 Relevant issue and chapter-discussion changes trigger review after a short batching
 delay. Closing or merging a proposal checks the waiting queue. Daily review at
 09:37 KST remains as a fallback. Bot notifications do not trigger review. The AI

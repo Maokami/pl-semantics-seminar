@@ -1,0 +1,19 @@
+name: Queue maintenance after PR changes
+on:
+  pull_request_target:
+    branches: [curriculum-v1.2]
+    types: [opened, edited, reopened, closed, synchronize, ready_for_review, converted_to_draft, labeled, unlabeled]
+permissions: {}
+jobs:
+  dispatch:
+    if: github.event.sender.type == 'User'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      # No checkout, artifact download, PR text interpolation, or AI credentials.
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/maintenance-triage.lock.yml/dispatches" \
+            --method POST -f ref=curriculum-v1.2

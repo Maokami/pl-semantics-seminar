@@ -36,6 +36,8 @@ AI가 PR 본문의 연결 표식을 빠뜨린 경우에도, 변경된 `feedback/
 
 ## 운영과 확인
 
+Issue·PR의 해결 후보, 중복, 승인 대기와 운영 장애는 별도의 [정리 현황 #27](https://github.com/Maokami/pl-semantics-seminar/issues/27)에서 확인합니다. 이 자동화는 원고 수정이나 항목 종료를 수행하지 않습니다. [실행 조건과 관리자 결정 방법](maintenance-triage.ko.md)을 참고하세요.
+
 필수 기존 Secret: `ANTHROPIC_API_KEY`. PR 생성은 저장소의 **Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests** 설정이 허용해야 합니다. 개인 토큰을 원고나 사이트에 넣지 않습니다.
 
 AI 실행 상한은 20분, 35턴, 주 세션 USD 2입니다. gh-aw의 별도 위협 검사 비용과 GitHub Actions 사용량까지 포함한 총비용 상한은 아닙니다. 의견이 없거나 검토 대기 PR이 있으면 AI를 호출하지 않습니다. 워크플로 파일을 변경할 때는 `gh aw` v1.2.2로 다시 컴파일합니다.
