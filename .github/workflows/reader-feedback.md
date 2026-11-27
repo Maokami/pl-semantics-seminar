@@ -46,10 +46,11 @@ max-turns: 35
 max-ai-credits: 100
 concurrency:
   group: reader-feedback
+  job-discriminator: ${{ github.run_id }}
   cancel-in-progress: false
 tools:
   edit:
-  bash: ["cat", "ls", "find", "rg", "git diff", "git status", "python3"]
+  bash: ["cat:*", "ls:*", "find:*", "rg:*", "git diff:*", "git status:*", "git checkout:*", "git branch:*", "git add:*", "git commit:*", "mkdir:*", "printf:*", "python3:*"]
   github:
     read-only: true
     toolsets: [repos, issues, discussions, pull_requests]
@@ -90,6 +91,7 @@ sorry, axioms, weaken a theorem, change proof modules, dependencies, workflows,
 credentials or publishing configuration. If a mathematical change needs a proof
 change outside the allowed files, record that it needs maintainer work instead.
 
+Use native Write/Edit tools for files and run local git commands separately.
 Prepare ONE small PR for the selected items. Prefer precise, justified edits over
 adding new theory. For each item create feedback/reviews/<key>.json with fields
 key, source_url, disposition (change/no-change/needs-discussion), reason_ko,
