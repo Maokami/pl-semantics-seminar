@@ -145,7 +145,7 @@ $$`\frac{\sigma \vdash e_{1} \Downarrow a\quad \sigma \vdash e_{2} \Downarrow b}
 
 *예 1.2.* $`\sigma(x) = 3`인 상태 $`\sigma`를 택한다. 다음 트리의 두 잎은 덧셈 규칙의 두 전제를 정당화한다.
 
-$$`\frac{\frac{}{\sigma \vdash \operatorname{var}(x) \Downarrow 3}\quad\frac{}{\sigma \vdash \operatorname{lit}(4) \Downarrow 4}}{\sigma \vdash \operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right) \Downarrow 7}`
+$$`\dfrac{\dfrac{\vphantom{\sigma}}{\sigma \vdash \operatorname{var}(x) \Downarrow 3}\qquad\dfrac{\vphantom{\sigma}}{\sigma \vdash \operatorname{lit}(4) \Downarrow 4}}{\sigma \vdash \operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right) \Downarrow 7}`
 
 거꾸로 같은 덧셈이 $`n`으로 평가되었다고 하자. 결론의 맨 바깥 생성자가 덧셈인 규칙은 덧셈 규칙뿐이다. 그 두 전제의 결과는 각각 $`3`과 $`4`여야 하므로 $`n = 7`이다. 이처럼 결론에서 가능한 마지막 규칙과 그 전제를 복원하는 추론을 *역전*(inversion)이라 한다.
 
