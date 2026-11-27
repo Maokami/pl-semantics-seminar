@@ -119,8 +119,14 @@ Never merge/close items, change labels/assignees, resolve review threads, modify
 manuscripts, or post comments to the source threads. The ONLY write is one dashboard
 body update. Do not invent a reply on behalf of the administrator.
 
-Append this exact marker with the supplied hash to the dashboard body:
-<!-- maintenance-snapshot: ${{ needs.pre_activation.outputs.key }} -->
+Snapshot key: ${{ needs.pre_activation.outputs.key }}
+Review run ID: ${{ github.run_id }}
+
+Append an HTML comment at the end of the dashboard body. Its content must be
+`maintenance-snapshot: KEY`, replacing KEY with the Snapshot key above. Include
+the standard HTML comment opening and closing delimiters around that content.
+Append a second HTML comment with content `maintenance-run: ID`, replacing ID
+with the Review run ID above. A separate trusted check verifies actual publication.
 It marks this intake snapshot, not later activity. If new changes arrive while you
 are reviewing, they remain eligible for the next run. If you cannot substantiate
 the report, return noop and explain the missing evidence without marking success.

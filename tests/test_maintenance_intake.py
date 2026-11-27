@@ -11,6 +11,13 @@ import maintenance_intake as m
 
 
 class MaintenanceTests(unittest.TestCase):
+    def test_snapshot_key_survives_prompt_compilation(self):
+        # gh-aw strips author HTML comments before binding expressions. A key
+        # referenced only in such a comment silently disappears from the prompt.
+        root = Path(__file__).resolve().parents[1]
+        lock = (root / '.github/workflows/maintenance-triage.lock.yml').read_text()
+        self.assertIn('GH_AW_NEEDS_PRE_ACTIVATION_OUTPUTS_KEY: ${{ needs.pre_activation.outputs.key }}', lock)
+
     def test_dashboard_and_bot_activity_do_not_loop(self):
         event = {'sender': {'type': 'User', 'login': 'reader'}, 'issue': {'number': 13},
                  'action': 'created', 'comment': {'user': {'type': 'User'}}}

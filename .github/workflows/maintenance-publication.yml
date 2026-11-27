@@ -1,0 +1,37 @@
+name: Verify maintenance dashboard publication
+on:
+  workflow_run:
+    workflows: [Continuous issue and PR triage]
+    types: [completed]
+    branches: [curriculum-v1.2]
+permissions: {}
+jobs:
+  verify:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      issues: read
+    steps:
+      # Read API metadata and the fixed dashboard only; no artifact/code execution.
+      - name: Verify an actual dashboard update after AI execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          repo = os.environ['GITHUB_REPOSITORY']
+          run = os.environ['REVIEW_RUN']
+          assert run.isdecimal()
+          def api(path):
+              return json.loads(subprocess.check_output(['gh', 'api', 'repos/' + repo + '/' + path], text=True))
+          jobs = api('actions/runs/' + run + '/jobs?per_page=100')['jobs']
+          if any(j['name'] == 'agent' and j['conclusion'] == 'success' for j in jobs):
+              body = api('issues/27').get('body') or ''
+              assert '<!-- maintenance-run: ' + run + ' -->' in body, 'AI completed without publishing a dashboard for this run; inspect safe_outputs logs'
+              assert re.search(r'<!-- maintenance-snapshot: [a-f0-9]{64} -->', body), 'Published dashboard is missing its snapshot marker'
+              print('Verified actual dashboard publication for run', run)
+          else:
+              print('No AI execution: no dashboard publication expected')
+          PY
