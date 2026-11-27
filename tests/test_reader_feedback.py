@@ -33,6 +33,30 @@ class IntakeTests(unittest.TestCase):
             self.assertEqual(len(f.pages('repos/a/b/issues?state=open')), 101)
             self.assertIn('&per_page=100&page=2', call.call_args.args[0])
 
+    def test_graphql_paginates_replies_and_root_comments(self):
+        def conn(nodes, more=False, cursor=None):
+            return {'nodes': nodes, 'pageInfo': {'hasNextPage': more, 'endCursor': cursor}}
+        first = {'id': 'root1', 'body': 'question', 'author': {'login': 'reader'},
+                 'replies': conn([{'id': 'reply1', 'body': 'first'}], True, 'r1')}
+        responses = [
+            {'data': {'repository': {'discussion': {'comments': conn([first], True, 'c1')}}}},
+            {'data': {'node': {'replies': conn([{'id': 'reply2', 'body': 'later'}])}}},
+            {'data': {'repository': {'discussion': {'comments': conn([])}}}},
+        ]
+        with patch.object(f, 'api', side_effect=responses) as call:
+            posts = f.discussion_comments(1)
+        self.assertEqual([p['id'] for p in posts], ['root1', 'reply1', 'reply2'])
+        self.assertEqual(call.call_args_list[1].args[1]['variables']['cursor'], 'r1')
+        self.assertEqual(call.call_args_list[2].args[1]['variables']['cursor'], 'c1')
+
+    def test_graphql_errors_fail_closed(self):
+        with patch.object(f, 'api', return_value={'errors': [{'message': 'rate limit'}]}):
+            with self.assertRaises(RuntimeError):
+                f.discussion_comments(1)
+
+    def test_graphql_bot_identity_is_excluded(self):
+        self.assertFalse(f.human({'author': {'login': 'robot', '__typename': 'Bot'}}))
+
     def test_source_markers_are_restricted_and_unique(self):
         self.assertEqual(actions.sources({'body': '<!-- reader-source: issue:42 -->\n<!-- reader-source: issue:42 -->\n<!-- reader-source: other:4 -->'}), [('issue', '42')])
 
