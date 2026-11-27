@@ -37,6 +37,7 @@ jobs:
       eligible: ${{ steps.intake.outputs.run }}
       key: ${{ steps.intake.outputs.key }}
       items: ${{ steps.intake.outputs.items }}
+      guidance: ${{ steps.intake.outputs.guidance }}
 if: needs.pre_activation.outputs.eligible == 'true'
 permissions:
   actions: read
@@ -64,6 +65,7 @@ tools:
     read-only: true
     toolsets: [repos, issues, pull_requests, actions]
 safe-outputs:
+  allowed-domains: [maokami.github.io]
   update-issue:
     target: '27'
     body: true
@@ -93,8 +95,11 @@ Inspect up to the 20 most recently updated closed PRs as initial context; follow
 older source/PR links when needed. Do not claim an exhaustive history review.
 For PRs, inspect changed files and checks on the CURRENT head SHA. A successful
 build is not a mathematical or editorial approval. Identify unavailable evidence.
-Read docs/feedback-maintenance.ko.md and docs/maintenance-triage.ko.md on the
-curriculum-v1.2 branch. Preserve administrator decisions in dashboard comments;
+The following operating guides were read by trusted intake code directly from
+curriculum-v1.2; use them without fetching the same files again:
+${{ needs.pre_activation.outputs.guidance }}
+
+Preserve administrator decisions in dashboard comments;
 never edit comments. Recheck open/closed state before reporting an actionable item.
 
 Replace ONLY the dashboard body (operation: replace), in concise Korean, with:
@@ -119,14 +124,8 @@ Never merge/close items, change labels/assignees, resolve review threads, modify
 manuscripts, or post comments to the source threads. The ONLY write is one dashboard
 body update. Do not invent a reply on behalf of the administrator.
 
-Snapshot key: ${{ needs.pre_activation.outputs.key }}
-Review run ID: ${{ github.run_id }}
-
-Append an HTML comment at the end of the dashboard body. Its content must be
-`maintenance-snapshot: KEY`, replacing KEY with the Snapshot key above. Include
-the standard HTML comment opening and closing delimiters around that content.
-Append a second HTML comment with content `maintenance-run: ID`, replacing ID
-with the Review run ID above. A separate trusted check verifies actual publication.
-It marks this intake snapshot, not later activity. If new changes arrive while you
+End the report with this exact audit link (copy the entire URL including its fragment):
+[검토 기록](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#maintenance-snapshot-${{ needs.pre_activation.outputs.key }})
+This normal Markdown link survives output sanitization; do not use HTML comments. If new changes arrive while you
 are reviewing, they remain eligible for the next run. If you cannot substantiate
 the report, return noop and explain the missing evidence without marking success.
