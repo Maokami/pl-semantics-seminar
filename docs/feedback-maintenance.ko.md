@@ -39,8 +39,8 @@ PR 생성 권한이 없으면 gh-aw 1.2.2는 `fallback-as-issue: false`에도 �
 
 자동 검사 통과는 수학적·교육적 타당성의 최종 승인이 아닙니다. 그 판단은 관리자가 PR에서 합니다.
 
-## 두 사이트의 동기화
+## 교재 게시 위치
 
-GitHub Pages는 승인한 변경의 빌드가 성공하면 게시됩니다. ChatGPT Sites의 **Programming Language Semantics**는 같은 산출물을 사용하는 정적 미러입니다. Sites에 연결한 **승인된 PL 교재 Sites 동기화** 작업이 UTC 00:17, 06:17, 12:17, 18:17 (KST 09:17, 15:17, 21:17, 03:17)에 확인합니다. 따라서 GitHub Pages 게시와 Sites 반영 사이에는 최대 약 6시간의 지연이 있을 수 있습니다. 작업 실행 지연이나 실패가 있으면 더 늦어질 수 있습니다.
+운영 교재는 [GitHub Pages](https://maokami.github.io/pl-semantics-seminar/)입니다. 관리자가 승인한 변경의 빌드가 성공하면 자동 게시됩니다.
 
-Sites 소스의 `SYNC.md`와 `sync_from_pages.py`에 절차를 저장했습니다. 성공한 기본 브랜치 push의 `github-pages` artifact만 사용하고, 38개 장 리비전을 검증하며, 토론 저장소와 공개 범위를 유지합니다. 소스와 라이브 리비전을 함께 확인하여 배포 실패 후에도 재시도합니다. GitHub Actions에 Sites 자격 증명을 저장하지 않습니다. 동기화 일정을 변경하거나 중지하려면 ChatGPT의 예약 작업에서 위 제목을 찾습니다.
+관리자의 요청에 따라 **승인된 PL 교재 Sites 동기화** 예약은 비활성화했습니다. 기존 ChatGPT Site와 소스는 그대로 보존하며, 이후 교재 개정은 GitHub Pages에만 게시합니다.

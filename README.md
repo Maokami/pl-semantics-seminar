@@ -34,16 +34,15 @@ Selecting a passage attaches the quote and section to a question or correction;
 the correction also records the manuscript revision. Comments may be in Korean
 or English. Saved passages are private to the current browser on each host.
 
-[Textbook on Sites](https://pl-semantics-textbook.moonlitwhale2.chatgpt.site/) ·
-[GitHub Pages mirror](https://maokami.github.io/pl-semantics-seminar/) ·
+[Textbook on GitHub Pages](https://maokami.github.io/pl-semantics-seminar/) ·
 [Reader discussions](https://github.com/Maokami/pl-semantics-seminar/discussions)
 
 The Pages workflow rebuilds the English edition when book sources change on
-`curriculum-v1.2`. The Sites edition uses the same static output. Both sites use
-the same GitHub discussion identifiers. To resolve a correction, review the
-proposed change in a manuscript PR, then reply with the published chapter and
-commit. Use the issue's close reason to distinguish an applied correction from
-a declined proposal.
+`curriculum-v1.2`. GitHub Pages is the maintained textbook site; the existing
+Sites copy is left unchanged and its automatic synchronization is disabled.
+To resolve a correction, review the proposed manuscript PR and merge it after
+checks pass, or comment with the reason and close the PR. Automation links the
+decision and publication status back to the original reader discussion or issue.
 
 ### Presenter briefs and editing
 
