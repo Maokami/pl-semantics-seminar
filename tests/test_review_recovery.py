@@ -32,6 +32,13 @@ class RecoveryTests(unittest.TestCase):
         with patch.object(capacity, 'api', side_effect=capacity.subprocess.CalledProcessError(1, 'gh')):
             self.assertIn('unavailable', capacity.hold_reason('reader-feedback', env, datetime.now(timezone.utc)))
 
+    def test_manual_summary_preserves_input_after_api_outage(self):
+        item = {'kind': 'issue', 'number': 12, 'url': 'issue-12', 'key': 'a'*64}
+        with patch.object(capacity, 'collect', return_value=[item]):
+            self.assertIn('[issue #12](issue-12)', capacity.manual_queue('reader-feedback'))
+        with patch.object(capacity, 'collect', side_effect=capacity.subprocess.CalledProcessError(1, 'gh')):
+            self.assertIn('Open corrections on GitHub', capacity.manual_queue('reader-feedback'))
+
     def test_same_record_for_human_and_agent(self):
         pr = {'user': {'login': 'editor'}, 'labels': [{'name': reader.LABEL}], 'author_association': 'COLLABORATOR',
               'head': {'repo': {'full_name': reader.REPO}}, 'body': '<!-- reader-feedback: ' + 'f'*64 + ' -->'}
