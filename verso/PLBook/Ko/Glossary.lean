@@ -56,3 +56,17 @@ number := false
 * *유도에 대한 귀납법(induction on derivations)* · 3회 · [§3.2](chapter-03/index.html#ch03-s2) · 직접 전제의 유도에서 얻은 귀납가정으로 결론의 유도에 관한 명제를 보이는 방법. · 금지 변형 `유도 귀납법`
 
 * *귀납가정(induction hypothesis)* · 3회 · [§3.2](chapter-03/index.html#ch03-s2) · 귀납 단계에서 작은 대상에 대해 이미 성립한다고 놓고 사용하는 명제. · 금지 변형 `귀납 가설`, `귀납가설`, `귀납 가정`
+
+* *BNF식 표기(BNF-style notation)* · 1회 · [A.1](imp-card/index.html#imp-a1) · 문법의 가능한 형태를 나열하는 표기. 여기서는 산술식 트리의 모양을 나타낸다. · 금지 변형 없음
+
+* *메타변수(metavariable)* · 1회 · [A.1](imp-card/index.html#imp-a1) · 문법이나 규칙에서 임의의 식·이름·정수 등을 대신 나타내는 글자. · 금지 변형 없음
+
+* *구문 범주(syntactic category)* · 1회 · [A.1](imp-card/index.html#imp-a1) · 산술식처럼 문법이 다루는 대상의 한 종류. · 금지 변형 없음
+
+* *귀납적 정의(inductive definition)* · 1회 · [A.1](imp-card/index.html#imp-a1) · 생성자나 규칙을 유한 번 적용하여 얻는 대상 전체를 정하는 정의. · 금지 변형 없음
+
+* *귀납적으로 정의된 관계(inductively defined relation)* · 1회 · [A.3](imp-card/index.html#imp-a3) · 주어진 규칙에 대해 닫힌 가장 작은 관계. 그 판단들은 유한한 유도 트리를 갖는다. · 금지 변형 없음
+
+* *건전성(soundness)* · 1회 · [A.3](imp-card/index.html#imp-a3) · 평가 함수를 기준으로, 규칙으로 얻은 모든 결과가 계산값과 일치한다는 성질. · 금지 변형 없음
+
+* *완전성(completeness)* · 1회 · [A.3](imp-card/index.html#imp-a3) · 평가 함수를 기준으로, 계산한 모든 결과를 규칙으로도 얻을 수 있다는 성질. · 금지 변형 없음

@@ -31,7 +31,7 @@ $$`e ::= n \mid x \mid (e_1+e_2) \mid (e_1-e_2).`
 
 A minus sign at an internal node denotes binary subtraction. A negative integer at a leaf is a literal.
 
-The symbol $`::=` introduces alternatives, separated by vertical bars. In the grammar $`x` stands for any name. In the example $`x+4` it is one particular name.
+This is *BNF-style notation* (Backus–Naur Form), used here to describe trees rather than a grammar for parsing strings. Arithmetic expressions form a *syntactic category*: one kind of object described by the grammar. The letters are *metavariables*: $`e`, $`e_1` and $`e_2` stand for expressions, $`n` for integers and $`x` for variable names. The symbol $`::=` introduces alternatives, separated by vertical bars. In the grammar $`x` stands for any name. In the example $`x+4` it is one particular name.
 
 A *constructor* builds a tree from its parts. We write $`\operatorname{lit}(n)`, $`\operatorname{var}(x)`, $`\operatorname{add}(e_1,e_2)` and $`\operatorname{sub}(e_1,e_2)` when we want to name the constructors explicitly. A programmer may read Definition 1.1 as a datatype with these four cases. We use $`x + 4` as a concrete notation for $`\operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right)`, the tree
 
@@ -40,6 +40,8 @@ $$`\begin{matrix} & \operatorname{add} & \\ \swarrow & & \searrow \\ \operatorna
 The characters we write, including parentheses, are *concrete syntax*. The tree they specify is *abstract syntax*. Extra parentheses around the entire expression change the text while leaving the tree unchanged.
 
 Every expression has exactly one outermost constructor, and the children of a binary node are uniquely determined and ordered. So in a definition or proof by cases on the root, each expression falls under exactly one case. Write $`V=\mathrm{Name}` for the set of strings, $`\mathbb Z` for the set of integers and $`E` for the set of expression trees.
+
+This is an *inductive definition*: expressions are exactly the trees obtained by finitely many applications of the four constructors. Equivalently, they form the smallest set of trees closed under these constructors. The induction principle follows this construction.
 
 *Structural induction* proves a property $`P(e)` by considering each constructor. At a binary node, the claims $`P(e_1)` and $`P(e_2)` for its two immediate children are the *induction hypotheses*. The property $`P` is the *induction property*. To prove $`\forall e\in E,\ P(e)`, that is, $`P(e)` for every expression $`e`, it suffices to prove
 
@@ -73,6 +75,8 @@ Here $`\mathrm{eval}:E\times\Sigma\to\mathbb Z`. On the left of the first equati
 
 Calling $`\mathrm{eval}` only on immediate children is what makes the equations a definition. For each fixed state, the first two equations give the value at every leaf, and a binary equation gives the value at a node from the values at its two children. Every tree is built from its leaves in finitely many steps, so the equations determine a unique total function.
 
+Structural recursion defines a value at a parent from the values at its children. Structural induction proves a property at a parent using the induction hypotheses for its children. Both follow the same constructors in the inductive definition. [Session 4](chapter-04/index.html#ch04-s1) studies this pattern of recursion and its uniqueness more generally.
+
 *Example 1.1.* If $`\sigma(x) = 3`, then
 
 $$`\begin{aligned}
@@ -90,7 +94,7 @@ Keeping the expression fixed and allowing the state to vary gives its *denotatio
 tag := "ch01-s3"
 %%%
 
-Example 1.1 read the state only at $`x`. The free variables of an expression are the names it reads.
+Example 1.1 read the state only at $`x`. Free variables record which names occur freely in the syntax; the evaluator looks up these names.
 
 *Definition 1.4 (Free variables).* The function $`\operatorname{FV}:E\rightarrow\mathcal{P}(V)` assigns a set of variable names to each expression. Here $`\mathcal{P}(V)` is the set of all subsets of $`V`, $`\varnothing` is the empty set, and $`\cup` denotes set union. Define
 
@@ -137,6 +141,12 @@ If $`e=e_1-e_2`, $`\mathrm{FV}(e)` is the same union, so step 1 is unchanged. Su
 $$`\mathrm{eval}(e,\sigma)=\mathrm{eval}(e_1,\sigma)-\mathrm{eval}(e_2,\sigma)
 =\mathrm{eval}(e_1,\sigma')-\mathrm{eval}(e_2,\sigma')=\mathrm{eval}(e,\sigma').\quad\square`
 
+Agreement on free variables is sufficient for equal results, but a free variable need not affect the result. For example,
+
+$$`\mathrm{FV}(x-x)=\{x\},\qquad \mathrm{eval}(x-x,\sigma)=0\quad\text{for every state }\sigma.`
+
+The evaluator reads $`x` twice, but the values cancel. Free variables describe the syntax; actual dependence concerns whether changing a name's value can change the result. The further problem gives an exact test for that dependence.
+
 *Corollary 1.2 (State update).* For every $`e\in E`, $`\sigma\in\Sigma`, $`x\in V` and $`n\in\mathbb Z` with $`x\notin\mathrm{FV}(e)`,
 
 $$`\operatorname{eval}\left( {e,\sigma\left\lbrack {x\mapsto n} \right\rbrack} \right) = \operatorname{eval}\left( {e,\sigma} \right).`
@@ -161,7 +171,7 @@ $$`\frac{}{\sigma\vdash n\Downarrow n}\qquad\frac{}{\sigma\vdash x\Downarrow\sig
 $$`\frac{\sigma\vdash e_1\Downarrow n_1\quad \sigma\vdash e_2\Downarrow n_2}{\sigma\vdash e_1+e_2\Downarrow n_1+n_2}
 \qquad\frac{\sigma\vdash e_1\Downarrow n_1\quad \sigma\vdash e_2\Downarrow n_2}{\sigma\vdash e_1-e_2\Downarrow n_1-n_2}`
 
-We refer to the four rules as the literal axiom, the variable axiom, the addition rule and the subtraction rule. The letters in a rule are placeholders. Replacing each letter by one particular object at all its occurrences gives an instance of the rule. The instance of the variable axiom for our state $`\sigma` and the particular name $`x` is $`\sigma\vdash \operatorname{var}(x)\Downarrow \sigma(x)`, that is, $`\sigma\vdash \operatorname{var}(x)\Downarrow3`.
+We refer to the four rules as the literal axiom, the variable axiom, the addition rule and the subtraction rule. The letters in a rule are metavariables, just as in the grammar. Replacing each letter by one particular object at all its occurrences gives an instance of the rule. The instance of the variable axiom for our state $`\sigma` and the particular name $`x` is $`\sigma\vdash \operatorname{var}(x)\Downarrow \sigma(x)`, that is, $`\sigma\vdash \operatorname{var}(x)\Downarrow3`.
 
 *Example 1.2.* Take $`\sigma(x) = 3`. We justify $`\sigma\vdash x+4\Downarrow7` in three steps.
 
@@ -190,6 +200,8 @@ Each constructor appears in the conclusion of exactly one rule. So the outermost
 
 Identify the judgment $`\sigma\vdash e\Downarrow n` with the triple $`(\sigma,e,n)\in\Sigma\times E\times\mathbb Z`. A set of triples is closed under the rules if, for every instance of a rule, it contains the conclusion whenever it contains all the premises. An axiom has no premises, so a closed set contains every instance of an axiom. The triples with derivations form the least closed set: it is closed, and it is a subset of every closed set. Solutions and Further Reading gives the short proof. Being closed is not enough. The set of all triples is closed under every rule and contains $`\sigma \vdash \operatorname{lit}(4) \Downarrow 9`. No derivation has that conclusion: its last rule would be the literal axiom, whose result for this leaf is $`4`. In the least closed set, every triple is the conclusion of a rule instance whose premises are again in the set, so inversion is valid there. In the set of all triples, $`\sigma \vdash \operatorname{lit}(4) \Downarrow 9` is the conclusion of no rule instance, so inversion fails, and $`\operatorname{lit}(4)` would have the two results $`4` and $`9`.
 
+Thus evaluation is an *inductively defined relation*. Constructors build expression trees; inference rules build derivation trees. Both use finitely many construction steps. Section 1.5 uses structural induction on each kind of tree.
+
 # Correspondence and determinacy
 %%%
 tag := "ch01-s5"
@@ -201,10 +213,10 @@ For $`x+4`, §1.4 found exactly one derivable result, the computed value $`7`. T
 
 $$`\sigma \vdash e \Downarrow n\quad\Longleftrightarrow\quad\operatorname{eval}\left( {e,\sigma} \right) = n.`
 
-The two directions start from different material.
+We name both directions relative to the evaluator: *soundness* says that every result justified by the rules is the computed result; *completeness* says that every computed result can be justified by the rules. The two directions start from different material.
 
-* From left to right we are _given_ a derivation $`D:\sigma\vdash e\Downarrow n`. We take it apart: its last rule and its premise derivations, which are smaller trees, are in hand. So we use induction on $`D`.
-* From right to left we are given only the _expression_ $`e` and must _build_ a derivation. There is none yet to take apart, but $`e` can be taken apart: its outermost constructor says which rule goes at the root, and its children say what the premises are about. So we use structural induction on $`e`.
+* *Soundness (left to right).* We are _given_ a derivation $`D:\sigma\vdash e\Downarrow n`. We take it apart: its last rule and its premise derivations, which are smaller trees, are in hand. So we use induction on $`D`.
+* *Completeness (right to left).* We are given only the _expression_ $`e` and must _build_ a derivation. There is none yet to take apart, but $`e` can be taken apart: its outermost constructor says which rule goes at the root, and its children say what the premises are about. So we use structural induction on $`e`.
 
 *Induction on derivations* is structural induction for derivation trees, whose immediate subtrees are the premise derivations of the last rule. To prove $`\forall D,\ P(D)`, prove $`P(D)` when $`D` is a single axiom, and $`P(D_1)\land P(D_2)\Rightarrow P(D)` when $`D` ends with the addition or subtraction rule applied to $`D_1` and $`D_2`. Here $`P(D_1)` and $`P(D_2)` are the induction hypotheses.
 
@@ -238,6 +250,8 @@ The induction on syntax builds a derivation of the computed integer, but the the
 
 *Proof.* Take $`n=\mathrm{eval}(e,\sigma)`. The reverse direction of Theorem 1.3 gives $`\sigma\vdash e\Downarrow n`. If $`\sigma\vdash e\Downarrow m`, the forward direction gives $`\mathrm{eval}(e,\sigma)=m`, so $`n=m`. $`\square`
 
+Here the evaluator is a total function. Completeness therefore supplies a result for every input, and soundness forces every derivable result to equal that function value. Totality asserts existence; determinacy asserts at most one result.
+
 # Exercises
 %%%
 tag := "ch01-s7"
@@ -259,7 +273,7 @@ Call $`S \subseteq V` sufficient for $`e` if agreement on $`S` implies equal eva
 
 *1.4.* Extend the grammar with $`\operatorname{neg}(e)` for integer negation. Add one equation to Definition 1.3 and one rule to Definition 1.5. Prove the new case in each direction of Theorem 1.3. Write down exactly what your induction hypothesis supplies in each proof.
 
-*Further problem.* Now include binary subtraction, as in Definition 1.1. Say that a name is essential to an expression if two states differing only at that name can give different values. Does membership in the set of free variables characterize essential names? Give an exact decision procedure for the full language and justify both directions.
+*Further problem.* Now include binary subtraction, as in Definition 1.1. Say that a name is essential to an expression if two states differing only at that name can give different values. The example $`x-x` in §1.3 shows that a free name need not be essential. Give an exact decision procedure for the full language and justify both directions.
 
 # Reading for the Seminar
 %%%
@@ -287,9 +301,9 @@ tag := "ch01-s9"
 number := false
 %%%
 
-*Reading for the Seminar.* Deleting the variable axiom leaves a subset of the original derivations. Every remaining derivation therefore gives the evaluator’s result, by the forward implication of Theorem 1.3 for the original rules. But no remaining rule concludes a judgment about $`\operatorname{var}(x)`, although $`\operatorname{eval}\left( {\operatorname{var}(x),\sigma} \right) = \sigma(x)`. Thus the reverse implication fails.
+*Reading for the Seminar.* Deleting the variable axiom leaves a subset of the original derivations. Every remaining derivation therefore gives the evaluator’s result, by the forward implication of Theorem 1.3 for the original rules. But no remaining rule concludes a judgment about $`\operatorname{var}(x)`, although $`\operatorname{eval}\left( {\operatorname{var}(x),\sigma} \right) = \sigma(x)`. Thus completeness fails, while soundness is preserved.
 
-Adding the extra axiom preserves every original derivation. The reverse implication still holds. The new axiom derives $`\sigma \vdash \operatorname{lit}(0) \Downarrow 1`, while $`\operatorname{eval}\left( {\operatorname{lit}(0),\sigma} \right) = 0`. Thus the forward implication fails, and the original literal axiom gives a second result for this same tree and state.
+Adding the extra axiom preserves every original derivation. The reverse implication still holds. The new axiom derives $`\sigma \vdash \operatorname{lit}(0) \Downarrow 1`, while $`\operatorname{eval}\left( {\operatorname{lit}(0),\sigma} \right) = 0`. Thus soundness fails, while completeness is preserved, and the original literal axiom gives a second result for this same tree and state.
 
 *1.1.* The evaluation equations give $`\operatorname{eval}\left( {e,\sigma} \right) = 2 + \left( {4 + 5} \right) = 11`. The free-variable equations give $`\operatorname{FV}(e) = \left\{ x \right\} \cup \left( {\varnothing \cup \left\{ z \right\}} \right) = \left\{ {x,z} \right\}`. Since $`y \notin \operatorname{FV}(e)`, Corollary 1.2 gives $`\operatorname{eval}\left( {e,\sigma\left\lbrack {y\mapsto - 1} \right\rbrack} \right) = 11`.
 

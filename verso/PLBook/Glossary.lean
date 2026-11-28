@@ -43,6 +43,36 @@ number := false
   * The tree of program constructs / the notation used to write a program.
   * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
 *
+  * BNF-style notation
+  * BNF식 표기
+  * A grammar notation using alternatives; here it describes the forms of abstract syntax trees.
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
+*
+  * metavariable
+  * 메타변수
+  * A letter standing for an arbitrary expression, name, integer or other object in a grammar or rule.
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
+*
+  * syntactic category
+  * 구문 범주
+  * One kind of syntactic object described by a grammar, such as arithmetic expressions.
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
+*
+  * inductive definition
+  * 귀납적 정의
+  * A definition by finite applications of constructors or rules, taking the least set closed under them.
+  * Session 1 · [§1.1](chapter-01/index.html#ch01-s1)
+*
+  * inductively defined relation
+  * 귀납적으로 정의된 관계
+  * The least relation closed under given rules; its judgments have finite derivation trees.
+  * Session 1 · [§1.4](chapter-01/index.html#ch01-s4)
+*
+  * completeness (evaluation rules)
+  * 완전성 (평가 규칙)
+  * Relative to an evaluator, every result it computes can be justified by the evaluation rules.
+  * Session 1 · [§1.5](chapter-01/index.html#ch01-s5)
+*
   * object language / metalanguage
   * 대상 언어 / 메타언어
   * The language being described / the language used to state its syntax, rules and mathematical interpretation.
@@ -480,8 +510,8 @@ number := false
 *
   * soundness
   * 건전성
-  * Every derivable triple is valid.
-  * Session 12 · [§12.3](chapter-12/index.html#ch12-s3)
+  * Relative to a specified semantics, every derivable judgment agrees with it. In Session 1, every result derived by the evaluation rules equals the evaluator’s result. For Hoare logic, every derivable triple is valid; see [§12.3](chapter-12/index.html#ch12-s3).
+  * Session 1 · [§1.5](chapter-01/index.html#ch01-s5)
 *
   * strong induction
   * 강한 귀납법

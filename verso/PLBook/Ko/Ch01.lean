@@ -24,7 +24,11 @@ tag := "ch01-s1"
 
 $$`e ::= \operatorname{lit}(n)\,\ \mid \ \,\operatorname{var}(x)\,\ \mid \ \,\operatorname{add}\left( {e_{1},e_{2}} \right)`
 
+이 표기는 *BNF식 표기*(BNF-style notation, Backus–Naur Form)로, 여기서는 문자열의 파싱 규칙보다 트리의 모양을 나타낸다. 산술식은 문법이 다루는 대상의 한 종류, 즉 *구문 범주*(syntactic category)이다. `e`, `e₁`, `e₂`는 식을, `n`은 정수를, `x`는 변수 이름을 나타내는 *메타변수*(metavariable)이다.
+
 $`::=`의 오른쪽에는 가능한 구문 형태를 세로줄로 구분하여 나열한다. 각 형태에 해당하는 트리를 만드는 연산을 *생성자*(constructor)라 한다. 잎 $`\operatorname{lit}(n)`에는 정수 리터럴(식에 표기한 정수 상수)이, 잎 $`\operatorname{var}(x)`에는 변수 이름이 들어 있다. 생성자 $`\operatorname{add}`는 두 트리 $`e_{1}`과 $`e_{2}`를 차례로 자식으로 삼아 새 뿌리를 만든다. 모든 식은 맨 바깥 생성자가 하나로 정해진다. 덧셈이면 왼쪽 부분식과 오른쪽 부분식도 각각 유일하다. 예를 들어 $`x + 4`는 $`\operatorname{add}\left( {\operatorname{var}(x),\operatorname{lit}(4)} \right)`의 구체적 표기이다.
+
+이처럼 생성자를 유한 번 적용해서 얻는 대상 전체를 정하는 것을 *귀납적 정의*(inductive definition)라 한다. 이 절의 세 생성자로 만든 트리만 식에 포함된다. 구조적 귀납법은 이 구성 과정을 따라 모든 식에 대한 성질을 증명한다.
 
 *구조적 귀납법(structural induction).* $`P`를 식의 성질이라 하자. $`E`의 모든 식이 $`P`를 만족함을 보이려면 다음 세 가지로 충분하다. 모든 $`n \in {\mathbb{Z}}`에 대해 $`P\left( {\operatorname{lit}(n)} \right)`를, 모든 $`x \in V`에 대해 $`P\left( {\operatorname{var}(x)} \right)`을 증명한다. 그리고 임의의 $`e_{1},e_{2} \in E`에 대해 $`P\left( e_{1} \right)`와 $`P\left( e_{2} \right)`을 가정하여 $`P\left( {\operatorname{add}\left( {e_{1},e_{2}} \right)} \right)`을 보인다. 이는 트리 높이에 대한 귀납법으로 정당화된다. 리터럴과 변수의 높이는 0이고, 덧셈의 높이는 두 자식의 높이 중 큰 값에 1을 더한 값이다.
 
@@ -59,6 +63,8 @@ tag := "ch01-s2"
 $$`\begin{matrix} {\operatorname{eval}\left( {\operatorname{lit}(n),\sigma} \right)} & {= n} \\ {\operatorname{eval}\left( {\operatorname{var}(x),\sigma} \right)} & {= \sigma(x)} \\ {\operatorname{eval}\left( {\operatorname{add}\left( {e_{1},e_{2}} \right),\sigma} \right)} & {= \operatorname{eval}\left( {e_{1},\sigma} \right) + \operatorname{eval}\left( {e_{2},\sigma} \right)} \end{matrix}`
 
 마지막 등식의 왼쪽에서 $`\operatorname{add}`는 식을 만들고 오른쪽에서 $`+`는 두 정수를 더한다. 두 재귀 호출에는 같은 상태를 전달한다. 상태 하나를 고정하면 처음 두 등식이 높이 0에서의 값을 결정한다. 마지막 등식은 더 낮은 두 트리의 값으로 덧셈의 값을 결정한다. 따라서 이 등식을 만족하고 모든 입력에서 정의되는 함수가 유일하게 존재한다.
+
+구조적 재귀는 자식 식들의 계산 결과를 이용해 부모 식의 값을 정의한다. 구조적 귀납법은 자식 식들에 대한 귀납가정을 이용해 부모 식에서도 성질이 성립함을 증명한다. 두 방법 모두 식을 만드는 생성자의 구조를 따른다.
 
 *예 1.1.* $`\sigma(x) = 3`이면 다음과 같이 계산한다.
 
@@ -112,6 +118,8 @@ $`e = \operatorname{add}\left( {e_{1},e_{2}} \right)`이면 두 상태가 $`\ope
 
 $$`\begin{matrix} {\operatorname{eval}\left( {e,\sigma} \right)} & {= \operatorname{eval}\left( {e_{1},\sigma} \right) + \operatorname{eval}\left( {e_{2},\sigma} \right)} \\ & {= \operatorname{eval}\left( {e_{1},\tau} \right) + \operatorname{eval}\left( {e_{2},\tau} \right)} \\ & {= \operatorname{eval}\left( {e,\tau} \right).} \end{matrix}`
 
+자유 변수는 구문에 나오는 이름을 기록한다. 그 이름의 값을 바꾸면 결과가 실제로 달라지는지는 별개의 질문이다. 심화 문제처럼 뺄셈을 추가하면 `x-x`가 그 차이를 보여 준다. `x`는 자유 변수이고 평가할 때 두 번 조회하지만, 두 값이 상쇄되어 결과는 항상 0이다.
+
 *따름정리 1.2 (상태 갱신).* $`\sigma \in \Sigma`, $`x \in V`, $`n \in {\mathbb{Z}}`에 대하여 $`\sigma\left\lbrack {x\mapsto n} \right\rbrack`를 다음과 같이 정의한다. $`x`에서는 값이 $`n`이고 나머지 변수에서는 $`\sigma`와 일치한다. 그러면 $`x \notin \operatorname{FV}(e)`인 모든 $`e \in E`에 대하여 다음이 성립한다.
 
 $$`\operatorname{eval}\left( {e,\sigma\left\lbrack {x\mapsto n} \right\rbrack} \right) = \operatorname{eval}\left( {e,\sigma} \right).`
@@ -134,6 +142,8 @@ tag := "ch01-s4"
 정의 1.3은 값을 계산한다. 같은 평가를 상태, 식, 정수의 세 성분 사이의 관계로 규정할 수도 있다. 상태 $`\sigma`에서 식 $`e`가 값 $`n`으로 평가된다는 *판단*(judgment)을 $`\sigma \vdash e \Downarrow n`로 쓴다. 여기서 $`\Downarrow`는 평가 전체를 한 번에 나타낸다. 이런 관계로 주어진 의미론을 *큰걸음 의미론*(big-step semantics)이라고 한다.
 
 *판단을 읽는 법.* 기호 $`\vdash`(턴스타일)의 왼쪽에는 판단에 주어진 상태를, 오른쪽에는 평가할 식이나 실행할 명령을 쓴다. $`\sigma \vdash e \Downarrow n`에서 결과는 정수이고, $`\sigma \vdash c \Downarrow \sigma'`에서 결과는 최종 상태이다. 두 판단 모두 계산이 종료됨을 뜻한다. 작은걸음 $`\langle c,\sigma\rangle \rightarrow \langle c',\sigma'\rangle`는 한 구성에서 다음 구성으로 가는 전이 한 번을 나타낸다. 구성은 명령과 현재 상태의 순서쌍이다. $`\rightarrow^{*}`의 별표는 전이를 유한 번 이을 수 있다는 뜻이며, 전이가 0번인 경우도 포함한다. 식의 평가 판단과 함수 $`\operatorname{eval}(e,\sigma)`의 값이 일치한다는 것은 정리 1.3에서 증명한다.
+
+이 관계도 *귀납적으로 정의된 관계*(inductively defined relation)이다. 생성자로 식의 트리를 만들듯, 규칙을 유한하게 적용하여 유도 트리를 만든다. §1.5의 유도에 대한 귀납법은 이 트리의 구조를 따른다. 규칙 속 글자도 문법의 글자와 같은 메타변수이며, 각 자리에 구체적인 대상을 넣으면 규칙의 한 사례를 얻는다.
 
 *정의 1.5 (평가 관계).* 평가 관계는 $`\Sigma \times E \times {\mathbb{Z}}`의 부분집합 중 다음 추론 규칙(inference rule)에 대해 닫힌 가장 작은 집합이다. 집합이 한 규칙에 대해 *닫혀 있다*는 것은 선 위의 전제들을 모두 포함할 때마다 선 아래의 결론도 포함한다는 뜻이다. 전제가 없는 규칙을 공리(axiom)라 한다. $`a,b,n`은 정수를 나타낸다.
 
@@ -179,6 +189,8 @@ $`e`와 $`\sigma`를 고정하면 정의 1.3은 정수 하나를 준다. 정의 
 
 $$`\sigma \vdash e \Downarrow n\quad\Longleftrightarrow\quad\operatorname{eval}\left( {e,\sigma} \right) = n.`
 
+이 장의 평가 함수를 기준으로 두 방향에 이름을 붙인다. 규칙으로 얻은 결과가 평가 함수의 결과와 일치한다는 순방향이 *건전성*(soundness)이다. 평가 함수가 계산한 결과를 규칙으로도 얻을 수 있다는 역방향이 *완전성*(completeness)이다.
+
 *증명 (유도에서 계산값으로).* 주어진 유도에 대한 귀납법을 쓴다. 그러면 바로 아래 전제들에서 성립하는 명제를 가정하여 결론에 필요한 명제를 증명할 수 있다. 리터럴과 변수의 경우 결론은 각각 정의 1.3의 등식과 일치한다. 덧셈의 두 전제의 결과가 $`a`와 $`b`이면 결론의 결과는 $`a + b`이다. 두 귀납가정으로 $`\operatorname{eval}\left( {e_{1},\sigma} \right) = a`, $`\operatorname{eval}\left( {e_{2},\sigma} \right) = b`를 얻는다. 덧셈의 정의식에 대입하면 계산값도 $`a + b`이다.
 
 *증명 (계산값에서 유도로).* 상태 $`\sigma`를 고정한다. $`e`에 대한 구조적 귀납법으로 결과가 $`\operatorname{eval}\left( {e,\sigma} \right)`인 유도를 구성한다. 리터럴에는 리터럴 공리를, 변수에는 변수 공리를 쓴다. 덧셈의 경우 두 귀납가정이 전제의 유도를 하나씩 제공한다. 뿌리에 덧셈 규칙을 붙이면 결과는 $`\operatorname{eval}\left( {e_{1},\sigma} \right) + \operatorname{eval}\left( {e_{2},\sigma} \right)`이고, 이는 $`\operatorname{eval}\left( {e,\sigma} \right)`와 같다. $`\operatorname{eval}\left( {e,\sigma} \right) = n`이라면 이것이 바로 원하는 유도이다. $`\square`
@@ -186,6 +198,8 @@ $$`\sigma \vdash e \Downarrow n\quad\Longleftrightarrow\quad\operatorname{eval}\
 *따름정리 1.4.* 평가에는 *전체성*(totality)과 *결정성*(determinacy)이 있다. 즉 모든 식과 상태에는 적어도 하나의 결과가 있으며, 같은 식과 상태에는 많아야 하나의 결과가 있다.
 
 *증명.* $`\operatorname{eval}\left( {e,\sigma} \right)`에 대한 유도를 구성하면 존재성을 얻는다. 같은 입력에 대한 두 유도의 결과가 $`n`과 $`m`이면 정리 1.3에서 $`n = \operatorname{eval}\left( {e,\sigma} \right) = m`를 얻는다. $`\square`
+
+평가 함수는 모든 입력에서 정수 하나를 돌려준다. 따라서 완전성으로 규칙에 의한 결과의 존재를 얻고, 건전성으로 모든 유도의 결과가 그 정수와 같음을 얻는다. 전체성은 결과가 있다는 주장이고, 결정성은 결과가 둘 이상일 수 없다는 주장이다.
 
 순방향 증명은 평가했다는 증거를 이미 가지고 시작하여 마지막 규칙을 살펴본다. 역방향 증명은 구문에서 출발하여 그 증거를 구성한다. 이 언어의 덧셈 규칙은 자식 하나당 전제가 정확히 하나이다. 반면 반복문에서는 전제에 같은 명령이 새 상태로 다시 나타날 수 있다. 그 명령의 구문은 그대로여도 전제의 유도는 전체 유도보다 작다.
 
@@ -271,7 +285,7 @@ $$`\operatorname{eval}\left( {e,\sigma\left\lbrack {x\mapsto\sigma(x) + k} \righ
 
 *1.5 (치환).* 서로 다른 이름 $`x`와 $`y`에 대해 $`e = x + y`, $`t = y + 1`라 하자. $`\sigma(x) = 4`, $`\sigma(y) = 2`인 상태에서 $`e\left\lbrack {t/x} \right\rbrack`와 $`e\left\lbrack {x/y} \right\rbrack`의 값을 비교하라. 각 치환에 대해 원래 트리를 그대로 평가하여 같은 결과를 얻으려면 상태를 한 번 어떻게 갱신해야 하는지 쓰라.
 
-*심화 문제.* 산술 언어에 정수의 뺄셈을 추가하라. 어떤 변수 하나의 값만 다른 두 상태에서 한 식의 평가값이 달라질 수 있으면 그 변수는 이 식에 *본질적*이라고 하자. 자유 변수 집합에 속한다는 것이 본질적인 변수의 필요충분조건인가? 확장된 언어에서 본질적인 변수를 정확히 판정하는 절차를 제시하고 양방향을 정당화하라.
+*심화 문제.* 산술 언어에 정수의 뺄셈을 추가하라. 어떤 변수 하나의 값만 다른 두 상태에서 한 식의 평가값이 달라질 수 있으면 그 변수는 이 식에 *본질적*이라고 하자. §1.3에서 살펴본 `x-x`처럼 자유 변수라도 본질적이지 않을 수 있다. 확장된 언어에서 본질적인 변수를 정확히 판정하는 절차를 제시하고 양방향을 정당화하라.
 
 # 세미나 활동지
 %%%
@@ -301,9 +315,9 @@ tag := "ch01-s9"
 number := false
 %%%
 
-*세미나 활동지.* 변수 공리를 없애면 원래 유도 중 일부만 남는다. 따라서 남은 모든 유도는 원래 규칙에 대한 정리 1.3의 순방향에 의해 평가 함수의 값을 준다. 그러나 $`\operatorname{eval}\left( {\operatorname{var}(x),\sigma} \right) = \sigma(x)`임에도 $`\operatorname{var}(x)`에 관한 판단을 결론으로 만드는 규칙이 남아 있지 않다. 따라서 역방향은 성립하지 않는다.
+*세미나 활동지.* 변수 공리를 없애면 원래 유도 중 일부만 남는다. 따라서 남은 모든 유도는 원래 규칙에 대한 정리 1.3의 순방향에 의해 평가 함수의 값을 준다. 그러나 $`\operatorname{eval}\left( {\operatorname{var}(x),\sigma} \right) = \sigma(x)`임에도 $`\operatorname{var}(x)`에 관한 판단을 결론으로 만드는 규칙이 남아 있지 않다. 따라서 완전성은 깨지지만 건전성은 유지된다.
 
-공리를 추가하면 원래 유도가 모두 보존되므로 역방향은 여전히 성립한다. 추가한 공리로 $`\sigma \vdash \operatorname{lit}(0) \Downarrow 1`을 유도할 수 있지만 $`\operatorname{eval}\left( {\operatorname{lit}(0),\sigma} \right) = 0`이다. 따라서 순방향은 깨진다. 같은 트리와 상태에 원래의 리터럴 공리를 적용하면 다른 결과도 얻는다.
+공리를 추가하면 원래 유도가 모두 보존되므로 역방향은 여전히 성립한다. 추가한 공리로 $`\sigma \vdash \operatorname{lit}(0) \Downarrow 1`을 유도할 수 있지만 $`\operatorname{eval}\left( {\operatorname{lit}(0),\sigma} \right) = 0`이다. 따라서 건전성은 깨지지만 완전성은 유지된다. 같은 트리와 상태에 원래의 리터럴 공리를 적용하면 다른 결과도 얻는다.
 
 *1.1.* 평가의 정의식으로 $`\operatorname{eval}\left( {e,\sigma} \right) = 2 + \left( {4 + 5} \right) = 11`을 얻는다. 자유 변수의 정의식으로는 $`\operatorname{FV}(e) = \left\{ x \right\} \cup \left( {\varnothing \cup \left\{ z \right\}} \right) = \left\{ {x,z} \right\}`를 얻는다. $`y \notin \operatorname{FV}(e)`이므로 따름정리 1.2에 의해 $`\operatorname{eval}\left( {e,\sigma\left\lbrack {y\mapsto - 1} \right\rbrack} \right) = 11`이다.
 
