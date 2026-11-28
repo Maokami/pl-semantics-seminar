@@ -3,9 +3,28 @@ import json
 import os
 import base64
 import re
+import subprocess
 from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, discussion_comments, SOURCE, REPO
 
 CONTEXT = 'Textbook verification'
+CLOSE_LABEL = 'close after publication'
+
+
+def close_published_issue(pr, number, records):
+    """Opt-in completion, only after the caller verified a successful deployment."""
+    if not pr.get('merged_at') or not records or any(r.get('disposition') != 'change' for r in records):
+        return
+    issue = api(f'repos/{REPO}/issues/{number}')
+    if (issue.get('state') != 'open' or 'pull_request' in issue
+            or CLOSE_LABEL not in {label['name'] for label in issue.get('labels', [])}):
+        return
+    # A maintainer reopening an issue after this merge overrides this old decision.
+    events = pages(f'repos/{REPO}/issues/{number}/events')
+    if any(e.get('event') == 'reopened' and e.get('created_at', '') >= pr['merged_at'] for e in events):
+        return
+    subprocess.run(['gh', 'api', f'repos/{REPO}/issues/{number}', '--method', 'PATCH', '--input', '-'],
+                   input=json.dumps({'state': 'closed', 'state_reason': 'completed'}),
+                   text=True, check=True, capture_output=True)
 
 
 def decision_releases_queue(event_name, event, pr):
@@ -61,6 +80,9 @@ def notification(pr, published=False, record=None, revision=None):
         target = record.get('target') or ''
         if re.fullmatch(r'chapter-(?:0[1-9]|[12][0-9]|3[0-8])/#ch[0-9]{2}[-a-z0-9]*', target):
             lines.append('[교재 문단 보기](https://maokami.github.io/pl-semantics-seminar/' + target + ')')
+        if disposition == 'change':
+            lines.append('Issue에 `close after publication` 라벨이 있으면 게시 확인 후 완료로 닫습니다. '
+                         '추가 문제가 있으면 Reopen하고 댓글을 남겨 주세요. 같은 PR로 다시 닫지 않습니다.')
     return '\n\n'.join(lines)
 
 
@@ -74,7 +96,7 @@ def graphql(query, variables):
 def notify(pr, published=False, revision=None):
     marker = f'<!-- reader-proposal: {pr["number"]} -->'
     records = proposal_records(pr)
-    by_source = {}
+    by_source, deployed_records = {}, []
     for record in records:
         if published:
             # Read the record from the deployed commit, including later anchor repairs.
@@ -83,6 +105,7 @@ def notify(pr, published=False, revision=None):
             deployed = json.loads(base64.b64decode(result['content']))
             record = record | {k: deployed.get(k) for k in ('target', 'disposition')}
         by_source[record['kind'], record['number']] = record
+        deployed_records.append(record)
     for kind, number in sources(pr, records):
         body = notification(pr, published, by_source.get((kind, number)), revision)
         if kind == 'issue':
@@ -91,10 +114,12 @@ def notify(pr, published=False, revision=None):
             if existing:
                 if existing['body'] != body:
                     # gh api supports explicit PATCH through method override.
-                    from subprocess import run
-                    run(['gh', 'api', f'repos/{REPO}/issues/comments/{existing["id"]}', '--method', 'PATCH', '--input', '-'], input=json.dumps({'body': body}), text=True, check=True, capture_output=True)
+                    subprocess.run(['gh', 'api', f'repos/{REPO}/issues/comments/{existing["id"]}', '--method', 'PATCH', '--input', '-'], input=json.dumps({'body': body}), text=True, check=True, capture_output=True)
             else:
                 api(f'repos/{REPO}/issues/{number}/comments', {'body': body})
+            if published:
+                close_published_issue(pr, number, [r for r in deployed_records
+                                                 if r['kind'] == 'issue' and r['number'] == number])
         else:
             record = by_source.get((kind, number), {})
             notify_discussion(number, record.get('url', ''), marker, body)

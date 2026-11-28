@@ -3,6 +3,10 @@
 **Continuous issue and PR triage**는 [관리자용 현황 Issue #27](https://github.com/Maokami/pl-semantics-seminar/issues/27) 하나를 갱신합니다.
 교재 수정안을 만드는 **Continuous reader feedback**와 역할이 다릅니다.
 
+**Refresh repository status**는 같은 Issue의 **자동 현황 · AI 없이 갱신** 댓글 하나를 유지합니다. 열린 항목, 최근 병합 PR, 열린 Issue에 연결된 병합 PR, 최신 AI 작업의 실제 실행 여부를 GitHub API로 확인합니다. AI 키나 잔액이 없어도 동작합니다. Issue·PR 변경과 검사·게시·AI 작업 완료 때 갱신하며 매시간 43분에도 재확인합니다. 내용이 같으면 댓글을 다시 쓰지 않습니다. #27 자체의 변경은 재실행하지 않습니다.
+
+본문의 AI 권고는 마지막 검토 시점의 기록입니다. 현재 상태는 자동 현황 댓글의 확인 시점과 함께 읽으세요. 연결 PR의 병합은 요청 전체 해결을 보장하지 않으므로, 집계는 해결 범위·게시 여부를 확인할 후보로만 표시합니다. 일반 인프라 PR은 전체 요청을 해결했을 때 `Closes #번호`, 일부만 다뤘을 때 `Refs #번호`를 본문에 씁니다.
+
 ## 무엇을 정리하나요?
 
 - 열린 Issue와 PR의 목적, 진행 상태, 막힌 이유와 다음 행동을 한국어로 요약합니다.

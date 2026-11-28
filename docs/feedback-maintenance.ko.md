@@ -33,6 +33,8 @@
 
 제안 생성, 승인, 거부, GitHub Pages 게시 완료를 구분해 원래 글의 봇 댓글 하나를 갱신합니다. 승인만으로 게시 완료라고 표시하지 않습니다. **Chapter review decisions**에는 거부/승인한 PR도 남습니다.
 
+원래 정정 Issue 전체가 해결되는 제안이면 관리자가 그 Issue에 `close after publication` 라벨을 붙일 수 있습니다. 승인한 PR의 커밋이 성공한 Pages 게시에 포함되고, 배포된 검토 기록이 모두 `change`일 때만 완료로 닫습니다. 기본값은 열린 상태 유지입니다. 거부·`no-change`·`needs-discussion` 결정, Discussion, 기록 없이 본문에서 언급만 된 Issue는 자동 종료하지 않습니다. 병합 뒤 Issue를 Reopen하면 같은 PR로 다시 닫지 않습니다. 아직 해결되지 않은 부분을 댓글로 남겨 새 검토를 요청하세요. 일반 GitHub `Closes #번호`는 게시 전에 병합 시점에 종료하므로 교재 수정 PR에는 사용하지 않습니다.
+
 AI가 PR 본문의 연결 표식을 빠뜨린 경우에도, 변경된 `feedback/reviews/<key>.json`을 데이터로 읽어 원래 의견과 연결하고 중복 검토를 막습니다. 파일명과 키가 같은지, 출처가 이 저장소의 Issue/Discussion인지 검증하며 PR 코드를 실행하지 않습니다.
 
 자동 생성 PR의 일반 `pull_request` CI는 자동 실행되지 않거나 별도의 실행 승인을 기다릴 수 있습니다. 따라서 **Reader feedback checks and decisions**가 AI 실행 완료 뒤 **Textbook verification**으로 해당 PR 커밋을 검사하며, 사람의 PR 업데이트에도 다시 검사합니다. CI 실행 승인은 교재 변경의 Merge 승인과 별개입니다. 다른 검사가 승인 대기 중이면 이름과 대상을 확인하고, 동일 변경에 대한 검증 없이 생략하지 마세요. PR 코드는 읽기 전용 빌드 작업에서만 실행하고, 알림/검사 상태 쓰기는 신뢰된 기본 브랜치의 별도 작업에서 수행합니다.
