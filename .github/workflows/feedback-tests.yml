@@ -5,6 +5,9 @@ on:
   push:
     branches: [curriculum-v1.2]
     paths: ['scripts/**', 'tests/**', '.github/**']
+concurrency:
+  group: textbook-verification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -43,3 +46,10 @@ jobs:
         if: steps.scope.outputs.book == 'true'
       - run: python3 scripts/check_reader_browser.py
         if: steps.scope.outputs.book == 'true'
+      - name: Downloadable chapter preview
+        if: github.event_name == 'pull_request' && steps.scope.outputs.book == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reader-preview-${{ github.event.pull_request.number }}
+          path: verso/site/html-multi
+          retention-days: 3

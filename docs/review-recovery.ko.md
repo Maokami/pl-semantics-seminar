@@ -6,7 +6,7 @@
 python3 scripts/reader_feedback.py --queue
 ```
 
-각 항목의 `url`을 열어 원문을 읽습니다. `approved_file`이 있으면 대기열에서 원본 댓글과 대조한 저장소 원고입니다. 해당 리비전에서 파일의 SHA-256이 `file_sha256`과 같은지 확인합니다. 이미 사람이 작업 중인 변경안은 [열린 검토 PR](https://github.com/Maokami/pl-semantics-seminar/pulls?q=is%3Apr+is%3Aopen+label%3A%22reader+proposal%22)에서 확인합니다. 원고 수정과 검토 기록은 [공통 PR 절차](feedback-maintenance.ko.md#사람이-직접-고치는-경우)를 따릅니다. 로컬의 `bash scripts/verify.sh`는 결제나 Actions dispatch 없이 같은 검사를 실행합니다. 필요한 도구는 저장소에 고정한 Lean/Lake, Python 3, Node.js, GitHub CLI와 gh-aw v1.2.2입니다.
+각 항목의 `url`을 열어 원문을 읽습니다. `approved_file`이 있으면 대기열에서 원본 댓글과 대조한 저장소 원고입니다. 해당 리비전에서 파일의 SHA-256이 `file_sha256`과 같은지 확인합니다. 이미 사람이 작업 중인 변경안은 [열린 검토 PR](https://github.com/Maokami/pl-semantics-seminar/pulls?q=is%3Apr+is%3Aopen+label%3A%22reader+proposal%22)에서 확인합니다. 원고 수정과 검토 기록은 [공통 PR 절차](feedback-maintenance.ko.md#사람이-직접-고치는-경우)를 따릅니다. 로컬의 `bash scripts/verify.sh`는 결제나 Actions dispatch 없이 같은 검사를 실행합니다. 생성된 교재의 브라우저 검사도 실행하려면 Linux에서 Chrome으로 `python3 scripts/check_reader_browser.py`를 실행합니다. Mac에서는 `python3 scripts/check_reader_browser.py --serve`가 출력한 주소를 cmux 브라우저에서 열어 `document.body.dataset.readerTest`가 `passed`인지 확인합니다. 필요한 도구는 저장소에 고정한 Lean/Lake, Python 3, Node.js, GitHub CLI와 gh-aw v1.2.2입니다.
 
 ## 어디에서 멈췄는지 확인하기
 
