@@ -1,11 +1,8 @@
 name: Publish textbook
 on:
-  pull_request:
-    branches: [curriculum-v1.2]
-    paths: ['verso/**', '.github/workflows/pages.yml']
   push:
     branches: [curriculum-v1.2]
-    paths: ['verso/**', '.github/workflows/pages.yml']
+    paths: ['feedback/reviews/**', 'verso/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read

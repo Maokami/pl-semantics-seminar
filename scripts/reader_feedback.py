@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from approved_feedback import approved_post
+from approved_feedback import SOURCE as APPROVED_SOURCE, approved_post
 
 REPO = os.environ.get('GITHUB_REPOSITORY', 'Maokami/pl-semantics-seminar')
 MARKER = re.compile(r'<!-- reader-feedback: ([a-f0-9]{64}) -->')
@@ -36,12 +36,6 @@ def event_qualifies(name, event):
             if action == 'labeled':
                 return event.get('label', {}).get('name') == 'textbook feedback'
             return action in ('opened', 'reopened') or (action == 'edited' and bool({'title', 'body'} & event.get('changes', {}).keys()))
-    elif name in ('discussion', 'discussion_comment'):
-        discussion = event.get('discussion', {})
-        if discussion.get('state', 'open') != 'open' or not re.search(r'\bSession\s+\d{1,2}\b', discussion.get('title', '')):
-            return False
-        if name == 'discussion':
-            return action in ('created', 'category_changed') or (action == 'edited' and bool({'title', 'body'} & event.get('changes', {}).keys()))
     else:
         return False
     return action in ('created', 'edited', 'deleted') and human(event.get('comment', {}))
@@ -90,8 +84,15 @@ def snapshot(kind, item, comments):
 
 
 def trusted_proposal(pr):
-    return pr.get('user', {}).get('login') == 'github-actions[bot]' and any(
-        label['name'] == LABEL for label in pr.get('labels', []))
+    labeled = any(label['name'] == LABEL for label in pr.get('labels', []))
+    if not labeled:
+        return False
+    if pr.get('user', {}).get('login') == 'github-actions[bot]':
+        return True
+    # External contributions become authoritative after a maintainer merges them.
+    return bool(pr.get('merged_at') or (
+        pr.get('author_association') in ('OWNER', 'MEMBER', 'COLLABORATOR')
+        and (pr.get('head', {}).get('repo') or {}).get('full_name') == REPO))
 
 
 def blocked_proposals():
@@ -120,26 +121,32 @@ def proposal_records(pr):
         if not isinstance(record, dict) or record.get('key') != match[1]:
             raise ValueError('Review record key does not match its path')
         source = re.fullmatch(r'https://github\.com/' + re.escape(REPO)
-                              + r'/(issues|discussions)/([1-9][0-9]*)', record.get('source_url', ''))
+                              + r'/(issues|discussions)/([1-9][0-9]*)(?:#discussioncomment-[0-9]+)?', record.get('source_url', ''))
         if not source:
             raise ValueError('Review source must be an issue/discussion in this repository')
         records.append({'key': match[1], 'kind': {'issues': 'issue', 'discussions': 'discussion'}[source[1]],
-                        'number': source[2]})
+                        'number': source[2], 'url': record['source_url'], 'disposition': record.get('disposition'),
+                        'target': record.get('target')})
     return records
 
 
 def pending(candidates, proposals):
-    seen = set()
+    directory = Path(__file__).resolve().parents[1] / 'feedback/reviews'
+    seen = {path.stem for path in directory.glob('*.json') if re.fullmatch('[a-f0-9]{64}', path.stem)}
     for pr in proposals:
         if trusted_proposal(pr):
-            keys = MARKER.findall(pr.get('body') or '')
-            seen.update(keys or [record['key'] for record in proposal_records(pr)])
+            if pr.get('user', {}).get('login') == 'github-actions[bot]':
+                keys = MARKER.findall(pr.get('body') or '')
+                if keys:
+                    seen.update(keys)
+                    continue
+            seen.update(record['key'] for record in proposal_records(pr))
     return [item for item in candidates if item['key'] not in seen]
 
 
 def discussion_comments(number):
     # GraphQL pagination includes replies to older comments, not just root posts.
-    query = '''query($o:String!,$r:String!,$n:Int!,$cursor:String){repository(owner:$o,name:$r){discussion(number:$n){comments(first:100,after:$cursor){nodes{id body author{login __typename} replies(first:100){nodes{id body author{login __typename}} pageInfo{hasNextPage endCursor}}} pageInfo{hasNextPage endCursor}}}}}'''
+    query = '''query($o:String!,$r:String!,$n:Int!,$cursor:String){repository(owner:$o,name:$r){discussion(number:$n){comments(first:100,after:$cursor){nodes{id url body author{login __typename} replies(first:100){nodes{id url body author{login __typename}} pageInfo{hasNextPage endCursor}}} pageInfo{hasNextPage endCursor}}}}}'''
     owner, name = REPO.split('/')
     result, cursor = [], None
     while True:
@@ -150,14 +157,14 @@ def discussion_comments(number):
         for comment in connection['nodes']:
             result.append(comment)
             replies = comment['replies']
-            result.extend(replies['nodes'])
+            result.extend(reply | {'parent_id': comment['id']} for reply in replies['nodes'])
             while replies['pageInfo']['hasNextPage']:
-                q = '''query($id:ID!,$cursor:String){node(id:$id){... on DiscussionComment{replies(first:100,after:$cursor){nodes{id body author{login __typename}} pageInfo{hasNextPage endCursor}}}}}'''
+                q = '''query($id:ID!,$cursor:String){node(id:$id){... on DiscussionComment{replies(first:100,after:$cursor){nodes{id url body author{login __typename}} pageInfo{hasNextPage endCursor}}}}}'''
                 data = api('graphql', {'query': q, 'variables': {'id': comment['id'], 'cursor': replies['pageInfo']['endCursor']}})
                 if data.get('errors'):
                     raise RuntimeError(data['errors'])
                 replies = data['data']['node']['replies']
-                result.extend(replies['nodes'])
+                result.extend(reply | {'parent_id': comment['id']} for reply in replies['nodes'])
         if not connection['pageInfo']['hasNextPage']:
             return result
         cursor = connection['pageInfo']['endCursor']
@@ -168,14 +175,18 @@ def collect():
     for issue in pages(f'repos/{REPO}/issues?state=open&labels=textbook%20feedback'):
         if 'pull_request' not in issue:
             candidates.append(snapshot('issue', issue, pages(f'repos/{REPO}/issues/{issue["number"]}/comments')))
-    for thread in pages(f'repos/{REPO}/discussions'):
-        if thread.get('state', 'open') != 'open' or not re.search(r'\bSession\s+\d{1,2}\b', thread['title']):
-            continue
-        comments = discussion_comments(thread['number'])
-        # Empty pre-created General chapter threads are navigation, not feedback.
-        if thread.get('category', {}).get('slug') == 'general' and not any(reader_post(p, 'discussion', thread['number']) for p in comments):
-            continue
-        candidates.append(snapshot('discussion', thread, comments))
+    # The approved file is bound to one destination. Other conversations stay
+    # in Discussions unless a reader links their comment from a correction issue.
+    thread = api(f'repos/{REPO}/discussions/1')
+    if thread.get('state', 'open') == 'open':
+        for comment in discussion_comments(1):
+            if approved_post(comment):
+                revision = hashlib.sha256(APPROVED_SOURCE.read_bytes()).hexdigest()
+                key = hashlib.sha256(f"{comment['url']}:{revision}".encode()).hexdigest()
+                candidates.append({'kind': 'discussion', 'number': 1, 'key': key,
+                                   'url': comment['url'], 'title': thread['title'],
+                                   'approved_file': 'feedback/submissions/chapter01-review.ko.md',
+                                   'file_sha256': revision})
     proposals = pages(f'repos/{REPO}/pulls?state=all&sort=created&direction=desc')
     return pending(candidates, proposals)
 
@@ -214,4 +225,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--queue', action='store_true', help='Print pending feedback and revision keys using GitHub reads only')
+    if parser.parse_args().queue:
+        print(json.dumps(collect(), indent=2, ensure_ascii=False))
+    else:
+        main()

@@ -10,11 +10,24 @@ on:
         required: false
         type: string
   permissions:
+    actions: read
     contents: read
     issues: read
     discussions: read
   steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: curriculum-v1.2
+        persist-credentials: false
+    - name: Check review capacity
+      id: capacity
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        TEXTBOOK_AI_MODE: ${{ vars.TEXTBOOK_AI_MODE }}
+      run: python3 scripts/review_capacity.py seminar-brief
     - name: Check for feedback and credentials
+      if: steps.capacity.outputs.ready == 'true'
       id: intake
       env:
         GH_TOKEN: ${{ github.token }}
@@ -46,6 +59,10 @@ permissions:
   contents: read
   issues: read
   discussions: read
+concurrency:
+  group: seminar-brief
+  job-discriminator: ${{ github.run_id }}
+  cancel-in-progress: false
 engine:
   id: claude
   model: haiku
@@ -79,5 +96,6 @@ Group duplicate questions, suggest up to three questions for discussion, and ide
 which premise, definition or proof case the presenter should reconstruct. For a proposed
 correction, report the current statement, suggested change, and what a human should
 verify. If the issue is purely editorial, say so. Link to the original thread or issue.
+Include Session NN for each affected chapter in the brief so its chapter links can find it.
 Only create a brief when there is actionable reader feedback, and check existing
 briefs for the same items before creating one. Otherwise return a noop.

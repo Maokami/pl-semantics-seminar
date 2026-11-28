@@ -2,18 +2,54 @@ name: Feedback automation tests
 on:
   pull_request:
     branches: [curriculum-v1.2]
-    paths: ['scripts/**', 'tests/**', '.github/workflows/**', 'verso/study.py', 'verso/static/study.js']
   push:
     branches: [curriculum-v1.2]
-    paths: ['scripts/**', 'tests/**', '.github/workflows/**']
+    paths: ['scripts/**', 'tests/**', '.github/**']
+concurrency:
+  group: textbook-verification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   test:
+    name: Textbook verification
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - run: python3 -m unittest discover -s tests -v
-      - run: node --check verso/static/study.js
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Determine book verification scope
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if git diff --quiet "$BASE_SHA"...HEAD -- verso feedback/reviews scripts/verify.sh scripts/check_reader_browser.py tests/reader-smoke.js .github/workflows/pages.yml .github/workflows/feedback-tests.yml; then
+            echo 'book=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'book=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee
+        if: steps.scope.outputs.book == 'true'
+        with:
+          lake-package-directory: verso
+          auto-config: 'false'
+          build: 'false'
+      - run: gh extension install github/gh-aw --pin v1.2.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: bash scripts/verify.sh --automation-only
+        if: steps.scope.outputs.book == 'false'
+      - run: bash scripts/verify.sh
+        if: steps.scope.outputs.book == 'true'
+      - run: python3 scripts/check_reader_browser.py
+        if: steps.scope.outputs.book == 'true'
+      - name: Downloadable chapter preview
+        if: github.event_name == 'pull_request' && steps.scope.outputs.book == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reader-preview-${{ github.event.pull_request.number }}
+          path: verso/site/html-multi
+          retention-days: 3

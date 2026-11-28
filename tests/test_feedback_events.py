@@ -48,7 +48,7 @@ class FeedbackEventTests(unittest.TestCase):
             self.assertTrue(f.event_qualifies('issue_comment', e))
             e['discussion'] = {'title': 'Session 01 · Arithmetic Expressions', 'state': 'open'}
             e['comment']['reply_to_id'] = 123
-            self.assertTrue(f.event_qualifies('discussion_comment', e))
+            self.assertFalse(f.event_qualifies('discussion_comment', e))
         e['discussion']['title'] = 'Unrelated discussion'
         self.assertFalse(f.event_qualifies('discussion_comment', e))
 
@@ -60,12 +60,12 @@ class FeedbackEventTests(unittest.TestCase):
         e['comment']['user'] = {'login': 'github-actions[bot]', 'type': 'Bot'}
         self.assertFalse(f.event_qualifies('issue_comment', e))
 
-    def test_discussion_body_and_title_edits(self):
+    def test_discussion_edits_stay_in_discussions(self):
         e = self.issue('edited')
         e['discussion'] = {'title': '[Session 02] Question'}
         for key in ('body', 'title'):
             e['changes'] = {key: {'from': 'old'}}
-            self.assertTrue(f.event_qualifies('discussion', e))
+            self.assertFalse(f.event_qualifies('discussion', e))
 
     def test_decision_wakeup_cannot_form_a_workflow_loop(self):
         pr = {'user': {'login': 'github-actions[bot]'}, 'labels': [{'name': f.LABEL}],

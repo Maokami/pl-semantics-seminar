@@ -3,11 +3,17 @@
   "source_url": "https://github.com/Maokami/pl-semantics-seminar/issues/13",
   "disposition": "change",
   "reason_ko": "1장 예제 1.2의 유도 트리는 중첩 \\frac와 빈 분자, \\quad 간격으로 쓰여 전제(premise) 두 개가 서로 붙어 보이고 줄 위의 빈 칸이 불안정하게 렌더링될 수 있다. 수학 내용(규칙·판정·결과 7)은 그대로 두고 \\dfrac, \\vphantom 분자, \\qquad 간격으로 바꿔 전제 사이를 분명히 하고 공리의 줄 높이를 일정하게 했다. 영어 원고와 한국어 원고의 같은 식을 함께 고쳤다. 실제 렌더링은 빌드하지 못해 확인하지 않았으므로 관리자가 미리보기에서 확인해야 한다.",
-  "sections": ["Session 01 §4 Example 1.2 (verso/PLBook/Ch01.lean, verso/PLBook/Ko/Ch01.lean)"],
+  "sections": [
+    "Session 01 §4 Example 1.2 (verso/PLBook/Ch01.lean, verso/PLBook/Ko/Ch01.lean)"
+  ],
   "validation": [
     "이슈 본문과 댓글(없음)을 GitHub 조회 도구로 읽음",
     "현재 원고의 규칙 정의 1.5와 예제 1.2 텍스트를 읽고 트리의 판정이 일치함을 수동 대조(var(x)⇓3, lit(4)⇓4, add⇓7)",
     "영어·한국어 원고의 동일 수식 한 줄이 정확히 한 번씩 교체되었는지 스크립트로 확인",
     "Lean/Verso 빌드와 HTML 렌더링은 실행하지 않음"
+  ],
+  "target": "chapter-01/#ch01-s4-p-example-1-2-equation-1",
+  "previous_anchors": [
+    "ch01-s4-p-c6ac304e1bff"
   ]
 }

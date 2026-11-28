@@ -6,6 +6,10 @@
 
 [공개 교재](https://maokami.github.io/pl-semantics-seminar/) · [스터디원 이용 안내](docs/reader-guide.ko.md)
 
+공개판은 영어 38장입니다. 한국어 1–7장 초안은 [원고 폴더](verso/PLBook/Ko)에 있습니다. [질문하기](https://github.com/Maokami/pl-semantics-seminar/discussions/categories/q-a) · [정정 제안](https://github.com/Maokami/pl-semantics-seminar/issues/new?template=correction.md) · [직접 PR로 고치기](docs/feedback-maintenance.ko.md#사람이-직접-고치는-경우)
+
+Actions나 Claude 사용량에 도달하면 [수동 검토·결제·재개 안내](docs/review-recovery.ko.md)를 이용하세요.
+
 ## 빌드
 
 ```sh
@@ -68,11 +72,11 @@ Repository housekeeping is summarized in the [Issue/PR maintenance dashboard](ht
 The separate continuous triage workflow recommends next actions and closure/duplicate candidates;
 it does not close issues or merge PRs. See the [maintenance guide](docs/maintenance-triage.ko.md).
 
-Relevant issue and chapter-discussion changes trigger review after a short batching
+Labeled corrections trigger manuscript review after a short batching
 delay. Closing or merging a proposal checks the waiting queue. Daily review at
 09:37 KST remains as a fallback. Bot notifications do not trigger review. The AI
 prepares a bounded manuscript PR for the maintainer; it never merges its own work.
-Approve with **Merge** after the **Reader feedback / book** check, or leave a reason
+Approve with **Merge** after the **Textbook verification** check, or leave a reason
 and use **Comment and close pull request**. Source threads link to the decision,
 and publication is reported only after a successful GitHub Pages deployment.
 [Review queue](https://github.com/Maokami/pl-semantics-seminar/pulls?q=is%3Apr+is%3Aopen+label%3A%22reader+proposal%22)

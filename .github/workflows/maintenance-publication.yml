@@ -1,13 +1,13 @@
 name: Verify maintenance dashboard publication
 on:
   workflow_run:
-    workflows: [Continuous issue and PR triage]
+    workflows: [Continuous issue and PR triage, Continuous reader feedback, Reader correction review, Seminar reading brief]
     types: [completed]
     branches: [curriculum-v1.2]
 permissions: {}
 jobs:
   verify:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository
+    if: github.event.workflow_run.name == 'Continuous issue and PR triage' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -35,3 +35,17 @@ jobs:
           else:
               print('No AI execution: no dashboard publication expected')
           PY
+
+  recovery:
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show manual review and billing paths
+        env:
+          ORIGIN_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          {
+            echo "Review the [failed execution](https://github.com/$GITHUB_REPOSITORY/actions/runs/$ORIGIN_RUN)."
+            echo
+            echo "The original feedback stays in the queue. Use [manual review, service limits and recovery](https://github.com/$GITHUB_REPOSITORY/blob/curriculum-v1.2/docs/review-recovery.ko.md)."
+          } >> "$GITHUB_STEP_SUMMARY"

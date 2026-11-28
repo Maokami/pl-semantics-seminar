@@ -43,6 +43,12 @@ if (location.protocol === 'file:') {
     let id;
     try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
     let target = document.getElementById(id);
+    if (target?.dataset.currentPassage) {
+      const current = new URL(location.href);
+      current.hash = target.dataset.currentPassage;
+      location.replace(current.href);
+      return;
+    }
     if (!target && id.includes('-p-')) {
       const section = document.getElementById(id.split('-p-')[0]);
       if (section) {
@@ -61,6 +67,7 @@ if (location.protocol === 'file:') {
     const details = target?.closest('.chapter-appendix');
     if (details) {
       details.open = true;
+      if (target.matches('details')) target.open = true;
       target.scrollIntoView();
     }
   }

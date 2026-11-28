@@ -78,7 +78,7 @@ class IntakeTests(unittest.TestCase):
         self.assertFalse(f.human({'author': {'login': 'robot', '__typename': 'Bot'}}))
 
     def test_source_markers_are_restricted_and_unique(self):
-        self.assertEqual(actions.sources({'body': '<!-- reader-source: issue:42 -->\n<!-- reader-source: issue:42 -->\n<!-- reader-source: other:4 -->'}), [('issue', '42')])
+        self.assertEqual(actions.sources({'user': {'login': 'github-actions[bot]'}, 'body': '<!-- reader-source: issue:42 -->\n<!-- reader-source: issue:42 -->\n<!-- reader-source: other:4 -->'}), [('issue', '42')])
 
     def test_publication_is_not_claimed_on_merge(self):
         pr = {'number': 5, 'state': 'closed', 'merged_at': 'date', 'html_url': 'https://example.com/5'}

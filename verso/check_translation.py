@@ -61,6 +61,15 @@ def translation_signature(text):
     return hashlib.sha256(data.encode()).hexdigest()
 
 
+# PR 24 revised the displayed tree in Example 1.2 in both editions.
+# Compare the current pair, then verify the remaining legacy baseline independently.
+def example_tree(text, label):
+    example = text.split(label, 1)
+    if len(example) != 2:
+        raise ValueError(f'Missing {label}')
+    return re.search(r'^\$\$`[^`]+`$', example[1], re.M)[0]
+
+
 def check():
     check_pilot_terms()
     for n in next(units(True))[-1]:
@@ -69,6 +78,11 @@ def check():
             continue
         english, korean = [(directory/name).read_text() for directory in
                            (ROOT/'PLBook', ROOT/'PLBook/Ko')]
+        if n == 1:
+            tree = example_tree(korean, '*예 1.2.')
+            if tree != example_tree(english, '*Example 1.2'):
+                raise ValueError('Example 1.2: the English and Korean derivation trees differ')
+            korean = korean.replace(tree, '$$`\\frac{\\frac{}{\\sigma \\vdash \\operatorname{var}(x) \\Downarrow 3}\\quad\\frac{}{\\sigma \\vdash \\operatorname{lit}(4) \\Downarrow 4}}{\\sigma \\vdash \\operatorname{add}\\left( {\\operatorname{var}(x),\\operatorname{lit}(4)} \\right) \\Downarrow 7}`', 1)
         if name in LEGACY_ENGLISH:
             if translation_signature(korean) != LEGACY_ENGLISH[name]:
                 raise ValueError(f'{name}: Korean translation differs from the English source at 1238e83')

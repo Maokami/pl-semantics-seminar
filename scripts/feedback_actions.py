@@ -1,11 +1,11 @@
 """Trusted-base automation: proposal notifications and checks, never executes PR code."""
 import json
 import os
-import sys
+import base64
 import re
-from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, SOURCE, REPO
+from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, discussion_comments, SOURCE, REPO
 
-CONTEXT = 'Reader feedback / book'
+CONTEXT = 'Textbook verification'
 
 
 def decision_releases_queue(event_name, event, pr):
@@ -31,25 +31,37 @@ def needs_book_check(existing, *, retry=False):
     return retry  # Reader activity must not repeatedly rebuild a failing SHA.
 
 
-def sources(pr):
-    markers = SOURCE.findall(pr.get('body') or '')
-    return sorted(set(markers or [(r['kind'], r['number']) for r in proposal_records(pr)]))
+def sources(pr, records=None):
+    if records is None:
+        records = proposal_records(pr)
+    result = {(r['kind'], r['number']) for r in records}
+    if pr.get('user', {}).get('login') == 'github-actions[bot]':
+        result.update(SOURCE.findall(pr.get('body') or ''))
+    return sorted(result)
 
 
-def notification(pr, published=False):
-    if published:
+def notification(pr, published=False, record=None, revision=None):
+    record = record or {}
+    disposition = record.get('disposition')
+    if pr.get('merged_at') and disposition == 'no-change':
+        state = '검토 완료 · 현재 원고를 유지합니다.'
+    elif pr.get('merged_at') and disposition == 'needs-discussion':
+        state = '검토 완료 · 원래 글에서 추가 논의를 기다립니다.'
+    elif published:
         state = '교재에 반영되었습니다. GitHub Pages 게시가 완료되었습니다.'
     elif pr.get('merged_at'):
-        state = '관리자가 승인했습니다. 교재 빌드·게시 결과는 아래 변경안에서 확인할 수 있습니다.'
+        state = '관리자가 승인했습니다. 교재 게시를 기다립니다.'
     elif pr['state'] == 'closed':
-        state = '관리자가 이 변경안을 반영하지 않기로 했습니다. 거부 사유나 후속 논의는 변경안의 댓글에서 확인해 주세요.'
+        state = '변경안이 닫혔습니다. 결정 사유는 PR의 대화에서 확인할 수 있습니다.'
     else:
-        state = 'AI가 검토한 변경안이 관리자 승인을 기다리고 있습니다. 아직 교재에 반영되지 않았습니다.'
-    return (f'<!-- reader-proposal: {pr["number"]} -->\n{state}\n\n'
-            f'검토·결정 기록: {pr["html_url"]}\n\n'
-            '관리자: 검사 통과 후 **Merge**로 승인하거나, 사유를 작성하고 '
-            '**Comment and close pull request**로 거부할 수 있습니다.\n\n'
-            '교재: https://maokami.github.io/pl-semantics-seminar/')
+        state = '변경안이 관리자 검토를 기다리고 있습니다.'
+    lines = [f'<!-- reader-proposal: {pr["number"]} -->', state, pr['html_url']]
+    if published and revision:
+        lines.append(f'게시 리비전 [{revision[:7]}](https://github.com/{REPO}/commit/{revision})')
+        target = record.get('target') or ''
+        if re.fullmatch(r'chapter-(?:0[1-9]|[12][0-9]|3[0-8])/#ch[0-9]{2}[-a-z0-9]*', target):
+            lines.append('[교재 문단 보기](https://maokami.github.io/pl-semantics-seminar/' + target + ')')
+    return '\n\n'.join(lines)
 
 
 def graphql(query, variables):
@@ -59,10 +71,20 @@ def graphql(query, variables):
     return result['data']
 
 
-def notify(pr, published=False):
+def notify(pr, published=False, revision=None):
     marker = f'<!-- reader-proposal: {pr["number"]} -->'
-    body = notification(pr, published)
-    for kind, number in sources(pr):
+    records = proposal_records(pr)
+    by_source = {}
+    for record in records:
+        if published:
+            # Read the record from the deployed commit, including later anchor repairs.
+            path = f'feedback/reviews/{record["key"]}.json'
+            result = api(f'repos/{REPO}/contents/{path}?ref={revision}')
+            deployed = json.loads(base64.b64decode(result['content']))
+            record = record | {k: deployed.get(k) for k in ('target', 'disposition')}
+        by_source[record['kind'], record['number']] = record
+    for kind, number in sources(pr, records):
+        body = notification(pr, published, by_source.get((kind, number)), revision)
         if kind == 'issue':
             comments = pages(f'repos/{REPO}/issues/{number}/comments')
             existing = next((c for c in comments if c.get('user', {}).get('login') == 'github-actions[bot]' and marker in c['body']), None)
@@ -74,23 +96,31 @@ def notify(pr, published=False):
             else:
                 api(f'repos/{REPO}/issues/{number}/comments', {'body': body})
         else:
-            owner, name = REPO.split('/')
-            cursor, existing, discussion_id = None, None, None
-            while True:
-                data = graphql('''query($o:String!,$r:String!,$n:Int!,$c:String){repository(owner:$o,name:$r){discussion(number:$n){id comments(first:100,after:$c){nodes{id body author{login}} pageInfo{hasNextPage endCursor}}}}}''', {'o': owner, 'r': name, 'n': int(number), 'c': cursor})['repository']['discussion']
-                discussion_id = data['id']
-                for c in data['comments']['nodes']:
-                    if (c.get('author') or {}).get('login') == 'github-actions[bot]' and marker in c['body']:
-                        existing = c
-                info = data['comments']['pageInfo']
-                if not info['hasNextPage']:
-                    break
-                cursor = info['endCursor']
-            if existing:
-                if existing['body'] != body:
-                    graphql('mutation($id:ID!,$body:String!){updateDiscussionComment(input:{commentId:$id,body:$body}){comment{id}}}', {'id': existing['id'], 'body': body})
-            else:
-                graphql('mutation($id:ID!,$body:String!){addDiscussionComment(input:{discussionId:$id,body:$body}){comment{id}}}', {'id': discussion_id, 'body': body})
+            record = by_source.get((kind, number), {})
+            notify_discussion(number, record.get('url', ''), marker, body)
+
+
+def notify_discussion(number, source_url, marker, body):
+    posts = discussion_comments(int(number))
+    parent = None
+    if '#discussioncomment-' in source_url:
+        original = next((post for post in posts if post.get('url') == source_url), None)
+        if original is None:
+            raise ValueError('Original discussion comment no longer exists: ' + source_url)
+        parent = original.get('parent_id') or original['id']
+    for post in posts:
+        author = post.get('author') or {}
+        if (post.get('parent_id') == parent and author.get('__typename') == 'Bot'
+                and author.get('login') in ('github-actions', 'github-actions[bot]')
+                and marker in post['body']):
+            if post['body'] != body:
+                graphql('mutation($id:ID!,$body:String!){updateDiscussionComment(input:{commentId:$id,body:$body}){comment{id}}}',
+                        {'id': post['id'], 'body': body})
+            return
+    discussion = api(f'repos/{REPO}/discussions/{number}')
+    graphql('mutation($id:ID!,$parent:ID,$body:String!){addDiscussionComment(input:{discussionId:$id,replyToId:$parent,body:$body}){comment{id}}}',
+            {'id': discussion['node_id'], 'parent': parent, 'body': body})
+
 
 
 def main():
@@ -109,7 +139,7 @@ def main():
     selected = []
     wake_queue = False
     for pr in proposals:
-        if not trusted_proposal(pr) or pr['base']['ref'] != 'curriculum-v1.2' or pr['head']['repo']['full_name'] != REPO:
+        if not trusted_proposal(pr) or pr['base']['ref'] != 'curriculum-v1.2':
             continue
         if is_publish:
             run = event['workflow_run']
@@ -118,11 +148,11 @@ def main():
             comparison = api(f'repos/{REPO}/compare/{pr["merge_commit_sha"]}...{run["head_sha"]}')
             if comparison['status'] not in ('ahead', 'identical'):
                 continue
-            notify(pr, published=True)
+            notify(pr, published=True, revision=run['head_sha'])
             continue
         notify(pr)
         wake_queue = wake_queue or decision_releases_queue(event_name, event, pr)
-        if pr['state'] != 'open':
+        if pr.get('user', {}).get('login') != 'github-actions[bot]' or pr['state'] != 'open' or (pr['head'].get('repo') or {}).get('full_name') != REPO:
             continue
         statuses = api(f'repos/{REPO}/commits/{pr["head"]["sha"]}/status')['statuses']
         existing = next((s for s in statuses if s['context'] == CONTEXT), None)

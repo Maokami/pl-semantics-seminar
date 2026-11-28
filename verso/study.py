@@ -41,11 +41,16 @@ def board_exercise(number, page):
             return match[1]
         question = card_item("Board case.")
         hints = [("Show proof outline", card_item("Proof outline."))]
+    if number == 1:
+        hints = [*hints, ("From derivation to calculation",
+                 "For each premise the induction hypothesis gives eval(eᵢ, σ) = nᵢ. The addition equation yields n₁ + n₂."),
+                 ("From calculation to derivation",
+                 "Structural induction supplies a derivation for each computed operand. Join the two trees with the addition rule.")]
     details = "".join(f'<details><summary>{label}</summary><p>{step}</p></details>' for label, step in hints)
-    return f'<details class="board"><summary>Reconstruct the proof</summary><p>{question}</p>{details}</details>'
+    return f'<details class="board" id="board-exercise"><summary>Reconstruct the proof</summary><p>{question}</p>{details}</details>'
 
 
-def chapter_tools(number, title, revision, page):
+def chapter_tools(number, title, revision, page, reviews=''):
     tag = f"Session {number:02}"
     thread = THREADS.get(str(number))
     discussion = f"{REPO}/discussions/{thread}" if thread else f"{REPO}/discussions?{urlencode({'discussions_q': tag})}"
@@ -78,16 +83,18 @@ def chapter_tools(number, title, revision, page):
     proposals = f"{REPO}/pulls?" + urlencode({"q": f'is:pr label:"reader proposal" "[Session {number:02}]"'})
     queue = f"{REPO}/pulls?" + urlencode({"q": 'is:pr is:open label:"reader proposal"'})
     corrections = f"{REPO}/issues?" + urlencode({"q": f'is:issue label:"textbook feedback" "[{tag}]"'})
+    briefs = REPO + '/issues?' + urlencode({'q': f'is:issue label:"seminar agenda" "{tag}"'})
     return f"""<aside class="study" lang="en" data-session="{number:02}" data-thread="{thread or ''}" data-revision="{revision}" aria-label="Study together">
 <div class="study-head"><h2 id="study-together" tabindex="-1">Study together</h2></div>
 {picker}
 {discussion_tools}
 <div class="meeting-tools" aria-label="Seminar preparation">{prompt}{lab}
-<details class="presenter"><summary>Prepare to present<small>Readings and meeting agenda</small></summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{REPO}/issues?q=is%3Aopen+label%3A%22seminar+agenda%22">Meeting briefs</a></p></details></div>
+<details class="presenter"><summary>Prepare to present<small>Readings and meeting agenda</small></summary><div class="study-links"></div><p><a href="{node(unanswered)}">Unanswered questions</a> · <a href="{node(briefs)}">Meeting briefs</a></p></details></div>
 <details class="saved" hidden><summary>Saved passages</summary><div></div></details>
 <section class="feedback-progress" aria-label="Correction review status">
 <h3>Corrections and review</h3>
-<p>New or changed reader feedback triggers review. Pending proposals wait for a maintainer’s decision; a daily check catches missed feedback. Proposed edits need approval before publication.</p>
+<p>Questions stay open for answers. Maintainers review proposed corrections and publish accepted changes here.</p>
+{reviews}
 <div class="correction-feed" aria-live="polite"></div>
 <p><a href="{node(proposals)}">Chapter review decisions</a> · <a href="{node(corrections)}">All chapter corrections</a></p>
 <details><summary>How review works</summary><p>Suggest a correction with its section and reason. AI compares it with the current manuscript and prepares a proposal. The maintainer checks the changes and build result, then merges or closes the proposal. The original discussion links to the decision; a merged change appears after a successful textbook build.</p>
