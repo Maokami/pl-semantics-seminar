@@ -125,7 +125,7 @@ def proposal_records(pr):
         if not source:
             raise ValueError('Review source must be an issue/discussion in this repository')
         records.append({'key': match[1], 'kind': {'issues': 'issue', 'discussions': 'discussion'}[source[1]],
-                        'number': source[2], 'disposition': record.get('disposition'),
+                        'number': source[2], 'url': record['source_url'], 'disposition': record.get('disposition'),
                         'target': record.get('target')})
     return records
 
@@ -157,14 +157,14 @@ def discussion_comments(number):
         for comment in connection['nodes']:
             result.append(comment)
             replies = comment['replies']
-            result.extend(replies['nodes'])
+            result.extend(reply | {'parent_id': comment['id']} for reply in replies['nodes'])
             while replies['pageInfo']['hasNextPage']:
                 q = '''query($id:ID!,$cursor:String){node(id:$id){... on DiscussionComment{replies(first:100,after:$cursor){nodes{id url body author{login __typename}} pageInfo{hasNextPage endCursor}}}}}'''
                 data = api('graphql', {'query': q, 'variables': {'id': comment['id'], 'cursor': replies['pageInfo']['endCursor']}})
                 if data.get('errors'):
                     raise RuntimeError(data['errors'])
                 replies = data['data']['node']['replies']
-                result.extend(replies['nodes'])
+                result.extend(reply | {'parent_id': comment['id']} for reply in replies['nodes'])
         if not connection['pageInfo']['hasNextPage']:
             return result
         cursor = connection['pageInfo']['endCursor']
@@ -182,10 +182,11 @@ def collect():
         for comment in discussion_comments(1):
             if approved_post(comment):
                 revision = hashlib.sha256(APPROVED_SOURCE.read_bytes()).hexdigest()
-                item = snapshot('discussion', thread, [comment])
-                item.update(url=comment['url'], approved_file='feedback/submissions/chapter01-review.ko.md',
-                            file_sha256=revision)
-                candidates.append(item)
+                key = hashlib.sha256(f"{comment['url']}:{revision}".encode()).hexdigest()
+                candidates.append({'kind': 'discussion', 'number': 1, 'key': key,
+                                   'url': comment['url'], 'title': thread['title'],
+                                   'approved_file': 'feedback/submissions/chapter01-review.ko.md',
+                                   'file_sha256': revision})
     proposals = pages(f'repos/{REPO}/pulls?state=all&sort=created&direction=desc')
     return pending(candidates, proposals)
 

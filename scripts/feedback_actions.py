@@ -3,7 +3,7 @@ import json
 import os
 import base64
 import re
-from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, SOURCE, REPO
+from reader_feedback import api, pages, trusted_proposal, blocked_proposals, proposal_records, discussion_comments, SOURCE, REPO
 
 CONTEXT = 'Textbook verification'
 
@@ -96,23 +96,31 @@ def notify(pr, published=False, revision=None):
             else:
                 api(f'repos/{REPO}/issues/{number}/comments', {'body': body})
         else:
-            owner, name = REPO.split('/')
-            cursor, existing, discussion_id = None, None, None
-            while True:
-                data = graphql('''query($o:String!,$r:String!,$n:Int!,$c:String){repository(owner:$o,name:$r){discussion(number:$n){id comments(first:100,after:$c){nodes{id body author{login __typename}} pageInfo{hasNextPage endCursor}}}}}''', {'o': owner, 'r': name, 'n': int(number), 'c': cursor})['repository']['discussion']
-                discussion_id = data['id']
-                for c in data['comments']['nodes']:
-                    if (c.get('author') or {}).get('__typename') == 'Bot' and c['author']['login'] in ('github-actions', 'github-actions[bot]') and marker in c['body']:
-                        existing = c
-                info = data['comments']['pageInfo']
-                if not info['hasNextPage']:
-                    break
-                cursor = info['endCursor']
-            if existing:
-                if existing['body'] != body:
-                    graphql('mutation($id:ID!,$body:String!){updateDiscussionComment(input:{commentId:$id,body:$body}){comment{id}}}', {'id': existing['id'], 'body': body})
-            else:
-                graphql('mutation($id:ID!,$body:String!){addDiscussionComment(input:{discussionId:$id,body:$body}){comment{id}}}', {'id': discussion_id, 'body': body})
+            record = by_source.get((kind, number), {})
+            notify_discussion(number, record.get('url', ''), marker, body)
+
+
+def notify_discussion(number, source_url, marker, body):
+    posts = discussion_comments(int(number))
+    parent = None
+    if '#discussioncomment-' in source_url:
+        original = next((post for post in posts if post.get('url') == source_url), None)
+        if original is None:
+            raise ValueError('Original discussion comment no longer exists: ' + source_url)
+        parent = original.get('parent_id') or original['id']
+    for post in posts:
+        author = post.get('author') or {}
+        if (post.get('parent_id') == parent and author.get('__typename') == 'Bot'
+                and author.get('login') in ('github-actions', 'github-actions[bot]')
+                and marker in post['body']):
+            if post['body'] != body:
+                graphql('mutation($id:ID!,$body:String!){updateDiscussionComment(input:{commentId:$id,body:$body}){comment{id}}}',
+                        {'id': post['id'], 'body': body})
+            return
+    discussion = api(f'repos/{REPO}/discussions/{number}')
+    graphql('mutation($id:ID!,$parent:ID,$body:String!){addDiscussionComment(input:{discussionId:$id,replyToId:$parent,body:$body}){comment{id}}}',
+            {'id': discussion['node_id'], 'parent': parent, 'body': body})
+
 
 
 def main():

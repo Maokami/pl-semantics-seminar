@@ -17,6 +17,8 @@
 
 질문이나 수정 제안에 본문의 수식을 다시 쓰려면 **Insert a formula → From this passage**에서 수식을 고르세요. **Common notation**에서는 평가 판단, 상태 갱신, 타입 판단 등의 예를 넣어 기호만 수정할 수 있습니다. 직접 입력한 `$…$` 또는 `$$…$$`도 **Math preview**에서 확인한 뒤 게시할 수 있습니다.
 
+GitHub에서 곧바로 질문이나 정정을 만들 때는 본문에 장 번호를 한 줄로 적으세요(예: `Session: 01`). 제목을 바꿔도 교재가 같은 장에서 글을 찾습니다.
+
 댓글과 답글은 교재와 GitHub Discussions에서 함께 보이는 공개 글입니다. 읽기는 로그인 없이 가능하고, 교재에서 처음 글을 쓸 때는 **Sign in with GitHub**를 눌러 댓글 도구인 giscus를 승인합니다. 댓글창을 불러올 수 없는 환경에서는 **View on GitHub**를 이용하세요. [1장 토론 바로가기](https://maokami.github.io/pl-semantics-seminar/chapter-01/#chapter-discussion)
 
 GitHub에서 질문을 올리거나 삭제한 뒤 교재 탭으로 돌아오면 **Questions from readers** 목록을 다시 불러옵니다. 같은 화면에 머무는 동안 다른 사람이 바꾼 내용은 목록 옆의 **Refresh**로 확인하세요.

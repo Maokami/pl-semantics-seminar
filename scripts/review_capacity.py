@@ -1,6 +1,7 @@
 """Choose automated or manual review before starting a metered agent."""
 from datetime import datetime, timedelta, timezone
 import os
+import subprocess
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -22,7 +23,10 @@ def hold_reason(workflow, env, now):
     since = (now - timedelta(hours=24)).isoformat(timespec='seconds')
     query = urlencode({'head_sha': env['GITHUB_SHA'], 'status': 'failure',
                        'created': '>=' + since, 'per_page': 1})
-    runs = api(f'repos/{REPO}/actions/workflows/{workflow}.lock.yml/runs?{query}')['workflow_runs']
+    try:
+        runs = api(f'repos/{REPO}/actions/workflows/{workflow}.lock.yml/runs?{query}')['workflow_runs']
+    except subprocess.CalledProcessError:
+        return 'Actions run history is unavailable. Check GitHub status, API rate limits and actions:read access.'
     if runs:
         return f'This workflow failed on this revision during the past 24 hours ({runs[0]["html_url"]}).'
     return None
