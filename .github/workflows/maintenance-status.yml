@@ -1,0 +1,38 @@
+name: Refresh repository status
+on:
+  issues:
+    types: [opened, edited, reopened, closed, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited, deleted]
+  pull_request_target:
+    branches: [curriculum-v1.2]
+    types: [opened, edited, reopened, closed, synchronize, ready_for_review, converted_to_draft]
+  workflow_run:
+    workflows: [Publish textbook, Reader feedback checks and decisions, Feedback automation tests, Continuous reader feedback, Continuous issue and PR triage]
+    types: [completed]
+  schedule:
+    - cron: '43 * * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: maintenance-live-status
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.event.issue.number != 27
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      actions: read
+    steps:
+      # Always execute trusted base code; no PR checkout or AI credentials.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: curriculum-v1.2
+          persist-credentials: false
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/maintenance_status.py
