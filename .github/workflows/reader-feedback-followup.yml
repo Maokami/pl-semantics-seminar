@@ -5,7 +5,7 @@ on:
     types: [completed]
     branches: [curriculum-v1.2]
   pull_request_target:
-    types: [closed, reopened, synchronize]
+    types: [opened, labeled, closed, reopened, synchronize]
     branches: [curriculum-v1.2]
   workflow_dispatch:
 permissions:
@@ -73,11 +73,15 @@ jobs:
           lake-package-directory: verso
           auto-config: 'false'
           build: 'false'
-      - run: python3 verso/build_site.py
-      - run: python3 verso/check_study.py
+      - run: gh extension install github/gh-aw --pin v1.2.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: bash scripts/verify.sh
+      - run: python3 scripts/check_reader_browser.py
       - name: Readable preview for the maintainer
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
+          retention-days: 3
           name: reader-preview-${{ matrix.number }}
           path: verso/site/html-multi
       # This file is consumed as data by an isolated write-only status job.
@@ -89,6 +93,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
+          retention-days: 1
           name: reader-result-${{ matrix.number }}
           path: /tmp/book-result.txt
   status:
@@ -112,6 +117,6 @@ jobs:
           state=failure
           if [ -f result/book-result.txt ] && [ "$(cat result/book-result.txt)" = success ]; then state=success; fi
           gh api "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" --method POST \
-            -f state="$state" -f context='Reader feedback / book' \
+            -f state="$state" -f context='Textbook verification' \
             -f description='Textbook build and study-link checks' \
             -f target_url="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

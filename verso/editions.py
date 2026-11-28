@@ -2,6 +2,7 @@
 import html
 import re
 import subprocess
+from review_index import chapter_reviews
 from study import chapter_tools
 from passages import address_passages
 from functools import lru_cache
@@ -105,7 +106,15 @@ def update_pages(site):
             s = reader_buttons(s, ch, order, names)
         if ch:
             s = address_passages(s)
-            tools = chapter_tools(ch, names[ch], revision, s)
+            chapter_url = f'chapter-{ch:02}/'
+            s, reviews = chapter_reviews(s, ch)
+            tools = chapter_tools(ch, names[ch], revision, s, reviews)
+            s = s.replace('<strong>Board case.</strong>',
+                          f'<strong><a href="{chapter_url}#board-exercise">Board case.</a></strong>', 1)
+            sources = re.search(r'<h2 id="([^"]+)">(?:(?!</h2>).)*Sources and Formalization', s, re.S)
+            if sources:
+                s = s.replace('<strong>In this session.</strong>', '<strong>In this session.</strong> '
+                              + f'<a href="{chapter_url}#{sources[1]}">Sources and proof status</a>', 1)
             before, nav, after = s.rpartition('<nav class="prev-next-buttons">')
             if not nav:
                 raise ValueError(f'Chapter navigation missing in {p}')

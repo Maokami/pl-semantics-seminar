@@ -14,6 +14,7 @@ on:
     - cron: "17 1 * * *"
   workflow_dispatch:
   permissions:
+    actions: read
     contents: read
     issues: read
     pull-requests: read
@@ -23,7 +24,15 @@ on:
       with:
         ref: curriculum-v1.2
         persist-credentials: false
+    - name: Check review capacity
+      id: capacity
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        TEXTBOOK_AI_MODE: ${{ vars.TEXTBOOK_AI_MODE }}
+      run: python3 scripts/review_capacity.py maintenance-triage
     - name: Compare queue with last published triage
+      if: steps.capacity.outputs.ready == 'true'
       id: intake
       env:
         GH_TOKEN: ${{ github.token }}
@@ -104,6 +113,10 @@ never edit comments. Recheck open/closed state before reporting an actionable it
 
 Replace ONLY the dashboard body (operation: replace), in concise Korean, with:
 - last review run link, time and scope, plus any limits;
+- a short throughput summary for the stated time window: new feedback, actual
+  agent reviews, proposed PRs, human decisions, confirmed deployments, and the
+  oldest pending correction. Only count verified evidence; mark unavailable
+  counts unknown. Link the recovery guide for blocked service capacity;
 - a table of all currently open issues/PRs, each with source link, category,
   evidence, recommended next action and any blocking dependency;
 - a short ordered list of up to five administrator actions, with direct links.

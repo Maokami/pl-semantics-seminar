@@ -14,12 +14,14 @@ def address_passages(page):
     start = page.index('<section>', page.index('<main>'))
     end = page.index('</main>', start)
     section = None
+    example = None
     counts = {}
 
     def address(match):
-        nonlocal section
+        nonlocal section, example
         if match['section']:
             section = match['section']
+            example = None
             return match[0]
         if not section or re.search(r'\bid="', match['attrs']):
             return match[0]
@@ -32,7 +34,16 @@ def address_passages(page):
                else hashlib.sha256(text.encode()).hexdigest()[:12])
         base = f'{section}-p-{key}'
         counts[base] = count = counts.get(base, 0) + 1
+        if label:
+            example = base if label[1] == 'Example' else None
         anchor = base if count == 1 else f'{base}-{count}'
+        if example and content.startswith('<code class="math display">'):
+            # Keep addresses for example equations across TeX formatting edits.
+            semantic = example + '-equation'
+            counts[semantic] = counts.get(semantic, 0) + 1
+            stable = f'{semantic}-{counts[semantic]}'
+            alias = f'<span id="{anchor}" data-current-passage="{stable}"></span>'
+            return f'<{match["tag"]} id="{stable}" data-passage{match["attrs"]}>{alias}{match["body"]}</{match["tag"]}>'
         return f'<{match["tag"]} id="{anchor}" data-passage' + match[0][len(match['tag']) + 1:]
 
     return page[:start] + ELEMENT.sub(address, page[start:end]) + page[end:]

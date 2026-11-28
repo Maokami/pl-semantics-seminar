@@ -38,11 +38,17 @@
     dest.hash = 'chapter-discussion';
     return dest.href;
   }
+  function belongsToChapter(item) {
+    const field = /^Session:\s*(\d{1,2})\s*$/im.exec(item.body || '');
+    if (field) return Number(field[1]) === Number(session);
+    const chapterLink = 'https://maokami.github.io/pl-semantics-seminar/chapter-' + session + '/';
+    return item.title.startsWith('[' + tag + ']') || (item.body || '').includes(chapterLink);
+  }
   function isChapterQuestion(q) {
-    return q.category?.slug === 'q-a' && q.title.startsWith('[' + tag + ']');
+    return q.category?.slug === 'q-a' && belongsToChapter(q);
   }
   function questionTitle(q) {
-    return q.title.slice(tag.length + 2).trim() || q.title;
+    return q.title.startsWith('[' + tag + ']') ? q.title.slice(tag.length + 2).trim() || q.title : q.title;
   }
   function whenVisible(element, run) {
     if (!('IntersectionObserver' in window)) { run(); return; }
@@ -64,11 +70,15 @@
     feed.setAttribute('aria-busy', 'true');
     if (!feed.textContent) feed.textContent = 'Loading recent questions…';
     try {
-      const response = await fetch(api + '?per_page=100&sort=updated&direction=desc&_=' + Date.now(), {cache:'no-store'});
-      if (!response.ok) throw new Error();
-      const discussions = await response.json();
-      if (request !== listRequest) return;
-      const questions = discussions.filter(q => isChapterQuestion(q) && (q.state === 'open' || q.answer_chosen_at));
+      const questions = [];
+      for (let page = 1; questions.length < 6; page++) {
+        const response = await fetch(api + '?per_page=100&sort=updated&direction=desc&page=' + page);
+        if (!response.ok) throw new Error();
+        const discussions = await response.json();
+        if (request !== listRequest) return;
+        questions.push(...discussions.filter(q => isChapterQuestion(q) && (q.state === 'open' || q.answer_chosen_at)));
+        if (discussions.length < 100) break;
+      }
       const list = document.createElement('ul');
       for (const q of questions.slice(0, 6)) {
         const li = document.createElement('li');
@@ -78,8 +88,7 @@
         list.append(li);
       }
       if (list.children.length) feed.replaceChildren(list);
-      else feed.textContent = discussions.length < 100 ? 'No open or answered questions for this chapter yet.'
-        : 'No chapter questions among the latest 100 discussions.';
+      else feed.textContent = 'No open or answered questions for this chapter yet.';
     } catch {
       if (request === listRequest) feed.textContent = 'Recent questions could not be loaded. Try Refresh or open All chapter questions.';
     } finally {
@@ -97,17 +106,22 @@
     correctionFeed.setAttribute('aria-busy', 'true');
     if (!correctionFeed.textContent) correctionFeed.textContent = 'Loading correction status…';
     try {
-      const query = 'repo:Maokami/pl-semantics-seminar is:issue label:"textbook feedback" "[' + tag + ']" in:title';
-      const response = await fetch('https://api.github.com/search/issues?q=' + encodeURIComponent(query) + '&sort=updated&per_page=6', {cache:'no-store'});
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      if (request !== correctionRequest) return;
+      const items = [];
+      for (let page = 1; items.length < 6; page++) {
+        const response = await fetch('https://api.github.com/repos/Maokami/pl-semantics-seminar/issues?state=all&labels=textbook%20feedback&sort=updated&direction=desc&per_page=100&page=' + page);
+        if (!response.ok) throw new Error();
+        const issues = await response.json();
+        if (request !== correctionRequest) return;
+        items.push(...issues.filter(item => !item.pull_request && belongsToChapter(item)));
+        if (issues.length < 100) break;
+      }
       const list = document.createElement('ul');
-      for (const issue of data.items.filter(item => item.title.startsWith('[' + tag + ']'))) {
+      for (const issue of items.slice(0, 6)) {
         const row = document.createElement('li');
         const status = document.createElement('small');
-        status.textContent = issue.state === 'open' ? 'Open · see review updates' : issue.state_reason === 'not_planned' ? 'Closed · see decision' : 'Closed';
-        row.append(link(issue.title.slice(tag.length + 2).trim(), issue.html_url), ' ', status);
+        const reviewed = panel.querySelector('[data-review-source="issues/' + issue.number + '"]');
+        status.textContent = reviewed ? 'Review decision above · issue ' + issue.state : issue.state === 'open' ? 'Open · see review updates' : issue.state_reason === 'not_planned' ? 'Closed · see decision' : 'Closed';
+        row.append(link(questionTitle(issue), issue.html_url), ' ', status);
         list.append(row);
       }
       if (list.children.length) correctionFeed.replaceChildren(list);
@@ -177,8 +191,8 @@
   let notes = [];
   try { notes = JSON.parse(localStorage.getItem(key)) || []; } catch {}
   function persist(next) {
-    try { localStorage.setItem(key, JSON.stringify(next)); notes = next; draw(); }
-    catch { alert('This browser could not save the reading note.'); }
+    try { localStorage.setItem(key, JSON.stringify(next)); notes = next; draw(); return true; }
+    catch { announce('This browser could not save the reading note.'); return false; }
   }
   function draw() {
     saved.replaceChildren();
@@ -201,11 +215,11 @@
   menu.setAttribute('role', 'group');
   menu.setAttribute('aria-label', 'Share selected passage');
   const button = label => Object.assign(document.createElement('button'), {type:'button', textContent:label});
-  const copy = link('Copy link', '#');
+  const copy = link('Copy passage link', '#');
   const ask = link('Ask a question', '#');
-  const propose = link('Suggest edit', '#');
-  const discuss = button('Quote for discussion');
-  const save = button('Save');
+  const propose = link('Suggest a correction', '#');
+  const discuss = button('Copy quote for chapter discussion');
+  const save = button('Save on this device');
   const close = button('Close');
   menu.append(copy, ask, propose, discuss, save, close);
   const status = document.createElement('div');
@@ -247,7 +261,12 @@
       panel.dispatchEvent(new CustomEvent('compose', {detail:{mode, selected}}));
     };
   }
-  save.onclick = () => { persist([...notes, selected]); hide(); announce('Passage saved on this device.'); };
+  save.onclick = () => {
+    const exists = notes.some(note => note.passage === selected.passage && note.quote === selected.quote);
+    if (!exists && !persist([...notes, selected])) return;
+    hide();
+    announce(exists ? 'Already saved on this device.' : 'Passage saved on this device.');
+  };
   close.onclick = hide;
   const markdownQuote = text => text.split('\n').map(line => '> ' + line).join('\n');
 
@@ -275,7 +294,9 @@
       const tex = math.querySelector('annotation')?.textContent;
       if (tex) math.replaceWith('$' + tex + '$');
     }
-    return fragment.textContent.trim().replace(/\s+/g, ' ').slice(0, 750);
+    for (const br of fragment.querySelectorAll('br')) br.replaceWith('\n');
+    for (const block of fragment.querySelectorAll('p,pre,li')) block.append('\n');
+    return fragment.textContent.trim();
   }
   function selectionChanged() {
     const sel = getSelection();
@@ -318,7 +339,8 @@
     if (!block) return;
     event.preventDefault();
     stopPicking();
-    trigger = picker;
+    block.tabIndex = -1;
+    trigger = block;
     choose(block, quoteOf(block.cloneNode(true)));
     copy.focus({preventScroll:true});
   }

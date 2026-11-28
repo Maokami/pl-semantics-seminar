@@ -66,16 +66,23 @@
   for (const h of sections) select.add(new Option(nameOf(h), h.id));
   const publicChapter = new URL("https://maokami.github.io/pl-semantics-seminar/chapter-" + session + "/");
   let copiedBody;
-  let mode, quoted, passage, focusOrigin;
-  const draftKey = () => 'pl-composer:' + session + ':' + mode;
+  let mode, quoted, passage, focusOrigin, draftScope;
+  const draftKey = () => 'pl-composer:' + session + ':' + mode + ':' + draftScope;
   function storeDraft() {
     try { sessionStorage.setItem(draftKey(), JSON.stringify({text:message.value, section:select.value, quote:quoted, passage})); } catch {}
   }
   function open(modeName, selection) {
     focusOrigin = document.activeElement;
     mode = modeName;
+    draftScope = selection?.passage || 'chapter';
     let draft = {};
-    try { draft = JSON.parse(sessionStorage.getItem(draftKey())) || {}; } catch {}
+    try {
+      draft = JSON.parse(sessionStorage.getItem(draftKey()));
+      if (!draft) {
+        const legacy = JSON.parse(sessionStorage.getItem('pl-composer:' + session + ':' + mode));
+        draft = legacy && (legacy.passage || 'chapter') === draftScope ? legacy : {};
+      }
+    } catch { draft = {}; }
     select.value = selection?.id || draft.section || sections[0].id;
     if (select.selectedIndex < 0) select.selectedIndex = 0;
     quoted = selection?.quote || (draft.section === select.value && draft.quote) || '';
@@ -85,6 +92,7 @@
     showQuote();
     quoteBox.scrollTop = 0;
     const question = mode === 'question';
+    dialog.querySelector('.primary').textContent = question ? 'Continue to GitHub Q&A ↗' : 'Continue to GitHub Issue ↗';
     dialog.querySelector('small').textContent = nameOf(sections[0]);
     dialog.querySelector('h2').textContent = question ? 'Ask a question' : 'Suggest a correction';
     dialog.querySelector('.prompt').textContent = question ? 'What would you like to ask?' : 'What would you change?';
@@ -96,7 +104,7 @@
     const sectionURL = new URL(publicChapter); sectionURL.hash = passage || select.value;
     const titleLine = message.value.trim().split(/\n/)[0];
     const body = [message.value.trim(), quoted && '> ' + quoted.replaceAll('\n', '\n> '),
-      sectionURL.href, 'Revision: ' + revision].filter(Boolean).join('\n\n');
+      sectionURL.href, 'Session: ' + session, 'Revision: ' + revision].filter(Boolean).join('\n\n');
     const target = new URL(root + (mode === 'question' ? '/discussions/new' : '/issues/new'));
     target.searchParams.set(mode === 'question' ? 'category' : 'template', mode === 'question' ? 'q-a' : 'correction.md');
     target.searchParams.set('title', '[Session ' + session + '] ' + Array.from(titleLine).slice(0, 72).join(''));

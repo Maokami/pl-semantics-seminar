@@ -5,7 +5,10 @@ title: ''
 labels: 'textbook feedback'
 ---
 
-Chapter and section:
+<!-- Replace NN with the chapter number (01–38). Keep this field when editing the title. -->
+Session: NN
+
+Passage link and manuscript revision:
 
 Current wording or mathematical statement:
 

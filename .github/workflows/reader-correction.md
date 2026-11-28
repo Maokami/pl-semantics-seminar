@@ -2,6 +2,8 @@
 name: Reader correction review
 on:
   permissions:
+    contents: read
+    actions: read
     issues: read
   workflow_dispatch:
     inputs:
@@ -10,7 +12,19 @@ on:
         required: true
         type: string
   steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        ref: curriculum-v1.2
+        persist-credentials: false
+    - name: Check review capacity
+      id: capacity
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        TEXTBOOK_AI_MODE: ${{ vars.TEXTBOOK_AI_MODE }}
+      run: python3 scripts/review_capacity.py reader-correction
     - name: Select an open reader correction
+      if: steps.capacity.outputs.ready == 'true'
       id: select
       env:
         GH_TOKEN: ${{ github.token }}
@@ -35,6 +49,10 @@ jobs:
     outputs:
       eligible: ${{ steps.select.outputs.eligible }}
 if: needs.pre_activation.outputs.eligible == 'true'
+concurrency:
+  group: reader-correction
+  job-discriminator: ${{ github.run_id }}
+  cancel-in-progress: false
 engine:
   id: claude
   model: haiku

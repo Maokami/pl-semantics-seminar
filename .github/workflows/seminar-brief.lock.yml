@@ -1,5 +1,5 @@
-# gh-aw-metadata: {"schema_version":"v4","frontmatter_hash":"65183a4280c0bd9b4ec88f335178dff1deec1b0f086f5fe34727a1ca36fcc47d","body_hash":"219af80b859e0e814496167007ec0fc9ff35123ad435d3101be8f61918ab5159","compiler_version":"v1.2.2","strict":true,"agent_id":"claude","agent_model":"haiku","engine_versions":{"claude":"2.1.317"}}
-# gh-aw-manifest: {"version":1,"secrets":["ANTHROPIC_API_KEY","COPILOT_GITHUB_TOKEN","GH_AW_DEFAULT_OTLP_ENDPOINT","GH_AW_DEFAULT_OTLP_HEADERS","GH_AW_GITHUB_MCP_SERVER_TOKEN","GH_AW_GITHUB_TOKEN","GITHUB_TOKEN"],"actions":[{"repo":"actions/checkout","sha":"3d3c42e5aac5ba805825da76410c181273ba90b1","version":"v7.0.1"},{"repo":"actions/download-artifact","sha":"9000827ccba6bdab643e8b6fd33ac0654aef8333","version":"v8.0.2"},{"repo":"actions/github-script","sha":"3a2844b7e9c422d3c10d287c895573f7108da1b3","version":"v9.0.0"},{"repo":"actions/setup-node","sha":"949feb2413d6458794dcd2491c4babbbce0c15c1","version":"v7.1.0"},{"repo":"actions/upload-artifact","sha":"cf430e030ddbb5b0abf93d22962f4752f3646cd9","version":"v7.0.2"},{"repo":"github/gh-aw-actions/setup","sha":"53d0749e19424a918acd82b4d140264ce48f2f14","version":"v1.2.2"}],"containers":[{"image":"ghcr.io/github/gh-aw-firewall/agent:0.29.11","digest":"sha256:8774a73c351395b41d2ad0af4ddb4689007c67de3cd08bd9f43bb8a0e300690e","pinned_image":"ghcr.io/github/gh-aw-firewall/agent:0.29.11@sha256:8774a73c351395b41d2ad0af4ddb4689007c67de3cd08bd9f43bb8a0e300690e"},{"image":"ghcr.io/github/gh-aw-firewall/api-proxy:0.29.11","digest":"sha256:88d2d0e315a504d93fd4fb8847fd0f6b7f4469f41a6fc6047b3dc9654c56ab2c","pinned_image":"ghcr.io/github/gh-aw-firewall/api-proxy:0.29.11@sha256:88d2d0e315a504d93fd4fb8847fd0f6b7f4469f41a6fc6047b3dc9654c56ab2c"},{"image":"ghcr.io/github/gh-aw-firewall/squid:0.29.11","digest":"sha256:861739ecf924dd2db5e5fb652db2ad82aaafd1615623297ddabc8f41a36b2847","pinned_image":"ghcr.io/github/gh-aw-firewall/squid:0.29.11@sha256:861739ecf924dd2db5e5fb652db2ad82aaafd1615623297ddabc8f41a36b2847"},{"image":"ghcr.io/github/gh-aw-mcpg:v0.5.6","digest":"sha256:342cd624e1f179d91be2de7a146fc4f387092e62e6c8a47506d7932e113d2311","pinned_image":"ghcr.io/github/gh-aw-mcpg:v0.5.6@sha256:342cd624e1f179d91be2de7a146fc4f387092e62e6c8a47506d7932e113d2311"},{"image":"ghcr.io/github/gh-aw-node","digest":"sha256:8735428c2d4e602f90781ba0c571c400e8ff93c7ee1508a75d71f87e34e415cc","pinned_image":"ghcr.io/github/gh-aw-node@sha256:8735428c2d4e602f90781ba0c571c400e8ff93c7ee1508a75d71f87e34e415cc"},{"image":"ghcr.io/github/github-mcp-server:v2.1.0","digest":"sha256:f6056fc10bfffcc8c81a6417a2e9ca12808647e8dd6049642a4feaadee0e0f8a","pinned_image":"ghcr.io/github/github-mcp-server:v2.1.0@sha256:f6056fc10bfffcc8c81a6417a2e9ca12808647e8dd6049642a4feaadee0e0f8a"}],"mcp_servers":[{"name":"github","tools":["get_commit","get_discussion","get_discussion_comments","get_file_contents","get_latest_release","get_release_by_tag","get_tag","issue_read","list_branches","list_commits","list_discussion_categories","list_discussions","list_issue_types","list_issues","list_releases","list_starred_repositories","list_tags","search_code","search_issues","search_repositories"]},{"name":"safeoutputs","tools":["create_issue","noop","report_incomplete","report_missing_data","report_missing_tool"]}],"threat_detection":{"mode":"enabled"},"admission":false,"agent_metadata":{}}
+# gh-aw-metadata: {"schema_version":"v4","frontmatter_hash":"600a29f9960448451a38f7bacc344b62210e16b7c22fdcc2cb7646db483876b9","body_hash":"a30bb0b727338d62dd094c697f3bf212acdea54ec26f0b502cee7d36af634b74","compiler_version":"v1.2.2","strict":true,"agent_id":"claude","agent_model":"haiku","engine_versions":{"claude":"2.1.317"}}
+# gh-aw-manifest: {"version":1,"secrets":["ANTHROPIC_API_KEY","COPILOT_GITHUB_TOKEN","GH_AW_DEFAULT_OTLP_ENDPOINT","GH_AW_DEFAULT_OTLP_HEADERS","GH_AW_GITHUB_MCP_SERVER_TOKEN","GH_AW_GITHUB_TOKEN","GITHUB_TOKEN"],"actions":[{"repo":"actions/checkout","sha":"11d5960a326750d5838078e36cf38b85af677262","version":"11d5960a326750d5838078e36cf38b85af677262"},{"repo":"actions/checkout","sha":"3d3c42e5aac5ba805825da76410c181273ba90b1","version":"v7.0.1"},{"repo":"actions/download-artifact","sha":"9000827ccba6bdab643e8b6fd33ac0654aef8333","version":"v8.0.2"},{"repo":"actions/github-script","sha":"3a2844b7e9c422d3c10d287c895573f7108da1b3","version":"v9.0.0"},{"repo":"actions/setup-node","sha":"949feb2413d6458794dcd2491c4babbbce0c15c1","version":"v7.1.0"},{"repo":"actions/upload-artifact","sha":"cf430e030ddbb5b0abf93d22962f4752f3646cd9","version":"v7.0.2"},{"repo":"github/gh-aw-actions/setup","sha":"53d0749e19424a918acd82b4d140264ce48f2f14","version":"v1.2.2"}],"containers":[{"image":"ghcr.io/github/gh-aw-firewall/agent:0.29.11","digest":"sha256:8774a73c351395b41d2ad0af4ddb4689007c67de3cd08bd9f43bb8a0e300690e","pinned_image":"ghcr.io/github/gh-aw-firewall/agent:0.29.11@sha256:8774a73c351395b41d2ad0af4ddb4689007c67de3cd08bd9f43bb8a0e300690e"},{"image":"ghcr.io/github/gh-aw-firewall/api-proxy:0.29.11","digest":"sha256:88d2d0e315a504d93fd4fb8847fd0f6b7f4469f41a6fc6047b3dc9654c56ab2c","pinned_image":"ghcr.io/github/gh-aw-firewall/api-proxy:0.29.11@sha256:88d2d0e315a504d93fd4fb8847fd0f6b7f4469f41a6fc6047b3dc9654c56ab2c"},{"image":"ghcr.io/github/gh-aw-firewall/squid:0.29.11","digest":"sha256:861739ecf924dd2db5e5fb652db2ad82aaafd1615623297ddabc8f41a36b2847","pinned_image":"ghcr.io/github/gh-aw-firewall/squid:0.29.11@sha256:861739ecf924dd2db5e5fb652db2ad82aaafd1615623297ddabc8f41a36b2847"},{"image":"ghcr.io/github/gh-aw-mcpg:v0.5.6","digest":"sha256:342cd624e1f179d91be2de7a146fc4f387092e62e6c8a47506d7932e113d2311","pinned_image":"ghcr.io/github/gh-aw-mcpg:v0.5.6@sha256:342cd624e1f179d91be2de7a146fc4f387092e62e6c8a47506d7932e113d2311"},{"image":"ghcr.io/github/gh-aw-node","digest":"sha256:8735428c2d4e602f90781ba0c571c400e8ff93c7ee1508a75d71f87e34e415cc","pinned_image":"ghcr.io/github/gh-aw-node@sha256:8735428c2d4e602f90781ba0c571c400e8ff93c7ee1508a75d71f87e34e415cc"},{"image":"ghcr.io/github/github-mcp-server:v2.1.0","digest":"sha256:f6056fc10bfffcc8c81a6417a2e9ca12808647e8dd6049642a4feaadee0e0f8a","pinned_image":"ghcr.io/github/github-mcp-server:v2.1.0@sha256:f6056fc10bfffcc8c81a6417a2e9ca12808647e8dd6049642a4feaadee0e0f8a"}],"mcp_servers":[{"name":"github","tools":["get_commit","get_discussion","get_discussion_comments","get_file_contents","get_latest_release","get_release_by_tag","get_tag","issue_read","list_branches","list_commits","list_discussion_categories","list_discussions","list_issue_types","list_issues","list_releases","list_starred_repositories","list_tags","search_code","search_issues","search_repositories"]},{"name":"safeoutputs","tools":["create_issue","noop","report_incomplete","report_missing_data","report_missing_tool"]}],"threat_detection":{"mode":"enabled"},"admission":false,"agent_metadata":{}}
 # This file was automatically generated by gh-aw (v1.2.2). DO NOT EDIT. To debug this workflow, load the skill at https://github.com/github/gh-aw/blob/main/debug.md
 #
 #    ___                   _   _
@@ -34,6 +34,7 @@
 #   - GITHUB_TOKEN
 #
 # Custom actions used:
+#   - actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 #   - actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 #   - actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
 #   - actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -52,16 +53,29 @@
 name: "Seminar reading brief"
 on:
   # permissions: # Permissions applied to pre-activation job
+  # actions: read
   # contents: read
   # discussions: read
   # issues: read
   schedule:
     - cron: "13 0 * * 4"
   # steps: # Steps injected into pre-activation job
+  # - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+  # with:
+  # persist-credentials: false
+  # ref: curriculum-v1.2
+  # - env:
+  # GH_TOKEN: ${{ github.token }}
+  # HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+  # TEXTBOOK_AI_MODE: ${{ vars.TEXTBOOK_AI_MODE }}
+  # id: capacity
+  # name: Check review capacity
+  # run: python3 scripts/review_capacity.py seminar-brief
   # - env:
   # GH_TOKEN: ${{ github.token }}
   # HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
   # id: intake
+  # if: steps.capacity.outputs.ready == 'true'
   # name: Check for feedback and credentials
   # run: |
   # if [ "$HAS_KEY" != true ]; then
@@ -97,8 +111,8 @@ on:
 permissions: {}
 
 concurrency:
-  group: "gh-aw-${{ github.workflow }}-${{ github.event.issue.number || github.event.discussion.number || github.run_id }}"
-  queue: max
+  cancel-in-progress: false
+  group: seminar-brief
 
 run-name: "Seminar reading brief"
 
@@ -1476,7 +1490,7 @@ jobs:
       issues: write # Create or update issues and comments.
       pull-requests: read # Read pull requests and review comments for workflow context.
     concurrency:
-      group: "gh-aw-conclusion-seminar-brief"
+      group: "gh-aw-conclusion-seminar-brief-${{ github.run_id }}"
       cancel-in-progress: false
       queue: max
     env:
@@ -2164,6 +2178,7 @@ jobs:
     # Permissions for the pre_activation job (workflow permissions default to none).
     # Includes permissions declared in on.permissions.
     permissions:
+      actions: read # Read workflow runs and artifacts for workflow context.
       contents: read
       discussions: read # Read discussions and comments for workflow context.
       issues: read # Read issues and comments for workflow context.
@@ -2171,6 +2186,7 @@ jobs:
       GH_AW_RUNTIME_FEATURES: ${{ vars.GH_AW_RUNTIME_FEATURES }}
     outputs:
       activated: ${{ steps.check_membership.outputs.is_team_member == 'true' }}
+      capacity_result: ${{ steps.capacity.outcome }}
       intake_result: ${{ steps.intake.outcome }}
       matched_command: ''
       run_brief: "${{ steps.intake.outputs.run }}"
@@ -2205,8 +2221,20 @@ jobs:
             setupGlobals(core, github, context, exec, io, getOctokit);
             const { main } = require(path.join(actionsDir, 'check_membership.cjs'));
             await main();
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: curriculum-v1.2
+      - name: Check review capacity
+        id: capacity
+        run: python3 scripts/review_capacity.py seminar-brief
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          TEXTBOOK_AI_MODE: ${{ vars.TEXTBOOK_AI_MODE }}
       - name: Check for feedback and credentials
         id: intake
+        if: steps.capacity.outputs.ready == 'true'
         run: |
           if [ "$HAS_KEY" != true ]; then
             echo "Missing ANTHROPIC_API_KEY." >> "$GITHUB_STEP_SUMMARY"
